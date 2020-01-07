@@ -52,7 +52,7 @@ MODULE m_utils
 
 USE m_error
 USE m_string
-USE IFPORT
+!USE IFPORT
 
 IMPLICIT NONE
 
