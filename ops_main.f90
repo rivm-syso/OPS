@@ -65,6 +65,7 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 PROGRAM opsmode 
 
+USE m_ops_building
 USE m_aps
 USE m_depac318
 USE m_utils
@@ -95,7 +96,8 @@ INTEGER*4                                        :: bcatnr(LSBUF)
 INTEGER*4                                        :: blandnr(LSBUF)              
 INTEGER*4                                        :: bx(LSBUF)                   
 INTEGER*4                                        :: by(LSBUF)                   
-INTEGER*4                                        :: bnr(LSBUF)                  
+INTEGER*4                                        :: bnr(LSBUF)      
+type(TbuildingEffect)                            :: buildingEffect                       ! structure with building effect tables
 INTEGER*4                                        :: jb                          
 INTEGER*4                                        :: mb                          
 INTEGER*4                                        :: idb                         
@@ -146,7 +148,6 @@ REAL*4                                           :: yc
 REAL*4                                           :: rc                          
 REAL*4                                           :: ugmoldep                    
 REAL*4                                           :: gemre 
-REAL*4                                           :: gemtemp                     
 REAL*4                                           :: somcsec                     
 REAL*4                                           :: gemcpri
 REAL*4                                           :: gemcsec                    
@@ -172,8 +173,14 @@ REAL*4                                           :: bdiam(LSBUF)
 REAL*4                                           :: bsterkte(LSBUF)            
 REAL*4                                           :: bwarmte(LSBUF)             
 REAL*4                                           :: bhoogte(LSBUF)             
-REAL*4                                           :: bsigmaz(LSBUF)             
-REAL*4                                           :: emis(6,NLANDMAX)           
+REAL*4                                           :: bsigmaz(LSBUF)    
+REAL*4                                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
+REAL*4                                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
+REAL*4                                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+LOGICAL                                          :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
+type(Tbuilding)                                  :: bbuilding(LSBUF)          ! array with structures with building parameters
+LOGICAL                                          :: building_present1         ! at least one building is present in the source file   
+REAL*4                                           :: emis(6,NLANDMAX) 
 REAL*4                                           :: conc_cf
 REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
 REAL*4                                           :: ar                          
@@ -185,16 +192,15 @@ REAL*4                                           :: bqrv(LSBUF)
 REAL*4                                           :: bqtr(LSBUF)                 
 REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
 REAL*4                                           :: rainreg(NMETREG)            
-REAL*4                                           :: tempreg(NMETREG)            
 REAL*4                                           :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]           
 REAL*4                                           :: xreg(NMETREG)               
 REAL*4                                           :: yreg(NMETREG)               
 REAL*4                                           :: hourreg(NMETREG)            
-REAL*4                                           :: ecvl(NSTAB, NTRAJ,2*MAXDIST) 
-REAL*4                                           :: dverl(NHRBLOCKS,MAXDIST)   
-REAL*4                                           :: usdverl(NHRBLOCKS,MAXDIST) 
-REAL*4                                           :: pmd(NPARTCLASS,MAXDIST)    
-REAL*4                                           :: uspmd(NPARTCLASS,MAXDIST)  
+REAL*4                                           :: ecvl(NSTAB, NTRAJ,2*MAXDISTR) 
+REAL*4                                           :: dverl(NHRBLOCKS,MAXDISTR)   
+REAL*4                                           :: usdverl(NHRBLOCKS,MAXDISTR) 
+REAL*4                                           :: pmd(NPARTCLASS,MAXDISTR)    
+REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)  
 REAL*4                                           :: amol1                      
 REAL*4                                           :: emtrend                    
 REAL*4                                           :: grid                       
@@ -256,7 +262,7 @@ CHARACTER*80                                     :: dll_version
 CHARACTER*80                                     :: dll_date               
 
 LOGICAL*4                                        :: f_z0user                   
-LOGICAL                                          :: presentcode(MAXDIST,4)     
+LOGICAL                                          :: presentcode(MAXDISTR,4)     
 LOGICAL                                          :: verb                       
 LOGICAL                                          :: isec                       
 LOGICAL                                          :: igrens                     
@@ -335,8 +341,9 @@ DATA so2sek /0.77, 0.73, 0.88, 1.09, 1.30, 1.34, 1.28, 1.14, 0.97, 0.94, 0.90, 0
 DATA no2sek /0.81, 0.88, 1.08, 1.30, 1.33, 1.40, 1.25, 1.03, 0.83, 0.71, 0.70, 0.68/
 
 ! Initialise
+error%debug    = .FALSE.   ! if true -> debug parameters are written to screen; only useful for a limited number of receptors and sources
 verb           = .FALSE.
-error%haserror = .FALSE.                                                       ! no error detected yet
+error%haserror = .FALSE.   ! no error detected yet
 !
 ! Read program arguments and determine the name of the control file, which may be derived from the current working directory.
 ! As a first parameter the diag flag is returned.
@@ -367,9 +374,9 @@ ENDIF
 
 WRITE (6,*) 'Verbose is: ', verb
 !
-! Get the file names for process monitoring (log, error and progress files)
+! Make the file names for process monitoring (log, error and progress files)
 !
-CALL ops_monitor(logname, error)
+CALL MakeMonitorNames(error)
 IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 !
 ! Allocate memory for catsel and landsel
@@ -393,14 +400,21 @@ IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 !
 ! Read source file and copy selected sources to scratch
 !
-CALL ops_read_emis(icm, gasv, ncatsel, catsel, nlandsel, landsel, spgrid, grid, numbron, dverl, usdverl, pmd, uspmd, dv,       &
-                &  usdv, presentcode, error)
+CALL ops_read_emis(icm, gasv, ncatsel, catsel, nlandsel, landsel, numbron, dverl, usdverl, pmd, uspmd, dv,       &
+                &  usdv, presentcode, building_present1, error)
 IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
+
+! Set file names for building effect tables:
+if (building_present1) then
+   call ops_building_file_names(error)
+   IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
+endif
+
 !
 ! Read meteo statistics
 !
-CALL ops_read_meteo (intpol, jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, gemre, gemtemp, z0_metreg_user, cs, rainreg,   &
-                  &  tempreg, z0_metreg, xreg, yreg, hourreg, error)
+CALL ops_read_meteo (intpol, jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, gemre, z0_metreg_user, cs, rainreg,   &
+                  &  z0_metreg, xreg, yreg, hourreg, error)
 IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 !
 ! Read roughness length (z0) grids for NL and Europe and land use values.
@@ -461,10 +475,10 @@ IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling
 !
 ! Initialisation
 !
-CALL ops_init   (gasv, idep, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,           &
+CALL ops_init   (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,           &
               &  usdverl, dv, usdv, namco, amol1, dg, irev, vchemc, vchemv, emtrend, rc, coneh, amol21, depeh, namsec,         &
               &  namse3, ugmoldep, scavcoef, rcno, rhno2, rchno3, routsec, routpri, conc_cf, koh, croutpri, somcsec,           &
-              &  ar, rno2nox, ecvl, namseccor)
+              &  ar, rno2nox, ecvl, namseccor, buildingEffect, error)
 IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 
 ! Allocate miscellaneous arrays for receptor points
@@ -479,7 +493,8 @@ IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling
 ! Fill arrays with roughness length, landuse and rhno3_rcp for all receptor points
 !
 CALL ops_rcp_char_all(icm, isec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, so2bggrid, nh3bggrid, nrrcp, gxm, gym,    &
-                   &  lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, domlu)
+                   &  lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, domlu, error)
+
 !
 ! Allocate other arrays for receptor points;
 ! directly after deallocating memory for different grids, some other receptor-vectors are allocated (see below).
@@ -550,14 +565,14 @@ ELSE
   maxidx = NPARTCLASS
 ENDIF
 !
-! start loop over sources (until end-of-file of scratch file with sources)
+! start loop over source data blocks of length LSBUF (until end-of-file of scratch file with source data)
 !
 DO WHILE (.NOT. eof)
   !
-  ! read source characteristics from scratch file and fill into buffer (sources are read in
-  ! blocks of length LSBUF (LSBUF=40))
+  ! read source characteristics from scratch file and fill into buffer arrays (source data are read in
+  ! blocks of length LSBUF (LSBUF=4000))
   !
-  CALL ops_bron_rek (emtrend, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, btgedr,        &
+  CALL ops_bron_rek (emtrend, buildingEffect, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr,        &
                   &  bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
 
   IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
@@ -598,13 +613,15 @@ DO WHILE (.NOT. eof)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
       !
       ! compute concentrations and depositions
-      !
+     
       CALL ops_reken(idep, isec, icm, gasv, intpol, vchemc, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,     &
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rcno, rhno2, rchno3,                  &
                   &  nrrcp, ircp, gxm(ircp), gym(ircp), xm(ircp), ym(ircp), zm(ircp),                                           &
                   &  frac(ircp), nh3bg_rcp(ircp), rhno3_rcp(ircp),                                                              & 
                   &  bqrv(mmm), bqtr(mmm), bx(mmm), by(mmm), bdiam(mmm), bsterkte(mmm), bwarmte(mmm), bhoogte(mmm),             &
-                  &  bsigmaz(mmm), btgedr(mmm), bdegr(mmm), z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per,                  &
+                  &  bsigmaz(mmm), bD_stack(mmm), bV_stack(mmm), bTs_stack(mmm), bemis_horizontal(mmm), bbuilding(mmm),         &
+                  &  buildingEffect,btgedr(mmm), bdegr(mmm),                                                                    & 
+                  &  z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per,                                                         &
                   &  lu_rcp_per, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, maxidx, pmd, uspmd, spgrid, grid,                &
                   &  subbron, uurtot, routsec, rc, somvnsec_arr, telvnsec_arr, vvchem_arr, vtel_arr, somvnpri_arr,              &
                   &  telvnpri_arr, ddepri_d, sdrypri_arr, snatpri_arr, sdrysec_arr, snatsec_arr,                                & 
@@ -620,8 +637,7 @@ DO WHILE (.NOT. eof)
     CALL ops_write_progress(aind, '(F5.1)', 5, memdone)
 
   ENDDO  ! end loop over receptors
-
-ENDDO ! end loop over sources
+ENDDO ! end loop over source data blocks of length LSBUF (until end-of-file of scratch file with source data)
 CLOSE (fu_progress)
 !
 ! Deallocate memory not required anymore and close the progression file.
@@ -762,7 +778,7 @@ ENDDO ! End loop over classes for which to produce output fields
 ! Write additional data to print file
 !
 CALL ops_print_info (project, gasv, isec, intpol, spgrid, z0_rcp, namco, nbron, bnr, bx, by, bsterkte, bqrv, bqtr, bwarmte,     &
-    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &
+    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &  
     &  f_z0user, landmax, error)
 
 IF (error%haserror) GOTO 4000

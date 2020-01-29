@@ -40,7 +40,8 @@ SUBROUTINE ops_conc_rek(ueff, qbpri, isec, rcsec, routsec, ccc, amol1, amol2, si
                      &  rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder, regenk, virty, ri, vw10, hbron, pcoef,  &
                      &  rkc, disx, vnatpri, vchem, radius, xl, xloc, htot, twt, rb, ra50, xvghbr, xvglbr, grad, frac,           &
                      &  cdn, cq2, c, sdrypri, sdrysec, snatsec, somvnsec, telvnsec, vvchem, vtel, snatpri, somvnpri,            &
-                     &  telvnpri, ddepri, drydep, wetdep, dm, qsec, consec, pr, vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg)
+                     &  telvnpri, ddepri, drydep, wetdep, dm, qsec, consec, pr, vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg,&
+                     &  buildingFact)
 
 USE m_commonconst
 
@@ -99,6 +100,7 @@ REAL*4,    INTENT(IN)                            :: ra50tra                    !
 REAL*4,    INTENT(IN)                            :: rb_tra                     ! 
 REAL*4,    INTENT(IN)                            :: rclocal                    ! 
 REAL*4,    INTENT(IN)                            :: vgpart                     ! 
+REAL*4,    INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
 
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: cdn                        ! 
@@ -167,8 +169,8 @@ dnatsec = 0.
 !             meaning that the concentration is higher due to sedimentation 
 ! vv   = total source depletion factor for primary component
 !
-c_z = c*cdn*cch*(1. - cgt_z)*(1. - (1. - cq2)/(1. + grof))
-c   = c*cdn*cch*(1. - cgt)*(1. - (1. - cq2)/(1. + grof))
+c_z = c*cdn*cch*(1. - cgt_z)*(1. - (1. - cq2)/(1. + grof))*buildingFact
+c   = c*cdn*cch*(1. - cgt)*(1. - (1. - cq2)/(1. + grof))*buildingFact
 vv  = cdn*cq2*cch
 
 !
@@ -273,6 +275,7 @@ IF (isec) THEN
       CALL ops_seccmp(qbpri, ueff, rcsec, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10,  &
                    &  pcoef, virty, regenk, htot, onder, twt, ri, rb, ra50, cgt, xvghbr, xvglbr, vnatpri, vchem, ra4_rcp,      &
                    &  ra50_rcp, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, vgsec, qsec, consec, vg50trans, ra50tra, rb_tra, xg)
+      consec = consec*buildingFact
 !
 !     Compute for secondary component: 
 !     vg_sec_rcp: dry deposition velocity                       [m/s]

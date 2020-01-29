@@ -36,14 +36,14 @@
 ! CALLED FUNCTIONS      : ops_masknew, amcgeo
 ! UPDATE HISTORY        :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_init (gasv, idep, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,       &
+SUBROUTINE ops_init (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,       &
                   &  usdverl, dv, usdv, namco, amol1, dg, irev, vchemc, vchemv, emtrend, rc, coneh, amol21, depeh, namsec,     &
                   &  namse3, ugmoldep, scavcoef, rcno, rhno2, rchno3, routsec, routpri, conc_cf, koh, croutpri, somcsec,       &
-                  &  ar, rno2nox, ecvl, namseccor)
+                  &  ar, rno2nox, ecvl, namseccor, buildingEffect, error)
                   
 USE m_commonconst
-USE m_commonfile
 USE m_error
+USE m_ops_building
 
 IMPLICIT NONE
 
@@ -53,7 +53,8 @@ PARAMETER    (ROUTINENAAM = 'ops_init')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 LOGICAL,   INTENT(IN)                            :: gasv                        
-LOGICAL,   INTENT(IN)                            :: idep                        
+LOGICAL,   INTENT(IN)                            :: idep   
+LOGICAL,   INTENT(IN)                            :: building_present1           ! at least one building is present in the source file   
 INTEGER*4, INTENT(IN)                            :: kdeppar                     
 REAL*4,    INTENT(IN)                            :: ddeppar                     
 REAL*4,    INTENT(IN)                            :: wdeppar                     
@@ -63,8 +64,8 @@ LOGICAL,   INTENT(IN)                            :: isec
 INTEGER*4, INTENT(IN)                            :: iseiz                       
 INTEGER*4, INTENT(IN)                            :: mb                          
 REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
-REAL*4,    INTENT(IN)                            :: dverl(NHRBLOCKS,MAXDIST)    
-REAL*4,    INTENT(IN)                            :: usdverl(NHRBLOCKS,MAXDIST)  
+REAL*4,    INTENT(IN)                            :: dverl(NHRBLOCKS,MAXDISTR)    
+REAL*4,    INTENT(IN)                            :: usdverl(NHRBLOCKS,MAXDISTR)  
 INTEGER*4, INTENT(IN)                            :: dv                          
 INTEGER*4, INTENT(IN)                            :: usdv                        
 
@@ -102,16 +103,21 @@ REAL*4,    INTENT(OUT)                           :: somcsec
 REAL*4,    INTENT(OUT)                           :: ar                          
 REAL*4,    INTENT(OUT)                           :: rno2nox                     
 REAL*4,    INTENT(OUT)                           :: ecvl(NSTAB, NTRAJ, *)       
-CHARACTER*(*), INTENT(OUT)                       :: namseccor                   
+CHARACTER*(*), INTENT(OUT)                       :: namseccor 
+type(TbuildingEffect), INTENT(OUT)               :: buildingEffect             ! structure with building effect tables
+TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+                
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                           
+INTEGER*4                                        :: j                           
 INTEGER*4                                        :: ndv                         
 INTEGER*4                                        :: itraj                       
 INTEGER*4                                        :: istab                       
 INTEGER*4                                        :: iu                          
 REAL*4                                           :: vgmax                       
-REAL*4                                           :: som                         
+REAL*4                                           :: som   
+CHARACTER*512                                    :: line                      
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -274,6 +280,8 @@ IF (idep) THEN
   ELSE                        ! conversion ug/m2/h -> g/m2/j:
     ugmoldep = 8.76/1000.
   ENDIF
+ELSE
+   ugmoldep = 1.0
 ENDIF
 
 IF (icm .EQ. 2) THEN
@@ -374,5 +382,16 @@ DO itraj = 1, NTRAJ
    ENDDO
 ENDDO
 
+! Read building effect tables:   
+if (building_present1) then
+   call ops_building_read_tables(buildingEffect,error)
+   !write(*,*) 'ops_init/classdefinitionArray: ',buildingEffect%classdefinitionArray
+   !write(*,*) 'ops_init/buildingFactArray:',buildingEffect%buildingFactArray
+   if (error%haserror) goto 9999
+endif
+
 RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error) 
+
 END SUBROUTINE ops_init

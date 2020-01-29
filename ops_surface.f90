@@ -144,12 +144,14 @@ zwold = zw
    szs = SQRT(2.*kz*x/uh)
    
    ! Compute new values of zw and zu, depending on value of sigma_z
-   IF (last .NE. 1 .AND. iter .LE. 12 ) THEN
+   IF (last .NE. 1 .AND. iter .LE. 12 ) THEN  
+   ! IF (iter .LE. 12 ) THEN  
       last = 0
       iter = iter + 1
 
       ! s = effective plume width
-      s = szs*.69 ! OPS report s = 0.67*szs (see text below 3.18)
+      s = szs*.69 ! OPS report s = 0.67*szs (see text below 3.18)  
+      ! s = szs*.69 + h/3   
 
       !--------------------------------------------------------------------------------------------------
       ! 1. Plume well mixed (s > zi/2)
@@ -165,6 +167,10 @@ zwold = zw
             zw = zu
          ENDIF
          last = 1
+         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A1,', &
+         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !      -999,-999,iter,zw,zu,uh,szs,s
+
          GOTO 50
 
       !--------------------------------------------------------------------------------------------------
@@ -173,17 +179,21 @@ zwold = zw
       ELSE IF (h .GE. (s - EPS_DELTA)) THEN
         
          ! zw = h - sigma_z
-         zw = h - szs
+         zw = h - szs    
+         ! zw = h - 0.1*s  
          
          ! zw < h/2  -> zw = h/2, zu = stack_height; iteration finished
-         IF (zw .LT. (h/2. - EPS_DELTA)) THEN
-            zw = h/2.
+         IF (zw .LT. (h/2. - EPS_DELTA)) THEN  
+            zw = h/2.                          
+         !IF (zw .LT. (h - EPS_DELTA)) THEN      
+         !   zw = h                              
             zu = h
             last = 1
 
          ! zw > h/2 AND relative difference between zw and zwold > 10% ->
          ! -> subtract 0.6*(difference between iterands) to get new zw value (0.6 is relaxation factor); set zu = stack_height
-         ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.1 + EPS_DELTA)) THEN
+         ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.1 + EPS_DELTA)) THEN 
+         !ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.01 + EPS_DELTA)) THEN 
             zw = zw - (zw - zwold)*0.6                                            ! 960202
             zu = h
             zwold = zw
@@ -199,6 +209,10 @@ zwold = zw
             last = 1
             zu   = h
          ENDIF
+         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A2,', &
+         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !      -999,-999,iter,zw,zu,uh,szs,s
+
          GOTO 50
 
       !--------------------------------------------------------------------------------------------------
@@ -224,6 +238,9 @@ zwold = zw
          ELSE
             zw = zu
          ENDIF
+         !write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A3,', &
+         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !      -999,-999,iter,zw,zu,uh,szs,s
          GOTO 50
       ELSE
          ! relative difference between zu and s <= 10% -> finish iteration

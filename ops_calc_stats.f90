@@ -137,8 +137,16 @@ totddep  = somddep*cf
 gemddep  = somddep/somfrac
 gemddpri = sdrypri/somfrac*ugmoldep*amol21
 gemddsec = sdrysec/somfrac*ugmoldep
-ddrpri   = sdrypri/somcpri/36  ! factor 36 from conversion of [ug/m2/h]/[ug/m3] to [cm/s]
-ddrsec   = sdrysec/somcsec/36
+if (somcpri .gt. 0.0) then
+   ddrpri = sdrypri/somcpri/36  ! factor 36 from conversion of [ug/m2/h]/[ug/m3] to [cm/s]
+else
+   ddrpri = -999.0
+endif
+if (somcsec .gt. 0.0) then
+   ddrsec = sdrysec/somcsec/36
+else
+   ddrsec = -999.0
+endif
 
 ! (3) wet deposition
 IF (ABS(somvnpri) .LE. DPEPS_DELTA) THEN

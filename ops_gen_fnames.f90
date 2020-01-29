@@ -72,6 +72,7 @@ sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Standard file for diurnal variations of emissions
 CALL MakeCommonPath(DVFILE, dvnam, error)
+
 ! Standard file for particle size distributions 
 IF (.NOT.gasv) THEN
   CALL MakeCommonPath(PSDFILE, psdnam, error)

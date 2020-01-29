@@ -35,9 +35,10 @@
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_conc_ini(gasv, vw10, htt, pcoef, disx, kdeel, qbpri, z0_src, szopp, rond, uster_src, ol_src, istab, iwd, qww,    &
-                     &  hbron,dispg, radius, xl, onder, htot, grof, c, sigz, ueff, virty, ccc)
+                     &  hbron,dispg, radius, xl, onder, htot, grof, c, sigz, ueff, virty, ccc, error)
 
 USE m_commonconst
+USE m_error
 
 IMPLICIT NONE
 
@@ -68,6 +69,8 @@ REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
 REAL*4,    INTENT(INOUT)                         :: radius                     ! 
 REAL*4,    INTENT(INOUT)                         :: xl                         ! 
 REAL*4,    INTENT(INOUT)                         :: onder                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
+
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: htot                       ! plume height, including plume descent due to heavy particles [m]
@@ -173,7 +176,7 @@ ENDIF
 ! Compute concentration for this distance and meteo class
 !
 CALL ops_conltexp(rond, ol_src, qbpri, szopp, uster_src, z0_src, htt, onder, vw10, pcoef, istab, disx, grof, iwd, qww, hbron,   &
-               &  dispg, radius, htot, ccc, sigz, ueff, xl, virty)
+               &  dispg, radius, htot, ccc, sigz, ueff, xl, virty, error)
 !
 ! Correct for plume below or above the mixing layer; mass above the mixing layer does not contribute to 
 ! concentration at surface. 

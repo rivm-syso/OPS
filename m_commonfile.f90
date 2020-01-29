@@ -45,6 +45,9 @@ CHARACTER*12, PARAMETER                          :: BASEMASK     = 'basemask.ops
 CHARACTER*12, PARAMETER                          :: Z0EURFILE    = 'z0eur.ops'    ! standard file for z0 in Europe
 CHARACTER*12, PARAMETER                          :: DVFILE       = 'dvepre.ops'   ! standard file for diurnal variations 
 CHARACTER*12, PARAMETER                          :: PSDFILE      = 'pmdpre.ops'   ! standard file for particle size distributions
+CHARACTER*24, PARAMETER                          :: BUILDINGCLASSFILE  = 'buildingClassesTable.dat'  ! name of file with definition of parameter classes for building effect
+! CHARACTER*24, PARAMETER                          :: BUILDINGFACTFILE   = 'buildingFactorsTable.dat'  ! name of file with building effect factors as function of different classes
+CHARACTER*24, PARAMETER                          :: BUILDINGFACTFILE   = 'buildingFactorsTable.unf'  ! name of unformatted file with building effect factors as function of different classes
 !
 ! CONSTANTS - Standard fileunits
 !
@@ -63,6 +66,7 @@ INTEGER*4, PARAMETER                             :: fu_progress  = 350         !
 INTEGER*4, PARAMETER                             :: fu_scratch   = 400         ! unit number scratch file
 INTEGER*4, PARAMETER                             :: fu_bron      = 500         ! unit number sources file
 INTEGER*4, PARAMETER                             :: fu_dist      = 550         ! unit number distributions file (e.g. diurnal variations, particle size distributions)
+INTEGER*4, PARAMETER                             :: fu_tmp       = 560         ! unit number temporary file
 INTEGER*4, PARAMETER                             :: fu_recep     = 600         ! unit number receptor file
 INTEGER*4, PARAMETER                             :: fu_mask      = 600         ! unit number mask file
 INTEGER*4, PARAMETER                             :: fu_klim      = 700         ! unit number meteo statistics file
@@ -80,7 +84,7 @@ CHARACTER*512                                    :: datadir                    !
 CHARACTER*512                                    :: ctrnam                     ! name of control file
 CHARACTER*512                                    :: indnam                     ! name of file with progress indicator
 CHARACTER*512                                    :: errnam                     ! name of file with error information
-CHARACTER*512                                    :: logname                    ! name of log file
+CHARACTER*512                                    :: lognam                     ! name of log file
 
 CHARACTER*512                                    :: brnam                      ! name of file with emission sources
 CHARACTER*512                                    :: namrecept                  ! name of file with receptor coordinates
@@ -90,6 +94,8 @@ CHARACTER*512                                    :: prnnam                     !
 CHARACTER*512                                    :: pltnam                     ! name of plot output file
 
 CHARACTER*512                                    :: dvnam                      ! name of file with pre-defined diurnal variations
+CHARACTER*512                                    :: buildingClassFilename      ! name of file with definition of parameter classes for building effect
+CHARACTER*512                                    :: buildingFactFilename       ! name of file with building effect factors as function of different classes
 CHARACTER*512                                    :: psdnam                     ! name of file with pre-defined particle size distributions
 CHARACTER*512                                    :: usdvnam                    ! name of file with user-defined diurnal variations
 CHARACTER*512                                    :: uspsdnam                   ! name of file with user-defined particle size distributions
@@ -185,5 +191,59 @@ RETURN
 9999 CALL ErrorCall(ROUTINENAAM, error)
 RETURN
 END SUBROUTINE MakeCommonPath
+
+!----------------------------------------------------------------------------------------------------------
+SUBROUTINE MakeMonitorNames(error)
+
+! Make file names of monitor files; log file "base".log, error file "base".err, process indicator file "base".ind.
+! "base" is the name of the input (control) file, without the extension.
+
+USE m_error
+USE m_string
+
+IMPLICIT NONE
+!
+! USED VARIABLES
+! ctrnam: name of control (input) file
+! lognam: name of log file
+! indnam: name of progress indicator file
+! errnam: name of error file
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+
+! LOCAL VARIABLES
+INTEGER*4                                        :: extpos                     ! position in control file name where extension starts.
+CHARACTER*512                                    :: base                       ! base name of monitor files (i.e. control file name without extension)
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER     (ROUTINENAAM = 'MakeMonitorNames')
+
+!-------------------------------------------------------------------------------------------------------------------------------
+
+! Get the base of the control (input) file name (so skip the extension):
+extpos = INDEX(ctrnam, '.',.TRUE.) - 1
+CALL CopyStrPart(ctrnam, 1, extpos, base, error)
+IF (error%haserror) GOTO 9999
+
+! Progress indicator file = base'.ind':
+CALL StringMerge(base,'.ind', indnam, error)
+IF (error%haserror) GOTO 9999
+
+! Log file = base'.log':
+CALL StringMerge(base,'.log', lognam, error)
+IF (error%haserror) GOTO 9999
+
+! Error file = base'.err':
+CALL StringMerge(base,'.err', errnam, error)
+IF (error%haserror) GOTO 9999
+
+RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+RETURN
+
+END SUBROUTINE MakeMonitorNames
 
 END MODULE m_commonfile

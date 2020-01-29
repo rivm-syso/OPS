@@ -38,7 +38,7 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Function     ops_openlog
 ! Purpose      Opens log file if not done before.
-! Uses         logname in COMMONLOG, which is the name of the log file.
+! Uses         lognam in m_commonfile, which is the name of the log file.
 !-------------------------------------------------------------------------------------------------------------------------------
 FUNCTION ops_openlog(error)
 
@@ -71,7 +71,7 @@ ops_openlog =.TRUE.
 INQUIRE(UNIT = fu_log, OPENED = isopen)
 
 IF (.NOT. isopen) THEN
- IF (.NOT.sysopen(fu_log, logname, 'w', 'log file', error)) THEN
+ IF (.NOT.sysopen(fu_log, lognam, 'w', 'log file', error)) THEN
     CALL ErrorCall(ROUTINENAAM, error)
     ops_openlog =.FALSE.
   ENDIF
@@ -83,7 +83,7 @@ END FUNCTION ops_openlog
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   ops_closelog
 ! Purpose      Closes the log file if it is open.
-! Uses         logname in COMMONLOG, which is the name of the log file.
+! Uses         lognam in m_commonfile, which is the name of the log file.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_closelog(error)
 
@@ -113,7 +113,7 @@ haderror = error%haserror
 !
 INQUIRE(UNIT = fu_log, OPENED = isopen)
 IF (isopen) THEN
-  CALL sysclose(fu_log, logname, error)
+  CALL sysclose(fu_log, lognam, error)
   IF (.NOT.haderror .AND. error%haserror) THEN
     CALL ErrorCall(ROUTINENAAM, error)
   ENDIF

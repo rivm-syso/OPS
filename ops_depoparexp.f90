@@ -257,7 +257,7 @@ IF (.NOT.gasv) THEN
    routpri  = RORATIO(kdeel)
 ENDIF
 !
-! Coarse particles;
+! Gas or fine particles (grof .ne. 1);
 ! compute deposition velocity vg = 1/(Ra + Rb + Rc) at different locations/heights and
 ! grad = depositon velocity gradient over height = vg(50)/vg(4)
 !
@@ -269,12 +269,12 @@ IF (ABS(grof - 1.) .GT. EPS_DELTA) THEN
    grad      = (ra4_rcp + rb_rcp + rc_rcp)/ (ra50_rcp + rb_rcp + rc_rcp)
    grad_z    = (raz_rcp + rb_rcp + rc_rcp)/ (ra50_rcp + rb_rcp + rc_rcp)
 !
-! Fine particles;
+! Coarse particles (grof = 1);
 ! get deposition velocity vg = 1/(Ra + Rb + Rc) at different locations/heights and
 ! set grad = depositon velocity gradient over height = 1
 !
 ELSE
-   vg50_rcp = VGDEEL(kdeel)
+   vg50_rcp  = VGDEEL(kdeel)
    vgpart    = VGDEEL(kdeel)
    vg50tra   = vg50_rcp
    vg0tra    = vg50_rcp
@@ -322,7 +322,7 @@ CALL par_nat(regenk, rint, buil, zf, isek, iseiz, mb, disx, radius, diameter, ue
 ! F(50) = F(4) <=> -vd(50)*c(50) = -vd(4)*c(4) <=> ------ = ------ <=> c(4) = grad*c(50) 
 !                                                   vd(4)    c(50)
 !                                vg(z2)
-! Note: cgt = (1 - grad) = (1 - -------) is ued as input for ops_brondepl (see there).
+! Note: cgt = (1 - grad) = (1 - -------) is used as input for ops_brondepl (see there).
 !                                vg(z1)
 !
 cgt   = 1. - grad
@@ -520,7 +520,7 @@ ELSE
 
    CALL ops_brondepl(disx, xg, c, ux0, ueff, sigz, vg50trans, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm,           &
                   &  ra4_rcp, raz_rcp, rc_rcp, rb_rcp, z0_src, ol_src, uster_src, htot, ra4src, rb_src, rcsrc, qbstf, vg0tra,   &
-                  &  onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, sigzr, dxeff)
+                  &  onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, sigzr, dxeff, error)
 !
 !  In order to compute utr = average wind speed over the trajectory, the plume is split into three parts
 !  (x: source receptor distance, R: radius area source, u: wind speed):

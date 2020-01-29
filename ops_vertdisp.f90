@@ -35,9 +35,10 @@
 ! CALLED FUNCTIONS   :
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_vertdisp(z0, zi, ol, uster, hh, x, uh, zu, sz)
+SUBROUTINE ops_vertdisp(z0, zi, ol, uster, hh, x, uh, zu, sz, error)
 
 USE m_commonconst                                                              ! EPS_DELTA only
+USE m_error
 
 IMPLICIT NONE
 
@@ -58,6 +59,9 @@ REAL*4,    INTENT(OUT)                           :: uh                         !
 REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
                                                                                ! at the top of the mixing layer and at the ground surface
 REAL*4,    INTENT(OUT)                           :: sz                         ! vertical dispersion coefficient (m)
+
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
 
 ! LOCAL VARIABLES
 REAL*4                                           :: h                          ! bronhoogte (m)
@@ -135,6 +139,9 @@ ELSE
   CALL ops_surface(z0,zi,ol,uster,h,x, uh, zu, szs)
   sz = szs
 ENDIF
+if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
+   ' ircp,istab,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn:', &
+     -999,-999,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn
 
 RETURN
 END SUBROUTINE ops_vertdisp

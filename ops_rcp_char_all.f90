@@ -37,11 +37,12 @@
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
 subroutine ops_rcp_char_all(icm, isec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, so2bggrid, nh3bggrid,  &
-                          & nrrcp, gxm, gym, lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, domlu)
+                          & nrrcp, gxm, gym, lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, domlu, error)
 
 USE m_aps
 USE m_geoutils
 USE m_commonconst
+USE m_error
 
 IMPLICIT NONE
 
@@ -70,13 +71,14 @@ REAL*4,    INTENT(OUT)                           :: gym(nrrcp)
 REAL*4,    INTENT(OUT)                           :: rhno3_rcp(nrrcp)           
 REAL*4,    INTENT(OUT)                           :: nh3bg_rcp(nrrcp)
 
-! SUBROUTINE ARGUMENTS - OUTPUT
+! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
 INTEGER*4                                        :: landuse(NLU+1)             ! land-use value at receptor
                                                                                ! landuse(1)    = index of dominant landuse
                                                                                ! landuse(lu+1) = percentage of grid cell with landuse class lu, lu = 1,NLU
                                                                                ! For locations outside lugrid, a default land use class = 1 (grass) is taken.
 INTEGER*4, INTENT(INOUT)                         :: lu_rcp_dom_all(nrrcp)      ! index of dominant land use for all receptor points             
 REAL*4,    INTENT(INOUT)                         :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: ircp                       ! index of receptor
@@ -153,7 +155,9 @@ DO ircp = 1, nrrcp
     nh3bg_rcp(ircp)=nh3bgconc*17/24
   
   ENDIF
-
+  
+  if (error%debug) write(*,'(3a,1x,i6,99(1x,e12.5))') trim(ROUTINENAAM),',A,',' ircp,z0_rcp_all(ircp),lu_rcp_dom_all(ircp),nh3bg_rcp(ircp): ', &
+                                                                                ircp,z0_rcp_all(ircp),lu_rcp_dom_all(ircp),nh3bg_rcp(ircp)
 ENDDO
 
 RETURN

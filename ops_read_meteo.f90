@@ -36,8 +36,8 @@
 ! CALLED FUNCTIONS   : ops_statfil, ops_readstexp, wr_error
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_read_meteo(intpol, jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, gemre, gemtemp, z0_metreg_user, cs,       &
-                       &  rainreg, tempreg, z0_metreg, xreg, yreg, hourreg, error )
+SUBROUTINE ops_read_meteo(intpol, jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, gemre, z0_metreg_user, cs,       &
+                       &  rainreg, z0_metreg, xreg, yreg, hourreg, error )
 
 USE m_error
 USE m_commonconst
@@ -67,11 +67,9 @@ REAL*4,    INTENT(OUT)                           :: zf
 REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
 REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)               
 REAL*4,    INTENT(OUT)                           :: gemre                       
-REAL*4,    INTENT(OUT)                           :: gemtemp                     
 REAL*4,    INTENT(OUT)                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]
 REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
 REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)            
-REAL*4,    INTENT(OUT)                           :: tempreg(NMETREG)            
 REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]     
 REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)               
 REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)               
@@ -97,14 +95,14 @@ sccsida = '%W%:%E%'//char(0)
 !
 IF (intpol.EQ.0) THEN 
    ! Fill meteo parameters for every region (calls ops_readstexp NMETREG+1 times)
-   CALL ops_statfil(jb, mb, idb,jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, tempreg, z0_metreg, xreg, yreg,        &
+   CALL ops_statfil(jb, mb, idb,jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, z0_metreg, xreg, yreg,        &
                  &  hourreg, error)
 
    ! average precipitation amount [mm/h]:
    gemre = SUM(rainreg(:NMETREG))/NMETREG
 ELSE
    ! Read meteo parameters for one region or from user specified file
-   CALL ops_readstexp(kname, jb, mb, idb, gemre, gemtemp, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,     &
+   CALL ops_readstexp(kname, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,     &
                    &  iseiz, zf, astat, trafst, error)
    z0_metreg_user = z0_metreg1
 ENDIF
@@ -120,7 +118,7 @@ END SUBROUTINE ops_read_meteo
 ! SUBROUTINE         : ops_statfil
 ! DESCRIPTION        : Read meteo parameters for all meteo regions.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_statfil(jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, tempreg, z0_metreg, xreg, yreg,    &
+SUBROUTINE ops_statfil(jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, z0_metreg, xreg, yreg,    &
                     &  hourreg, error)
 
 USE m_commonconst
@@ -152,7 +150,6 @@ REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, N
 REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)               
 REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) 
 REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)            
-REAL*4,    INTENT(OUT)                           :: tempreg(NMETREG)            
 REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]     
 REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)               
 REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)               
@@ -166,7 +163,6 @@ INTEGER*4                                        :: imon                       !
 INTEGER*4                                        :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER                                          :: idx                        ! index of '.' in name of meteo statistics file
 REAL*4                                           :: gemre                      ! average amount of precipitation (mm/h)
-REAL*4                                           :: gemtemp                    
 REAL*4                                           :: xpos                       
 REAL*4                                           :: ypos                       
 REAL*4                                           :: z0_metreg1                 ! roughness length of 1 meteo region [m]                      
@@ -193,7 +189,7 @@ DO ireg = 1, NMETREG
    WRITE (nfile,'(A,I3.3)') kname(1:idx), ireg
 
    ! Read meteo parameters for this meteo region
-   CALL ops_readstexp(nfile, jb, mb, idb, gemre, gemtemp, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,     &
+   CALL ops_readstexp(nfile, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,     &
                    &  iseiz, zf, astat, trafst, error)
 
    IF (error%haserror) THEN
@@ -212,7 +208,6 @@ DO ireg = 1, NMETREG
    ! Fill cs and other meteo arrays for this region
    cs(:, :, :, :, ireg) = astat(:NTRAJ, :NCOMP, :NSTAB, :NSEK)
    rainreg(ireg)        = gemre
-   tempreg(ireg)        = gemtemp
    z0_metreg(ireg)      = z0_metreg1
    xreg(ireg)           = xpos
    yreg(ireg)           = ypos
@@ -223,7 +218,7 @@ ENDDO
 ! these data are used in ops_init for the evlauation of diurnal emission variation
 !
 nfile( idx+3:idx+3 ) = '5'
-CALL ops_readstexp(nfile, jb, mb, idb, gemre, gemtemp, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,        &
+CALL ops_readstexp(nfile, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt, uurtot,        &
                 &  iseiz, zf, astat, trafst, error)
 RETURN
 
@@ -236,7 +231,7 @@ END SUBROUTINE ops_statfil
 ! DESCRIPTION        : This routine reads the climatology (meteo statistics) file and fills the meteodata array. 
 !                      Depending on the value of intpol, this routine is called only once, or for each region.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_readstexp(nfile, jb, mb, idb, gemre, gemtemp, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt,          &
+SUBROUTINE ops_readstexp(nfile, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt,          &
                       &  uurtot, iseiz, zf, astat, trafst, error)
 
 USE m_commonconst
@@ -262,7 +257,6 @@ INTEGER*4, INTENT(OUT)                           :: jb                         !
 INTEGER*4, INTENT(OUT)                           :: mb                         ! start month (meteo statistics period) ("b" << begin = start)
 INTEGER*4, INTENT(OUT)                           :: idb                        ! start day (meteo statistics period) ("b" << begin = start)
 REAL*4,    INTENT(OUT)                           :: gemre                      ! average precipitation amount [mm/h]
-REAL*4,    INTENT(OUT)                           :: gemtemp                    
 INTEGER*4, INTENT(OUT)                           :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: iday                       ! day of time stamp of meteo file; currently not used
@@ -356,9 +350,8 @@ DO icomp = 1, NCOMP
   astat(:, icomp, :, :) = astat(:, icomp, :, :)/ISCALE(icomp)
 ENDDO
 !
-! Compute average domestic heating coefficient (degree day) [degree C] and precipitation amount [mm/h] 
+! Compute average precipitation amount [mm/h] 
 !
-gemtemp = SUM( astat(1, 1, :NSTAB, :NSEK) * astat(1, 10, :, :)) / uurtot
 gemre   = SUM( astat(1, 1, :NSTAB, :NSEK) * astat(1, 11, :, :) * astat(1, 13, :, :)) / uurtot
 !
 ! Convert two digit year (from meteostatistics file) to four digits

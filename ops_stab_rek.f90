@@ -37,14 +37,17 @@
 ! CALLED FUNCTIONS   :
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_stab_rek(icm, rb, tem, h0, z0_metreg_rcp, disx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, temp, ibtg,              &
-                     &  uster_metreg_rcp, hbron, qww, istab, itra, qob, xloc, regenk, ra4, z0_tra, z0_src, ol_metreg_rcp,error, &
-                     &  uster_rcp, ol_rcp, uster_src, ol_src, uster_tra, ol_tra, htot, htt, onder, uh, zu, qruim, qbron,        &
+SUBROUTINE ops_stab_rek(icm, rb, temp_C, h0, z0_metreg_rcp, disx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, coef_space_heating, ibtg,                         &
+                     &  uster_metreg_rcp, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, istab, itra, qob, xloc, regenk, ra4, z0_tra, z0_src, ol_metreg_rcp,error, &
+                     &  uster_rcp, ol_rcp, uster_src, ol_src, uster_tra, ol_tra, htot, htt, onder, uh, zu, qruim, qbron,                                    &
                      &  dispg)
 
 USE m_commonconst
 USE m_commonfile
 USE m_error
+! USE m_ops_plumerise, only ops_plumerise
+USE m_ops_plumerise
+use m_ops_utils, only: is_missing
 
 IMPLICIT NONE
 
@@ -55,7 +58,7 @@ PARAMETER      (ROUTINENAAM = 'ops_stab_rek')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! componentnummer
 REAL*4,    INTENT(IN)                            :: rb                         ! 
-REAL*4,    INTENT(IN)                            :: tem                        ! 
+REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C] 
 REAL*4,    INTENT(IN)                            :: h0                         ! 
 REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
 REAL*4,    INTENT(IN)                            :: disx                       ! 
@@ -66,11 +69,15 @@ REAL*4,    INTENT(IN)                            :: qtr                        !
 REAL*4,    INTENT(IN)                            :: qrv                        ! 
 INTEGER*4, INTENT(IN)                            :: dv                         ! 
 REAL*4,    INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! 
-REAL*4,    INTENT(IN)                            :: temp                       ! 
+REAL*4,    INTENT(IN)                            :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
 INTEGER*4, INTENT(IN)                            :: ibtg                       ! 
-REAL*4,    INTENT(IN)                            :: uster_metreg_rcp                      ! 
+REAL*4,    INTENT(IN)                            :: uster_metreg_rcp           ! 
 REAL*4,    INTENT(IN)                            :: hbron                      ! 
 REAL*4,    INTENT(IN)                            :: qww                        ! 
+REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
+LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
 REAL*4,    INTENT(IN)                            :: qob                        ! 
@@ -116,6 +123,7 @@ REAL*4                                           :: tcor                       !
 REAL*4                                           :: rcor                       ! 
 REAL*4                                           :: dncor                      ! 
 REAL*4                                           :: emf                        ! 
+logical                                          :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file
 
 ! SUBROUTINE AND FUNCTION CALLS
 EXTERNAL ops_z0corr
@@ -157,12 +165,12 @@ uster_metreg_from_rb_rcp = AMAX1(7.22/(rb + 1),0.06)
 !  cp    : specific heat capacity = 1003.5 J/(kg K), sea level, dry, T=0 C; 1012 J/(kg/K), typical room conditions (T = 23 C)
 !  kappa : von Karman constant = 0.4 [-]
 !  g     : accelaration of gravity = 9.81 m/s2 
-!  T     : absolute temperature = (273 + tem) K
+!  T     : absolute temperature [K]
 !  H0    : surface heat flux [W/m2]
 !
 ! actual values in code: rho= 1.29 kg/m3, cp = 1005 J/(kg K), kappa=0.4, g=9.8 m/s2.
 ! 
-ol_metreg_from_rb_rcp = -uster_metreg_from_rb_rcp**3*1.29*1005*(273 + tem)/(0.4*9.8*h0)
+ol_metreg_from_rb_rcp = -uster_metreg_from_rb_rcp**3*1.29*1005*(273 + temp_C)/(0.4*9.8*h0)
 IF (ol_metreg_rcp .GT. (0. + EPS_DELTA)) THEN
    IF (ol_metreg_rcp .LE. 5.) THEN                                                        ! MdH: EPS_DELTA overbodig, want deze is continue
       ol_metreg_rcp = 10.
@@ -203,8 +211,12 @@ CALL ops_z0corr(z0_metreg_rcp, uster_metreg_rcp, ol_metreg_rcp, z0_tra, uster_tr
 !--------------------------------------------------------------------------
 ! Compute plume rise and inverse penetration according to Briggs (1971)
 !--------------------------------------------------------------------------
-CALL ops_plrise71(z0_src, xl, ol_src, uster_src, hbron, qww, xloc, htt, onder)
+!CALL ops_plrise71(z0_src, xl, ol_src, uster_src, hbron, qww, xloc, htt, onder)
+VsDs_opt = .not. is_missing(V_stack)
+call ops_plumerise(z0_src, hbron, uster_src, ol_src, qww, VsDs_opt, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, xl, xloc, htt, onder, error)
+! write(*,'(a,4(1x,e12.5))') 'after call ops_plumerise: ',hbron,htt,htt-hbron,onder
 htot = htt
+if (error%haserror) goto 9999
 
 !------------------------------------------------
 ! Compute vertical dispersion coefficient sigma_z 
@@ -214,14 +226,19 @@ htot = htt
 ! in other cases (area source, point source and receptor further away) compute vertical dispersion.
 dsx = AMAX1(disx, radius)
 IF (dsx .GT. (1. + EPS_DELTA)) THEN
-!
-!  Compute vertical dispersion coefficient at source site
-!
-   CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc)
-!
-!  Compute vertical dispersion coefficient at receptor
-!
-   CALL ops_vertdisp(z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp)
+
+   ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of source site
+   CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc, error)
+   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
+      ' ircp,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc:', &
+        -999,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc
+
+   ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of receptor site
+   CALL ops_vertdisp(z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp, error)
+   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',B,', &
+      ' ircp,istab,z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp:', &
+        -999,istab,z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp
+
 !
 !  Limit sigma_z at source, such that sigma_z(source) < sigma_z(receptor)
 !
@@ -233,10 +250,9 @@ IF (dsx .GT. (1. + EPS_DELTA)) THEN
 !  sigma_z = dispg*disx**disph <=> dispg = sigma_z/(disx**disph),  3.16 new! OPS report
 !  Since in the rest of the code the old formula sigma_z = dispg*disx**disph is still used,
 !  we need dispg and disph and we do not use szsrc and sz_rcp hereafter. 
-
-!
    dispg(istab) = (szsrc + sz_rcp)*0.5/(dsx**DISPH(istab))
-
+   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C,', ' ircp,istab,dispg(istab):', -999,istab,dispg(istab)
+        
    ! Check limits 0 <= dispg <= 50; if outside limits, generate warning:
    IF ((dispg(istab) .LT. (0. - EPS_DELTA)) .OR. (dispg(istab) .GT. (50. + EPS_DELTA))) THEN
       IF (.NOT. ops_openlog(error)) GOTO 9999
@@ -254,9 +270,9 @@ ENDIF
 ! Compute space ("ruimte" = space) heating emission as function of the temperature.
 ! space_heating_coefficent = (19 - T24)*sqrt(u10/3.2), for T24 < 12 C;  5.1 OPS report
 ! T24 = daily average outdoor temperature (C).
-! u10 = wind speeed at 10 m (m/s)
+! u10 = wind speed at 10 m (m/s)
 ! 0.1042 = 1/mean(space_heating_coefficient), longterm average, is used to normalise the space_heating_coefficent.
-qruim = .1042*temp*qrv 
+qruim = .1042*coef_space_heating*qrv 
 !
 ! Choose type of diurnal variation of emission, depending on ibtg 
 ! and current {stability,distance} class and adjust source strengths.
@@ -294,7 +310,7 @@ IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
     ! Temperature correction tcor = 1 + (T - Tavg)/f = 1 + T/f - 10/f = (1-10/f) + T/f = (f-10)/f + T/f = (T + f-10)/f; 
     ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report).
     !
-    tcor=amax1((tem+24)/34, 0.2)
+    tcor=amax1((temp_C+24)/34, 0.2)
                                                    
 !   Influence of day/night rithm of animals on emissions; half the industrial emission variation
 
@@ -310,7 +326,7 @@ IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
     rcor=amax1(rcor,0.5)
     rcor=amin1(rcor,1.5)
     
-    emf=0.0000155*((100./(ra4+rb))**0.8*(tem+23)**2.3)**1.25                  ! 981209 
+    emf=0.0000155*((100./(ra4+rb))**0.8*(temp_C+23)**2.3)**1.25               ! 981209 
      
     qobb=qob*rcor*emf                                                         ! 980922; corr 990227
   ELSE

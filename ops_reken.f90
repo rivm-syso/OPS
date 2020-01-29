@@ -40,7 +40,9 @@ SUBROUTINE ops_reken(idep, isec, icm, gasv, intpol, vchemc, vchemv, dv, amol1, a
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rcno, rhno2, rchno3,                 &
                   &  nrrcp, ircp, gxm, gym, xm, ym, zm, frac, nh3bg_rcp, rhno3_rcp,                                            & 
                   &  bqrv, bqtr, bx, by, bdiam, bsterkte, bwarmte, bhoogte,                                                    &
-                  &  bsigmaz, btgedr, bdegr, z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per, lu_rcp_per,                    &
+                  &  bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, buildingEffect,                      & 
+                  &  btgedr, bdegr,                                                                                            &
+                  &  z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per, lu_rcp_per,                                            &
                   &  so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, maxidx, pmd, uspmd, spgrid, grid, subbron, uurtot, routsec, &
                   &  rc, somvnsec, telvnsec, vvchem, vtel, somvnpri,                                                           &
                   &  telvnpri, ddepri, sdrypri, snatpri, sdrysec, snatsec, cpri, csec, drydep, wetdep, astat, rno2_nox_sum,    &
@@ -54,6 +56,8 @@ USE m_commonfile
 USE m_error
 USE m_aps
 USE m_geoutils
+USE m_ops_building
+ use m_ops_utils, only: is_missing
 
 IMPLICIT NONE
 
@@ -123,6 +127,12 @@ REAL*4,    INTENT(IN)                            :: bwarmte                    !
 REAL*4,    INTENT(IN)                            :: bhoogte                    ! source height [m] 
 REAL*4,    INTENT(IN)                            :: bsigmaz                    ! spread in source height to represent different sources in a area source; 
                                                                                ! also used for initial sigma_z (vertical dispersion) of emission (e.g. traffic, building influence) [m] 
+REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
+REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
+type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
+type(TbuildingEffect), INTENT(IN)                :: buildingEffect             ! structure containing building effect tables
 INTEGER*4, INTENT(IN)                            :: btgedr                     ! temporal behaviour of sources (tgedr << "tijdsgedrag"== temporal behaviour)[-] 
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! option for particle size distribution
                                                                                ! bdegr >= 0 -> standard particle size distribution pmd
@@ -139,8 +149,8 @@ REAL*4,    INTENT(IN)                            :: so2bgtra                   !
 REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
-REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDIST)    ! standard particle size distributions 
-REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDIST)  ! user-defined particle size distributions 
+REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions 
+REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions 
 INTEGER*4, INTENT(IN)                            :: spgrid                     ! indicator for type of receptor points 
                                                                                ! spgrid = 0: regular grid of receptors, NL
                                                                                ! spgrid = 1: rectangular regular grid of receptors, user defined 
@@ -201,12 +211,12 @@ REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK
                                                                                !        26. surface resistance Rc of NH3 [s/m]
                                                                                !        27. surface resistance Rc of NO3 aerosol [s/m]
 REAL*4,    INTENT(INOUT)                         :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
        
 ! SUBROUTINE ARGUMENTS - OUTPUT       (OUT)
 REAL*4,    INTENT(OUT)                           :: precip                     ! precipitation amount [mm]
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud (rain-out) scavenging ratio for primary component [-]  
 REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               ! dispersion coefficients for vertical dispersion; sigma_z = dispg*x^disph [-]
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record 
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: istab                      ! teller over stabiliteitsklassen
@@ -251,14 +261,21 @@ REAL*4                                           :: y                          !
 REAL*4                                           :: diam                       ! 
 REAL*4                                           :: diameter                   ! 
 REAL*4                                           :: szopp                      ! 
+REAL*4                                           :: D_stack                    ! diameter of the stack [m]
+REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]
+LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission  
+type(Tbuilding)                                  :: building                   ! structure with building paramaters
+REAL*4                                           :: buildingFact               ! The interpolated building effect from the buildingTable
 REAL*4                                           :: qrv                        ! 
 REAL*4                                           :: virty                      ! 
 REAL*4                                           :: consec                     ! 
-REAL*4                                           :: disx                       ! 
-REAL*4                                           :: disxx                      ! 
+REAL*4                                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
+REAL*4                                           :: disx                       ! linear distance between source and receptor [m]
+REAL*4                                           :: disxx                      ! effective travel distance between source and receptor [m]
 REAL*4                                           :: radius                     ! 
 REAL*4                                           :: uster_metreg_rcp           ! 
-REAL*4                                           :: tem                        ! 
+REAL*4                                           :: temp_C                     ! temperature at height zmet_T [C]
 REAL*4                                           :: shear                      ! 
 REAL*4                                           :: ol_metreg_rcp              ! 
 REAL*4                                           :: h0                         ! 
@@ -283,7 +300,7 @@ REAL*4                                           :: xloc                       !
 REAL*4                                           :: xl100                      ! 
 REAL*4                                           :: rad                        ! 
 REAL*4                                           :: rcso2                      ! 
-REAL*4                                           :: temp                       ! 
+REAL*4                                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
 REAL*4                                           :: regenk                     ! 
 REAL*4                                           :: buil                       ! 
 REAL*4                                           :: rint                       ! 
@@ -476,9 +493,14 @@ sccsida = '%W%:%E%'//char(0)
 !           Get emission data for current source and compute wind sector for source - receptor direction
 
 !
-            CALL wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm,          &
-                       &  ym, grid, nk, nr, mrcp, nrcp, kk, nb, karea, larea, disx, x, y, qob, qww, hbron, szopp, ibtg, idgr,   &
+            CALL wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm,    &
+                       &  ym, grid, nk, nr, mrcp, nrcp, kk, nb, karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, idgr,  &
                        &  qrv, qtr, rond, diameter, iwd, isek)
+
+            ! Compute building effect (depends on source-receptor distance; we can use linear distance, because the building effect is only present near the source):
+            call ops_building_get_factor(building%type, angle_SR_xaxis, disx, buildingEffect%buildingFactAngleSRxaxis, buildingEffect%buildingFactDistances, building%buildingFactFunction, buildingFact)
+            ! write(*,*) 'ops_reken/disx;buildingFact', angle_SR_xaxis, disx, buildingFact
+            if (error%debug) write(*,'(a,a,a,3(1x,i6),3(1x,e12.5))') trim(ROUTINENAAM),' A ',' ircp,iwd,isek,angle_SR_xaxis,disx,buildingFact:',ircp,iwd,isek,angle_SR_xaxis,disx,buildingFact
 !
 !           Compute chemical parameters (conversion rates, concentration ratios) in case of secondary components
 !
@@ -486,6 +508,8 @@ sccsida = '%W%:%E%'//char(0)
               CALL ops_par_chem(icm, isek, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, disx, diameter, vchemnh3, rhno3,       &
                              &  rrno2nox, rations)
             ENDIF
+            if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3, rrno2nox, rations :',ircp,vchemnh3, rhno3, rrno2nox, rations    
+
 
 !
 !++++++++++ Loop over stability classes ++++++++++++++++++++++++
@@ -498,10 +522,23 @@ sccsida = '%W%:%E%'//char(0)
 !             Get relevant parameters from meteo statistics (dependent on wind direction and source-receptor distance), for the current
 !             stability class and compute the effective source height.
 !
-              CALL ops_statparexp(istab, hbron, qww, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, &
-                               &  h0, hum, ol_metreg_rcp, shear, rcaerd, rcnh3d, rcno2d, tem, uster_metreg_rcp, pcoef,          &
+              CALL ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, &
+                               &  h0, hum, ol_metreg_rcp, shear, rcaerd, rcnh3d, rcno2d, temp_C, uster_metreg_rcp, pcoef,       &
                                &  htot, htt, itra, aant, xl, rb, ra4, ra50, xvglbr, xvghbr, xloc, xl100, rad, rcso2,            &
-                               &  temp, regenk, buil, rint, percvk, error)
+                               &  coef_space_heating, regenk, buil, rint, percvk, error)
+              if (error%debug) then
+                 write(*,'(3a,99(1x,i6))')             trim(ROUTINENAAM),',C1,',' ircp,istab, isek, isekt, itra :', &
+                                                                                  ircp,istab, isek, isekt, itra
+                 write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C2,',' ircp,istab, disx, disxx, vw10 :', &
+                                                                                  ircp,istab,disx, disxx,  vw10
+                 write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C3,',' ircp,istab, h0, hum, ol_metreg_rcp, shear, rcaerd, rcnh3d, rcno2d, temp_C, uster_metreg_rcp, pcoef :', &
+                                                                                  ircp,istab, h0, hum, ol_metreg_rcp, shear, rcaerd, rcnh3d, rcno2d, temp_C, uster_metreg_rcp, pcoef
+                 write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C4,',' ircp,istab, htot, htt, aant, xl, rb, ra4, ra50, xvglbr, xvghbr, xloc, xl100, rad, rcso2 :', &
+                                                                                  ircp,istab, htot, htt, aant, xl, rb, ra4, ra50, xvglbr, xvghbr, xloc, xl100, rad, rcso2
+                 write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C5,',' ircp,istab, coef_space_heating, regenk, buil, rint, percvk :', &
+                                                                                  ircp,istab, coef_space_heating, regenk, buil, rint, percvk
+               endif
+
               IF (error%haserror) GOTO 9999
 !
 !             Negative sensible heat flux H0 [W/m2] not allowed.
@@ -521,10 +558,13 @@ sccsida = '%W%:%E%'//char(0)
 !                 Compute parameters which depend on stability class (friction velocity, Monin-Obukhov length, plume rise,
 !                 vertical dispersion coefficient). Adjust yearly averaged emission for the current {stability, distance} class.
 !
-                  CALL ops_stab_rek(icm, rb, tem, h0, z0_metreg_rcp, disxx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, temp, ibtg, &
-                                 &  uster_metreg_rcp, hbron, qww, istab, itra, qob, xloc, regenk, ra4, z0_tra, z0_src,          &
-                                 &  ol_metreg_rcp, error, uster_rcp, ol_rcp, uster_src, ol_src, uster_tra, ol_tra,              &
+                  CALL ops_stab_rek(icm, rb, temp_C, h0, z0_metreg_rcp, disxx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, coef_space_heating, ibtg,    &
+                                 &  uster_metreg_rcp, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, istab, itra, qob, xloc, regenk, ra4, z0_tra, z0_src,  &
+                                 &  ol_metreg_rcp, error, uster_rcp, ol_rcp, uster_src, ol_src, uster_tra, ol_tra,                                  &
                                  &  htot, htt, onder, uh, zu, qruim, qbron, dispg)
+                  if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') &
+                     trim(ROUTINENAAM),',D,',' ircp,istab, uster_rcp,ol_rcp,uster_src,ol_src,uster_tra,ol_tra,htot,htt,onder,uh,zu,qruim,qbron,dispg :', &
+                                               ircp,istab,uster_rcp,ol_rcp,uster_src,ol_src,uster_tra,ol_tra,htot,htt,onder,uh,zu,qruim,qbron,dispg(istab)
                   IF (error%haserror) GOTO 9999
 !
 !                 Continue if source strength > 0
@@ -577,7 +617,9 @@ sccsida = '%W%:%E%'//char(0)
 !                        
                         CALL ops_conc_ini(gasv, vw10, htt, pcoef, disxx, kdeel, qbpri, z0_src, szopp, rond, uster_src, ol_src,  &
                                        &  istab, iwd, qww, hbron, dispg, radius, xl, onder,                                     &
-                                       &  htot, grof, c, sigz, ueff, virty, ccc)
+                                       &  htot, grof, c, sigz, ueff, virty, ccc, error)
+                        if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',E,',' ircp,istab,radius,xl,onder,htot,grof,c,sigz,ueff,virty,ccc:', &
+                                                                                                         ircp,istab,radius,xl,onder,htot,grof,c,sigz,ueff,virty,ccc
 !
 !                       Compute deposition velocities for dry and wet deposition and the concentration decrease as a result
 !                       of deposition and (chemical) conversion. Only if idep = TRUE.
@@ -585,7 +627,7 @@ sccsida = '%W%:%E%'//char(0)
                         IF (idep) THEN
                           CALL ops_resist_rek(vchemc, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,    &
                                            &  rno2nox, rcnh3d, vchemnh3, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,             &
-                                           &  z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, tem, disxx, zm, koh,              &
+                                           &  z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, temp_C, disxx, zm, koh,           &
                                            &  rations, rhno3, rcno, rhno2, rchno3, croutpri, rrno2nox, rhno3_rcp,               &
                                            &  rb, ra4, ra50, rc, routpri, vchem, rcsec, uh, rc_sec_rcp, rc_rcp, rb_rcp,         &
                                            &  ra4_rcp, ra50_rcp, raz_rcp, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc,    &
@@ -610,12 +652,15 @@ sccsida = '%W%:%E%'//char(0)
                                          &  sdrysec(kdeel), snatsec(kdeel), somvnsec(kdeel), telvnsec(kdeel), vvchem(kdeel),     &
                                          &  vtel(kdeel), snatpri(kdeel), somvnpri(kdeel), telvnpri(kdeel), ddepri(ircp,kdeel),   &
                                          &  drydep(ircp,kdeel),  wetdep(ircp,kdeel), dm, qsec, consec, pr,                       & 
-                                         &  vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg)
+                                         &  vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg, buildingFact)
+                                                                                
 !
 !                         Update summed concentration for secondary concentration
 !                                           
                           csec(ircp,kdeel) = csec(ircp,kdeel) + (consec*percvk)
-  
+                        ELSE
+                           ! Building effect for idep = 0:
+                           c = c*buildingFact
                         ENDIF                                        ! end condition idep (compute deposition)
 !
 !                       Update summed concentration for primary concentration
@@ -639,6 +684,8 @@ sccsida = '%W%:%E%'//char(0)
       ENDDO                                                          ! end loop over sub receptors (y-direction)
     ENDDO                                                            ! end loop over sub receptors (x-direction)
 
+    ! Computation for this source completed, deallocate buildingFactFunction for this source:
+    if (building%type > 0) deallocate(building%buildingFactFunction)
 RETURN
 !
 ! Negative concentration. Create error message and close the progress file.
@@ -681,10 +728,12 @@ CONTAINS
 ! DESCRIPTION        : Compute preliminary wind sector, not including wind shear.
 !                      Also get all source data for the current source
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm, ym,           &
-                 &  grid, nk, nr, mrcp, nrcp, kk, nb, karea,larea, disxx, x, y, qob, qww, hbron, szopp, ibtg, idgr, qrv,       &
+SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm, ym,  &
+                 &  grid, nk, nr, mrcp, nrcp, kk, nb, karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, idgr, qrv,   &
                  &  qtr, rond, diameter, iwd, isek)
 
+USE Binas, only: deg2rad, rad2deg
+                 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'wind_rek')
@@ -697,6 +746,11 @@ REAL*4,    INTENT(IN)                            :: bsterkte                   !
 REAL*4,    INTENT(IN)                            :: bwarmte                    ! 
 REAL*4,    INTENT(IN)                            :: bhoogte                    ! 
 REAL*4,    INTENT(IN)                            :: bsigmaz                    ! 
+REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
+REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
+type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 INTEGER*4, INTENT(IN)                            :: btgedr                     ! 
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! 
 REAL*4,    INTENT(IN)                            :: bqrv                       ! 
@@ -716,13 +770,19 @@ INTEGER*4, INTENT(IN)                            :: karea                      !
 INTEGER*4, INTENT(IN)                            :: larea                      ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! 
+REAL*4,    INTENT(OUT)                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
+REAL*4,    INTENT(OUT)                           :: disx                       ! linear distance between source and receptor [m] 
 REAL*4,    INTENT(OUT)                           :: x                          ! 
 REAL*4,    INTENT(OUT)                           :: y                          ! 
 REAL*4,    INTENT(OUT)                           :: qob                        ! 
 REAL*4,    INTENT(OUT)                           :: qww                        ! 
 REAL*4,    INTENT(OUT)                           :: hbron                      ! 
 REAL*4,    INTENT(OUT)                           :: szopp                      ! 
+REAL*4,    INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
+REAL*4,    INTENT(OUT)                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+LOGICAL,   INTENT(OUT)                           :: emis_horizontal            ! horizontal outflow of emission
+type(Tbuilding), INTENT(OUT)                     :: building                   ! strucure with building parameters
 INTEGER*4, INTENT(OUT)                           :: ibtg                       ! 
 INTEGER*4, INTENT(OUT)                           :: idgr                       ! 
 REAL*4,    INTENT(OUT)                           :: qrv                        ! 
@@ -751,11 +811,16 @@ y        = by + larea*diam/(kk*2 + 1)
 qob      = (bsterkte/nb)/nr
 
 ! Other source parameters:
-qww      = bwarmte
-hbron    = bhoogte
-szopp    = bsigmaz
-ibtg     = btgedr
-idgr     = bdegr
+qww      = bwarmte                    ! heat content[MW]
+hbron    = bhoogte                    ! emission height [m]
+szopp    = bsigmaz                    ! spread in emission height [m]
+D_stack  = bD_stack                   ! diameter of the stack [m]
+V_stack  = bV_stack                   ! exit velocity of plume at stack tip [m/s]
+Ts_stack = bTs_stack                  ! temperature of effluent from stack [K]            
+emis_horizontal = bemis_horizontal    ! horizontal outflow of emission
+building = bbuilding                  ! building parameters 
+ibtg     = btgedr                     ! diurnal variation code
+idgr     = bdegr                      ! particle size distribution code
 
 ! Source strengths for space heating and traffic:
 qrv      = (bqrv/nb)/nr
@@ -773,23 +838,23 @@ ELSE
 ENDIF
 !
 ! Determine source - (sub) receptor distance (in meters), given source = (x1,y1) and receptor = (x2,y2) in degrees.
-! CONV = pi/180. R = earth radius (m).
-! distance in y-direction = R*(y2 - y1)*CONV, y latitude
-! distance in x-direction = R*cos(y*CONV)*(x2 - x1)*CONV, x longitude
-! distance between 1 and 2: R*sqrt([cos(y*CONV)*(x2-x1)*CONV]^2 + [(y2-y1)*CONV]^2) = R*CONV*([cos(y*CONV)*(x2-x1)]^2 + (y2-y1)^2)
-! Note: R1 = equatorial radius: 6378.137 km, R2 = distance centre - pole: 6356.752 km
-!       R1*CONV = 111319.5 m, R2*CONV = 110946.3 m (average = 111132.9 m).
+! deg2rad = pi/180. R = earth radius (m).
+! distance in y-direction = R*(y2 - y1)*deg2rad, y latitude
+! distance in x-direction = R*cos(y*deg2rad)*(x2 - x1)*deg2rad, x longitude
+! distance between 1 and 2: R*sqrt([cos(y*deg2rad)*(x2-x1)*deg2rad]^2 + [(y2-y1)*deg2rad]^2) = R*deg2rad*([cos(y*deg2rad)*(x2-x1)]^2 + (y2-y1)^2)
+! Note: R1 = equatorial radius: 6378.137 km, R2 = distance centre - pole: 6356.752 km   
+!       R1*deg2rad = 111319.5 m, R2*deg2rad = 110946.3 m (average = 111132.9 m). Here rounded to 111000 m.
 ! 
 IF (IGEO .EQ. 1) THEN
   ! Geographical coordinates (degrees)
   dy    = gym - y
-  dx    = (gxm - x)*COS((y + dy/2.)/CONV)
-  disxx = 111000.*SQRT(dx*dx + dy*dy)
+  dx    = (gxm - x)*COS((y + dy/2.)*deg2rad)
+  disx  = 111000.*SQRT(dx*dx + dy*dy)
 ELSE
   ! RDM coordinates [m]
   dx    = xm + mrcp*grid/(nk*2 + 1) - x
   dy    = ym + nrcp*grid/(nk*2 + 1) - y
-  disxx = SQRT((dx*dx) + (dy*dy))
+  disx  = SQRT((dx*dx) + (dy*dy))
 ENDIF
                                    
 !   North     receptor                          
@@ -809,8 +874,8 @@ ENDIF
 ! Angle with North = pi/2 - alpha = pi/2 - atan2(dy,dx) = atan2(dx,dy).
 ! The addition of 180 degrees is because we need the wind direction coming from the source.
 !
-IF (disxx .GT. 2.) THEN
-  iwd = NINT(ATAN2(dx, dy)*CONV + 180)
+IF (disx .GT. 2.) THEN
+  iwd = NINT(ATAN2(dx, dy)*rad2deg + 180)
   IF (iwd.EQ.360) iwd = 0
 ELSE
 !
@@ -826,6 +891,9 @@ isek = (iwd + 180/NSEK)*NSEK/360 + 1
 IF (isek .GT. NSEK) THEN
   isek = 1
 ENDIF
+
+! Determine angle between source-receptor vector and x-axis, betweeen 0 and 360 degrees (needed for building effect):
+angle_SR_xaxis = modulo(atan2(dy,dx)*rad2deg, 360.0)  ! degrees
 
 RETURN
 END SUBROUTINE wind_rek

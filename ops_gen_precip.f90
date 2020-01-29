@@ -72,6 +72,10 @@ REAL*4                                           :: radius                     !
 REAL*4                                           :: qww                        ! heat content of source, dummy input for ops_statparexp; 
                                                                                ! setting it to 0 prevents unnecessary computation of plume rise
                                                                                ! in ops_statparexp 
+REAL*4                                           :: V_stack                    ! here a dummy
+REAL*4                                           :: Ts_stack                   ! here a dummy         
+LOGICAL                                          :: emis_horizontal            ! here a dummy
+REAL*4                                           :: D_stack                    ! here a dummy
 REAL*4                                           :: vw10                       ! here a dummy
 REAL*4                                           :: aksek(12)                  ! here a dummy
 REAL*4                                           :: h0                         ! here a dummy
@@ -81,7 +85,7 @@ REAL*4                                           :: shear                      !
 REAL*4                                           :: rcaerd                     ! here a dummy
 REAL*4                                           :: rcnh3d                     ! here a dummy
 REAL*4                                           :: rcno2d                     ! here a dummy
-REAL*4                                           :: tem                        ! here a dummy
+REAL*4                                           :: temp_C                     ! here a dummy
 REAL*4                                           :: uster                      ! here a dummy
 REAL*4                                           :: pcoef                      ! here a dummy
 REAL*4                                           :: htot                       ! here a dummy
@@ -97,7 +101,7 @@ REAL*4                                           :: xloc                       !
 REAL*4                                           :: xl100                      ! here a dummy
 REAL*4                                           :: rad                        ! here a dummy
 REAL*4                                           :: rcso2                      ! here a dummy
-REAL*4                                           :: temp                       ! here a dummy
+REAL*4                                           :: coef_space_heating         ! here a dummy
 REAL*4                                           :: buil                       ! here a dummy
 REAL*4                                           :: regenk                     
 REAL*4                                           :: rint                       
@@ -115,6 +119,10 @@ disx   = 100 ! (first distance class, i.e. local meteo)
 hbron  = 10
 radius = 0
 qww    = 0
+D_stack = -999.
+V_stack = -999.
+Ts_stack = -999.
+emis_horizontal = .FALSE.
 
 ! Initialise summed precipitation for this receptorpoint:
 precip=0
@@ -128,9 +136,9 @@ DO isek = 1, NSEK
 !   percvk (fraction of occurrence of meteo class) for this wind direction sector and stability class
 !
 
-    CALL ops_statparexp(istab, hbron, qww, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, h0,    &
-                     &  hum, ol, shear, rcaerd, rcnh3d, rcno2d, tem, uster, pcoef, htot, htt, itra, aant, xl, rb, ra4,       &
-                     &  ra50, xvglbr, xvghbr, xloc, xl100, rad, rcso2, temp, regenk, buil, rint, percvk, error)
+    CALL ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, h0,  &
+                     &  hum, ol, shear, rcaerd, rcnh3d, rcno2d, temp_C, uster, pcoef, htot, htt, itra, aant, xl, rb, ra4,                              &
+                     &  ra50, xvglbr, xvghbr, xloc, xl100, rad, rcso2, coef_space_heating, regenk, buil, rint, percvk, error)
     IF (error%haserror) GOTO 9999
 !
 !   Add contribution to precipitation amount (8760 = number of hours in a year)

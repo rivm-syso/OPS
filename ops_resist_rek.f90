@@ -38,7 +38,7 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rek(vchemc, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,                        &
                           rno2nox, rcnh3d, vchemnh3, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,                                 &
-                          z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, tem, disx, zm, koh,                                   &
+                          z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, temp_C, disx, zm, koh,                                &
                           rations, rhno3, rcno, rhno2, rchno3, croutpri, rrno2nox, rhno3_rcp,                                   &
                           rb, ra4, ra50, rc, routpri, vchem, rcsec, uh, rc_sec_rcp, rc_rcp, rb_rcp,                             &
                           ra4_rcp, ra50_rcp, raz_rcp, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc, ra4src,                &
@@ -80,7 +80,7 @@ REAL*4,    INTENT(IN)                            :: rcno2d                     !
 INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
 INTEGER*4, INTENT(IN)                            :: mb                         ! 
 REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: tem                        ! 
+REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
 REAL*4,    INTENT(IN)                            :: disx                       ! 
 REAL*4,    INTENT(IN)                            :: zm                         ! 
 REAL*4,    INTENT(IN)                            :: koh                        ! 
@@ -394,7 +394,7 @@ IF (isec) THEN
 !      rc_rcp : canopy resistance at receptor, no re-emission allowed [s/m];
 !               is used for deposition gradient at receptor
 !      rclocal: canopy resistance at receptor, re-emission allowed [s/m]; 
-!               is used for the computation of drypri, the local depsosition at the receptor
+!               is used for the computation of drypri, the local deposition at the receptor
 !-------------------------------------------------------------------------------------------
 
    ! Wesely parameterization
@@ -432,8 +432,9 @@ IF (isec) THEN
 !
    catm       = nh3bgtra*17/24
    c_ave_prev = nh3bgtra*17/24
-!
-   CALL ops_depos_rc(icm, iseiz, mb, gym ,tem, uster_tra, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_tra_per, ra4tra, rb_tra, &
+   ! write(*,'(a,2(1x,e12.5))') 'catm,c_ave_prev traj = ',catm,c_ave_prev
+
+   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_tra, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_tra_per, ra4tra, rb_tra, &
                   &  rctra_0, rclocal)
    rcsrc   = rctra_0 !
 !
@@ -446,8 +447,9 @@ IF (isec) THEN
 !
    catm       = nh3bg_rcp
    c_ave_prev = nh3bg_rcp
-!
-   CALL ops_depos_rc(icm, iseiz, mb, gym ,tem, uster_rcp, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_rcp_per, ra4_rcp, rb_rcp,  &
+   !write(*,'(a,2(1x,e12.5))') 'catm,c_ave_prev rcp = ',catm,c_ave_prev
+
+   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_rcp, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_rcp_per, ra4_rcp, rb_rcp,  &
                   &  rc_rcp, rclocal)
    
 !------------------------------------------------------------------
@@ -489,7 +491,7 @@ IF (isec) THEN
 !      Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
 ! 
       r          = rb + ra4
-      rc_rcp    = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r   
+      rc_rcp     = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r   
       rclocal    = rc_rcp
       rctra_0    = 1./(rnox/(rctra_0+r) + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r
       rcsrc      = rctra_0  

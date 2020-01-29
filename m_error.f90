@@ -87,6 +87,7 @@ TYPE TError
 
    TYPE (TErrorParam), pointer                   :: firstparam                 ! first parameter in error message
    TYPE (TErrorParam), pointer                   :: lastparam                  ! last parameter in error message
+   LOGICAL                                       :: debug                      ! if true -> debug parameters are written to screen; only useful for a limited number of receptors and sources
 END TYPE TError
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -113,11 +114,13 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE ErrorParam
    MODULE PROCEDURE error_iparam                                               ! integer*4 parameter
+   MODULE PROCEDURE error_iaparam                                              ! integer*4 parameter array
    MODULE PROCEDURE error_lparam                                               ! logical parameter
    MODULE PROCEDURE error_rparam                                               ! real*4 parameter
+   MODULE PROCEDURE error_raparam                                              ! real*4 parameter array
    MODULE PROCEDURE error_sparam                                               ! character*(*) string parameter
-   MODULE PROCEDURE error_wparam                                               ! character*(*) string parameter, but only first
-                                                                               ! word is written
+   MODULE PROCEDURE error_wparam                                               ! character*(*) string parameter, but only first word is written
+   MODULE PROCEDURE error_saparam                                              ! character*(*) string parameter array
 END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -298,6 +301,37 @@ ENDIF
 
 RETURN
 END SUBROUTINE error_iparam
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! Subroutine   error_iaparam
+! Purpose      Sets values for an integer parameter array.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE error_iaparam(paramname, value, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: error_iaparam
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: paramname                  ! parameter name
+INTEGER*4, INTENT(IN)                            :: value(:)                   ! parameter values
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error object
+
+! LOCAL VARIABLES
+TYPE (TErrorParam), POINTER                      :: param                      ! error parameter object
+INTEGER*4                                        :: i                          ! index into array
+!-------------------------------------------------------------------------------------------------------------------------------
+IF (.NOT.error%blockparam) THEN
+  param => make_parameter(paramname, error)
+  CALL SimpleAppend(value(1), param%stringvalue)
+  do i = 2,size(value)
+     CALL SimpleAppend(1,value(i), param%stringvalue)  ! prepend 1 space
+  enddo
+ENDIF
+
+RETURN
+END SUBROUTINE error_iaparam
+
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   error_lparam
 ! Purpose      Sets values for a logical parameter.
@@ -350,6 +384,37 @@ ENDIF
 
 RETURN
 END SUBROUTINE error_rparam
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! Subroutine   error_raparam
+! Purpose      Sets values for a real parameter array.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE error_raparam(paramname, value, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: error_raparam
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
+REAL*4,    INTENT(IN)                            :: value(:)                   ! 
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+
+! LOCAL VARIABLES
+TYPE (TErrorParam), POINTER                      :: param                      ! 
+INTEGER*4                                        :: i
+!-------------------------------------------------------------------------------------------------------------------------------
+IF (.NOT.error%blockparam) THEN
+  param => make_parameter(paramname, error)
+  CALL SimpleAppend(value(1), 4, param%stringvalue)
+  do i = 2,size(value)
+     CALL SimpleAppend(2, value(i), 4, param%stringvalue)   ! prepend 2 spaces
+  enddo
+ENDIF
+
+RETURN
+END SUBROUTINE error_raparam
+
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   error_sparam
 ! Purpose      Sets values for a string parameter.
@@ -438,6 +503,38 @@ RETURN
 END SUBROUTINE error_wparam
 
 !-------------------------------------------------------------------------------------------------------------------------------
+! Subroutine   error_saparam
+! Purpose      Sets values for a string parameter array.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE error_saparam(paramname, value, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: error_saparam
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
+CHARACTER*(*), INTENT(IN)                        :: value(:)                   ! 
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+
+! LOCAL
+integer         :: i    ! index
+character(1000) :: str1 ! output string
+
+!-------------------------------------------------------------------------------------------------------------------------------
+str1 = ''
+do i = 1,size(value)
+   str1 = trim(str1) // ' / ' // trim(value(i))
+   ! str1 = str1 // '/' // trim(value(i)(1:le_trim(value(i)))
+   ! str1 = str1(1:len_trim(str1)) // '/' // value(i)(1:len_trim(value(i)))
+   ! CALL ErrorParam(paramname, value(i), .FALSE., error)
+enddo
+CALL ErrorParam(paramname, str1, .FALSE., error)
+
+RETURN
+END SUBROUTINE error_saparam
+
+!-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   error_call
 ! Purpose      Routinename is added onto the call stack.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -478,7 +575,7 @@ END SUBROUTINE error_call
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   write_error
-! Purpose      Writing out of error message
+! Purpose      Writing out of error message; if error%haserror = .FALSE. -> issue warning instead of error
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE write_error(unit, error)
 
@@ -507,13 +604,22 @@ caller => error%callroutines
 hascaller = ASSOCIATED(caller)
 IF (hascaller) THEN
   length = LEN_TRIM(caller%routinename)
-  WRITE (unit,'(A, 1X, A)') 'Error in subroutine:', caller%routinename(:length)
+  IF (error%haserror) THEN
+     WRITE (unit,'(/,A, 1X, A)') 'Error in subroutine:', caller%routinename(:length)
+  ELSE
+     WRITE (unit,'(/,A, 1X, A)') 'Warning in subroutine:', caller%routinename(:length)
+  ENDIF
 ENDIF
 !
 ! Write out the error message.
 !
-WRITE (unit,'(/, A, 1X, A)') 'Error:', error%message
+IF (error%haserror) THEN
+   WRITE (unit,'(/, A, 1X, A)') 'Error:', trim(error%message)
+ELSE
+   WRITE (unit,'(/, A, 1X, A)') 'Warning:', trim(error%message)
+ENDIF
 WRITE (unit, '()')
+
 !
 ! Determine the longest parameter. We want all the = signs neatly below each other.
 !
@@ -538,23 +644,32 @@ DO WHILE (ASSOCIATED(param))
   param => nextparam
 ENDDO
 !
-! Write out the remainder of the call routine stack
+! Write out the remainder of the call routine stack (only for error)
 !
-IF (hascaller) THEN
-  nextcaller => caller%nextcall
-  IF (ASSOCIATED(nextcaller)) THEN
-    length = LEN_TRIM(caller%routinename)
-    WRITE(unit,'(/, 3A)') 'Procedure ''', caller%routinename(1:length), ''' was called by:'
-  ENDIF
-  DEALLOCATE(caller)
+IF (error%haserror) THEN
+   IF (hascaller) THEN
+     nextcaller => caller%nextcall
+     IF (ASSOCIATED(nextcaller)) THEN
+       length = LEN_TRIM(caller%routinename)
+       WRITE(unit,'(/, 3A)') 'Procedure ''', caller%routinename(1:length), ''' was called by:'
+     ENDIF
+     DEALLOCATE(caller)
+   
+     DO WHILE (ASSOCIATED(nextcaller))
+       caller => nextcaller
+       nextcaller => caller%nextcall
+       length = LEN_TRIM(caller%routinename)
+       WRITE(unit,'(2X, A)') caller%routinename(:length)
+       DEALLOCATE(caller)
+     ENDDO
+   ENDIF
+ENDIF
 
-  DO WHILE (ASSOCIATED(nextcaller))
-    caller => nextcaller
-    nextcaller => caller%nextcall
-    length = LEN_TRIM(caller%routinename)
-    WRITE(unit,'(2X, A)') caller%routinename(:length)
-    DEALLOCATE(caller)
-  ENDDO
+! Write message to screen:
+IF (error%haserror) THEN
+   write(*,'(/,/,a,/,/)') '>>>>> An error has occurred; see the error file for more information. <<<<<'
+ELSE
+   write(*,'(/,/,a,/,/)') '>>>>> WARNING; see the log file for more information. <<<<<'
 ENDIF
 
 RETURN

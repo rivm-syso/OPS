@@ -36,65 +36,69 @@
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_commonconst
+
+USE Binas, only: pi                                                     
            
-INTEGER*4, PARAMETER                             :: NUNIT       = 6            
-INTEGER*4, PARAMETER                             :: NMETREG     = 6            
-INTEGER*4, PARAMETER                             :: NSEK        = 12           
-INTEGER*4, PARAMETER                             :: NSTAB       = 6            
-INTEGER*4, PARAMETER                             :: NTRAJ       = 4            
-INTEGER*4, PARAMETER                             :: NCOMP       = 27           
-INTEGER*4, PARAMETER                             :: NHRBLOCKS   = 12           
-INTEGER*4, PARAMETER                             :: NPARTCLASS  = 6            
-INTEGER*4, PARAMETER                             :: NMONTH      = 12           
-INTEGER*4, PARAMETER                             :: NKLIGEB     = 8            
-INTEGER*4, PARAMETER                             :: LSBUF       = 4000         
-INTEGER*4, PARAMETER                             :: NBRMAX      = 10           
-INTEGER*4, PARAMETER                             :: NCATMAX     = 199           
-INTEGER*4, PARAMETER                             :: NLANDMAX    = 50           
-INTEGER*4, PARAMETER                             :: NBGMAPS     =  5        
-INTEGER*4, PARAMETER                             :: NYEARS      = 41           
-INTEGER*4, PARAMETER                             :: MAXDIST     = 9999          
-INTEGER*4, PARAMETER                             :: MAXROW      = 9999          
-INTEGER*4, PARAMETER                             :: MAXCOL      = 9999          
-INTEGER*4, PARAMETER                             :: NLU         = 9          
+INTEGER*4, PARAMETER                             :: NUNIT       = 6                    ! number of units for deposition
+INTEGER*4, PARAMETER                             :: NMETREG     = 6                    ! number of meteo regions
+INTEGER*4, PARAMETER                             :: NSEK        = 12                   ! number of wind sectors
+INTEGER*4, PARAMETER                             :: NSTAB       = 6                    ! number of stability classes 
+INTEGER*4, PARAMETER                             :: NTRAJ       = 4                    ! number of distance classes
+INTEGER*4, PARAMETER                             :: NCOMP       = 27                   ! number of components in meteo input (from METPRO)
+INTEGER*4, PARAMETER                             :: NHRBLOCKS   = 12                   ! number of two-hour blocks in a day
+INTEGER*4, PARAMETER                             :: NPARTCLASS  = 6                    ! number of particle size classes
+INTEGER*4, PARAMETER                             :: NMONTH      = 12                   ! number of months in a year
+INTEGER*4, PARAMETER                             :: NKLIGEB     = 8                    ! number of climate regions in NL (KLIGEB << klimaatgebieden = climate regions)
+INTEGER*4, PARAMETER                             :: LSBUF       = 4000                 ! size of buffer for reading emissions
+INTEGER*4, PARAMETER                             :: NBRMAX      = 10                   ! maximal number of emission sources for which there is emission data written to print file
+INTEGER*4, PARAMETER                             :: NCATMAX     = 199                  ! maximal number of emission categories
+INTEGER*4, PARAMETER                             :: NLANDMAX    = 50                   ! maximal number of emission countries (land << country)
+INTEGER*4, PARAMETER                             :: NBGMAPS     =  5                   ! number of background maps
+INTEGER*4, PARAMETER                             :: NYEARS      = 41                   ! number of years for interpolating backgground maps
+INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)    
+INTEGER*4, PARAMETER                             :: MAXROW      = 9999                 ! maximal number of rows in receptor grid
+INTEGER*4, PARAMETER                             :: MAXCOL      = 9999                 ! maximal number of columns in receptor grid
+INTEGER*4, PARAMETER                             :: NLU         = 9                    ! number of landuse classes
+INTEGER*4, PARAMETER                             :: ncolBuildingEffectTable = 5        ! 1st column corresponds to distance from building. 2-5 correspond to different building types
 
 ! CONSTANTS - overige
-REAL*4                                           :: z0_FACT_NL  = 10000.       ! default factor for conversion of z0_nl gridvalue to meters
-REAL*4                                           :: z0_FACT_EUR = 10000.       ! default factor for conversion of z0_eur gridvalue to meters
+REAL*4                                           :: z0_FACT_NL  = 10000.               ! default factor for conversion of z0_nl gridvalue to meters
+REAL*4                                           :: z0_FACT_EUR = 10000.               ! default factor for conversion of z0_eur gridvalue to meters
+                                                                                       
+REAL*4, PARAMETER                                :: zmet_T      = 1.5                  ! reference height for temperature measurements [m]
 
-INTEGER*4, PARAMETER                             :: IGEO        = 0            
-INTEGER*4, PARAMETER                             :: MISVALNUM   = -9999        
-INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977         
-INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2020         
-REAL*4                                           :: r4_for_tiny                
-REAL*8                                           :: r8_for_tiny                
-REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)  
-REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny) 
-REAL*4,    PARAMETER                             :: PI          = 3.141592     
-REAL*4,    PARAMETER                             :: CONV        = 360./(2*PI)  
-REAL*4,    PARAMETER                             :: HUMAX       = 500.         
-CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '4.5.2.2'
-CHARACTER*20, PARAMETER                          :: RELEASEDATE = '10 jan 2018'
+INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]  
+INTEGER*4, PARAMETER                             :: MISVALNUM   = -9999                ! missing value
+INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
+INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2020                 ! future year, used for interpolating background maps
+REAL*4                                           :: r4_for_tiny                        ! help variable to define EPS_DELTA
+REAL*8                                           :: r8_for_tiny                        ! help variable to define DEPS_DELTA
+REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
+REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
+! REAL*4,    PARAMETER                             :: PI          = 3.14159265
+REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]      
+CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '4.6.2.5'            ! model version OPS-LT
+CHARACTER*20, PARAMETER                          :: RELEASEDATE = '06 dec 2019'        ! release date
 
 !
 ! CONSTANTS - Data
 !
-INTEGER*4                                        :: NACHTZOMER(NSTAB, NTRAJ)     
-INTEGER*4                                        :: NACHTWINTER(NSTAB, NTRAJ)    
-REAL*4                                           :: DISPH(NSTAB)                
-REAL*4                                           :: STOKES(NPARTCLASS)          
-REAL*4                                           :: SCWINTER(NSTAB)             
-REAL*4                                           :: cf_so2(NBGMAPS)             
-REAL*4                                           :: cf_nox(NBGMAPS)             
-REAL*4                                           :: cf_nh3(NBGMAPS)             
-REAL*4                                           :: tf_so2(NYEARS + 1)          
-REAL*4                                           :: tf_no2(NYEARS + 1)          
-REAL*4                                           :: tf_nh3(NYEARS + 1)     
-REAL*4                                           :: nox_no2_beta(2)             ! coefficient in conversion NO2 = beta(1)*log(NOx) + beta(2)
-CHARACTER*10                                     :: CNAME(3,5)                  
-CHARACTER*10                                     :: UNITS(2)                    ! units for concentration
-CHARACTER*10                                     :: DEPUNITS(NUNIT)             
-CHARACTER*40                                     :: KLIGEB(NKLIGEB)             
+INTEGER*4                                        :: NACHTZOMER(NSTAB, NTRAJ)           ! relative occurrences (%) of nighttime hours in summer (for each stability class and distance class) ("NACHT" = night, "ZOMER" = summer)
+INTEGER*4                                        :: NACHTWINTER(NSTAB, NTRAJ)          ! relative occurrences (%) of nighttime hours in winter (for each stability class and distance class) ("NACHT" = night)
+REAL*4                                           :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph  
+REAL*4                                           :: STOKES(NPARTCLASS)                 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class
+REAL*4                                           :: SCWINTER(NSTAB)                    ! variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter)
+REAL*4                                           :: cf_so2(NBGMAPS)                    ! correction factors for the difference between model output and measurements for SO2
+REAL*4                                           :: cf_nox(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NOx
+REAL*4                                           :: cf_nh3(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NH3
+REAL*4                                           :: tf_so2(NYEARS + 1)                 ! trendfactors for SO2: concentration in year T, relative to the concentration in reference year
+REAL*4                                           :: tf_no2(NYEARS + 1)                 ! trendfactors for NO2: concentration in year T, relative to the concentration in reference year
+REAL*4                                           :: tf_nh3(NYEARS + 1)                 ! trendfactors for NH3: concentration in year T, relative to the concentration in reference year
+REAL*4                                           :: nox_no2_beta(2)                    ! coefficient in conversion NO2 = beta(1)*log(NOx) + beta(2)
+CHARACTER*10                                     :: CNAME(3,5)                         ! names of substances (primary, secondary, second secondary, deposited, name in DEPAC)
+CHARACTER*10                                     :: UNITS(2)                           ! units for concentration
+CHARACTER*10                                     :: DEPUNITS(NUNIT)                    ! units for deposition
+CHARACTER*40                                     :: KLIGEB(NKLIGEB)                    ! climate regions in NL (KLIGEB << klimaatgebieden = climate regions)
 
 !
 ! Set coefficients in conversion function NO2 = beta1*log(NOx) + beta2;
@@ -110,7 +114,7 @@ DATA NACHTZOMER  /0, 0, 61, 61, 100, 98, 17, 17, 68, 68, 63, 83, 43, 43, 44, 44,
 DATA NACHTWINTER /0 , 0 , 66, 66, 100, 99, 25, 25, 71, 71, 77, 92, 62, 64, 74, 63, 64, 63, 62, 74, 74, 63, 64, 63/
 !
 ! Set coefficients for vertical dispersion coefficient; sigma_z = dispg*x**disph  
-
+! (For DISPG, see ops_main DATA statements)
 DATA DISPH       /.82,.82,.76,.76,.67,.76/ 
 !
 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class.  

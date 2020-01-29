@@ -37,7 +37,7 @@
 ! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_tra_char (icm, f_z0user, z0_user, nrrcp, x_rcp, y_rcp, x_src, y_src,                          &
-                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, domlu,                    & 
+                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, domlu,                & 
                       &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra,                                   &
                       &  error)
 
@@ -94,6 +94,9 @@ ELSE
   CALL ops_getz0_tra(x_rcp, y_rcp, float(x_src), float(y_src), z0nlgrid, z0eurgrid, z0_tra)
   CALL ops_getlu_tra(x_rcp, y_rcp, float(x_src), float(y_src), lugrid, domlu, lu_tra_per)
 ENDIF
+!write(*,'(a,a,1x,e12.5)')     trim(ROUTINENAAM),' z0_tra:',z0_tra
+!write(*,'(a,a,99(1x,e12.5))') trim(ROUTINENAAM),' lu_tra_per:',lu_tra_per
+
 !
 !   Calculate average (actual) concentration levels of SO2, NO2 and NH3 between source and receptor
 !   from background concentration maps which are scaled on the basis of measurements
@@ -101,6 +104,8 @@ ENDIF
 IF (ANY(icm == (/1,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), so2bggrid, so2bgtra)
 IF (ANY(icm == (/2,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), no2bggrid, no2bgtra)
 IF (ANY(icm == (/1,2,3/))) CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), nh3bggrid, nh3bgtra)
+! write(*,'(a,a,3(1x,e12.5))') trim(ROUTINENAAM),' so2bgtra,no2bgtra,nh3bgtra:',so2bgtra,no2bgtra,nh3bgtra
+
 RETURN
 
 9999 CALL ErrorCall(ROUTINENAAM, error)

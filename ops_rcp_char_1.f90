@@ -165,7 +165,10 @@ ENDIF
 IF (sum(lu_rcp_per(1:NLU)) .le. 0) THEN
   lu_rcp_per    = 0.0
   lu_rcp_per(1) = 100.0
-ENDIF        
+ENDIF   
+
+if (error%debug) write(*,'(3a,1x,i6,99(1x,e12.5))') trim(ROUTINENAAM),',A,',' ircp,z0_rcp,lu_rcp_per: ',ircp,z0_rcp,lu_rcp_per
+     
 
 9999 CALL ErrorCall(ROUTINENAAM, error)
 RETURN
@@ -178,6 +181,8 @@ CONTAINS
 !                      parameters between these three regions. Interpolated parameters are stored in astat.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE reginpo(x, y, cs, z0_metreg, xreg, yreg, i1, z0_metreg_xy, uurtot, astat, error)
+
+USE Binas, only: deg2rad
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -243,7 +248,7 @@ CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Set a = cos(y); needed in computation of dx = (x2 - x1)*cos(y) for geographical coordinates
-a = COS(y/CONV)
+a = COS(y*deg2rad)
 
 ! Initialise sums:
 s      = 0.

@@ -44,9 +44,10 @@
 SUBROUTINE ops_brondepl(disx, xg, c, ux0, ueff, sigz, vg50trans, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm,       &
                      &  ra4_rcp, raz_rcp, rc_rcp, rb_rcp, z0_src, ol_src, uster_src, htot, ra4src, rb_src, rcsrc, qbstf,       &
                      &  vg0tra, onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, &
-                     &  sigzr, dxeff)
+                     &  sigzr, dxeff, error)
 
 USE m_commonconst
+USE m_error
 
 IMPLICIT NONE
 
@@ -97,7 +98,9 @@ REAL*4,    INTENT(IN)                            :: zm                         !
 
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: cgt                        ! 
-REAL*4,    INTENT(INOUT)                         :: cgt_z                      ! hoogte afhankelijke cgt
+REAL*4,    INTENT(INOUT)                         :: cgt_z                      ! height dependent cgt
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: cdn                        ! 
@@ -295,8 +298,8 @@ ELSE
    a=disx-radius/1.33
 ENDIF
 
-! Compute cgt = (1 - grad)(1 - exp[-t/tau]), t = a/ugem, tau = z1/vd(z1) = 4*(Ra + Rb + Rc):
-cgt = cgt*(1.-exp(-a/(4.*(ra4_rcp+rb_rcp+rc_rcp)*ugem)))
+! Compute cgt = (1 - grad)(1 - exp[-t/tau]), t = a/ugem, tau = z1/vd(z1) = 4*(Ra(4) + Rb + Rc):
+cgt   = cgt*(1.-exp(-a/(4.*(ra4_rcp+rb_rcp+rc_rcp)*ugem)))
 cgt_z = cgt_z*(1.-exp(-a/(zm*(raz_rcp+rb_rcp+rc_rcp)*ugem)))
 
 !-----------------------------------------------------------------------------------------------------------
@@ -318,7 +321,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
     !      at the top of the mixing layer and at the ground surface
     ! s2 : sigma_z at x
     ! 
-    CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, radius*2., uxr, zu, s2) ! output uxr is not used here
+    CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, radius*2., uxr, zu, s2, error) ! output uxr is not used here
     sigzr = s2/alog((htot + s2)/htot) ! (see OPS-doc/dispersion, bookmark area_source_sigma_z) for sigma_zi = htot 
                                       ! s2 = sigma_z(r2), s1 = sigma_z(r1) = 0
     

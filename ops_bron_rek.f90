@@ -37,14 +37,16 @@
 ! CALLED FUNCTIONS   :
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_bron_rek(emtrend, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, btgedr,        &
-                     &  bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
+SUBROUTINE ops_bron_rek(emtrend, buildingEffect, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, & 
+                        bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
 
 USE m_commonconst
 USE m_commonfile
 USE m_error
 USE m_geoutils
 USE m_fileutils
+USE m_ops_building
+use m_ops_utils, only: is_missing
 
 IMPLICIT NONE
 
@@ -53,7 +55,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bron_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: emtrend                     
+REAL*4,    INTENT(IN)                            :: emtrend  
+type(TbuildingEffect)                            :: buildingEffect            ! structure with building effect tables                   
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: landmax                     
@@ -68,8 +71,13 @@ REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)
 REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)             
 REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)              
 REAL*4,    INTENT(OUT)                           :: bhoogte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)              
-INTEGER*4, INTENT(OUT)                           :: btgedr(LSBUF)               
+REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)  
+REAL*4,    INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
+REAL*4,    INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+LOGICAL,   INTENT(OUT)                           :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
+type(Tbuilding), INTENT(OUT)                     :: bbuilding(LSBUF)          ! array with structures with building parameters
+INTEGER*4, INTENT(OUT)                           :: btgedr(LSBUF)
 INTEGER*4, INTENT(OUT)                           :: bdegr(LSBUF)                
 REAL*4,    INTENT(OUT)                           :: bqrv(LSBUF)                 
 REAL*4,    INTENT(OUT)                           :: bqtr(LSBUF)                 
@@ -81,7 +89,6 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: mm                         ! 
 INTEGER*4                                        :: ibtg                       ! 
-INTEGER*4                                        :: ierr                       ! 
 INTEGER*4                                        :: ibroncat                   ! 
 INTEGER*4                                        :: idgr                       ! 
 INTEGER*4                                        :: iland                      ! country code
@@ -96,71 +103,85 @@ REAL*4                                           :: diameter                   !
 REAL*4                                           :: qww                        ! 
 REAL*4                                           :: hbron                      ! 
 REAL*4                                           :: szopp                      ! 
+REAL*4                                           :: D_stack                    ! diameter of the stack [m]
+REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
+type(Tbuilding)                                  :: building                   ! structure with building paramaters
 REAL*4                                           :: qrv                        ! 
-CHARACTER*80                                     :: cbuf                       ! 
+CHARACTER*512                                    :: cbuf                       ! character buffer
+REAL                                             :: valueArray(buildingEffect%nParam)  ! array with parameters needed to compute building effect
+INTEGER                                          :: iParam                     ! index of building parameter
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
-100 FORMAT (i4, 2f8.3, e10.3, f7.3, f6.1, f7.0, f6.1, 4i4)
-150 FORMAT (i4, 2f9.0, e10.3, f7.3, f6.1, f8.0, f6.1, 4i4)
+ 50  FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw
 !
 ! Initialise nsbuf = 0 (no sources in buffer arrays).
 !
 nsbuf = 0
 !
-! Read source data until nsbuf = LSBUF or end-of-file
+! Read source data from scratch file in block of length LSBUF (or till end-of-file) and put data into buffer arrays of size LSBUF.
 !
+
 DO WHILE (nsbuf /= LSBUF)
 !
 ! Read source record cbuf from scratch file
 !
   CALL sysread(fu_scratch, cbuf, eof, error)
-  IF (error%haserror) GOTO 9999
+  IF (error%haserror) GOTO 9998
 !
 ! If end of file has been reached, nothing is left to do here
 !
   IF (eof) RETURN
 !
-! If there is a dot at position 9, coordinates are assumed to be lon-lat
+! Read source record with RDM coordinates
 !
-  IF (cbuf(9:9) == '.') THEN
-!
-!   Read source record with lon-lat coordinates (gl,gb) 
-!   "g" << geographical coordinates; "l" << lengtegraad = longitude, "b" << breedtegraad = latitude
+  READ (cbuf, 50) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+  nsbuf = nsbuf + 1
 
-!
-    READ (cbuf, 100, IOSTAT = ierr) mm, gl, gb, qob, qww, hbron, diameter, szopp, ibtg, ibroncat, iland, idgr
-    IF (ierr == 0) THEN
-!
-!     Convert lon-lat coordinates to RDM coordinates [m]
-!
-      CALL geo2amc(gb, gl, x, y)
-      x = AINT(x*1000.)
-      y = AINT(y*1000.)
-    ENDIF
-  ELSE
-!
-!   Read source record with RDM coordinates
+  !write(*,'(a,i6,10(1x,e12.5),1x,l2,4(1x,i4),4(1x,e12.5))') 'ops_bron_rek a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, & 
+  !                                                           ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
 
-!
-    READ (cbuf, 150, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, ibtg, ibroncat, iland, idgr
-  ENDIF
-!
-! ierr > 0: error occurred while reading. Jump to error section.
-!
-  IF (ierr > 0) GOTO 1000
-!
-! ierr < 0: end-of-file. Nothing left to do here (return).
-!
-  IF (ierr < 0) then
-    eof = .TRUE.
-    RETURN
-  ENDIF
-!
-! ierr = 0: no error or end-of-file; Store data in source buffer arrays.
-!
+  ! Determine building factor function (function of source receptor angle and source receptor distance):
+  if (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation)) then  
+     building%type = 0 ! no building effect
+  else
+     building%type = 1 ! building effect is present
+     
+     ! Fill array with parameters relevant for building effect (last two values (angle_SR_axis, distance) are filled in subroutine ops_building_get_function and are set to -999 here);
+     ! parameters must correspond with buildingParamNames(9) = (/'hEmis', 'V_stack', 'D_stack', 'buildingHeight', 'buildingLength', 'buildingWLRatio', 'buildingOrientation', 'angleSRxaxis', 'distance' /)  in m_ops_building
+     ! horizontal emission -> no momentum plume rise -> set valueArray(2) = 0 -> V_stack uses minimal value in table for building effect
+     if (emis_horizontal) then
+        valueArray = (/ hbron, 0.0    , D_stack, building%height, building%length, building%width/building%length, building%orientation, -999.0, -999.0 /)  
+        ! valueArray = (/ hbron, -999.0, -999.0 /)  ! TEST with three parameters
+        ! valueArray = (/ 0.0, building%height, hbron, -999.0 /)  !  TEST with four parameters as in test6_fs2
+     else
+        valueArray = (/ hbron, V_stack, D_stack, building%height, building%length, building%width/building%length, building%orientation, -999.0, -999.0 /) 
+        ! valueArray = (/ hbron, -999.0, -999.0 /)   ! TEST with three parameters
+        ! valueArray = (/ V_stack, building%height, hbron, -999.0 /)  ! TEST with four parameters as in test6_fs2
+     endif
+     
+     ! Values outside the table input are moved to the boundary of the table ('constant extrapolation'):
+     do iParam = 1,buildingEffect%nParam
+        valueArray(iParam) = min(max(valueArray(iParam),buildingEffect%minClass(iParam)),buildingEffect%maxClass(iParam))
+     enddo
+
+     ! write(*,*) 'ops_bron_rek/valueArray: ',valueArray
+     ! write(*,*) 'ops_bron_rek/classdefinitionArray: ',buildingEffect%classdefinitionArray
+     ! write(*,*) 'ops_bron_rek/nParam = ',buildingEffect%nParam
+     ! write(*,*) 'ops_bron_rek/nClass = ',buildingEffect%nClass(1:buildingEffect%nParam)
+     ! write(*,*) 'ops_bron_rek/minClass = ',buildingEffect%minClass(1:buildingEffect%nParam)
+     ! write(*,*) 'ops_bron_rek/maxClass = ',buildingEffect%maxClass(1:buildingEffect%nParam)
+     ! write(*,*) 'ops_bron_rek/buildingFactArray(1:10): ',buildingEffect%buildingFactArray(1:10)
+     
+     call ops_building_get_function(buildingEffect%nParam, valueArray, buildingEffect%nClass, buildingEffect%classdefinitionArray,  & 
+                                    buildingEffect%buildingFactAngleSRxaxis, buildingEffect%buildingFactDistances, buildingEffect%buildingFactArray, building%buildingFactFunction, error)
+     ! write(*,*) 'buildingFactFunction = ',building%buildingFactFunction
+     if (error%haserror) goto 9999
+  endif
 
   ! Default source strength of traffic and space heating = 0
   qtr = 0.
@@ -179,7 +200,7 @@ DO WHILE (nsbuf /= LSBUF)
     CONTINUE
   ENDIF
 
-  ! Muliply emission with a trend factor for the current year
+  ! Multiply emission with a trend factor for the current year
   qob = qob*emtrend
   qrv = qrv*emtrend
   qtr = qtr*emtrend
@@ -217,34 +238,39 @@ DO WHILE (nsbuf /= LSBUF)
 !
 !   Store data for this source in buffer array
 !
-    nsbuf = nsbuf + 1
     IF (IGEO /= 1) THEN
       bnr(nsbuf) = mm
       bx(nsbuf)  = NINT(x)
       by(nsbuf)  = NINT(y)
+    ELSE  
+       write(*,*) 'IGEO in ops_bron_rek = ',IGEO  
+       stop 
     ENDIF
 
-    bsterkte(nsbuf) = qob
-    bwarmte(nsbuf)  = qww
-    bhoogte(nsbuf)  = hbron
-    bdiam(nsbuf)    = diameter
-    bsigmaz(nsbuf)  = szopp
-    btgedr(nsbuf)   = ibtg
-    bdegr(nsbuf)    = idgr
-    bqrv(nsbuf)     = qrv
-    bqtr(nsbuf)     = qtr
-    bcatnr(nsbuf)   = ibroncat
-    blandnr(nsbuf)  = iland
+    bsterkte(nsbuf)  = qob
+    bwarmte(nsbuf)   = qww
+    bhoogte(nsbuf)   = hbron
+    bdiam(nsbuf)     = diameter
+    bsigmaz(nsbuf)   = szopp
+    bD_stack(nsbuf)  = D_stack
+    bV_stack(nsbuf)  = V_stack
+    bTs_stack(nsbuf) = Ts_stack
+    bemis_horizontal(nsbuf) = emis_horizontal
+ 
+    bbuilding(nsbuf) = building
+    btgedr(nsbuf)    = ibtg
+    bdegr(nsbuf)     = idgr
+    bqrv(nsbuf)      = qrv
+    bqtr(nsbuf)      = qtr
+    bcatnr(nsbuf)    = ibroncat
+    blandnr(nsbuf)   = iland
   ENDIF
-ENDDO
+ENDDO  ! Loop over nsbuf
 
 RETURN
 
-1000 CALL SetError('Error reading sources', error)
-CALL ErrorParam('error number', ierr, error)
-
-9999 CALL ErrorParam('file', 'scratch', error)
-CALL ErrorParam('source number', nsbuf, error)
+9998 CALL ErrorParam('file', 'scratch', error)
+9999 CALL ErrorParam('source number', nsbuf, error)
 CALL ErrorCall(ROUTINENAAM, error)
 
 END SUBROUTINE ops_bron_rek

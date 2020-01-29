@@ -38,15 +38,16 @@
 ! CONTAINS PROCEDURES: bepafst, voorlpl, ronafhpar, windsek, windcorr, interp_ctr, interp_tra, interp_sek
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_statparexp(istab, hbron, qww, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, h0,     &
-                       &  hum, ol_metreg_rcp, shear, rcaer, rcnh3, rcno2, tem, uster_metreg_rcp, pcoef, htot, htt, itra, aant,  &
-                       &   xl, rb, ra4, ra50, xvglbr, xvghbr, xloc,xl100, rad, rcso2, temp, regenk, buil, rint, percvk, error)
+SUBROUTINE ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isekt, vw10, aksek, h0,  &
+                       &  hum, ol_metreg_rcp, shear, rcaer, rcnh3, rcno2, temp_C, uster_metreg_rcp, pcoef, htot, htt, itra, aant,                        &
+                       &   xl, rb, ra4, ra50, xvglbr, xvghbr, xloc,xl100, rad, rcso2, coef_space_heating, regenk, buil, rint, percvk, error)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: ops_statparexp
 
 USE m_error
 USE m_commonconst
 USE m_commonfile
+USE m_ops_plumerise
 
 IMPLICIT NONE
 
@@ -57,32 +58,36 @@ PARAMETER      (ROUTINENAAM = 'ops_statparexp')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: istab                       
 REAL*4,    INTENT(IN)                            :: hbron                       
-REAL*4,    INTENT(IN)                            :: qww                         
+REAL*4,    INTENT(IN)                            :: qww    
+REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                     
+LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
 INTEGER*4, INTENT(IN)                            :: iwd                         
 REAL*4,    INTENT(IN)                            :: radius                      
 REAL*4,    INTENT(IN)                            :: uurtot                      
 REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
 REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
-REAL*4,    INTENT(IN)                            :: disx                       
+REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                    
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      
+REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 INTEGER*4, INTENT(OUT)                           :: isekt                      ! 
 REAL*4,    INTENT(OUT)                           :: vw10                       ! 
 REAL*4,    INTENT(OUT)                           :: aksek(12)                  ! 
 REAL*4,    INTENT(OUT)                           :: h0                         ! 
 REAL*4,    INTENT(OUT)                           :: hum                        ! 
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp                         ! 
+REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
 REAL*4,    INTENT(OUT)                           :: shear                      ! 
 REAL*4,    INTENT(OUT)                           :: rcaer                      ! 
 REAL*4,    INTENT(OUT)                           :: rcnh3                      ! 
 REAL*4,    INTENT(OUT)                           :: rcno2                      ! 
-REAL*4,    INTENT(OUT)                           :: tem                        ! 
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp                      ! 
+REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
 REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
 REAL*4,    INTENT(OUT)                           :: htot                       ! 
 REAL*4,    INTENT(OUT)                           :: htt                        ! 
@@ -98,7 +103,7 @@ REAL*4,    INTENT(OUT)                           :: xloc                       !
 REAL*4,    INTENT(OUT)                           :: xl100                      ! 
 REAL*4,    INTENT(OUT)                           :: rad                        ! 
 REAL*4,    INTENT(OUT)                           :: rcso2                      ! 
-REAL*4,    INTENT(OUT)                           :: temp                       ! 
+REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
 REAL*4,    INTENT(OUT)                           :: regenk                     ! 
 REAL*4,    INTENT(OUT)                           :: buil                       ! 
 REAL*4,    INTENT(OUT)                           :: rint                       ! 
@@ -134,6 +139,7 @@ REAL*4                                           :: sttr(NCOMP)                !
 REAL*4                                           :: sa                         ! 
 REAL*4                                           :: so                         ! 
 REAL*4                                           :: sp                         ! 
+real                                             :: dum                        ! dummy output variable
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -141,11 +147,17 @@ sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Compute preliminary plume rise; preliminary in the sense that later on (ops_conc_ini)
-! corrections may be applied (e.g. for heavy particles).
-! ("voorl" << voorlopig = preliminary, pl << plume)
+! stability is defined in terms of L and U*, instead of stability class (as in ops_plumerise_prelim) 
+! and that corrections may be applied (e.g. for heavy particles).
+! Also get values of vw10 and pcoef 
 !
-CALL voorlpl(istab, isek, hbron, qww, astat, vw10, pcoef, htt)
-!
+! write(*,'(a,4(1x,e12.5),2(1x,i6))') 'before call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0,istab,isek
+! write(*,'(a,4(1x,e12.5))') 'before call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0
+call ops_plumerise_prelim(istab,isek,astat,hbron,qww,D_stack,V_stack,Ts_stack,emis_horizontal,htt,error) 
+if (error%haserror) goto 9999
+call ops_wv_powerlaw(istab,isek,astat,hbron,dum,vw10,pcoef)
+!write(*,'(a,4(1x,e12.5))') 'after call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0
+
 ! Compute, given a source - receptor direction (taking into account plume rise and wind shear),
 ! the wind sector where this direction lies in (iss), the wind sectors between which to 
 ! interpolate (isekt,is) and the interpolation factor (s).
@@ -210,8 +222,8 @@ IF (aant > EPS_DELTA) THEN
 ! Interpolate meteo parameters over wind sectors 
 !
   CALL interp_sek(istab, iss, itrx, is, s, isekt, stt, astat, xl, vw10, rb, ra4, ra50, xvglbr, xvghbr, uster_metreg_rcp,        &
-               &  tem, ol_metreg_rcp, h0, xloc, xl100, sp, rad, rcso2, hum, pcoef, rcnh3, rcno2, rcaer,                         &
-               &  buil, rint, shear, dscor, temp, regenk)
+               &  temp_C, ol_metreg_rcp, h0, xloc, xl100, sp, rad, rcso2, hum, pcoef, rcnh3, rcno2, rcaer,                      &
+               &  buil, rint, shear, dscor, coef_space_heating, regenk)
 !
 ! Compute the effective travel distance between source and receptor
 !
@@ -248,23 +260,23 @@ IF (aant > EPS_DELTA) THEN
 !
 !    Note: rcso2 is no longer used; instead OPS uses DEPAC RC-values 
 !
-     so     = (r*sa)       + (1. - r)*so
-     xl     = (r*stta(2))  + (1. - r)*sttr(2)
-     rb     = (r*stta(4))  + (1. - r)*sttr(4)
-     r4     = (r*stta(5))  + (1. - r)*sttr(5)
-     r50    = (r*stta(6))  + (1. - r)*sttr(6)
-     regenk = (r*stta(11)) + (1. - r)*sttr(11)
-     rad    = (r*stta(14)) + (1. - r)*sttr(14)
-     rcso2  = (r*stta(16)) + (1. - r)*sttr(16)
-     uster_metreg_rcp  = (r*stta(19)) + (1. - r)*sttr(19)
-     tem    = (r*stta(20)) + (1. - r)*sttr(20)
-     ol_metreg_rcp     = (r*stta(22)) + (1. - r)*sttr(22)
-     h0     = (r*stta(23)) + (1. - r)*sttr(23)
-     rcno2  = (r*stta(25)) + (1. - r)*sttr(25)
-     rcnh3  = (r*stta(26)) + (1. - r)*sttr(26)
-     rcaer  = (r*stta(27)) + (1. - r)*sttr(27)
-     ra4    = r4 - rb
-     ra50   = r50 - rb
+     so               = (r*sa)       + (1. - r)*so
+     xl               = (r*stta(2))  + (1. - r)*sttr(2)
+     rb               = (r*stta(4))  + (1. - r)*sttr(4)
+     r4               = (r*stta(5))  + (1. - r)*sttr(5)
+     r50              = (r*stta(6))  + (1. - r)*sttr(6)
+     regenk           = (r*stta(11)) + (1. - r)*sttr(11)
+     rad              = (r*stta(14)) + (1. - r)*sttr(14)
+     rcso2            = (r*stta(16)) + (1. - r)*sttr(16)
+     uster_metreg_rcp = (r*stta(19)) + (1. - r)*sttr(19)
+     temp_C           = (r*stta(20)) + (1. - r)*sttr(20)
+     ol_metreg_rcp    = (r*stta(22)) + (1. - r)*sttr(22)
+     h0               = (r*stta(23)) + (1. - r)*sttr(23)
+     rcno2            = (r*stta(25)) + (1. - r)*sttr(25)
+     rcnh3            = (r*stta(26)) + (1. - r)*sttr(26)
+     rcaer            = (r*stta(27)) + (1. - r)*sttr(27)
+     ra4              = r4 - rb
+     ra50             = r50 - rb
      
      
   ELSE
@@ -328,14 +340,14 @@ PARAMETER      (ROUTINENAAM = 'bepafst')
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
 REAL*4,    INTENT(IN)                            :: s(NTRAJ)                   ! 
 REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
+REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: dscor(NTRAJ)               ! Note: dscor is not used anymore after this routine
 REAL*4,    INTENT(INOUT)                         :: xl                         ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! 
+REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: ids                        ! 
@@ -487,6 +499,7 @@ IF (ABS(qww) .GT. EPS_DELTA) THEN
    ELSE
       utop = vw10
    ENDIF
+   write(*,'(a,2(1x,e12.5))') 'voorlpl a',hbron,utop
    
    IF (istab .GE. 5) THEN
 !
@@ -496,14 +509,18 @@ IF (ABS(qww) .GT. EPS_DELTA) THEN
 !     more suited for industrial sources
 !
       delh = 65.*(qww/utop)**.333
+      write(*,'(a,2(1x,e12.5))') 'voorlpl b',hbron,delh
+
 !
 !  plume rise for non-stable conditions; split into Qww < 6 and Qww > 6
 !  (3.25, 3.26 OPS report)
 !
    ELSE IF (qww .LT. (6. - EPS_DELTA)) THEN
       delh = 109.*(qww**.75)/utop
+      write(*,'(a,2(1x,e12.5))') 'voorlpl c',hbron,delh
    ELSE
       delh = 143.*(qww**.6)/utop
+      write(*,'(a,2(1x,e12.5))') 'voorlpl d',hbron,delh
    ENDIF
 !
 !  Compute preliminary plume height
@@ -875,6 +892,8 @@ END SUBROUTINE windsek
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE windcorr(itra, istab, radius, disx, isek, iwdd, is, astat, iss, ispecial, phi, s)
 
+USE Binas, only: rad2deg
+
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'windcorr')
@@ -922,7 +941,7 @@ IF ((ABS(astat(itra, 1, istab, iss)) .LE. EPS_DELTA) .AND. (radius .GT. (0. + EP
    ! disx < radius,  then phi = 60 degrees
    ! 
    IF (radius .LT. (disx - EPS_DELTA)) THEN
-      phi = (ASIN(radius/disx) + PI/NSEK)*CONV
+      phi = (ASIN(radius/disx) + PI/NSEK)*rad2deg
    ELSE
       phi = 60. 
    ENDIF
@@ -1147,9 +1166,9 @@ END SUBROUTINE interp_tra
 ! DESCRIPTION        : In deze routine worden de meteostatistiek geinterpoleerd over de windsektoren.
 !                      Note that interp_sek is calles with isek = isekt.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE interp_sek(istab, iss, itrx, is, s, isek, stt, astat, xl, vw10, rb, ra4, ra50, xvglbr, xvghbr, uster_metreg_rcp,     &
-                   &  tem, ol_metreg_rcp, h0, xloc, xl100, sp, rad, rcso2, hum, pcoef, rcnh3, rcno2, rcaer, buil, rint, shear,  &
-                   &  dscor, temp, regenk)    
+SUBROUTINE interp_sek(istab, iss, itrx, is, s, isek, stt, astat, xl, vw10, rb, ra4, ra50, xvglbr, xvghbr, uster_metreg_rcp,       &
+                   &  temp_C, ol_metreg_rcp, h0, xloc, xl100, sp, rad, rcso2, hum, pcoef, rcnh3, rcno2, rcaer, buil, rint, shear, &
+                   &  dscor, coef_space_heating, regenk)    
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -1176,9 +1195,9 @@ REAL*4,    INTENT(OUT)                           :: ra4                        !
 REAL*4,    INTENT(OUT)                           :: ra50                       ! 
 REAL*4,    INTENT(OUT)                           :: xvglbr                     ! 
 REAL*4,    INTENT(OUT)                           :: xvghbr                     ! 
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp                      ! 
-REAL*4,    INTENT(OUT)                           :: tem                        ! 
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp                         ! 
+REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
+REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
 REAL*4,    INTENT(OUT)                           :: h0                         ! 
 REAL*4,    INTENT(OUT)                           :: xloc                       ! 
 REAL*4,    INTENT(OUT)                           :: xl100                      ! 
@@ -1194,7 +1213,7 @@ REAL*4,    INTENT(OUT)                           :: buil                       !
 REAL*4,    INTENT(OUT)                           :: rint                       ! 
 REAL*4,    INTENT(OUT)                           :: shear                      ! 
 REAL*4,    INTENT(OUT)                           :: dscor(NTRAJ)               ! 
-REAL*4,    INTENT(OUT)                           :: temp                       ! 
+REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
 REAL*4,    INTENT(OUT)                           :: regenk                     ! 
 
 ! DATA
@@ -1223,18 +1242,18 @@ sccsida = '%W%:%E%'//char(0)
 !        22. Monin-Obukhov length L [m]
 !        23. sensible heat flux H0 [W/m2]
 !
-xl     = stt(2)
-vw10   = stt(3)
-rb     = stt(4)
-ra4    = stt(5) - rb
-ra50   = stt(6) - rb
-xvglbr = stt(7)
-xvghbr = stt(8)
-uster_metreg_rcp  = stt(19)
-tem    = stt(20)
-shear  = stt(21)
-ol_metreg_rcp     = stt(22)
-h0     = stt(23)
+xl               = stt(2)
+vw10             = stt(3)
+rb               = stt(4)
+ra4              = stt(5) - rb
+ra50             = stt(6) - rb
+xvglbr           = stt(7)
+xvghbr           = stt(8)
+uster_metreg_rcp = stt(19)
+temp_C           = stt(20)
+shear            = stt(21)
+ol_metreg_rcp    = stt(22)
+h0               = stt(23)
 !
 ! Special cases for mixing height
 ! xl100: mixing height at 100 km 
@@ -1296,9 +1315,8 @@ dscor(2:NTRAJ)=(1. - sp)*astat(2:NTRAJ, 9, istab, isek) + sp*astat(2:NTRAJ, 9, i
 ! Interpolate meteo parameters 10-11 for current stability class and distance class,
 ! between wind direction sectors isek and is
 !
-temp   = (1. - sp)*astat(itrx, 10, istab, isek) + sp*astat(itrx, 10, istab, is)
-
-regenk = (1. - sp)*astat(itrx, 11, istab, isek) + sp*astat(itrx, 11, istab, is)
+coef_space_heating = (1. - sp)*astat(itrx, 10, istab, isek) + sp*astat(itrx, 10, istab, is)
+regenk             = (1. - sp)*astat(itrx, 11, istab, isek) + sp*astat(itrx, 11, istab, is)
 !
 ! No interpolation for buil (length of rainfall period) and rint (rain intensity);
 ! they are not interpolated, because there may be many zeros (-> does not occur) in one of the two interpolating sectors

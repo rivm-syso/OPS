@@ -42,9 +42,10 @@
 ! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_conltexp(rond, ol, qbron, szopp, uster, z0, htt, onder, vw10, pcoef, istab, disx, grof, iwd, qww, hbron,        &
-                     &  dispg, radius, htot, c, sigz, ueff, xl, virty)
+                     &  dispg, radius, htot, c, sigz, ueff, xl, virty, error)
 
 USE m_commonconst
+USE m_error
 
 IMPLICIT NONE
 
@@ -82,6 +83,8 @@ REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: radius                     ! 
 REAL*4,    INTENT(INOUT)                         :: htot                       ! 
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
+
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: c                          ! long-term concentation at receptor at z = 0; excluding removal processes
@@ -214,6 +217,8 @@ ELSE
 !
       CALL par_puntbr(qww, istab, disx, disp, htt, htot, hbron, dispg, sigz, hf, a, virty)
    ENDIF
+   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,',' ircp,istab,qww, disx, disp, htt, htot, hbron, onder, pld, dispg(istab), sigz, hf, a, virty:', &
+                                                                                    -999,istab,qww, disx, disp, htt, htot, hbron, onder, pld, dispg(istab), sigz, hf, a, virty
 !
 !  Compute help variable pp = sigma_z/mixing_height = sigma_z/zi
 !
@@ -380,6 +385,8 @@ CONTAINS
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE par_oppbr(rond, iwd, disx, istab, disp, htt, grof, dispg, zwcor, radius, sz, virty, rr, sigz, pld, htot)
 
+USE Binas, only: deg2rad
+
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'par_oppbr')
@@ -438,8 +445,8 @@ ELSE
 !   Square area source;
 !   Compute correction factor cr for corrected source radius r' = r*cr, such that r' represents a square area source 
 !
-   dx    = ABS(radius*SIN(FLOAT(iwd)/CONV))
-   dy    = ABS(radius*COS(FLOAT(iwd)/CONV))
+   dx    = ABS(radius*SIN(FLOAT(iwd)*deg2rad))
+   dy    = ABS(radius*COS(FLOAT(iwd)*deg2rad))
    rr    = AMAX1(dx, dy)
    cr    = radius/rr
 ENDIF

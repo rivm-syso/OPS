@@ -36,7 +36,7 @@
 ! CALLED FUNCTIONS   : depac
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_depos_rc(icm, iseiz, mb, gym ,tem, uster, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_per, ra, rb, rc_eff_pos, rc_eff)
+SUBROUTINE ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_per, ra, rb, rc_eff_pos, rc_eff)
 
 USE m_commonconst
 USE m_depac318
@@ -54,7 +54,7 @@ INTEGER*4, INTENT(IN)                            :: mb                         !
 INTEGER*4, INTENT(IN)                            :: nwet                       ! 
 REAL*4,    INTENT(IN)                            :: hum                        ! 
 REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity [m/s]
-REAL*4,    INTENT(IN)                            :: tem                        ! 
+REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
 REAL*4,    INTENT(IN)                            :: gym                        !
 REAL*4,    INTENT(IN)                            :: glrad                      ! 
 REAL*4,    INTENT(IN)                            :: ratns                      ! 
@@ -155,7 +155,7 @@ DO luclass = 1,NLU
 !           ccomp_tot   : total compensation point (is not used here)
 !           rc_eff_depac: effective Rc (includes effect of compensation point); rc_eff_depac depends on the value of Ra and Rb.
 !          
-        CALL depac318(CNAME(icm,5), day_of_year, gym ,tem, uster, glrad, sinphi, hum, nwet, luclass, nint(ratns),           & 
+        CALL depac318(CNAME(icm,5), day_of_year, gym ,temp_C, uster, glrad, sinphi, hum, nwet, luclass, nint(ratns),   & 
                     & rc_tot, c_ave_prev, max(catm,catm_min), ccomp_tot, ra, rb, rc_eff_depac)
 !
 !          Detect missing values and set default values

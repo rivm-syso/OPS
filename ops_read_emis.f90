@@ -39,8 +39,8 @@
 ! CALLED FUNCTIONS      :
 ! UPDATE HISTORY        :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_read_emis(icm, gasv, ncatsel, catsel, nlandsel, landsel, spgrid, grid, numbron, dverl, usdverl, pmd, uspmd,     &
-                      &  dv, usdv, presentcode, error)
+SUBROUTINE ops_read_emis(icm, gasv, ncatsel, catsel, nlandsel, landsel, numbron, dverl, usdverl, pmd, uspmd,     &
+                      &  dv, usdv, presentcode, building_present1, error)
 
 USE m_commonconst
 USE m_commonfile
@@ -60,25 +60,26 @@ INTEGER*4, INTENT(IN)                            :: ncatsel
 INTEGER*4, INTENT(IN)                            :: catsel(*)                  
 INTEGER*4, INTENT(IN)                            :: nlandsel                   
 INTEGER*4, INTENT(IN)                            :: landsel(*)                 
-INTEGER*4, INTENT(IN)                            :: spgrid                     
-REAL,      INTENT(IN)                            :: grid                       
+
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: numbron                    ! number of selected sources
-REAL*4,    INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDIST)   ! standard diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDIST) ! user-defined diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDIST)    ! standard particle size distributions
-REAL*4,    INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDIST)  ! user-defined particle size distributions
+REAL*4,    INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDISTR)  ! standard diurnal emission variations distributions
+REAL*4,    INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDISTR)! user-defined diurnal emission variations distributions
+REAL*4,    INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
+REAL*4,    INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
 INTEGER*4, INTENT(OUT)                           :: dv                         ! maximum code diurnal emission variation dverl
 INTEGER*4, INTENT(OUT)                           :: usdv                       ! maximum code user specified diurnal emission variation usdverl
-LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDIST,4)     ! which distribution codes are present
+LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR,4)    ! which distribution codes are present
                                                                                ! presentcode(:,1): diurnal variations
                                                                                ! presentcode(:,2): particle size distributions
                                                                                ! presentcode(:,3): user-defined diurnal variation
                                                                                ! presentcode(:,4): user-defined particle size distributions
+LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file   
+
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: ps                         ! maximum code pmd distribution (dummy)
@@ -124,7 +125,7 @@ ENDIF
 ! Read brnam, the file with sources. Note that this file (and other files later on) are also closed if an error occurred during
 ! reading, therefore the error check is not before the close statement.
 !
-IF (.NOT.sysopen(fu_bron, brnam, 'r', 'sources file', error)) GOTO 9999
+IF (.NOT.sysopen(fu_bron, brnam, 'r', 'emission file', error)) GOTO 9999
 !
 ! Open scratch file
 !
@@ -133,10 +134,10 @@ OPEN(fu_scratch, STATUS = 'SCRATCH')
 !
 ! Read, select and check sources 
 !
-CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, spgrid, grid, numbron, error)
+CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, numbron, building_present1, error)
 
 IF (error%haserror) THEN
-  CALL ErrorParam('Sources file', brnam, error)
+  CALL ErrorParam('emission file', brnam, error)
 ENDIF
 
 CALL sysclose(fu_bron, brnam, error)
@@ -181,15 +182,15 @@ CHARACTER*(*), INTENT(IN)                        :: compdesc                   !
 LOGICAL,   INTENT(IN)                            :: fraction                   ! whether conversion to fractions is required (instead of %)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDIST)   ! array with all distributions 
+REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions 
 INTEGER*4, INTENT(OUT)                           :: maxcode                    ! maximum code used for distribution
-LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDIST)       ! which distribution codes are present
+LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR)       ! which distribution codes are present
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: distcode                   ! code used for distribution; 
                                                                                ! read from the first column of the distributions file.
-                                                                               ! (|distcode| = index into 2nd dimension of distrib(nclass, MAXDIST))
+                                                                               ! (|distcode| = index into 2nd dimension of distrib(nclass, MAXDISTR))
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! DO LOOP counter
@@ -235,7 +236,7 @@ DO WHILE (ierr >= 0)
 !
 !   Check whether distcode is allowed.
 !
-    IF (distcode > MAXDIST) THEN
+    IF (distcode > MAXDISTR) THEN
       CALL SetError('Distribution code exceeds maximum', error)
       GOTO 2000
     ELSEIF (presentcode(distcode)) THEN

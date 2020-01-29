@@ -73,23 +73,27 @@ END INTERFACE
 ! FUNCTION    : GetCheckedKey
 ! DESCRIPTION : This function checks a string for the name of input parameter. Then the value of the parameter is extracted and
 !               assigned to it. This function also checks whether the parameter is inside a specified range. If no value is
-!               extracted a default is set.
+!               extracted, a default is set.
 ! INPUTS      : parname    (character*(*)). Name of the parameter.
 !               lower      (type, type is generic). Lower limit of value allowed.
 !               upper      (type, type is generic). Upper limit of value allowed.
-!               isrequired (logical) Whether a value is required. If not a default can be assigned.
+!               isrequired (logical) Whether a value is required. If not, a default can be assigned.
 ! OUTPUTS     : value      (type, type is generic) value assigned to the parameter.
 !               error      (TError object). Assigned when an error occurred.
 ! RESULT      : Logical.    False if an error was detected.
 ! REMARK      : GetCheckedKey is generic for the following types:
 !                           integer*4
 !                           real*4
-! REMARK2     : A special checked key instance checks filepaths and has a different profile (isrequired is not passed):
-!             : parname    (character*(*)). Name of the parameter. checkdefine(logical). If flag is set: test whether name was
-!                           entered.
-!               checkexists(logical) If flag is set: test whether file path is present, otherwise an error is returned.
-!               value      (character*(*)) Output: the path of the file. the parameter.
-!               error      (TError object). Assigned when an error occurred.
+!                           logical
+!                           real*4
+! REMARK2     : A special GetCheckedKey instance (check_exist_file) checks filepaths and has a different argument list (isrequired is not passed):
+!  INPUTS
+!               parname    (character*(*))      Name of the parameter. 
+!               checkdefine(logical)            file name must be defined (must be present on the input line); note that this is not checked if checkexist is .false.
+!               checkexists(logical)            file name must exist
+!  OUTPUTS
+!               value      (character*(*))      The name of the file
+!               error      (TError object).     Assigned when an error occurred.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE GetCheckedKey
    MODULE PROCEDURE check_range_real
@@ -788,12 +792,24 @@ FUNCTION check_exist_file(parname, checkdefine, checkexist, filename, error)
 USE m_fileutils
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
-LOGICAL,   INTENT(IN)                            :: checkdefine                ! if set and checkexist set, this function
-LOGICAL,   INTENT(IN)                            :: checkexist                 ! if set, this function checks whether filename
+CHARACTER*(*), INTENT(IN)                        :: parname                    ! name of the parameter
+LOGICAL,   INTENT(IN)                            :: checkdefine                ! file name must be defined (must be present on the input line); note that this is not checked if checkexist is .false.
+LOGICAL,   INTENT(IN)                            :: checkexist                 ! file name must exist
+
+                                                                               ! if checkexist     -> if filename empty     -> if checkdefine -> error
+                                                                               !                                            -> if NOT checkdefine -> OK
+                                                                               !                      if filename not empty -> file exists -> OK
+                                                                               !                                            -> file does not exist -> error
+                                                                               ! if NOT checkexist -> OK (no checks)
+
+                                                                               ! Special case checkdefine = .TRUE.
+                                                                               ! if checkexist     -> if filename empty     -> error
+                                                                               !                      if filename not empty -> file exists -> OK
+                                                                               !                                            -> file does not exist -> error
+                                                                               ! if NOT checkexist -> OK (no checks)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: filename                   ! 
+CHARACTER*(*), INTENT(OUT)                       :: filename                   ! name of the file
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT

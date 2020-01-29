@@ -1146,9 +1146,18 @@ ELSE
 ENDIF
 k1 = mod(ishort, maxint2)
 k2 = ishort/maxint2
-j  = k1*maxint2 + k2 + iflg
-IF ( j .GT. 32768 ) THEN
-  j = j - 65536
+!! The following code may lead to overflow 
+!! j  = k1*maxint2 + k2 + iflg
+!! IF ( j .GT. 32768 ) THEN
+!!   j = j - 65536
+!! ENDIF
+IF (k1 > 128) THEN ! 32768/maxint2 = 128
+   j  = (k1-256)*maxint2 + k2 + iflg ! 256*maxint2 = 65536
+ELSE
+   j  = k1*maxint2 + k2 + iflg
+   IF ( j .GT. 32768 ) THEN
+      j = j - 65536
+   ENDIF
 ENDIF
 ishort = j
 
@@ -1274,6 +1283,15 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'GetOS')
 
 rtc = GETCWD(directory)
+
+!! ! GETCWD is compiler dependent; alternative with IFNDEF Unix:
+!! #ifndef UNIX
+!!    os = 1   ! Windows
+!!    IF (PRESENT(slash)) slash = '\'
+!! #else
+!!    os = 0   ! Unix
+!!    IF (PRESENT(slash)) slash = '/'
+!! #endif
 
 colonpos = INDEX(directory,':')
 
