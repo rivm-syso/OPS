@@ -688,17 +688,17 @@ IF (checkparname(parname,string , error)) THEN
 string  = adjustl(string)
 endlpos = len_trim(string)
 nword   = 0
-first   = .TRUE.
+first   = 1
 !
 ! Look for number of numbers in string
 !
 DO i = 1,endlpos
   IF (string(i:i) == "                                                         ! ") GOTO 101
-  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first) THEN
+  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first == 1) THEN
     nword = nword + 1
-    first = .FALSE.
+    first = 0
   ELSE
-    IF ((ichar(string(i:i)) == ichar(" ")) .and. .not.first) first = .TRUE.
+    IF ((ichar(string(i:i)) == ichar(" ")) .and. first == 0) first = 1
   ENDIF
 ENDDO
 101 CONTINUE
@@ -708,17 +708,17 @@ ENDDO
 nword    = 1
 beginpos = 1
 endpos   = 1
-first    = .TRUE.
+first    = 1
 DO i = 1,endlpos
   IF (string(i:i) == "                                                         ! ") GOTO 102
-  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first) THEN
+  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first == 1) THEN
     beginpos = i
-    first    = .FALSE.
+    first    = 0
   ELSE
-    IF ((ichar(string(i:i)) == ichar(" ")) .and. .not.first) THEN
-      first  = .TRUE.
+    IF ((ichar(string(i:i)) == ichar(" ")) .and. first == 0) THEN
+      first  = 1
       endpos = i-1
-      value(nword) = inum(string(beginpos:endpos))
+      read(string(beginpos:endpos), *) value(nword)
 !
 !     Check whether a value is required. If not the default MISVALNUM is accepted.
 !
@@ -742,7 +742,7 @@ DO i = 1,endlpos
     ENDIF
   ENDIF
 ENDDO
-value(nword) = inum(string(beginpos:endlpos))
+read(string(beginpos:endlpos), *) value(nword)
 102 CONTINUE
 !
 ! Check whether a value is required. If not the default MISVALNUM is accepted.

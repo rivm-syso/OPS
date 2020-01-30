@@ -73,7 +73,7 @@ USE m_fileutils
 USE m_error
 USE m_commonconst
 USE m_commonfile
-USE IFPORT
+!USE IFPORT
 
 IMPLICIT NONE
 
