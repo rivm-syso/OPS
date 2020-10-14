@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                 : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE     : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               :
+! AUTHOR               : OPS-support 
 ! FIRM/INSTITUTE       : RIVM/LLO
 ! LANGUAGE             : FORTRAN-77/90
 ! USAGE                :
@@ -36,15 +39,16 @@
 ! CALLED FUNCTIONS     :
 ! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_tra_char (icm, f_z0user, z0_user, nrrcp, x_rcp, y_rcp, x_src, y_src,                          &
-                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, domlu,                & 
-                      &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra,                                   &
+SUBROUTINE ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, nrrcp, x_rcp, y_rcp, x_src, y_src,                           &
+                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu, & 
+                      &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra,       &
                       &  error)
 
 USE m_commonconst
 USE m_commonfile
 USE m_error
 USE m_aps
+USE m_ops_vchem
 
 IMPLICIT NONE
 
@@ -54,6 +58,7 @@ PARAMETER    (ROUTINENAAM = 'ops_tra_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
+INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
 REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! aantal receptorpunten
@@ -67,6 +72,7 @@ TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  !
 TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! 
 TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  ! 
 TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! 
+TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2                     !
 LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -76,6 +82,8 @@ REAL*4,    INTENT(OUT)                           :: so2bgtra                   !
 REAL*4,    INTENT(OUT)                           :: no2bgtra                   ! 
 REAL*4,    INTENT(OUT)                           :: nh3bgtra                   ! 
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+
+! LOCAL VARIABLES:
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -92,11 +100,8 @@ ELSE
 !      Calculate average roughness length and land use for path between source and receptor
 !
   CALL ops_getz0_tra(x_rcp, y_rcp, float(x_src), float(y_src), z0nlgrid, z0eurgrid, z0_tra)
-  CALL ops_getlu_tra(x_rcp, y_rcp, float(x_src), float(y_src), lugrid, domlu, lu_tra_per)
+IF (ANY(icm == (/1,2,3/))) CALL ops_getlu_tra(x_rcp, y_rcp, float(x_src), float(y_src), lugrid, domlu, lu_tra_per)
 ENDIF
-!write(*,'(a,a,1x,e12.5)')     trim(ROUTINENAAM),' z0_tra:',z0_tra
-!write(*,'(a,a,99(1x,e12.5))') trim(ROUTINENAAM),' lu_tra_per:',lu_tra_per
-
 !
 !   Calculate average (actual) concentration levels of SO2, NO2 and NH3 between source and receptor
 !   from background concentration maps which are scaled on the basis of measurements
@@ -104,7 +109,13 @@ ENDIF
 IF (ANY(icm == (/1,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), so2bggrid, so2bgtra)
 IF (ANY(icm == (/2,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), no2bggrid, no2bgtra)
 IF (ANY(icm == (/1,2,3/))) CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), nh3bggrid, nh3bgtra)
-! write(*,'(a,a,3(1x,e12.5))') trim(ROUTINENAAM),' so2bgtra,no2bgtra,nh3bgtra:',so2bgtra,no2bgtra,nh3bgtra
+
+! Compute average mass_prec and mass_conv_dtfac values ocver trajectory (EMEP option iopt_vchem = 1):
+IF ((icm == 1 .or. icm == 2 .or. icm == 3) .and. iopt_vchem .eq. 1) then
+   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), vchem2%mass_prec_grid, vchem2%mass_prec_tra)
+   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), vchem2%mass_conv_dtfac_grid, vchem2%mass_conv_dtfac_tra)
+   ! write(*,*) 'ops_tra_char: ',vchem2%mass_prec_tra,vchem2%mass_conv_dtfac_tra,vchem2%mass_conv_dtfac_tra/vchem2%mass_prec_tra
+ENDIF
 
 RETURN
 

@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! MODULE             : getkey
 ! IMPLEMENTS         : Generic functions GetKeyValue and GetCheckedKey.
@@ -25,7 +28,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : Martien de Haan (ARIS)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-90
 ! DESCRIPTION        : Checks name of parameter and extracts a value for that parameter, or sets a default.
@@ -73,33 +76,30 @@ END INTERFACE
 ! FUNCTION    : GetCheckedKey
 ! DESCRIPTION : This function checks a string for the name of input parameter. Then the value of the parameter is extracted and
 !               assigned to it. This function also checks whether the parameter is inside a specified range. If no value is
-!               extracted, a default is set.
+!               extracted a default is set.
 ! INPUTS      : parname    (character*(*)). Name of the parameter.
 !               lower      (type, type is generic). Lower limit of value allowed.
 !               upper      (type, type is generic). Upper limit of value allowed.
-!               isrequired (logical) Whether a value is required. If not, a default can be assigned.
+!               isrequired (logical) Whether a value is required. If not a default can be assigned.
 ! OUTPUTS     : value      (type, type is generic) value assigned to the parameter.
 !               error      (TError object). Assigned when an error occurred.
 ! RESULT      : Logical.    False if an error was detected.
 ! REMARK      : GetCheckedKey is generic for the following types:
 !                           integer*4
 !                           real*4
-!                           logical
-!                           real*4
-! REMARK2     : A special GetCheckedKey instance (check_exist_file) checks filepaths and has a different argument list (isrequired is not passed):
-!  INPUTS
-!               parname    (character*(*))      Name of the parameter. 
-!               checkdefine(logical)            file name must be defined (must be present on the input line); note that this is not checked if checkexist is .false.
-!               checkexists(logical)            file name must exist
-!  OUTPUTS
-!               value      (character*(*))      The name of the file
-!               error      (TError object).     Assigned when an error occurred.
+! REMARK2     : A special checked key instance checks filepaths and has a different profile (isrequired is not passed):
+!             : parname    (character*(*)). Name of the parameter. checkdefine(logical). If flag is set: test whether name was
+!                           entered.
+!               checkexists(logical) If flag is set: test whether file path is present, otherwise an error is returned.
+!               value      (character*(*)) Output: the path of the file. the parameter.
+!               error      (TError object). Assigned when an error occurred.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE GetCheckedKey
    MODULE PROCEDURE check_range_real
    MODULE PROCEDURE check_range_integer
    MODULE PROCEDURE check_range_integer_array
    MODULE PROCEDURE check_exist_file
+   MODULE PROCEDURE check_range_string
 END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ LOGICAL                                          :: check_range_real           !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Retrieve the integer value for parname.
+! Retrieve the real value for parname.
 !
 check_range_real = .TRUE.
 IF (GetKeyValue(parname, value, error)) THEN
@@ -678,7 +678,7 @@ CHARACTER*512                                    :: string                     !
 LOGICAL                                          :: check_range_integer_array  ! 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Retrieve the integer value for parname.
+! Retrieve the integer array value for parname.
 !
 check_range_integer_array = .TRUE.
 IF (checkparname(parname,string , error)) THEN
@@ -792,24 +792,12 @@ FUNCTION check_exist_file(parname, checkdefine, checkexist, filename, error)
 USE m_fileutils
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! name of the parameter
-LOGICAL,   INTENT(IN)                            :: checkdefine                ! file name must be defined (must be present on the input line); note that this is not checked if checkexist is .false.
-LOGICAL,   INTENT(IN)                            :: checkexist                 ! file name must exist
-
-                                                                               ! if checkexist     -> if filename empty     -> if checkdefine -> error
-                                                                               !                                            -> if NOT checkdefine -> OK
-                                                                               !                      if filename not empty -> file exists -> OK
-                                                                               !                                            -> file does not exist -> error
-                                                                               ! if NOT checkexist -> OK (no checks)
-
-                                                                               ! Special case checkdefine = .TRUE.
-                                                                               ! if checkexist     -> if filename empty     -> error
-                                                                               !                      if filename not empty -> file exists -> OK
-                                                                               !                                            -> file does not exist -> error
-                                                                               ! if NOT checkexist -> OK (no checks)
+CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+LOGICAL,   INTENT(IN)                            :: checkdefine                ! if set and checkexist set, this function
+LOGICAL,   INTENT(IN)                            :: checkexist                 ! if set, this function checks whether filename
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: filename                   ! name of the file
+CHARACTER*(*), INTENT(OUT)                       :: filename                   ! 
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
@@ -857,5 +845,71 @@ RETURN
 RETURN
 
 END FUNCTION check_exist_file
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE           : check_range_string
+! DESCRIPTION          : This function checks a string for the name of the parameter. Then the string value of the parameter is
+!                        extracted and assigned to the parameter.
+!                        If no value is extracted a default is set (empty string). If a value is extracted it is checked whether the value lies
+!                        within input limits (for strings, the lower and upper limits are normally the same, which means that the input string 
+!                        must be equal to the limit values. 
+! RESULT               : False if an error was detected.
+! CALLED FUNCTIONS     : get_key
+!-------------------------------------------------------------------------------------------------------------------------------
+FUNCTION check_range_string(parname,lower,upper,isrequired, value, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: check_range_real
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: parname                    ! parameter name
+CHARACTER*(*), INTENT(IN)                        :: lower                      ! lower limit of value
+CHARACTER*(*), INTENT(IN)                        :: upper                      ! upper limit of value
+LOGICAL,       INTENT(IN)                        :: isrequired                 ! whether a value is required
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+CHARACTER*(*), INTENT(OUT)                       :: value                      ! string value extracted
+TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+
+! RESULT
+LOGICAL                                          :: check_range_string         ! 
+
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! Retrieve the string value for parname.
+!
+check_range_string = .TRUE.
+IF (GetKeyValue(parname, value, error)) THEN
+!
+! Check whether a value is required
+!
+  IF (isrequired ) THEN
+!
+!   Check lower limit.
+!
+    IF (value.LT.lower) THEN
+      CALL SetError('Value read is below allowed lower limit', error)
+      GOTO 1000
+    ENDIF
+!
+!   Check upper limit.
+!
+    IF (value.GT.upper) THEN
+      CALL SetError('Value read is above allowed upper limit', error)
+      GOTO 1000
+    ENDIF
+  ENDIF
+ENDIF
+
+RETURN
+!
+! Range error occurred. Append some parameters to error.
+!
+1000 CALL ErrorParam('parameter', parname, error)
+CALL ErrorParam('value read', value, error)
+CALL ErrorParam('lower limit', lower, error)
+CALL ErrorParam('upper limit', upper, error)
+check_range_string = .FALSE.
+
+END FUNCTION check_range_string
 
 END MODULE m_getkey

@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! MODULE               : aps
 ! IMPLEMENTS           : aps-grid related grid-types:
@@ -29,7 +32,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : Martien de Haan (ARIS)
+! AUTHOR               : OPS-support   
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN(HP-F90)
 ! DESCRIPTION          : Handling of aps grid data.
@@ -78,7 +81,7 @@ END TYPE TApsGridInt
 !-------------------------------------------------------------------------------------------------------------------------------
 TYPE TApsGridReal
    TYPE (TGridHeader)                            :: gridheader                 ! grid header
-   REAL*4                                        :: average                    ! average of all grid values
+   REAL*4, DIMENSION(:), POINTER                 :: average                    ! average of all grid values
    REAL*4, DIMENSION(:,:,:), POINTER             :: value                      ! 3D array with real values
 END TYPE TApsGridReal
 
@@ -189,10 +192,19 @@ sccsida = '%W%:%E%'//char(0)
 !
 nfield = 1
 CALL read_aps_header(88, filename, gridtitle, floatgrid%gridheader, error)  
+IF (error%haserror) GOTO 3000
+
+! Allocate help grid:
 nrcol = floatgrid%gridheader%nrcol
 nrrow = floatgrid%gridheader%nrrow
-ALLOCATE(helpgrid(nrcol,nrrow))
-IF (error%haserror) GOTO 3000
+! write(*,*)'read_aps1: ',trim(gridtitle),nrcol,nrrow
+if (nrcol .le. 0 .or. nrrow .le. 0) then
+   call SetError('need positive nmber of rows and columns in APS header', error)
+   goto 2000
+else
+   ALLOCATE(helpgrid(nrcol,nrrow))
+endif
+
 !
 ! Determine the number of subgrids in the aps-file
 !
@@ -212,11 +224,19 @@ REWIND(88)
 !
 nrcol = floatgrid%gridheader%nrcol
 nrrow = floatgrid%gridheader%nrrow
+! write(*,*)'read_aps2: ',nrcol,nrrow,nfield
 
 ALLOCATE(floatgrid%value(nrcol,nrrow,nfield),STAT=ierr)
 
 IF (ierr.NE.0) THEN
   CALL SetError('Memory allocation error in reading grid data', error)
+  GOTO 1000
+ENDIF
+
+ALLOCATE(floatgrid%average(nfield),STAT=ierr)
+
+IF (ierr.NE.0) THEN
+  CALL SetError('Memory allocation error 2 in reading grid data', error)
   GOTO 1000
 ENDIF
 
@@ -245,8 +265,7 @@ RETURN
 !
 ! Error handling section, first when memory allocation or reading the gridfile failed
 !
-1000 CALL ErrorParam('filename', filename, error)
-CALL ErrorParam('error number', ierr, error)
+1000 CALL ErrorParam('error number', ierr, error)
 !
 ! These parameters are also written when closing the file failed
 !
@@ -254,7 +273,8 @@ CALL ErrorParam('error number', ierr, error)
 CALL ErrorParam('grid dimension nrcol', nrcol, error)
 CALL ErrorParam('grid dimension nrrow', nrrow, error)
 
-3000 CALL ErrorCall(ROUTINENAAM, error)
+3000 CALL ErrorParam('filename', filename, error)
+CALL ErrorCall(ROUTINENAAM, error)
 RETURN
 
 END SUBROUTINE read_aps_real
@@ -388,6 +408,7 @@ PARAMETER         (ROUTINENAAM = 'dealloc_aps_real')
 ! When allocated this object is now deallocated.
 !
 IF (ASSOCIATED(realgrid%value)) DEALLOCATE(realgrid%value)
+IF (ASSOCIATED(realgrid%average)) DEALLOCATE(realgrid%average)
 RETURN
 
 END SUBROUTINE dealloc_aps_real
@@ -456,6 +477,9 @@ IF (.NOT. sysopen(fileunit, filename, 'rb', 'aps file', error)) GOTO 9999
 !
 READ(fileunit, IOSTAT = ierr ) ij,inu1,inu2,inu3,kmpnm, eenheid, oors, comment, form, kode, gridheader%xorgl,                  &
                 &  gridheader%yorgl, gridheader%nrcol, gridheader%nrrow, gridheader%grixl, gridheader%griyl
+! write(*,*) 'APS header 1 ',ij,inu1,inu2,inu3
+! write(*,*) 'APS header 2 ',kmpnm, eenheid, oors, comment, form, kode
+! write(*,*) 'APS header 3 ',gridheader%xorgl, gridheader%yorgl, gridheader%nrcol, gridheader%nrrow, gridheader%grixl, gridheader%griyl
 
 IF (ierr /= 0) THEN
   IF (ierr > 0) THEN
@@ -511,7 +535,8 @@ IF (PRESENT(factor)) THEN
   grid%value(:,:,fn) = grid%value(:nrcol, :nrrow, fn) * factor
 ENDIF
 
-grid%average = SUM(grid%value(:nrcol,:nrrow,fn)) / COUNT(grid%value(:nrcol, :nrrow,fn) > EPS_DELTA)
+! Each grid has its own average:
+grid%average(fn) = SUM(grid%value(:nrcol,:nrrow,fn)) / COUNT(grid%value(:nrcol, :nrrow,fn) > EPS_DELTA)
 
 END SUBROUTINE set_average
 
@@ -597,7 +622,7 @@ CALL grid_cell_index(x, y, grid%gridheader, m, n, iscell)
 IF (iscell) THEN
   gridvalue = grid%value(m,n,fn)
 ELSE
-  gridvalue = grid%average
+  gridvalue = grid%average(fn)
 ENDIF
 
 RETURN

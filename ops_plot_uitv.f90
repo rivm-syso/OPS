@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 !
@@ -25,7 +28,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : HvJ/ Franka Loeve (Cap Volmac)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Write results to plot-file (*.plt)
@@ -36,8 +39,8 @@
 ! CALLED FUNCTIONS   :
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_plot_uitv(spgrid, isec, coneh, nrrcp, jump, xorg, yorg, nrcol, nrrow, grid, idep, namco, namse3, namsec,        &
-                      &  depeh, namrcp, xm, ym, cpri, csec, drydep, wetdep, icm, cseccor, namseccor, error)
+SUBROUTINE ops_plot_uitv(spgrid, isec, coneh, nrrcp, nsubsec, jump, xorg, yorg, nrcol, nrrow, grid, idep, namco, namse3, namsec,        &
+                      &  depeh, namrcp, xm, ym, cpri, csec, drydep, wetdep, icm, csubsec, nam_subsec, error)
 
 USE m_error
 USE m_commonfile
@@ -51,6 +54,7 @@ INTEGER*4, INTENT(IN)                            :: spgrid                     !
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! 
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! distance between receptor points in grid units
 REAL*4,    INTENT(IN)                            :: xorg                       ! 
 REAL*4,    INTENT(IN)                            :: yorg                       ! 
@@ -70,8 +74,8 @@ REAL*4,    INTENT(IN)                            :: csec(nrrcp)                !
 REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! 
 REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! 
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
-REAL*4,    INTENT(IN)                            :: cseccor(nrrcp)             ! 
-CHARACTER*(*), INTENT(IN)                        :: namseccor                  ! 
+REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
@@ -83,6 +87,7 @@ INTEGER*4                                        :: j                          !
 REAL*4                                           :: xlb                        ! 
 REAL*4                                           :: ylb                        ! 
 REAL*4                                           :: totdep(nrrcp)              ! 
+INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -107,64 +112,36 @@ IF (spgrid .EQ. 2) THEN
 !
 !   Acidifying components
 !
-
-    IF (icm == 2) THEN
-!
-!     NOx
-!
-      WRITE (fu_plt, '(a4,8x,a8,a8,6a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry dep.', 'wet dep.',       &
-          &  'tot.dep.', 'conc.', 'conc.'
+      WRITE (fu_plt, '(a4,8x,a8,a8,9a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',       &
+          &  'tot_dep.', ('conc.', isubsec = 1,nsubsec+1)
       IF (ierr .GT. 0) GOTO 4200
 
       ls = LEN_TRIM(namse3)
-      WRITE (fu_plt, '(28x,6a12)', IOSTAT = ierr) namco(:LEN_TRIM(namco)), namse3(:ls), namse3(:ls), namse3(:ls),              &
-            &  namsec(:LEN_TRIM(namsec)), namseccor(:LEN_TRIM(namseccor))
+      WRITE (fu_plt, '(a4,8x,a8,a8,9a12:)', IOSTAT = ierr) '-', '-', '-', namco(:LEN_TRIM(namco)), namse3(:ls), namse3(:ls), namse3(:ls),              &
+            &  namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,nsubsec)
       IF (ierr .GT. 0) GOTO 4200
 
-      WRITE (fu_plt, '(12x,a8,a8,6a12)', IOSTAT = ierr) 'm', 'm', coneh, depeh, depeh, depeh, 'ug/m3', 'ug/m3'
-      IF (ierr .GT. 0) GOTO 4200
-
-      DO j = 1, nrrcp
-        WRITE (fu_plt, '(a12,2i8,6e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),             &
-                  &  wetdep(j), drydep(j) + wetdep(j), csec(j), cseccor(j)
-        IF (ierr .GT. 0) GOTO 4200
-      ENDDO
-
-    ELSE
-!
-!     other than NOx
-!
-      WRITE (fu_plt, '(a4,8x,a8,a8,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry dep.', 'wet dep.',       &
-          &  'tot.dep.', 'conc.'
-      IF (ierr .GT. 0) GOTO 4200
-
-      ls = LEN_TRIM(namse3)
-      WRITE (fu_plt, '(28x,5a12)', IOSTAT = ierr) namco(:LEN_TRIM(namco)), namse3(:ls), namse3(:ls), namse3(:ls),              &
-            &  namsec(:LEN_TRIM(namsec))
-      IF (ierr .GT. 0) GOTO 4200
-
-      WRITE (fu_plt, '(12x,a8,a8,5a12)', IOSTAT = ierr) 'm', 'm', coneh, depeh, depeh, depeh, 'ug/m3'
+      WRITE (fu_plt, '(a4,8x,a8,a8,9a12:)', IOSTAT = ierr) '-','m', 'm', coneh, depeh, depeh, depeh, ('ug/m3', isubsec = 1,nsubsec+1)
       IF (ierr .GT. 0) GOTO 4200
 
       DO j = 1, nrrcp
-        WRITE (fu_plt, '(a12,2i8,5e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),             &
-                  &  wetdep(j), drydep(j) + wetdep(j), csec(j)
+        WRITE (fu_plt, '(a12,2i8,9e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),             &
+                  &  wetdep(j), drydep(j) + wetdep(j), csec(j), (csubsec(j,isubsec), isubsec = 1,nsubsec)
         IF (ierr .GT. 0) GOTO 4200
       ENDDO
-    ENDIF
-  
+
   ELSE IF (idep) THEN
 !
 !   Depositions
 !  
-    WRITE (fu_plt, '(a4,8x,a8,a8,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry dep.', 'wet dep.',         &
-          &  'tot.dep.'
+    WRITE (fu_plt, '(a4,8x,a8,a8,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',         &
+          &  'tot_dep.'
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(28x,5a12)', IOSTAT = ierr) namco(:5), namse3(:5), namse3(:5), namse3(:5)
+    WRITE (fu_plt, '(a4,8x,a8,a8,5a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5), namse3(:5), namse3(:5), namse3(:5)
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(12x,a8,a8,5a12)', IOSTAT = ierr) 'm', 'm', coneh, depeh, depeh, depeh
+    WRITE (fu_plt, '(a4,8x,a8,a8,5a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh, depeh, depeh, depeh
     IF (ierr .GT. 0) GOTO 4200
 
     DO j = 1, nrrcp
@@ -180,10 +157,10 @@ IF (spgrid .EQ. 2) THEN
     WRITE (fu_plt, '(a4,8x,a8,a8,a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.'
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(28x,a12)', IOSTAT = ierr) namco(:5)
+    WRITE (fu_plt, '(a4,8x,a8,a8,a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5)
     IF (ierr .GT. 0) GOTO 4200
 
-     WRITE (fu_plt, '(12x,a8,a8,a12)', IOSTAT = ierr) 'm', 'm', coneh
+     WRITE (fu_plt, '(a4,8x,a8,a8,a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh
     IF (ierr .GT. 0) GOTO 4200
 
      DO j = 1, nrrcp
@@ -213,30 +190,32 @@ ELSE
 ! Depositions (dry, wet, total)
 !
   IF (idep) THEN
-    CALL plot_mat(fu_plt, drydep, nrrcp, jump, nrcol, nrrow, 'dry deposition        ', namse3, depeh, grid, xlb, ylb, error)
+    CALL plot_mat(fu_plt, drydep, nrrcp, jump, nrcol, nrrow, 'dry_deposition        ', namse3, depeh, grid, xlb, ylb, error)
     IF (error%haserror) GOTO 9000
 
-    CALL plot_mat(fu_plt, wetdep, nrrcp, jump, nrcol, nrrow, 'wet deposition        ', namse3, depeh, grid, xlb, ylb, error)
+    CALL plot_mat(fu_plt, wetdep, nrrcp, jump, nrcol, nrrow, 'wet_deposition        ', namse3, depeh, grid, xlb, ylb, error)
     IF (error%haserror) GOTO 9000
 
     totdep(:nrrcp) = drydep(:) + wetdep(:)
-    CALL plot_mat(fu_plt, totdep, nrrcp, jump, nrcol, nrrow, 'total deposition      ', namse3, depeh, grid, xlb, ylb, error)
+    CALL plot_mat(fu_plt, totdep, nrrcp, jump, nrcol, nrrow, 'total_deposition      ', namse3, depeh, grid, xlb, ylb, error)
     IF (error%haserror) GOTO 9000
   ENDIF
 !
 ! Secondary concentration
 !
   IF (isec) THEN
-    CALL plot_mat(fu_plt, csec, nrrcp, jump, nrcol, nrrow, 'conctr. sec. component', namsec, 'ug/m3', grid, xlb, ylb, error)
+    CALL plot_mat(fu_plt, csec, nrrcp, jump, nrcol, nrrow, 'conctr._sec._component', namsec, 'ug/m3', grid, xlb, ylb, error)
     IF (error%haserror) GOTO 9000
   ENDIF
 !
 ! Second secondary concentration (NOx only, icm = 2)
 !
   IF (icm == 2) THEN
-    CALL plot_mat(fu_plt, cseccor, nrrcp, jump, nrcol, nrrow, 'NO3 concentration     ', namseccor, 'ug/m3', grid, xlb, ylb,    &
+    do isubsec = 1,nsubsec
+       CALL plot_mat(fu_plt, csubsec(:,isubsec), nrrcp, jump, nrcol, nrrow, trim(nam_subsec(isubsec))//'_concentration', nam_subsec(isubsec), 'ug/m3', grid, xlb, ylb,    &
                      &  error)
-    IF (error%haserror) GOTO 9000
+       IF (error%haserror) GOTO 9000
+    enddo
   ENDIF
 
 ENDIF

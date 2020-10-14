@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : Chris Twenh"ofel (Cap Gemini)
+! AUTHOR              : OPS-support  Chris Twenh"ofel (Cap Gemini)
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Calculates summary statistics for concentration and deposition.
@@ -34,10 +37,10 @@
 ! CALLED FUNCTIONS    :
 ! UPDATE HISTORY      :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_calc_stats(nrrcp, frac, cpri, csec, drydep, wetdep, gemre, sdrypri, sdrysec, snatpri, snatsec, somvnpri,        &
-                                &  somvnsec, vvchem, vtel, telvnpri, telvnsec, grid, conc_cf, amol21, ugmoldep, cseccor,       &
+SUBROUTINE ops_calc_stats(nrrcp, nsubsec, frac, cpri, csec, drydep, wetdep, gemre, sdrypri, sdrysec, snatpri, snatsec, somvnpri,        &
+                                &  somvnsec, vvchem, vtel, telvnpri, telvnsec, grid, conc_cf, amol21, ugmoldep, csubsec,       &
                        &  gemcpri, gemcsec, totddep, gemddep, gemddpri, gemddsec, ddrpri, ddrsec, totwdep, gemwdep,            &
-                       &  gemwdpri, gemwdsec, wdrpri, wdrsec, gemprec, tottdep, gemtdep, ccr, gemcseccor)
+                       &  gemwdpri, gemwdsec, wdrpri, wdrsec, gemprec, tottdep, gemtdep, ccr, gem_subsec)
 
 USE m_commonconst                                                              ! EPS_DELTA only
 
@@ -49,6 +52,7 @@ PARAMETER    (ROUTINENAAM = 'ops_calc_stats')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 REAL*4,    INTENT(IN)                            :: frac(nrrcp)                ! fraction per cell inside NL
 REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration [ug/m3]
 REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration [ug/m3]
@@ -67,7 +71,7 @@ REAL*4,    INTENT(IN)                            :: grid                       !
 REAL*4,    INTENT(IN)                            :: conc_cf                    ! 
 REAL*4,    INTENT(IN)                            :: amol21                     ! 
 REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
-REAL*4,    INTENT(IN)                            :: cseccor(nrrcp)             ! concentration of second secondary substance [ug/m3]
+REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 
 ! SUBROUTINE ARGUMENTS - I/O
 DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri                    ! 
@@ -92,7 +96,7 @@ REAL*4,    INTENT(OUT)                           :: gemprec                    !
 REAL*4,    INTENT(OUT)                           :: tottdep                    ! grid total of total deposition (g/s)
 REAL*4,    INTENT(OUT)                           :: gemtdep                    ! grid mean of total deposition ["depeh"]
 REAL*4,    INTENT(OUT)                           :: ccr                        ! effective chemical conversion rate [%/h]
-REAL*4,    INTENT(OUT)                           :: gemcseccor                 ! grid mean for second secondary concentration [ug/m3]
+REAL*4,    INTENT(OUT)                           :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 
 ! LOCAL VARIABLES
 REAL*4                                           :: somcsec                    ! sum of secondary concentrations [ug/m3]
@@ -102,8 +106,9 @@ REAL*4                                           :: somwdep                    !
 ! LOCAL VARIABLES
 REAL*4                                           :: cf                         ! conversion factor
 REAL*4                                           :: somcpri                    ! sum of primary concentrations [ug/m3]
-REAL*4                                           :: somcseccor                 ! sum of second secondary concentrations [ug/m3]
+REAL*4                                           :: som_subsec(nsubsec)        ! sum of concentrations of sub-secondary species [ug/m3]
 REAL*4                                           :: somfrac                    ! sum of frac
+INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -117,7 +122,9 @@ sccsida = '%W%:%E%'//char(0)
 somfrac    = SUM(frac(:))
 somcpri    = SUM(cpri(:) * frac(:))
 somcsec    = SUM(csec(:) * frac(:))
-somcseccor = SUM(cseccor(:) * frac(:))
+do isubsec = 1,nsubsec
+   som_subsec(isubsec) = SUM(csubsec(:,isubsec) * frac(:))
+enddo
 somddep    = SUM(drydep(:) * frac(:))
 somwdep    = SUM(wetdep(:) * frac(:))
 !
@@ -130,7 +137,7 @@ cf  = grid*grid*.1e-5/3600./ugmoldep/amol21
 ! (1) concentration
 gemcpri    = somcpri/somfrac
 gemcsec    = somcsec/somfrac
-gemcseccor = somcseccor/somfrac
+gem_subsec = som_subsec/somfrac
 
 ! (2) dry deposition
 totddep  = somddep*cf
