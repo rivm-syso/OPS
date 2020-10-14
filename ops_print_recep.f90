@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : Chris Twenh"ofel (Cap Gemini)
+! AUTHOR              : OPS-support  Chris Twenh"ofel (Cap Gemini)
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Print output for non-gridded receptors
@@ -35,11 +38,11 @@
 ! CALLED FUNCTIONS    : ops_print_kop, ops_scalefac
 ! UPDATE HISTORY      :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_print_recep (project, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh, conc_cf, amol21,      &
-        &  ugmoldep, nrrcp, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, rno2_nox_sum, lu_rcp_dom_all, z0_rcp_all,     &
-        &  gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, ddrpri, ddrsec, gemwdep, gemwdpri, gemwdsec, wdrpri,            &
-        &  wdrsec, gemprec, gemtdep, icm, cseccor, gemcseccor, namseccor, totdep, scale_con, scale_sec,                        &
-        &  scale_sec_cor, scale_dep, error)
+SUBROUTINE ops_print_recep (project, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh, conc_cf, amol21,                  &
+        &  ugmoldep, nrrcp, nsubsec, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, rno2_nox_sum, lu_rcp_dom_all, z0_rcp_all, &
+        &  gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, ddrpri, ddrsec, gemwdep, gemwdpri, gemwdsec, wdrpri,                        &
+        &  wdrsec, gemprec, gemtdep, icm, csubsec, gem_subsec, nam_subsec, totdep, scale_con, scale_sec,                                   &
+        &  scale_subsec, scale_dep, error)
 
 USE ops_print_table
 USE m_error
@@ -66,6 +69,7 @@ REAL*4,    INTENT(IN)                            :: conc_cf                    !
 REAL*4,    INTENT(IN)                            :: amol21                     ! 
 REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 CHARACTER*(*), INTENT(IN)                        :: namrcp (nrrcp)             ! 
 REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
 REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
@@ -94,13 +98,13 @@ REAL*4,    INTENT(IN)                            :: wdrsec                     !
 REAL*4,    INTENT(IN)                            :: gemprec                    ! mean annual precpitation from meteo
 REAL*4,    INTENT(IN)                            :: gemtdep                    ! mean for total deposition
 INTEGER*4, INTENT(IN)                            :: icm                        ! number of component
-REAL*4,    INTENT(IN)                            :: cseccor(nrrcp)             ! gaseous secondary concentration
-REAL*4,    INTENT(IN)                            :: gemcseccor                 ! mean gaseous secondary concentration
-CHARACTER*(*), INTENT(IN)                        :: namseccor                  ! 
+REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary speciea
 REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
 REAL*4,    INTENT(IN)                            :: scale_con                  ! 
 REAL*4,    INTENT(IN)                            :: scale_sec                  ! 
-REAL*4,    INTENT(IN)                            :: scale_sec_cor              ! 
+REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
 REAL*4,    INTENT(IN)                            :: scale_dep                  ! 
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -108,11 +112,12 @@ LOGICAL,   INTENT(INOUT)                         :: idep                       !
 LOGICAL,   INTENT(INOUT)                         :: igrid                      ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (Terror), INTENT(OUT)                       :: error                      ! 
+TYPE (Terror), INTENT(INOUT)                     :: error                      ! 
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! 
 INTEGER*4                                        :: j                          ! 
+INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 REAL*4                                           :: scalec                     ! 
 REAL*4                                           :: scaled                     ! 
 REAL*4                                           :: scalen                     ! 
@@ -132,20 +137,20 @@ sccsida = '%W%:%E%'//char(0)
 !
 ! FORMATS for possible header rows
 !
-1703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con')
-2703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '       z0   lu_dom     precip')
-3703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep')
-4703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep',                                    &
-            &  '    vdpri       z0   lu_dom    precip')
-5703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep  sec.con')
-6703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep  sec.con'                            &
-            &  '    vdpri    vdsec       z0   lu_dom ' '    precip')
-7703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep  sec.con  sec.cor')
-8703 FORMAT (/,'  nr    name      x-coord y-coord  pri.con', '  dry.dep  wet.dep  tot.dep  sec.con  sec.cor'                   &
-            &  '    vdpri    vdsec       z0   lu_dom ' '    precip')
+1703 FORMAT (/,'  nr    name      x-coord y-coord     conc')
+2703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '       z0   lu_dom     precip')
+3703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep')
+4703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep    vdpri       z0   lu_dom    precip')
+5703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc')
+6703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc    vdpri    vdsec       z0   lu_dom ' '    precip')
+7703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc')
+7704 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc     conc     conc')
+8703 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc    vdpri    vdsec       z0   lu_dom ' '    precip')
+8704 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc     conc     conc    vdpri    vdsec       z0   lu_dom ' '    precip')
 
-704 FORMAT (33x,5(6x,a3:),(6x,a4:))                                            ! component name (for isec=1)
-705 FORMAT (22x,'(m)     (m)',10(a9:))                                         ! unit
+!WdV704 FORMAT (33x,5(6x,a3:),9(6x,a4:))                                           ! component names (for isec=1)
+704 FORMAT (a3,a8,3x,2(a8),3x,14(1x,a8:))                                           ! component names (for isec=1)
+705 FORMAT (a3,a8,4x,'      m       m   ',19(a9:))                                         ! units
 !
 ! Definition of units for deposition velocity vd, roughness length z0, land use
 !
@@ -173,7 +178,7 @@ IF (igrid) THEN
       CALL print_conc_names(namco)
       CALL print_depo_names()
       WRITE (fu_prt,1703)
-      WRITE (fu_prt,705) coneh ! unit for concentration
+      WRITE (fu_prt,705) '-', '-', coneh ! unit for concentration
 
       CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con)
     ELSE
@@ -183,7 +188,7 @@ IF (igrid) THEN
       CALL print_conc_names(namco)
       CALL print_depo_names()
       WRITE (fu_prt,2703)
-      WRITE (fu_prt,705) coneh, z0eh, lueh
+      WRITE (fu_prt,705) '-', '-', coneh, z0eh, lueh
       CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, z0_rcp_all, 1.E3, REAL(lu_rcp_dom_all), 1., precip, 1.)
     ENDIF
 
@@ -202,7 +207,7 @@ IF (igrid) THEN
         CALL print_conc_names(namco)
         CALL print_depo_names()
         WRITE (fu_prt,3703)
-        WRITE (fu_prt,705) coneh,depeh,depeh,depeh
+        WRITE (fu_prt,705) '-', '-', coneh,depeh,depeh,depeh
 
         CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,         &
                        &  scale_dep)
@@ -214,7 +219,7 @@ IF (igrid) THEN
         CALL print_conc_names(namco)
         CALL print_depo_names()
         WRITE (fu_prt,4703)
-        WRITE (fu_prt,705) coneh,depeh,depeh,depeh,z0eh,lueh
+        WRITE (fu_prt,705) '-', '-', coneh,depeh,depeh,depeh,z0eh,lueh
 
         DO j = 1, nrrcp
            vdpri(j) = ddepri(j)/ugmoldep*1.0e2/(cpri(j)/ conc_cf*3600.)/amol21
@@ -236,36 +241,57 @@ IF (igrid) THEN
 !
 !         print primary concentration, drydep, wetdep, totdep, secondary concentration, second secondary concentration in tables
 !
-          CALL print_conc_names(namco, namsec, namseccor)
+          CALL print_conc_names(namco, namsec, nam_subsec)
           CALL print_depo_names(namsec)
-          WRITE (fu_prt,7703)
-          WRITE (fu_prt,704) namco(:LEN_TRIM(namco)), (namse3(:LEN_TRIM(namse3)), i=1, 3), namsec(:LEN_TRIM(namsec)),          &
-                          &  namseccor(:LEN_TRIM(namseccor))
-          WRITE (fu_prt,705) coneh, depeh, depeh, depeh, 'ug/m3', 'ug/m3'
+          IF (nsubsec .eq. 2) WRITE (fu_prt,7703)
+          IF (nsubsec .eq. 4) WRITE (fu_prt,7704)
+          WRITE (fu_prt,704) '-', '-', '-', '-', namco(:LEN_TRIM(namco)), (namse3(:LEN_TRIM(namse3)), i=1, 3), namsec(:LEN_TRIM(namsec)),          &
+                          &  (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,nsubsec)
+          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3', ('ug/m3', isubsec = 1,nsubsec)
 
-          CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,         &
-                       &  scale_dep, csec, scale_sec, cseccor, scale_sec_cor)
-
+           IF (nsubsec .eq. 4) then
+             CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,         &
+                       &  scale_dep, csec, scale_sec, csubsec(:,1), scale_subsec(1), csubsec(:,2), scale_subsec(2),              &
+                       &  csubsec(:,3), scale_subsec(3),csubsec(:,4), scale_subsec(4))
+           ELSEIF (nsubsec .eq. 2) then
+             CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,         &
+                       &  scale_dep, csec, scale_sec, csubsec(:,1), scale_subsec(1), csubsec(:,2), scale_subsec(2))
+           ELSE
+             write(*,*) 'internal programming error ops_print_recep'
+             write(*,*) ' nsubsec must be 2 or 4 (see ops_read_ctr)'
+             stop
+           ENDIF
         ELSE
 !      
-!         print primary concentration, drydep, wetdep, totdep, secondary conc, second secondary concentration, vdpri, vdsec, z0, lu and precip in table
+!         print primary concentration, drydep, wetdep, totdep, secondary conc, sub-secondary concentrations, vdpri, vdsec, z0, lu and precip in table
 !
-          CALL print_conc_names(namco, namsec, namseccor)
+          CALL print_conc_names(namco, namsec, nam_subsec)
           CALL print_depo_names(namsec)
-          WRITE (fu_prt,8703)
-          WRITE (fu_prt,704) namco(:LEN_TRIM(namco)), (namse3(:LEN_TRIM(namse3)), i=1, 3), namsec(:LEN_TRIM(namsec)),          &
-                          &  namseccor(:LEN_TRIM(namseccor))
-          WRITE (fu_prt,705) coneh, depeh, depeh, depeh, 'ug/m3', 'ug/m3', vdeh, vdeh, z0eh, lueh
+          IF (nsubsec .eq. 2) WRITE (fu_prt,8703)
+          IF (nsubsec .eq. 4) WRITE (fu_prt,8704)
+          WRITE (fu_prt,704) '-', '-', '-', '-', namco(:LEN_TRIM(namco)), (namse3(:LEN_TRIM(namse3)), i=1, 3), namsec(:LEN_TRIM(namsec)),          &
+                          &  (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,nsubsec)
+          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3', ('ug/m3', isubsec = 1,nsubsec), vdeh, vdeh, z0eh, lueh
 
           DO j = 1, nrrcp
              vdpri(j) = ddepri(j)/ugmoldep*1.0e2/(cpri(j)/ conc_cf*3600.)/amol21
              vdsec(j) = (drydep(j) - ddepri(j))/ugmoldep*1.0e2/ (csec(j)*3600.)
           ENDDO
 
-          CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,       &
-                         &  scale_dep, csec, scale_sec, cseccor, scale_sec_cor, vdpri, 1.E3, vdsec, 1.E3, z0_rcp_all, 1.E3,           &
-                         &  REAL(lu_rcp_dom_all), 1., precip, 1.)
-
+           IF (nsubsec .eq. 4) then
+             CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,       &
+                         &  scale_dep, csec, scale_sec, csubsec(:,1), scale_subsec(1), csubsec(:,2), scale_subsec(2),          &
+                         &  csubsec(:,3), scale_subsec(3), csubsec(:,4), scale_subsec(4), &
+                         &  vdpri, 1.E3, vdsec, 1.E3, z0_rcp_all, 1.E3, REAL(lu_rcp_dom_all), 1., precip, 1.)
+           ELSEIF (nsubsec .eq. 2) then
+             CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,       &
+                         &  scale_dep, csec, scale_sec, csubsec(:,1), scale_subsec(1), csubsec(:,2), scale_subsec(2),          &
+                         &  vdpri, 1.E3, vdsec, 1.E3, z0_rcp_all, 1.E3, REAL(lu_rcp_dom_all), 1., precip, 1.)
+           ELSE
+             write(*,*) 'internal programming error ops_print_recep'
+             write(*,*) ' nsubsec must be 2 or 4 (see ops_read_ctr)'
+             stop
+           ENDIF
         ENDIF
       ELSE
       
@@ -278,8 +304,8 @@ IF (igrid) THEN
           CALL print_conc_names(namco, namsec)
           CALL print_depo_names(namsec)
           WRITE (fu_prt,5703)
-          WRITE (fu_prt,704) namco(:3),(namse3(:3),i=1,3), namsec(:3)
-          WRITE (fu_prt,705) coneh, depeh, depeh, depeh, 'ug/m3'
+          WRITE (fu_prt,704) '-', '-', '-', '-', namco(:3),(namse3(:3),i=1,3), namsec(:3)
+          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3'
 
           CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, drydep, scale_dep, wetdep, scale_dep, totdep,       &
                          &  scale_dep, csec, scale_sec)
@@ -291,8 +317,8 @@ IF (igrid) THEN
           CALL print_conc_names(namco, namsec)
           CALL print_depo_names(namsec)
           WRITE (fu_prt,6703)
-        WRITE (fu_prt,704) namco(:3),(namse3(:3),i=1,3),namsec(:3)
-          WRITE (fu_prt,705) coneh, depeh, depeh, depeh, 'ug/m3', vdeh, vdeh, z0eh, lueh
+          WRITE (fu_prt,704) '-', '-', '-', '-', namco(:3),(namse3(:3),i=1,3),namsec(:3)
+          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3', vdeh, vdeh, z0eh, lueh
 
           DO j = 1, nrrcp
              vdpri(j) = ddepri(j)/ugmoldep*1.0e2/(cpri(j)/ conc_cf*3600.)/amol21
@@ -344,7 +370,7 @@ WRITE(fu_prt,'(1x,80a)') ('-',i=1,79)
 
 ! concentration of primary component always written to output
 
-WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a6)') namco(:LEN_TRIM(namco)), gemcpri, coneh
+WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a10)') namco(:LEN_TRIM(namco)), gemcpri, coneh
 
 IF (idep)THEN
 
@@ -384,10 +410,11 @@ IF (idep)THEN
 
     IF (icm == 2) THEN
 
-!   concentration of second secondary component
-
-      WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a6)') namseccor(:LEN_TRIM(namseccor)),         &
-          &  gemcseccor, 'ug/m3'
+      ! concentration of sub-secondary species
+      do isubsec = 1,nsubsec
+         WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a6)') nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))),         &
+          &  gem_subsec(isubsec), 'ug/m3'
+       enddo
 
     ENDIF
 

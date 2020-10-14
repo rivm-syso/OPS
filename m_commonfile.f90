@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! MODULE             : m_commonfile
 ! FILENAME           : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : Martien de Haan (ARIS)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Define file unit numbers and file names. Subroutine to make full file name.
@@ -108,10 +111,17 @@ CHARACTER*512                                    :: z0eurnam                   !
 CHARACTER*24                                     :: map_so2(5)                 ! name of file with background map SO2 (for 4 years)
 CHARACTER*24                                     :: map_nox(5)                 ! name of file with background map NOx (for 4 years)
 CHARACTER*24                                     :: map_nh3(5)                 ! name of file with background map NH3 (for 4 years)
+CHARACTER*128                                    :: map_mass_prec              ! filename with MASS_PREC averaged column mass precursor pre chemistry step, used for vchem
+CHARACTER*128                                    :: map_mass_conv_dtfac        ! filename with MASS_CONV_DTFAC = (100/dt) * averaged column mass converted in chemistry step, used for vchem
+CHARACTER*128                                    :: map_no3_distr              ! filename with distribution factors for different secondary species NO3
+                                                                               ! HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total
 
 DATA map_so2  / 'bgso2c1984.ops', 'bgso2c1994.ops', 'bgso2c2005.ops', 'bgso2c2012.ops','bgso2c2020.ops' /
 DATA map_nox  / 'bgnoxc1984.ops', 'bgnoxc1994.ops', 'bgnoxc2005.ops', 'bgnoxc2012.ops','bgnoxc2020.ops' /
 DATA map_nh3  / 'bgnh3c1984.ops', 'bgnh3c1994.ops', 'bgnh3c2005.ops', 'bgnh3c2012.ops','bgnh3c2020.ops' /
+DATA map_mass_prec       / 'xxx_mass_prec_yyyy.ops'       /   ! xxx = name primary species (SO2, NOx, NH3), yyyy = year (e.g. 2019)
+DATA map_mass_conv_dtfac / 'xxx_mass_conv_dtfac_yyyy.ops' /
+DATA map_no3_distr       / 'no3_distr_yyyy.ops' /
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : MakeCommonPath
 ! DESCRIPTION : Generates full file names for the common background or diurnal variation files and checks existence. An error is

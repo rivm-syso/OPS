@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                 : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE     : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               :
+! AUTHOR               : OPS-support 
 ! FIRM/INSTITUTE       : RIVM/LLO
 ! LANGUAGE             : FORTRAN-77/90
 ! USAGE                :
@@ -36,14 +39,14 @@
 ! CALLED FUNCTIONS     :
 ! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_reken(idep, isec, icm, gasv, intpol, vchemc, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,    &
+SUBROUTINE ops_reken(idep, isec, icm, gasv, intpol, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,    &
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rcno, rhno2, rchno3,                 &
-                  &  nrrcp, ircp, gxm, gym, xm, ym, zm, frac, nh3bg_rcp, rhno3_rcp,                                            & 
+                  &  nrrcp, ircp, gxm, gym, xm, ym, zm, frac, nh3bg_rcp, so2bg_rcp, rhno3_rcp,                                 & 
                   &  bqrv, bqtr, bx, by, bdiam, bsterkte, bwarmte, bhoogte,                                                    &
                   &  bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, buildingEffect,                      & 
                   &  btgedr, bdegr,                                                                                            &
                   &  z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per, lu_rcp_per,                                            &
-                  &  so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, maxidx, pmd, uspmd, spgrid, grid, subbron, uurtot, routsec, &
+                  &  so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, vchem2, maxidx, pmd, uspmd, spgrid, grid, subbron, uurtot, routsec, &
                   &  rc, somvnsec, telvnsec, vvchem, vtel, somvnpri,                                                           &
                   &  telvnpri, ddepri, sdrypri, snatpri, sdrysec, snatsec, cpri, csec, drydep, wetdep, astat, rno2_nox_sum,    &
                   &  precip, routpri, dispg, error) 
@@ -57,7 +60,8 @@ USE m_error
 USE m_aps
 USE m_geoutils
 USE m_ops_building
- use m_ops_utils, only: is_missing
+use m_ops_utils, only: is_missing
+USE m_ops_vchem
 
 IMPLICIT NONE
 
@@ -79,6 +83,7 @@ INTEGER*4, INTENT(IN)                            :: intpol                     !
                                                                                ! 1 use meteo parameters from user specified meteo region
                                                                                ! 2? use meteo parameters from user specified meteo file
 REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate, independent of light [%/h]
+INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                           
 REAL*4,    INTENT(IN)                            :: vchemv                     ! chemical conversion rate, dependent on light [%/h]
 INTEGER*4, INTENT(IN)                            :: dv                         ! maximum code diurnal emission variation dverl
 REAL*4,    INTENT(IN)                            :: amol1                      ! molar mass primary component [g/mol]
@@ -116,6 +121,7 @@ REAL*4,    INTENT(IN)                            :: ym                         !
 REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
 REAL*4,    INTENT(IN)                            :: frac                       ! fraction of grid cell inside NL 
 REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]  
+REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]  																																	   
 REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3]_total at receptor points, [NO3]_total = [HNO3] + [NO3_aerosol] 
 REAL*4,    INTENT(IN)                            :: bqrv                       ! source strength of space heating source (rv << "ruimteverwarming" = space heating) [g/s]
 REAL*4,    INTENT(IN)                            :: bqtr                       ! source strength of traffic source [g/s]
@@ -148,6 +154,7 @@ REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               !
 REAL*4,    INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
+type(Tvchem), INTENT(INOUT)                      :: vchem2                     !                                                                                  
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
 REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions 
 REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions 
@@ -341,7 +348,6 @@ REAL*4                                           :: vnatpri                    !
 REAL*4                                           :: cq2                        ! 
 REAL*4                                           :: cdn                        ! 
 REAL*4                                           :: cch                        ! 
-REAL*4                                           :: dm                         ! 
 REAL*4                                           :: cratio                     ! 
 REAL*4                                           :: rhno3                      ! 
 REAL*4                                           :: rrno2nox                   ! 
@@ -505,7 +511,7 @@ sccsida = '%W%:%E%'//char(0)
 !           Compute chemical parameters (conversion rates, concentration ratios) in case of secondary components
 !
             IF (isec) THEN
-              CALL ops_par_chem(icm, isek, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, disx, diameter, vchemnh3, rhno3,       &
+              CALL ops_par_chem(icm, iopt_vchem, isek, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, vchem2, disx, diameter, vchemnh3, rhno3,       &
                              &  rrno2nox, rations)
             ENDIF
             if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3, rrno2nox, rations :',ircp,vchemnh3, rhno3, rrno2nox, rations    
@@ -625,14 +631,14 @@ sccsida = '%W%:%E%'//char(0)
 !                       of deposition and (chemical) conversion. Only if idep = TRUE.
 !
                         IF (idep) THEN
-                          CALL ops_resist_rek(vchemc, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,    &
-                                           &  rno2nox, rcnh3d, vchemnh3, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,             &
+                          CALL ops_resist_rek(vchemc, iopt_vchem, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,    &
+                                           &  rno2nox, rcnh3d, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,             &
                                            &  z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, temp_C, disxx, zm, koh,           &
                                            &  rations, rhno3, rcno, rhno2, rchno3, croutpri, rrno2nox, rhno3_rcp,               &
                                            &  rb, ra4, ra50, rc, routpri, vchem, rcsec, uh, rc_sec_rcp, rc_rcp, rb_rcp,         &
                                            &  ra4_rcp, ra50_rcp, raz_rcp, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc,    &
                                            &  ra4src, rb_src, ra50src, ra4tra, ra50tra, rb_tra, rclocal, nh3bg_rcp, nh3bgtra,   &
-                                           &  gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
+                                           &  so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
         
                           cratio = 1.
                           CALL ops_depoparexp(kdeel, c, ol_src, qbpri, ra4_rcp, ra50_rcp, raz_rcp, rb_rcp, sigz, ueff,          &
@@ -651,7 +657,7 @@ sccsida = '%W%:%E%'//char(0)
                                          &  htot, twt, rb, ra50, xvghbr, xvglbr, grad, frac, cdn, cq2, c, sdrypri(kdeel),        &
                                          &  sdrysec(kdeel), snatsec(kdeel), somvnsec(kdeel), telvnsec(kdeel), vvchem(kdeel),     &
                                          &  vtel(kdeel), snatpri(kdeel), somvnpri(kdeel), telvnpri(kdeel), ddepri(ircp,kdeel),   &
-                                         &  drydep(ircp,kdeel),  wetdep(ircp,kdeel), dm, qsec, consec, pr,                       & 
+                                         &  drydep(ircp,kdeel),  wetdep(ircp,kdeel), qsec, consec, pr,                       & 
                                          &  vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg, buildingFact)
                                                                                 
 !

@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,14 +27,14 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : HvJ 940217 /Franka Loeve (Cap Volmac)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Deze routine berekent de pluimhoogte.
 !    This routine includes plume rise formulations given by Briggs(1969) and Briggs(1971)
 !    This method is equal to the method used in the (old) Dutch National Model (TNO, 1976).
 !    The formulas used in 'STACKS' are the same, except for convective cases (Erbrink, 1995)
-!                                                HvJ 960121
+!                                                  960121
 !    Extra iteration, because wind speed depends on plume height and vice versa
 !
 ! EXIT CODES         :

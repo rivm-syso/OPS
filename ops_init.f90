@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 !
@@ -25,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                :
+! AUTHOR                : OPS-support 
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Initialisation of variables based on data from the control file and on meteo statistics.
@@ -36,10 +39,10 @@
 ! CALLED FUNCTIONS      : ops_masknew, amcgeo
 ! UPDATE HISTORY        :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_init (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,       &
+SUBROUTINE ops_init (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, nsubsec, iseiz, mb, astat, dverl,       &
                   &  usdverl, dv, usdv, namco, amol1, dg, irev, vchemc, vchemv, emtrend, rc, coneh, amol21, depeh, namsec,     &
                   &  namse3, ugmoldep, scavcoef, rcno, rhno2, rchno3, routsec, routpri, conc_cf, koh, croutpri, somcsec,       &
-                  &  ar, rno2nox, ecvl, namseccor, buildingEffect, error)
+                  &  ar, rno2nox, ecvl, nam_subsec, buildingEffect, error)
                   
 USE m_commonconst
 USE m_error
@@ -60,7 +63,8 @@ REAL*4,    INTENT(IN)                            :: ddeppar
 REAL*4,    INTENT(IN)                            :: wdeppar                     
 INTEGER*4, INTENT(IN)                            :: ideh                        
 INTEGER*4, INTENT(IN)                            :: icm                         
-LOGICAL,   INTENT(IN)                            :: isec                        
+LOGICAL,   INTENT(IN)                            :: isec 
+INTEGER*4, INTENT(IN)                            :: nsubsec                      ! number of sub-secondary species                       
 INTEGER*4, INTENT(IN)                            :: iseiz                       
 INTEGER*4, INTENT(IN)                            :: mb                          
 REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
@@ -103,7 +107,7 @@ REAL*4,    INTENT(OUT)                           :: somcsec
 REAL*4,    INTENT(OUT)                           :: ar                          
 REAL*4,    INTENT(OUT)                           :: rno2nox                     
 REAL*4,    INTENT(OUT)                           :: ecvl(NSTAB, NTRAJ, *)       
-CHARACTER*(*), INTENT(OUT)                       :: namseccor 
+CHARACTER*(*), INTENT(OUT)                       :: nam_subsec(nsubsec) 
 type(TbuildingEffect), INTENT(OUT)               :: buildingEffect             ! structure with building effect tables
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
                 
@@ -181,7 +185,7 @@ IF (gasv) THEN                                                              ! if
       ! routsec : in-cloud scavenging ratio for secondary component
       !           (rout << rain-out = in-cloud) [-])
       ! conc_cf : concentration correction factor for output.
-      ! Section 6.3 OPS report
+      ! Section 6.3 OPS report FS
  
       knatdeppar = 3
       scavcoef = 0
@@ -200,7 +204,7 @@ IF (gasv) THEN                                                              ! if
          routsec  = 1.4e7
 
          ! Set parameters specific for NOx 
-         ! rhno2  : ratio [HNO2]/[NOx] based on measurements Speuld, Slanina et al 1990, but they report 4% (p. 66 OPS report)
+         ! rhno2  : ratio [HNO2]/[NOx] based on measurements Speuld, Slanina et al 1990, but they report 4% (p. 66 OPS report) FS
          ! koh    : second order reaction rate constant of reaction NO2 + OH -> HNO3 [cm3/(molec s)] 
          !          Baulch et al 1982 (OPS report Table 6.2 FS): kOH = 1.035e-11 cm3/(molec s) = 1000.9 ppb-1 h-1, at T = 0 C
          !                                                                                     =  932.6 ppb-1 h-1, at T = 20 C
@@ -243,10 +247,10 @@ ENDIF
 ! Component names (see m_commonconst for definition of CNAME)
 !
 IF (isec) THEN
-  namco     = CNAME(icm,1)
-  namsec    = CNAME(icm,2)
-  namseccor = CNAME(icm,3)
-  namse3    = CNAME(icm,4)
+  namco      = CNAME(icm,1)
+  namsec     = CNAME(icm,2)
+  nam_subsec = CNAME_SUBSEC
+  namse3     = CNAME(icm,4)
 ELSE
   namsec = namco
   namse3 = namco

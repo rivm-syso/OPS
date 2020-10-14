@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             :
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Prepares values for landuse and roughness for one receptorpoint.
@@ -35,7 +38,7 @@
 ! CALLED FUNCTIONS   :
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_rcp_char_1(ircp, nrrcp, intpol, gxm_rcp, gym_rcp, cs, z0_metreg, xreg, yreg, i1, astat, z0_metreg_user,            &
+SUBROUTINE ops_rcp_char_1(isec, ircp, nrrcp, intpol, gxm_rcp, gym_rcp, cs, z0_metreg, xreg, yreg, i1, astat, z0_metreg_user,    &
                        &  spgrid, x_rcp, y_rcp, lugrid, domlu, perc, lu_rcp_per_user_all, lu_rcp_dom_all, f_z0user, z0_rcp_all, &
                        &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
 
@@ -52,7 +55,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_rcp_char_1')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: ircp                        
+LOGICAL*4, INTENT(IN)                            :: isec                        
+INTEGER*4, INTENT(IN)                            :: ircp                   
 INTEGER*4, INTENT(IN)                            :: nrrcp   
 INTEGER*4, INTENT(IN)                            :: intpol                     ! 
 REAL*4,    INTENT(IN)                            :: gxm_rcp                    ! array met x-coordinaat van receptorpunten (lola)
@@ -116,10 +120,12 @@ IF (ANY(spgrid == (/0,1/))) THEN
 ! ---   Fill lu_rcp_per array with info from standard grid with landuse info
 ! ---   The first aps-grid contains dominant landuse so we start with the second
 !
-    DO lu=2,NLU+1
-      CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
-    ENDDO     
-    lu_rcp_per = float(lu_rcp_per_int)
+    IF (isec) THEN
+      DO lu=2,NLU+1
+        CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
+      ENDDO     
+      lu_rcp_per = float(lu_rcp_per_int)
+    ENDIF
   ENDIF
 ELSE
   IF (.not.perc) THEN
@@ -127,10 +133,12 @@ ELSE
 ! ---   User did not specify percentages landuse in rcp-file.
 ! ---   Fill lu_rcp_per array with info from standard grid with landuse info
 !
-    DO lu=2,NLU+1
-      CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
-    ENDDO     
-    lu_rcp_per = float(lu_rcp_per_int)
+    IF (isec) THEN
+      DO lu=2,NLU+1
+        CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
+      ENDDO     
+      lu_rcp_per = float(lu_rcp_per_int)
+    ENDIF
   ELSE
 !
 ! ---   User specified percentages landuse in rcp-file.

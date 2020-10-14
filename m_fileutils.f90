@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! MODULE               : fileutils
 ! NAME                 : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE     : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               :
+! AUTHOR               : OPS-support 
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN-90
 ! DESCRIPTION          : This module contains all utilities handling files.
@@ -76,7 +79,7 @@ END INTERFACE
 ! PURPOSE     : Checking the existence of a file. If the file does not exist the error message is assigned. The callback of the
 !               error is not assigned, so that it appears the non-existing error is detected in the calling procedure (which is
 !               what the user wants to know).
-! AUTHOR      : Martien de Haan (ARIS).
+! AUTHOR      : OPS-support   .
 ! INPUTS      : fname  (character*(*)). The full path of the file.
 ! OUTPUTS     : error  (type TError). Is assigned when the file does not exist.
 ! RESULT      : .TRUE. when the file exists, .FALSE. if not.
@@ -88,7 +91,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : sysopen
 ! PURPOSE     : Opens a file for reading or writing.
-! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR      : OPS-support   
 ! INPUTS      : iu     (integer*4). Unit number of file.
 !               filename (character*(*)). Path of file to be opened.
 !               rw     (character*(*)). Whether reading or writing. Options:
@@ -109,7 +112,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : sysclose
 ! PURPOSE     : Closes a file. Low level.
-! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR      : OPS-support   
 ! ADAPTATIONS : 2002 - Error handling through error object (Martien de Haan, ARIS).
 ! INPUTS      : iu     (integer*4). Unit number of file.
 !               filename (character*(*)). Name of file. Only relevant when error is written.
@@ -123,7 +126,7 @@ END INTERFACE
 ! SUBROUTINE  : sysread
 ! PURPOSE     : Reads a string from an input device.
 ! PRECONDITION: Input file: Ascii, recordlength <= 512
-! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR      : OPS-support   
 ! ADAPTATIONS : 2002 - Error handling through error object (Martien de Haan, ARIS).
 ! INPUTS      : iu     (integer*4). Unit number of file.
 ! OUTPUTS     : end_of_file (logical) Whether end-of-file was reached, so that nothing was read.
@@ -467,7 +470,7 @@ END SUBROUTINE sys_close_file
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_read
 ! PURPOSE   : Opening of text file for reading. See interface definition
-! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR    : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_read(iu, fnam, io_status)
 
@@ -499,7 +502,7 @@ END SUBROUTINE sysopen_read
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_read_bin
 ! PURPOSE   : Opening of binary file for reading.
-! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR    : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_read_bin(iu, fnam, io_status)
 
@@ -528,7 +531,7 @@ END SUBROUTINE sysopen_read_bin
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_write
 ! PURPOSE   : Opening of text file for writing.
-! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR    : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_write(iu, fnam, io_status)
 
@@ -564,7 +567,7 @@ END SUBROUTINE sysopen_write
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_direct
 ! PURPOSE   : Opening of direct-access file for reading.
-! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR    : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_direct(iu, fnam, LREC, io_status)
 
@@ -601,7 +604,7 @@ END SUBROUTINE sysopen_direct
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysread
 ! PURPOSE   : Reading a string from a file
-! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
+! AUTHOR    : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sys_read_string(fdin, in_str, end_of_file, error)
 

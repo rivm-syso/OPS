@@ -20,56 +20,40 @@
 !                      The Netherlands
 !   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! FUNCTION
-! NAME               : %M%
-! SCCS (SOURCE)      : %P%
+! MODULE             : m_ops_vchem
+! FILENAME           : %M%
+! SCCS(SOURCE)       : %P%
 ! RELEASE - LEVEL    : %R% - %L%
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
 ! AUTHOR             : OPS-support   
-! FIRM/INSTITUTE     : RIVM/LLO
-! LANGUAGE           : FORTRAN-77/90
-! DESCRIPTION        : Compute distance between (virtual point source) and (centre of area source);
-!                      for a point source, ops_virtdist = 0.
+! FIRM/INSTITUTE     : RIVM
+! LANGUAGE           : FORTRAN-F90
+! DESCRIPTION        : Define structure for chemical conversion rates
 ! EXIT CODES         :
 ! FILES AND OTHER    :
 !    I/O DEVICES
-! SYSTEM DEPENDENCIES: HP Fortran
+! SYSTEM DEPENDENCIES: 
 ! CALLED FUNCTIONS   :
-! UPDATE HISTORY     :
+! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-FUNCTION ops_virtdist (radius, rond)
+MODULE m_ops_vchem
 
-USE m_commonconst
+USE m_aps
 
 IMPLICIT NONE
 
-! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-INTEGER*4, INTENT(IN)                            :: rond                       ! 
+type Tvchem
+  
+   TYPE (TApsGridReal) :: mass_prec_grid               ! APS grid with column averaged mass of precursor pre chemistry step (from chemistry model, e.g. EMEP) [ug/m2]
+   TYPE (TApsGridReal) :: mass_conv_dtfac_grid         ! APS grid with (100/dt) * column averaged mass, converted during chemistry step (from chemistry model, e.g. EMEP) [(ug/m2) (%/h)]
 
-! RESULT
-REAL*4                                           :: ops_virtdist               ! 
+   real                :: mass_prec_tra                ! column averaged mass of precursor pre chemistry step, average between source - receptor [ug/m2]
+   real                :: mass_conv_dtfac_tra          ! (100/dt) * column averaged mass, converted during chemistry step, average between source - receptor [(ug/m2) (%/h)]
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
-!-------------------------------------------------------------------------------------------------------------------------------
-!
-! Compute distance between (virtual point source) and (centre of area source);
-! for radius = 0 (point source), ops_virtdist = 0.
-! 3.33 OPS report
-!
-IF (rond .EQ. 1) THEN
-   ! Circular area source
-   ops_virtdist = (radius*12.)/PI 
-ELSE
-   ! Square area source is represented by a circular area source with the same area;
-   ! (area circle with radius r) = (area square with 1/2 side = radius) <=> pi*r**2 = (2*radius)**2 <=> 
-   ! <=> r = (2/sqrt(pi))*radius <=> r = 1.128*radius
-   ops_virtdist = (radius*12.)/PI*1.128
-ENDIF
+   real                :: vchem                        ! chemical conversion rates for net reaction primary -> secondary species [%/h]
 
-RETURN
-END
+end type Tvchem
+
+END MODULE m_ops_vchem

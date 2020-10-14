@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! FILENAME             : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : Martien de Haan, okt 2001
+! AUTHOR               : OPS-support   
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN-77/90
 ! DESCRIPTION          : General utilities
@@ -77,7 +80,8 @@ IMPLICIT NONE
 INTERFACE Alloc
   MODULE PROCEDURE allocreal0                                                  ! allocation of real array (def=0.0)
   MODULE PROCEDURE allocreal                                                   ! allocation of real array
-  MODULE PROCEDURE allocreal2                                                  ! allocation of 2-dimensional real array
+  MODULE PROCEDURE allocreal2                                                  ! allocation of 2-dimensional real array (pointer)
+  MODULE PROCEDURE allocreal2a                                                  ! allocation of 2-dimensional real array (allocatable)
   MODULE PROCEDURE allocreal3                                                  ! allocation of 3-dimensional real array
   MODULE PROCEDURE allocdouble0                                                ! allocation of double array (def = 0.0)
   MODULE PROCEDURE allocdouble                                                 ! allocation of double array
@@ -167,7 +171,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : WisselBytes
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa
-! AUTHOR      : HvJ/Franka Loeve (Cap Volmac)
+! AUTHOR      : OPS-support   
 ! INPUTS      : string     (character*(*)) The string which should represent the number to be extracted.
 ! OUTPUTS     : default    (logical) Returns .TRUE. if no value was read because no value was defined following the = sign.
 !               error      (type TError). Is assigned when an error occurred in the number defined in the string.
@@ -183,7 +187,7 @@ END INTERFACE
 ! PURPOSE     : Initial assignment to a format string.
 ! DESCRIPTION : To be called when starting the creation of a format string. The format string is then extended through
 !               AppendFormat and PrependFormat.
-! AUTHOR      : Martien de Haan (ARIS).
+! AUTHOR      : OPS-support   .
 ! OUTPUTS     : formatstring (character*(*)) The formnat string to be created.
 !               error      (type TError). Is assigned when an error occurred in the assignment FormatString.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -200,7 +204,7 @@ END INTERFACE
 ! REMARK      : AppendFormat checks first whether an error has occurred. If so nothing happens. This is handy, because the
 !               calling procedure only has to check the error status once after all append and prepend procedures have been
 !               called.
-! AUTHOR      : Martien de Haan (ARIS).
+! AUTHOR      : OPS-support   .
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -218,7 +222,7 @@ END INTERFACE
 ! PURPOSE     : Puts format descriptor at beginning of a format string.
 ! DESCRIPTION : See AppendFormat.
 ! REMARK      : See AppendFormat.
-! AUTHOR      : Martien de Haan (ARIS).
+! AUTHOR      : OPS-support   .
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -444,6 +448,41 @@ IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
 ENDIF
 
 END SUBROUTINE allocreal2
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE           : allocreal2
+! INTERFACE            : Alloc
+! PURPOSE              : Allocation of 2-dimensional real array.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE allocreal2a(dim1, dim2, arr, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: allocreal2a
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4, INTENT(IN)                            :: dim1                       ! 
+INTEGER*4, INTENT(IN)                            :: dim2                       ! 
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4,    INTENT(OUT), DIMENSION(:,:), ALLOCATABLE :: arr                        ! 
+TYPE (TError), INTENT(OUT)                          :: error                      ! Error handling record
+
+! LOCAL VARIABLES
+INTEGER*4                                        :: ierr                       ! 
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                ! 
+PARAMETER     (ROUTINENAAM = 'allocreal2')
+
+!-------------------------------------------------------------------------------------------------------------------------------
+IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
+  ALLOCATE(arr(dim1, dim2), stat=ierr)
+
+  IF (ierr /= 0) THEN
+    CALL AllocError(ierr, ROUTINENAAM, dim1, '2-dimensional real', error)
+    CALL ErrorParam('second dimension', dim2, error)
+  ENDIF
+ENDIF
+
+END SUBROUTINE allocreal2a
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : allocdouble2
@@ -985,7 +1024,7 @@ END SUBROUTINE getreal
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : getint
-! AUTHOR               : Martien de Haan, okt 2001
+! AUTHOR               : OPS-support   
 ! PURPOSE              : Extraheren van integer waarde uit een string. Geeft terug of er een waarde was, welke positie, etc.
 ! CALLED FUNCTIONS     : extractint
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1114,7 +1153,7 @@ END SUBROUTINE byteswap2
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : byteswap
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa.
-! AUTHOR      : HvJ/Franka Loeve (Cap Volmac)
+! AUTHOR      : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE byteswap(ishort)
 
@@ -1146,11 +1185,6 @@ ELSE
 ENDIF
 k1 = mod(ishort, maxint2)
 k2 = ishort/maxint2
-!! The following code may lead to overflow 
-!! j  = k1*maxint2 + k2 + iflg
-!! IF ( j .GT. 32768 ) THEN
-!!   j = j - 65536
-!! ENDIF
 IF (k1 > 128) THEN ! 32768/maxint2 = 128
    j  = (k1-256)*maxint2 + k2 + iflg ! 256*maxint2 = 65536
 ELSE
@@ -1159,6 +1193,7 @@ ELSE
       j = j - 65536
    ENDIF
 ENDIF
+
 ishort = j
 
 RETURN
@@ -1283,15 +1318,6 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'GetOS')
 
 rtc = GETCWD(directory)
-
-!! ! GETCWD is compiler dependent; alternative with IFNDEF Unix:
-!! #ifndef UNIX
-!!    os = 1   ! Windows
-!!    IF (PRESENT(slash)) slash = '\'
-!! #else
-!!    os = 0   ! Unix
-!!    IF (PRESENT(slash)) slash = '/'
-!! #endif
 
 colonpos = INDEX(directory,':')
 

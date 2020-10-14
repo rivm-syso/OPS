@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : Martien de Haan (ARIS)
+! AUTHOR              : OPS-support   
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Subroutines supporting receptor point printing.
@@ -64,7 +67,7 @@ CONTAINS
 ! SUBROUTINE: print_conc_names
 ! PURPOSE:    prints names of concentration parameters
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE  print_conc_names(namco, namsec, namseccor)
+SUBROUTINE  print_conc_names(namco, namsec, nam_subsec)
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -73,18 +76,20 @@ PARAMETER    (ROUTINENAAM = 'print_conc_names')
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
 CHARACTER*(*), INTENT(IN), OPTIONAL              :: namsec                     ! 
-CHARACTER*(*), INTENT(IN), OPTIONAL              :: namseccor                  ! 
+CHARACTER*(*), INTENT(IN), OPTIONAL              :: nam_subsec(:)              ! names of sub-secondary species
 
+! Local variable
+INTEGER                                          :: isubsec                    ! index of sub-secondary species
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! FORMATS
 !
-700 FORMAT (/' Concentrations for ',a:,' and ',a:,' and ',a:)
+700 FORMAT (/' Concentrations for ',9(1x,a))
 701 FORMAT (/' Concentrations for ',a:,' and ',a:)
 702 FORMAT (/' Concentrations for ',a:)
 
-IF (PRESENT(namseccor)) THEN
-   WRITE(fu_prt, 700) namco(1:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), namseccor(:LEN_TRIM(namseccor))
+IF (PRESENT(nam_subsec)) THEN
+   WRITE(fu_prt, 700) namco(1:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,size(nam_subsec))
 ELSEIF (PRESENT(namsec)) THEN
    WRITE(fu_prt, 701) namco(1:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec))
 ELSE
@@ -126,14 +131,14 @@ END SUBROUTINE print_depo_names
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: print_values
 ! PURPOSE:    prints values at all the receptor points for certain parameters. The parameters and even their numbers are
-!             variable (up to 12 currently, but this can easily be increased).
+!             variable (up to 14 currently, but this can easily be increased).
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE  print_values    (nrrcp, namrcp, xm, ym, error, par1, spar1, par2, spar2, par3, spar3, par4, spar4, par5, spar5,    &
                              &  par6, spar6, par7, spar7, par8, spar8, par9, spar9, par10, spar10, par11, spar11, par12,       &
-                             &  spar12)
+                             &  spar12, par13, spar13, par14, spar14)
 
 INTEGER                                          :: nrparam                    ! 
-PARAMETER (nrparam = 12)
+PARAMETER (nrparam = 14)
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -168,6 +173,10 @@ REAL*4,    INTENT(IN), OPTIONAL                  :: par11(nrrcp)               !
 REAL*4,    INTENT(IN), OPTIONAL                  :: spar11                     ! factor in parameter
 REAL*4,    INTENT(IN), OPTIONAL                  :: par12(nrrcp)               ! values of parameter
 REAL*4,    INTENT(IN), OPTIONAL                  :: spar12                     ! factor in parameter
+REAL*4,    INTENT(IN), OPTIONAL                  :: par13(nrrcp)               ! values of parameter
+REAL*4,    INTENT(IN), OPTIONAL                  :: spar13                     ! factor in parameter
+REAL*4,    INTENT(IN), OPTIONAL                  :: par14(nrrcp)               ! values of parameter
+REAL*4,    INTENT(IN), OPTIONAL                  :: spar14                     ! factor in parameter
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! should not happen as format string is long enough
@@ -182,9 +191,9 @@ INTEGER*4                                        :: nrpresent                  !
 INTEGER*4                                        :: nrunit                     ! 
 LOGICAL                                          :: dummybool                  ! 
 
-CHARACTER*120                                    :: formatpar                  ! format in writing parameter names
-CHARACTER*120                                    :: formatval                  ! format in writing parameter values
-CHARACTER*120                                    :: formatunit                 ! format in writing parameter units
+CHARACTER*180                                    :: formatpar                  ! format in writing parameter names
+CHARACTER*180                                    :: formatval                  ! format in writing parameter values
+CHARACTER*180                                    :: formatunit                 ! format in writing parameter units
 !
 ! Create factors array and determine nrpresent.
 !
@@ -196,7 +205,8 @@ dummybool = has_rcp_values(spar1, nrpresent, factors) .AND. has_rcp_values(spar2
    &  .AND. has_rcp_values(spar5, nrpresent, factors) .AND. has_rcp_values(spar6, nrpresent, factors)                          &
    &  .AND. has_rcp_values(spar7, nrpresent, factors) .AND. has_rcp_values(spar8, nrpresent, factors)                          &
    &  .AND. has_rcp_values(spar9, nrpresent, factors) .AND. has_rcp_values(spar10, nrpresent, factors)                         &
-   &  .AND. has_rcp_values(spar11, nrpresent, factors) .AND. has_rcp_values(spar12, nrpresent, factors)
+   &  .AND. has_rcp_values(spar11, nrpresent, factors) .AND. has_rcp_values(spar12, nrpresent, factors)                        &
+   &  .AND. has_rcp_values(spar13, nrpresent, factors) .AND. has_rcp_values(spar14, nrpresent, factors)
 !
 ! Create the factorscopy, where only factors unequal to 1 are counted.
 ! Determine nrunit and create formatstrings that depends upon the factors.
@@ -251,6 +261,10 @@ DO i = 1, nrrcp
                     IF (set_rcp_values(par10(i), factors, nrpresent, j, values)) THEN
                       IF (set_rcp_values(par11(i), factors, nrpresent, j, values)) THEN
                         IF (set_rcp_values(par12(i), factors, nrpresent, j, values)) THEN
+                           IF (set_rcp_values(par13(i), factors, nrpresent, j, values)) THEN
+                              IF (set_rcp_values(par14(i), factors, nrpresent, j, values)) THEN
+                              ENDIF
+                           ENDIF
                         ENDIF
                       ENDIF
                     ENDIF

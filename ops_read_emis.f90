@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 !
@@ -25,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                :
+! AUTHOR                : OPS-support 
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Read source file with emissions and files with diurnal emission variations and particle size distributions.
@@ -161,7 +164,7 @@ CONTAINS
 ! +002    33    33    35    80   150   155   120   116   122   135   145    77 Average heating behaviour
 ! +003    24    16    23   150   175   121   127   154   190   112    60    48 Average traffic intensity
 
-! Example of particle size distribution file:
+! Example of particle size distribution file: FS
 ! 
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE read_variation(distnam, fmt, nrclass, normalvalue, compdesc, fraction, distrib, maxcode, presentcode, error)

@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : HvJ / Franka Loeve (Cap Volmac)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute concentration, taking into account source depletion factors for dry deposition,
@@ -40,7 +43,7 @@ SUBROUTINE ops_conc_rek(ueff, qbpri, isec, rcsec, routsec, ccc, amol1, amol2, si
                      &  rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder, regenk, virty, ri, vw10, hbron, pcoef,  &
                      &  rkc, disx, vnatpri, vchem, radius, xl, xloc, htot, twt, rb, ra50, xvghbr, xvglbr, grad, frac,           &
                      &  cdn, cq2, c, sdrypri, sdrysec, snatsec, somvnsec, telvnsec, vvchem, vtel, snatpri, somvnpri,            &
-                     &  telvnpri, ddepri, drydep, wetdep, dm, qsec, consec, pr, vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg,&
+                     &  telvnpri, ddepri, drydep, wetdep, qsec, consec, pr, vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg,&
                      &  buildingFact)
 
 USE m_commonconst
@@ -121,13 +124,13 @@ DOUBLE PRECISION, INTENT(INOUT)                  :: drydep                     !
 DOUBLE PRECISION, INTENT(INOUT)                  :: wetdep                     ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: dm                         ! 
 REAL*4,    INTENT(OUT)                           :: qsec                       ! 
 REAL*4,    INTENT(OUT)                           :: consec                     ! 
 REAL*4,    INTENT(OUT)                           :: pr                         ! 
 REAL*4,    INTENT(OUT)                           :: vg50trans                  ! 
 
 ! LOCAL VARIABLES
+REAL*4                                           :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
 REAL*4                                           :: vv                         ! 
 REAL*4                                           :: drypri                     ! 
 REAL*4                                           :: ddrup                      ! 
@@ -242,29 +245,29 @@ ENDIF
 !
 dn = rkc/100.*percvk*1.e6/(ueff*2.*PI/12.* (disx + virty + 3. + virnat))
 !
-! Compute dm = Q(x) = depleted source strength (effect of all source depletion factors on source strength qbpri)
+! Compute qpri_depl = Q(x) = depleted source strength (effect of all source depletion factors on source strength qbpri)
 !
-dm = qbpri*cdn*cq2*cch
+qpri_depl = qbpri*cdn*cq2*cch
 !
 ! Compute dnatpri = wet deposition flux [ug/m2/h] of primary component 
 ! and     snatpri = summed wet deposition of primary component (weighed with fraction cell inside NL)
 !         vnatpri: [%/h] wet deposition loss rate for primary components
-!         dm     : [g/s]  
-!         dn     : [s/m2 ug/g]
-!         dm*dn  : [ug/m2] deposited mass per area, during time step dt; dm*dn = Q(x)*dt*percvk*1e6/A
+!         qpri_depl     : [g/s]  
+!         dn            : [s/m2 ug/g]
+!         qpri_depl*dn  : [ug/m2] deposited mass per area, during time step dt; qpri_depl*dn = Q(x)*dt*percvk*1e6/A
 ! 
 IF ((disx + virty) .LT. (virnat - EPS_DELTA)) THEN
    dnatpri = 0.
 ELSE
-   dnatpri = vnatpri*dm*dn
+   dnatpri = vnatpri*qpri_depl*dn
 ENDIF
 snatpri = snatpri + dnatpri*frac
 !
-! Sum wet deposition flux [ug/m2/h] of primary component and sum deposited mass per area dm*dn [ug/m2];
+! Sum wet deposition flux [ug/m2/h] of primary component and sum deposited mass per area qpri_depl*dn [ug/m2];
 ! later on we use this for computing effective wet deposition rate wdrpri = somvnpri/telvnpri [%/h]
 !
 somvnpri = somvnpri + dnatpri
-telvnpri = telvnpri + dm*dn
+telvnpri = telvnpri + qpri_depl*dn
 !
 ! Compute concentration and deposition of secondary component (SO4, NO3, NH4)
 ! 
@@ -303,10 +306,10 @@ IF (isec) THEN
    ENDIF
 ENDIF
 !
-! Sum chemical conversion rate (weighed with dm*dn = deposited mass per area [ug/m2]) 
+! Sum chemical conversion rate (weighed with qpri_depl*dn = deposited mass per area [ug/m2]) 
 !
-vvchem = vvchem + (vchem*dm*dn)
-vtel   = vtel + (dm*dn)
+vvchem = vvchem + (vchem*qpri_depl*dn)
+vtel   = vtel + (qpri_depl*dn)
 !
 ! Sum deposition (drydep = dry/primary+secondary, ddepri = dry/primary, wetdep = wet/primary+secondary);
 ! convert from ug/m2/h to mol/ha/y 

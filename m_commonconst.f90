@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! MODULE             : m_commonconst
 ! FILENAME           : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : Martien de Haan (ARIS)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Defines common parameters, values, etc.
@@ -54,7 +57,7 @@ INTEGER*4, PARAMETER                             :: NBRMAX      = 10            
 INTEGER*4, PARAMETER                             :: NCATMAX     = 199                  ! maximal number of emission categories
 INTEGER*4, PARAMETER                             :: NLANDMAX    = 50                   ! maximal number of emission countries (land << country)
 INTEGER*4, PARAMETER                             :: NBGMAPS     =  5                   ! number of background maps
-INTEGER*4, PARAMETER                             :: NYEARS      = 41                   ! number of years for interpolating backgground maps
+INTEGER*4, PARAMETER                             :: NYEARS      = 42                   ! number of years for interpolating backgground maps
 INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)    
 INTEGER*4, PARAMETER                             :: MAXROW      = 9999                 ! maximal number of rows in receptor grid
 INTEGER*4, PARAMETER                             :: MAXCOL      = 9999                 ! maximal number of columns in receptor grid
@@ -75,10 +78,9 @@ REAL*4                                           :: r4_for_tiny                 
 REAL*8                                           :: r8_for_tiny                        ! help variable to define DEPS_DELTA
 REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
 REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
-! REAL*4,    PARAMETER                             :: PI          = 3.14159265
 REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]      
-CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '4.6.2.5'            ! model version OPS-LT
-CHARACTER*20, PARAMETER                          :: RELEASEDATE = '06 dec 2019'        ! release date
+CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.0.0.0'            ! model version OPS-LT
+CHARACTER*20, PARAMETER                          :: RELEASEDATE = '26 dec 2019'        ! release date
 
 !
 ! CONSTANTS - Data
@@ -96,6 +98,7 @@ REAL*4                                           :: tf_no2(NYEARS + 1)          
 REAL*4                                           :: tf_nh3(NYEARS + 1)                 ! trendfactors for NH3: concentration in year T, relative to the concentration in reference year
 REAL*4                                           :: nox_no2_beta(2)                    ! coefficient in conversion NO2 = beta(1)*log(NOx) + beta(2)
 CHARACTER*10                                     :: CNAME(3,5)                         ! names of substances (primary, secondary, second secondary, deposited, name in DEPAC)
+CHARACTER*10                                     :: CNAME_SUBSEC(4)                    ! names of sub-secondary species (HNO3, NO3_C, NO3_F)
 CHARACTER*10                                     :: UNITS(2)                           ! units for concentration
 CHARACTER*10                                     :: DEPUNITS(NUNIT)                    ! units for deposition
 CHARACTER*40                                     :: KLIGEB(NKLIGEB)                    ! climate regions in NL (KLIGEB << klimaatgebieden = climate regions)
@@ -145,17 +148,17 @@ DATA cf_nh3      / 0.83, 0.83, 0.94, 1.12, 1.12 /
 DATA tf_so2      /1.11,1.39,1.79,1.27,1.19,1.20,0.94,1.00,1.04,1.02,1.10,0.62,0.65,    &  ! 1977 t/m 1989 (ref=1984)
                &                 1.60,1.70,1.46,1.33,1.00,0.86,1.02,0.78,0.63,0.50,    &  ! 1990 t/m 1999 (ref=1994)
                &            1.33,1.15,1.20,1.14,1.01,1.00,0.96,                        &  ! 2000 t/m 2006 (ref=2005)
-               &            1.72,1.85,1.75,1.44,1.14,1.00,0.98,1.10,0.81,0.61,0.58,1.00/ ! 2007 t/m 2017 plus future (ref=2012)
+               &            1.72,1.85,1.75,1.44,1.14,1.00,0.98,1.10,0.81,0.61,0.58,0.77,1.00/ ! 2007 t/m 2018 plus future (ref=2012)
 
 DATA tf_no2      /0.91,0.92,1.03,0.93,0.92,1.00,0.93,1.00,1.05,0.93,0.88,0.81,0.94,    &  ! 1977 t/m 1989 (ref=1984)
                &                 1.12,1.19,1.06,1.02,1.00,0.94,1.04,1.03,0.91,0.86,    &  ! 1990 t/m 1999 (ref=1994)
                &            1.07,1.05,1.06,1.17,1.06,1.00,0.99,                        &  ! 2000 t/m 2006 (ref=2005)
-               &            1.09,1.15,1.12,1.06,1.04,1.00,0.94,0.90,0.84,0.88,0.89,1.00/  ! 2007 t/m 2017 plus future (ref=2012)
+               &            1.09,1.15,1.12,1.06,1.04,1.00,0.94,0.90,0.84,0.88,0.89,0.88,1.00/  ! 2007 t/m 2018 plus future (ref=2012)
 
 DATA tf_nh3      /1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,    &  ! 1977 t/m 1989 (ref=1984)
                &                 1.00,1.00,1.00,1.01,1.00,0.97,0.97,1.03,0.75,0.85,    &  ! 1990 t/m 1999 (ref=1994)
                &            0.94,1.00,0.83,1.04,0.84,1.00,1.08,                        &  ! 2000 t/m 2006 (ref=2005)
-               &            0.86,0.84,0.98,1.00,1.10,1.00,1.00,1.05,0.93,1.04,1.04,1.00/  ! 2007 t/m 2017 plus future (ref=2012)
+               &            0.86,0.84,0.98,1.00,1.10,1.00,1.00,1.05,0.93,1.04,1.04,1.51,1.00/  ! 2007 t/m 2018 plus future (ref=2012)
 !
 ! Declaration of the naming convention used for SO2, NOx and NH3
 ! CNAME(:,1): name of primary substance
@@ -169,22 +172,26 @@ DATA CNAME       /'SO2', 'NOx'     , 'NH3',  &
                &  '   ', 'NO3'     , '   ',  &
                &  'SOx', 'NOy'     , 'NHx',  &
                &  'SO2', 'NO2'     , 'NH3'   /
+               
+! CNAME_SEC is defined in ops_read_ctr               
+! DATA CNAME_SUBSEC /'HNO3', 'NO3_C', 'NO3_F' /   ! HNO3, NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)  
+! DATA CNAME_SUBSEC /'HNO3', 'NO3_AER' /          ! HNO3, NO3_aerosol (in PM10)
 !
 ! Units for concentration and deposition
 !
-DATA UNITS       /'ug/m3', 'ug/m3 NO2'/
+DATA UNITS       /'ug/m3', 'ug/m3_NO2'/
 DATA DEPUNITS    /' mmol/m2/s', ' g/m2/s   ', ' mol/ha/y ', ' kg/ha/y  ', ' mmol/m2/y', ' g/m2/y   '/
 
 !
 ! meteo regions (KLIGEB << klimaatgebieden = climate regions)
 !
-DATA KLIGEB      /'The Netherlands                    ',                    &
+DATA KLIGEB      /'The_Netherlands                    ',                    &
                &  'N-Holland, N-Friesland, N-Groningen',                    & 
                &  'Randstad, W-Brabant, E-Zeeland     ',                    &
                &  'Drente, S-Friesland, S-Groningen   ',                    &
                &  'W-Zeeland, ZH-Islands              ',                    &
                &  'Mid-Brabant, Veluwe, Twente        ',                    &
                &  'S-Limburg, E-Brabant, Achterhoek   ',                    &
-               &  'Special climatological datafile    '/                       ! always the last one
+               &  'Special_climatological_datafile    '/                       ! always the last one
 
 END MODULE m_commonconst

@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : Martien de Haan (ARIS)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Read parameters for the OPS-model from the control file. 
@@ -36,8 +39,8 @@
 ! UPDATE HISTORY
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_read_ctr(project, runid, year, icm, namco, amol1, gasv, idep, kdeppar, ddeppar, knatdeppar, wdeppar, dg,        &
-                     &  irev, vchemc, vchemv, emtrend, ncatsel, catsel, nlandsel, landsel, spgrid, xc, yc, nrcol, nrrow,       &
-                     &  grid, igrens, z0_user, intpol, ideh, igrid, checked, f_z0user, isec, error)
+                     &  irev, vchemc, iopt_vchem, vchemv, emtrend, ncatsel, catsel, nlandsel, landsel, spgrid, xc, yc, nrcol, nrrow,       &
+                     &  grid, igrens, z0_user, intpol, ideh, igrid, checked, f_z0user, isec, nsubsec, error)
 
 USE m_getkey
 USE m_fileutils
@@ -64,7 +67,8 @@ INTEGER*4, INTENT(OUT)                           :: knatdeppar
 REAL*4,    INTENT(OUT)                           :: wdeppar                    
 REAL*4,    INTENT(OUT)                           :: dg                         
 LOGICAL,   INTENT(OUT)                           :: irev                       
-REAL*4,    INTENT(OUT)                           :: vchemc                     
+REAL*4,    INTENT(OUT)                           :: vchemc                     ! chemical conversion rate [%/h]
+INTEGER*4, INTENT(OUT)                           :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 REAL*4,    INTENT(OUT)                           :: vchemv                     
 REAL*4,    INTENT(OUT)                           :: emtrend                    
 INTEGER*4, INTENT(OUT)                           :: ncatsel                    
@@ -85,11 +89,13 @@ LOGICAL,   INTENT(OUT)                           :: igrid
 LOGICAL,   INTENT(OUT)                           :: checked                    
 LOGICAL*4, INTENT(OUT)                           :: f_z0user                   
 LOGICAL,   INTENT(OUT)                           :: isec                       
+INTEGER*4, INTENT(OUT)                           :: nsubsec                    ! number of sub-secondary species                       
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 REAL*4                                           :: lower                      ! lower limit (is used for checking variables read) 
 REAL*4                                           :: upper                      ! upper limit (is used for checking variables read) 
+CHARACTER*(512)                                  :: str1                       ! string value read from control file
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -159,10 +165,58 @@ IF (.NOT. GetCheckedKey('WDPARVALUE', lower, upper, gasv .AND. idep .AND..NOT.is
 ! Read diffusion coefficient, logical for ireversible wash-out or not, chemical conversion rate, light dependent conversion rate
 IF (.NOT. GetCheckedKey('DIFFCOEFF', 0., 1., gasv .AND. idep .AND. knatdeppar.EQ.3, dg, error)) GOTO 1000
 IF (.NOT. GetKeyValue  ('WASHOUT', gasv .AND. idep .AND. knatdeppar.EQ.3, irev, error)) GOTO 1000
-IF (.NOT. GetCheckedKey('CONVRATE', 0., 999., gasv .AND. idep .AND..NOT.isec, vchemc, error)) GOTO 1000
+
+! Read chemical conversion rate vchemc; this can be either the string EMEP (meaning that we use conversion rate maps from the EMEP-model -> 
+! iopt_vchem = 1) or a fixed value of vchemc. 
+! A value of vchemc is only required for non-acidifying components (isec = false), because for acidifying components, we use either
+! the EMEP maps or (if EMEP is not specified) an old chemical conversion rate parameterisation (iopt_vchem = 0; see OPS-doc).
+! IF (.NOT. GetCheckedKey('CONVRATE', 'EMEP', 'EMEP', gasv .AND. isec, str1, error)) GOTO 1000
+call read_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error) 
+if (error%haserror) GOTO 1000 
+
+!!vchemc = MISVALNUM
+!!iopt_vchem = 0
+!!IF (GetCheckedKey('CONVRATE', 'EMEP', 'EMEP', gasv .AND. idep .AND. isec, str1, error)) THEN
+!!   ! EMEP has been found or EMEP is not required; if it is required, set iopt_vchem to 1:
+!!   if (gasv .AND. idep .AND. isec) then
+!!      ! EMEP has been found and acidifying component and chemical conversion is on:
+!!      iopt_vchem = 1
+!!   else
+!!      ! EMEP has been found, but is not needed:
+!!      call ErrorParam('CONVRATE EMEP can only be used for acidifying components SO2, NOx, NH3 ','', error) 
+!!      GOTO 1000
+!!   endif      
+!!ENDIF
+!!If (iopt_vchem .eq. 0) THEN
+!!    ! vchemc has not been set, read line again and extract vchemc (if required):
+!!    backspace(fu_input); error%haserror = .false.
+!!    IF (.NOT. GetCheckedKey('CONVRATE', 0., 999., gasv .AND. idep .AND..NOT.isec, vchemc, error)) GOTO 1000
+!!ENDIF
+
 IF (.NOT. GetCheckedKey('LDCONVRATE', 0., 99.99, gasv .AND. idep .AND..NOT.isec, vchemv, error)) GOTO 1000
 
-!
+! Secondary species are SO4, NO3_total, NH4; 
+! for NOx with EMEP chemical conversion, we have 3 sub-secondary species (HNO3, NO3_C (coarse in PM10-PM2.5), NO3_F (fine in PM2.5)):
+if (icm .eq. 2) then
+   if (iopt_vchem .eq. 0) then
+      ! Old OPS parameterisation; no information on fine and coarse NO3:
+      nsubsec = 2 
+      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3' /)          ! HNO3, NO3_aerosol (in PM10)
+   else
+      ! EMEP gives also a split between coarse and fine NO3:
+      nsubsec = 4
+      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3', 'NO3_C', 'NO3_F' /)   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)  
+   endif
+else
+   ! SO4 and NH4 all in fine PM-fraction; no sub-species:
+   nsubsec = 0
+endif
+!if (icm .eq. 2) then
+!   nsubsec = 3
+!else
+!   nsubsec = 0
+!endif
+
 ! Read emission layer (emission file, user defined diurnal variation file, 
 ! user defined particle size distribution file, emission trend factor, selected emission categories,
 ! selected emission countries)
@@ -246,4 +300,96 @@ IF (.NOT. error%haserror) RETURN
 2000 CALL ErrorParam('control file', ctrnam, error)
 CALL ErrorCall(ROUTINENAAM, error)
 
+CONTAINS
+
+!------------------------------------------------------------------------------------------------
+subroutine read_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error)
+
+use m_error
+use m_commonconst,only: MISVALNUM, EPS_DELTA
+use m_commonfile
+use m_getkey
+
+implicit none
+
+! Input:
+logical, intent(in)  :: gasv            ! gasuous component
+logical, intent(in)  :: idep            ! deposition/chemical conversion is switched on
+logical, intent(in)  :: isec            ! acidifying component (SO2, NOx, NH3)
+
+! Output
+real,    intent(out) :: vchemc          ! chemical conversion rate [%/h]
+integer, intent(out) :: iopt_vchem      ! = 0 -> use conversion rates from old OPS parameterisation
+                                        ! = 1 -> use conversion rates from EMEP
+type(Terror), intent(inout) :: error    ! error structure
+
+! Local:
+character(len=200)  :: str1
+
+! Initialise:
+vchemc = MISVALNUM
+iopt_vchem = 0   ! old OPS parameterisation for chemical conversion rates
+
+! Check for "CONVRATE EMEP":
+IF (GetCheckedKey('CONVRATE', 'EMEP', 'EMEP', gasv .AND. idep .AND. isec, str1, error)) THEN
+!   ! EMEP has been found or EMEP is not required; if it is required, set iopt_vchem to 1:
+!   if (gasv .AND. idep .AND. isec) iopt_vchem = 1
+
+   ! EMEP has been found or EMEP is not required; if it is required, set iopt_vchem to 1:
+   if (gasv .AND. idep .AND. isec) then
+      ! CONVRATE EMEP has been found and 'gasuous component' and 'chemical conversion is on' and 'acidifying component':
+      iopt_vchem = 1   ! use EMEP conversion rates
+   else
+      ! CONVRATE EMEP is not needed; generate error if it is provided in input anyway:
+      if (str1 .eq. 'EMEP') then
+         if (.not. isec) then
+            call SetError('CONVRATE EMEP can only be used for acidifying components SO2, NOx, NH3 ', error) 
+         elseif (.not. idep) then
+            call SetError('CONVRATE EMEP can only be used if deposition/chemical conversion switched on', error) 
+         else
+            call SetError('CONVRATE EMEP can only be used for gasuous components', error) 
+         endif
+         GOTO 1000
+      endif
+   endif      
+ENDIF
+
+If (iopt_vchem .eq. 0) THEN
+    ! vchemc has not been set; read line again and extract vchemc (if required):
+    backspace(fu_input); error%haserror = .false.
+    IF (GetCheckedKey('CONVRATE', 0., 999., gasv .AND. idep .AND. .NOT.isec, vchemc, error)) then
+    
+       ! If 'CONVRATE value' is not required and a value is specified anyway, generate error:
+       if (.not. (gasv .AND. idep .AND. .NOT.isec)) then
+          if (error%haserror) then
+             GOTO 1000
+          elseif (vchemc .eq. MISVALNUM) then
+             continue ! is ok; no error
+          else
+             if (isec) then
+                call SetError('CONVRATE value cannot be specified for acidifying components SO2, NOx, NH3 ', error) 
+             elseif (.not. idep) then
+                call SetError('CONVRATE value can only be specified if deposition/chemical conversion switched on', error) 
+             else
+                call SetError('CONVRATE value can only be used for gasuous components', error) 
+             endif
+             GOTO 1000
+          endif
+       endif      
+    else
+       ! CONVRATE value is required but not found -> error 
+       if (vchemc .eq. MISVALNUM) then
+          error%haserror = .false.
+          call SetError('CONVRATE must have a value ', error) 
+       endif
+    endif
+ENDIF
+
+RETURN
+1000 CONTINUE  ! error handling in calling routine
+
+end subroutine read_conv_rate
+
 END SUBROUTINE ops_read_ctr
+
+
