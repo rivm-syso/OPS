@@ -45,7 +45,7 @@ DATA VWREP /2.6, 3.8, 4.0, 6.9, 1.4, 2.5/
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Get wind speed [m/s] at 10 m height from meteo statistics.
 ! Use VWREP if we have a zero wind speed from meteo statistics.
-!
+
 IF (ABS(astat(1, 3, istab, isek)) .LE. EPS_DELTA) THEN
    vw10 = VWREP(istab)
 ELSE
