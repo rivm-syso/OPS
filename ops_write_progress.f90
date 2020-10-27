@@ -56,7 +56,7 @@ INTEGER*4, INTENT(IN)                            :: numbs                      !
                                                                                ! in order to remain at the same position of the screen 
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: memdone                     
+INTEGER*4, INTENT(INOUT)                         :: memdone                   
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: idx                        ! do-loop index

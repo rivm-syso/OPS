@@ -55,9 +55,9 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_rcp_char_1')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL*4, INTENT(IN)                            :: isec                        
-INTEGER*4, INTENT(IN)                            :: ircp                   
-INTEGER*4, INTENT(IN)                            :: nrrcp   
+LOGICAL*4, INTENT(IN)                            :: isec                      
+INTEGER*4, INTENT(IN)                            :: ircp                 
+INTEGER*4, INTENT(IN)                            :: nrrcp 
 INTEGER*4, INTENT(IN)                            :: intpol                     ! 
 REAL*4,    INTENT(IN)                            :: gxm_rcp                    ! array met x-coordinaat van receptorpunten (lola)
 REAL*4,    INTENT(IN)                            :: gym_rcp                    ! array met y-coordinaat van receptorpunten (lola)
@@ -74,7 +74,7 @@ LOGICAL*4, INTENT(IN)                            :: domlu                      !
 LOGICAL*4, INTENT(IN)                            :: perc                           ! 
 INTEGER,   INTENT(IN)                            :: lu_rcp_per_user_all(nrrcp,NLU) ! percentage of landuse for all receptors, used defined in receptor file
 INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! land use at receptor points
-LOGICAL*4, INTENT(IN)                            :: f_z0user                   
+LOGICAL*4, INTENT(IN)                            :: f_z0user                 
 REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT (INOUT)                        :: i1(NTRAJ-1)                ! 
@@ -85,7 +85,7 @@ REAL*4,    INTENT(OUT)                           :: z0_metreg_rcp              !
 INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom                 ! dominant landuse class for receptor
 REAL*4,    INTENT(OUT)                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
 REAL*4,    INTENT(OUT)                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-TYPE (TError)                                    :: error  
+TYPE (TError)                                    :: error
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: lu_rcp_per_int(NLU)        ! percentages of landuse classes at receptor points
@@ -102,7 +102,7 @@ lu_rcp_per    = 0.
 z0_metreg_rcp = 0
 !
 ! Select the three nearest climatological regions and interpolate between them in order to compute z0_metreg_rcp
-! Note: intpol = 0 -> interpolate    
+! Note: intpol = 0 -> interpolate  
 !
 IF (intpol.EQ.0) THEN
   CALL reginpo(gxm_rcp, gym_rcp, cs, z0_metreg, xreg, yreg, i1, z0_metreg_rcp, uurtot, astat, error)
@@ -123,7 +123,7 @@ IF (ANY(spgrid == (/0,1/))) THEN
     IF (isec) THEN
       DO lu=2,NLU+1
         CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
-      ENDDO     
+      ENDDO   
       lu_rcp_per = float(lu_rcp_per_int)
     ENDIF
   ENDIF
@@ -136,7 +136,7 @@ ELSE
     IF (isec) THEN
       DO lu=2,NLU+1
         CALL GridValue(x_rcp/1000, y_rcp/1000, lugrid, lu_rcp_per_int(lu-1), iscell, lu)
-      ENDDO     
+      ENDDO   
       lu_rcp_per = float(lu_rcp_per_int)
     ENDIF
   ELSE
@@ -154,7 +154,7 @@ ENDIF
 !
 IF (f_z0user) THEN
   lu_rcp_dom = 1
-ELSE  
+ELSE
 !
 !     Set roughness length and dominant landuse class at receptor (not user specified)
 !
@@ -173,10 +173,10 @@ ENDIF
 IF (sum(lu_rcp_per(1:NLU)) .le. 0) THEN
   lu_rcp_per    = 0.0
   lu_rcp_per(1) = 100.0
-ENDIF   
+ENDIF 
 
 if (error%debug) write(*,'(3a,1x,i6,99(1x,e12.5))') trim(ROUTINENAAM),',A,',' ircp,z0_rcp,lu_rcp_per: ',ircp,z0_rcp,lu_rcp_per
-     
+   
 
 9999 CALL ErrorCall(ROUTINENAAM, error)
 RETURN
@@ -268,7 +268,7 @@ z0_metreg_xy = 0.
 
 !
 DO itraj = 1, NTRAJ - 1 
-  
+
    ! Initialise minimal distance at 'HUGE'
    rmin = 100000.
 
@@ -374,4 +374,4 @@ RETURN
 END SUBROUTINE reginpo
 
 END SUBROUTINE ops_rcp_char_1
-    
+  

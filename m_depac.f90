@@ -30,7 +30,7 @@
 !
 !  MODULE             : m_depac
 !  INTERFACE          : depac
-!  AUTHOR             :  
+!  AUTHOR             :
 !  FIRM/INSTITUTE     : RIVM
 !  LANGUAGE           : FORTRAN-90
 !  DESCRIPTION        : In this subroutine the canopy or surface resistance Rc
@@ -40,25 +40,25 @@
 ! Deposition fluxes are computed using one of the following resistance approaches;
 ! Note that, with the appopriate definitions (see below), B and C are totally equivalent.
 !
-!           A: classical approach        !     B: with compensation points       ! C: with total         
-!                                        !                                       !    compensation point                                
-!   zr ---------------------------- Catm !  zr ---------------------------- Catm !  zr --------- Catm   
-!                 |         |            !                |                      !         |                       
-!                 Ra        |            !                Ra                     !         Ra                      
-!                 |         | F          !                |                      !         |                       
-!                 Rb        |            !                Rb                     !         Rb                      
-!                 |         V            !                |                      !         |                       
-!   z0 ---------------------------- Cc   !  z0 ---------------------------- Cc   !  z0 --------- Cc    
-!       |      |      |     |            !     |        |           |            !         |                  
-!       |     Rinc    |     |            !     |       Rinc         |            !        Rc                          
-!       |      |      |     | F          !     |        |           |            !         |                 
-!       Rw   Rsoil   Rstom  |            !    Rw       Rsoil       Rstom         !     --------- Ccomp_tot               
-!       |      |      |     |            !     |        |           |            !    
-!       |      |      |     V            !--- Cw ---- Csoil ---- Cstom     !                       
-!   zs ---------------------------- C=0  !                       
-!                                                     
-!   zr       : reference height (m)                              
-!   z0       : roughness length (m)                              
+!           A: classical approach        !     B: with compensation points       ! C: with total       
+!                                        !                                       !    compensation point                              
+!   zr ---------------------------- Catm !  zr ---------------------------- Catm !  zr --------- Catm 
+!                 |         |            !                |                      !         |                     
+!                 Ra        |            !                Ra                     !         Ra                    
+!                 |         | F          !                |                      !         |                     
+!                 Rb        |            !                Rb                     !         Rb                    
+!                 |         V            !                |                      !         |                     
+!   z0 ---------------------------- Cc   !  z0 ---------------------------- Cc   !  z0 --------- Cc  
+!       |      |      |     |            !     |        |           |            !         |                
+!       |     Rinc    |     |            !     |       Rinc         |            !        Rc                        
+!       |      |      |     | F          !     |        |           |            !         |               
+!       Rw   Rsoil   Rstom  |            !    Rw       Rsoil       Rstom         !     --------- Ccomp_tot             
+!       |      |      |     |            !     |        |           |            !  
+!       |      |      |     V            !--- Cw ---- Csoil ---- Cstom     !                     
+!   zs ---------------------------- C=0  !                     
+!                                                   
+!   zr       : reference height (m)                            
+!   z0       : roughness length (m)                            
 !   zs       : surface height (m)
 !   Catm     : atmospheric concentration (ug/m3)
 !   Cc       : concentration at canopy top (ug/m3)
@@ -80,36 +80,36 @@
 !   H        : layer height of numerical model
 !
 !    A. classical approach             !  B and C. compensation points
-!                                      !                                     
-!  1     1         1          1        !  1     1         1          1      
-! -- = ---- + ----------- + -----      ! -- = ---- + ----------- + -----  
-! Rc     Rw    Rsoil_eff    Rstom      ! Rc    Rw    Rsoil_eff    Rstom    
-!                                      !
-! deposition velocity:                 ! exchange velocity (deposition or emission):                                    
-! vd = 1/(Ra + Rb + Rc)                ! ve = 1/(Ra + Rb + Rc)               
-!                                      !
+!                                      !                                   
+!  1     1         1          1        !  1     1         1          1    
+! -- = ---- + ----------- + -----      ! -- = ---- + ----------- + -----
+! Rc     Rw    Rsoil_eff    Rstom      ! Rc    Rw    Rsoil_eff    Rstom  
+!
+! deposition velocity:                 ! exchange velocity (deposition or emission):                                  
+! vd = 1/(Ra + Rb + Rc)                ! ve = 1/(Ra + Rb + Rc)             
+!
 !                                      ! Separate fluxes over external leaf, soil and stomata (B) equal total flux 
 !                                      ! between Cc and Ccomp_tot (C): 
-!                                      !                                                             
+!                                      !                                                           
 !                                      !  (Cc - Cw  )    (Cc - Csoil)    (Cc - Cstom)   (Cc - Ccomp_tot) 
 !                                      !  ------------ + ------------ +  ------------ = ----------------  <=> (Cc-terms cancel)
-!                                      !     Rw         Rsoil_eff         Rstom             Rc     
-!                                      !                                                                                 
+!                                      !     Rw         Rsoil_eff         Rstom             Rc   
+!                                      !                                                                               
 !                                      !  1                1              1              1
 !                                      ! --- Ccomp_tot = ---- Cw + --------- Csoil + ----- Cstom.
-!                                      !  Rc             Rw        Rsoil_eff         Rstom         
-!                                      !                                     
-! F = -vd*Catm                         ! F = -ve*[Catm - Ccomp_tot]                          
-!                                      !                                     
-! Mass balance:                        ! Mass balance:                           
-!                                      !                                     
-!   dCatm                              !   dCatm                              
-! H ----- = F = -vd*Catm,              ! H ----- = F = -ve*[Catm - Ccomp_tot],               
-!    dt                                !    dt                              
-!                                      !                                     
+!                                      !  Rc             Rw        Rsoil_eff         Rstom       
+!                                      !                                   
+! F = -vd*Catm                         ! F = -ve*[Catm - Ccomp_tot]                        
+!                                      !                                   
+! Mass balance:                        ! Mass balance:                         
+!                                      !                                   
+!   dCatm                              !   dCatm                            
+! H ----- = F = -vd*Catm,              ! H ----- = F = -ve*[Catm - Ccomp_tot],             
+!    dt                                !    dt                            
+!                                      !                                   
 ! with solution:                       ! with solution (assuming Ccomp_tot constant):
-!                                      !
-! Catm(t+dt) = Catm(t)*exp(-(vd/H)*dt) ! Catm(t+dt) = Ccomp_tot + [Catm(t) - Ccomp_tot]*exp(-(ve/H)*dt)  
+!
+! Catm(t+dt) = Catm(t)*exp(-(vd/H)*dt) ! Catm(t+dt) = Ccomp_tot + [Catm(t) - Ccomp_tot]*exp(-(ve/H)*dt)
 ! 
 ! Approach C' uses the same scheme as C (compensation point), but computes a
 ! effective total resistance Rc', such that the differential equation of approach A can be used
@@ -137,13 +137,13 @@
 !    see calling routine: 
 !     [SO2] < 0.5 then
 !        iratns = 1 ! low
-!     else            
+!     else          
 !        [NH3]/[SO2] < 0.02         -> iratns = 3 ! very low
 !        [NH3]/[SO2] > 2            -> iratns = 2 ! high
 !        0.02 <= [NH3]/[SO2] <= 2   -> iratns = 1 ! low
 !     endif
 !
-!  -  DEPAC is used for the following gaseous components:   
+!  -  DEPAC is used for the following gaseous components: 
 !     HNO3, NO, NO2, O3, SO2, NH3.
 !     In this version of DEPAC, component numbers are not used anymore, only names
 !     (only upper case!).
@@ -227,14 +227,14 @@
 !
 !  UPDATE HISTORY : 
 !    1994    , article Erisman & van Pul, Atm. Env.
-!    ?       , Franka Loeve (Cap Volmac)
+!    ?       , OPS-Support
 !    Jan 2003,  : made single depac module.
 !    ?       ,               ? (TNO) : added rc for O3
 !    ?       ,               ? (TNO) : separate routines for each species.
 !    Nov 2008,       (RIVM): v3.0 synthesis of OPS and LOTOS-EUROS versions of DEPAC
 !    v3.0      model structure improved; common tasks in separate routines; documentation added
 !              names have been changed for readability:
-!              
+!            
 !              old name -> new name     : explanation
 !              ----------------------------------------
 !              rinc     -> rinc         : in canopy resistance (s/m)
@@ -263,9 +263,9 @@
 !
 !    22 Jan 2009,       (RIVM): v3.3 bug fix in season dependency leaf area index;
 !    v3.3         see function rc_lai. Older versions of this routine use a wrong numbering of
-!                 land use types (no conversion to Olson land use types).  
+!                 land use types (no conversion to Olson land use types).
 !                 rc_gstom_wes (Wesely) readability improved; routine gives the same results.
-!    
+!  
 !    03 Feb 2009,       (RIVM): v3.4 Rsoil(NH3,urban) = 100 (was 1000).
 !    v3.4
 !
@@ -293,7 +293,7 @@
 !
 !    10 Mar 2009,       (RIVM): v3.8
 !    v3.8         - the same as v3.7, but Baldocchi for Rstom
-!    
+!  
 !    24 Mar 2009,       (RIVM): v3.8.1 LAI in external leaf resistance
 !    v3.8.1       gw = (lai/lai(grass)) * gw   (adjusted Oct 2009; lai -> sai and 
 !                 sai_grass scaling inside rw_nh3_sutton routine)
@@ -304,62 +304,62 @@
 !    6 July 2009,      (RIVM): v3.9 call added to calculate Rstom with Emberson
 !    v3.9
 !
-!    13 Aug 2009, Margreet van Zanten (RIVM): Emberson update, PARshade and PARsun added 
+!    13 Aug 2009, OPS-Support (RIVM): Emberson update, PARshade and PARsun added 
 !                 (Zhang et al., 2001 Ae 4463-4470 which is update of Norman, 1982
 !
-!    17 Aug 2009, Margreet van Zanten (RIVM): update gamma parametrization according to 
+!    17 Aug 2009, OPS-Support (RIVM): update gamma parametrization according to 
 !                 submitted version of Wichink Kruit, 2009  (implemented eq 15 and 14a + eq 12)
-!    
-!    9  Sep 2009, Margreet van Zanten (RIVM): calc of PARdir and PARdiff in Emberson
+!  
+!    9  Sep 2009, OPS-Support (RIVM): calc of PARdir and PARdiff in Emberson
 !                 according to Weiss and Norman 1985
 !
 !    22 Sep 2009,   (RIVM): gstom of Emberson scaled with diffc/dO3 (instead of
 !    v3.10        erroneously with dwat)
 !
-!    24 Sep 2009, Margreet van Zanten (RIVM): choices made on lu classes, F_phen set to 1 
+!    24 Sep 2009, OPS-Support (RIVM): choices made on lu classes, F_phen set to 1 
 !                  since described effect is negligible for chosen lu's
-!    
+!  
 !    29 Sep 2009,   (RIVM): Emberson parameterisation of leaf area index (rc_lai);
 !                  new subroutine arguments for DEPAC: day_of_year and lat (latitude).
 !
-!    2 Oct  2009, Margreet van Zanten (RIVM): v3.10 Merged version of earlier version of 3.10 and 3.9.2 
+!    2 Oct  2009, OPS-Support (RIVM): v3.10 Merged version of earlier version of 3.10 and 3.9.2 
 !                 Contains soil compensation point. Currently csoil = 0 for all lu's except lu = 6 
 !                 for which a basic parametrization for the calc. of csoil is added.
 !                 In this parametrization no disctinction is made between salt and fresh water.
 !
-!    6 Oct 2009, Margreet van Zanten (RIVM): Distinction made between area index for stom. resistance (LAI) 
+!    6 Oct 2009, OPS-Support (RIVM): Distinction made between area index for stom. resistance (LAI) 
 !                and external resistance Rw (SAI = LAI + area index of stems and branches).
 !                rw (external leaf resistance) scaled with fixed sai_grass value (valid for Haarweg data) instead of Gw
 !                (external canopy resistance). Only Rw_nh3_sutton is scaled not Rw when it is freezing 
 !                Old logical vegetetation_present is splitted into LAI_present and SAI_present.
 !
-!    4 Nov 2009, Margreet van Zanten (RIVM): v3.11, all obsolete code (Wesely, Baldocchi, old LAI parameterisations)
+!    4 Nov 2009, OPS-Support (RIVM): v3.11, all obsolete code (Wesely, Baldocchi, old LAI parameterisations)
 !    v3.11       removed; functionally identical to DEPAC v3.10.
 !
-!    6 Nov 2009, Margreet van Zanten (RIVM): Differences between LE and OPS version of DEPAC straightened. 
+!    6 Nov 2009, OPS-Support (RIVM): Differences between LE and OPS version of DEPAC straightened. 
 !    v3.11       Choice for either LE or OPS version, guided by description of DEPAC in Erisman et al, 1994. 
 !                Rw for NO set to -9999. instead of either LE or OPS option
 !                Rc calculated for lu = 8 (other) is once more identical to the one for grass (rinc is missing instead of 0)
 !
 !    6 Nov 2009, version v3.11 renamed in depac.f90
 !
-!    25 Nov 2009, Margreet van Zanten (RIVM): bug fix for LE implementation
+!    25 Nov 2009, OPS-Support (RIVM): bug fix for LE implementation
 !    v3.11       ccomp_tot set to zero in rc_special to avoid use of outdated value of ccomp_tot when 
 !                calling depac routine for several components in a row (esp. NO after NH3), 
 !                ccomp_tot added as optional argument to rc_special routine
 !
-!   18 Dec 2009, Margreet van Zanten (RIVM): SAI for arable land (lu = 2) set to 0.5 outside growing season 
+!   18 Dec 2009, OPS-Support (RIVM): SAI for arable land (lu = 2) set to 0.5 outside growing season 
 !   v3.13        (instead of 0)
 !
 !   18 Dec 2009, depac.f90 renamed in depac_2010.f90
 !
-!   22 Dec 2009, Margreet van Zanten (RIVM): v3.14 -> copy of depac_2010.f90. Write statements for test output added 
+!   22 Dec 2009, OPS-Support (RIVM): v3.14 -> copy of depac_2010.f90. Write statements for test output added 
 !   v3.14        from depac_313. Frozen version
 !
-!   22 Dec 2009, Margreet van Zanten (RIVM): v3.15 copy of 3.14, two comments related to Rinc added (see 3.13)
+!   22 Dec 2009, OPS-Support (RIVM): v3.15 copy of 3.14, two comments related to Rinc added (see 3.13)
 !   v3.15         small bug fixed in rw_constant and rc_rctot so that rw can be set to -9999. correctly
-!                
-!   4 Jan 2010,  Margreet van Zanten (RIVM): depac_f90 and depac_3.11 merged, thus following bug fix dated Nov 25 2009 
+!              
+!   4 Jan 2010,  OPS-Support (RIVM): depac_f90 and depac_3.11 merged, thus following bug fix dated Nov 25 2009 
 !   v3.11        in depac.f90 implemented in 3.11
 !                bug fix for LE implementation
 !                ccomp_tot set to zero in rc_special to avoid use of outdated value of ccomp_tot when 
@@ -367,7 +367,7 @@
 !                ccomp_tot added as optional argument to rc_special routine
 !
 !   04 Jan 2010,   (RIVM): v3.16 is shell around versions 3.11 ('new' DEPAC for NH3 only) 
-!   v3.16        and 3.3 (old DEPAC for other species).       
+!   v3.16        and 3.3 (old DEPAC for other species).     
 !                This file is constructed as follows:
 !                module m_depac311
 !                module m_depac33
@@ -376,7 +376,7 @@
 !   04 Jan 2010,   (RIVM): iopt_debug -> optional writing of debug output
 !   v3.16        added to m_depac311 and m_depac33 in this file 
 !
-!   04 Jan 2010, Margreet van Zanten(RIVM): frozen version of depac v3.16, renamed in depac_GCN2010
+!   04 Jan 2010, OPS-Support(RIVM): frozen version of depac v3.16, renamed in depac_GCN2010
 !   depac_GCN2010
 !
 !   2013-09-17   this version has been derived from the 'hybrid' version 
@@ -384,7 +384,7 @@
 !                depac311 (for NH3) and depac33 (for other species).
 !                In this version, only depac311 has been retained, with some 
 !                bug fixes,
-!                
+!              
 !************************************************************************
 !************************************************************************************
 !
@@ -395,7 +395,7 @@
 module m_depac318
 
 implicit none
-      
+    
 ! Make all variables and procedures private, except depac
 PRIVATE
 PUBLIC depac318
@@ -510,7 +510,7 @@ real, optional  , intent(out) :: rc_eff       ! effective total canopy resistanc
 real                          :: lai          ! one-sided leaf area index (-)
 real                          :: sai          ! surface area index (-) (lai + branches and stems)
 logical                       :: ready        ! Rc has been set
-real                          :: diffc        ! diffusion coefficient of the gas involved          
+real                          :: diffc        ! diffusion coefficient of the gas involved        
 integer                       :: ipar_snow    ! parameterisation in case of snow:
                                               ! = 1 -> constant Rc
                                               ! = 2 -> temperature dependent Rc
@@ -539,7 +539,7 @@ call rc_special(compnam,lu,t,ipar_snow,nwet,rc_tot,ready,ccomp_tot)
 if (.not. ready) then
 
    ! External conductance:
-   call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+   call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)       
 
    ! Stomatal conductance:
    call rc_gstom(compnam,lu,lai,glrad,sinphi,t,rh,diffc,gstom) 
@@ -549,7 +549,7 @@ if (.not. ready) then
 
    ! Total canopy conductance (gc_tot) and resistance Rc (rc_tot):
    call rc_rctot(gstom,gsoil_eff,gw,gc_tot,rc_tot)
-   
+ 
    ! Compensation points:
    if (present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. present(catm) .and. present(ccomp_tot)) then
       call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
@@ -576,7 +576,7 @@ implicit none
 
 ! Define component specific parameters:
 character(len=*), intent(in) :: compnam       ! component name
-real   , intent(out)         :: diffc         ! diffusion coefficient of the gas involved          
+real   , intent(out)         :: diffc         ! diffusion coefficient of the gas involved        
 real   , intent(out)         :: rsoil_wet     ! soil resistance for wet soil
 real   , intent(out)         :: rsoil_frozen  ! soil resistance for frozen soil
 integer, intent(out)         :: ipar_snow     ! parameterisation in case of snow:
@@ -594,10 +594,10 @@ case('NO')
    ipar_snow    = 1
    rsoil_wet    = -999
    rsoil_frozen = -999
-   
+ 
    !          grass arable  perm. conif. decid.  water  urban  other desert
    !                  land  crops forest frest
-   !              1      2      3      4      5      6      7      8      9    
+   !              1      2      3      4      5      6      7      8      9  
       rsoil = (/ -999,  -999,  -999,  -999,  -999,  2000,  1000,  -999 , 2000 /)
 
 case('NO2')
@@ -607,7 +607,7 @@ case('NO2')
    rsoil_frozen =  2000 
    !         grass arable  perm. conif. decid.  water  urban  other desert
    !                 land  crops forest forest
-   !             1      2      3      4      5      6      7      8      9    
+   !             1      2      3      4      5      6      7      8      9  
    rsoil = (/ 1000,  1000,  1000,  1000,  1000,  2000,  1000,  1000,  1000/)
  
 case('O3')
@@ -617,10 +617,10 @@ case('O3')
    rsoil_frozen = 2000 
    !          grass arable  perm. conif. decid.  water  urban  other desert
    !                  land  crops forest forest
-   !              1      2      3      4      5      6      7      8      9    
+   !              1      2      3      4      5      6      7      8      9  
    ! rsoil = (/ 200,   200,   200,   200,   200,  2000,   200,   200,   200/)
    rsoil   = (/1000,   200,   200,   200,   200,  2000,   400,   400,  2000/)
-   
+ 
 case('SO2')
    diffc        = 0.11e-4
    ipar_snow    = 2
@@ -628,17 +628,17 @@ case('SO2')
    rsoil_frozen = 500
    !             grass arable  perm. conif. decid.  water  urban  other desert
    !                     land  crops forest forest
-   !                 1      2      3      4      5      6      7      8      9    
+   !                 1      2      3      4      5      6      7      8      9  
       rsoil =  (/ 1000,  1000,  1000,  1000,  1000,    10,  1000,  1000,  1000/)
 
 case('NH3')
    diffc        = 0.21e-4
    ipar_snow    = 2
-   rsoil_wet    = 10  
+   rsoil_wet    = 10
    rsoil_frozen = 1000
    !          grass arable  perm. conif. decid.  water  urban  other desert
    !                  land  crops forest forest
-   !              1      2      3      4      5      6      7      8      9    
+   !              1      2      3      4      5      6      7      8      9  
    rsoil  =  (/ 100,   100,   100,   100,   100,    10,   100,   100,   100/)
 
 case default
@@ -670,7 +670,7 @@ ready = .false.
 
 ! Default compensation point in special cases = 0:
 if (present(ccomp_tot)) ccomp_tot = 0.0
-  
+
 select case(trim(compnam))
 case('HNO3')
    ! No separate resistances for HNO3; just one total canopy resistance:
@@ -682,7 +682,7 @@ case('HNO3')
       rc_tot = 10.0
    endif
    ready = .true.
-   
+ 
 case('NO')
       if (lu .eq. 6) then ! water
          rc_tot = 2000.
@@ -740,13 +740,13 @@ real            , intent(out) :: gw      ! external leaf conductance (m/s)
 select case(trim(compnam))
 
 !case('HNO3') this routine is not called for HNO3
-   
+ 
 case('NO2')
     call rw_constant(2000.,gw)
 
 case('NO')
    call rw_constant(-9999.,gw)  ! see Erisman et al, 1994 section 3.2.3
-       
+     
 case('O3')
    call rw_constant(1000.,gw)
 
@@ -758,7 +758,7 @@ case('NH3')
 
    ! conversion from leaf resistance to canopy resistance by multiplying with SAI:
    Gw = sai*gw
-   
+ 
 case default
    print *, 'error in subroutine rc_gw '
    print *, 'component ',trim(compnam),' not supported'
@@ -791,7 +791,7 @@ real                 :: rw     ! external leaf resistance (s/m)
 ! Check if vegetation present:
 if (SAI_present) then
  
-   if (nwet .eq. 0) then     
+   if (nwet .eq. 0) then   
         !--------------------------
         ! dry surface
         !--------------------------
@@ -851,19 +851,19 @@ real                 :: sai_grass_haarweg ! surface area index at experimental s
 ! Fix SAI_grass at value valid for Haarweg data for which gamma_w parametrization is derived 
 sai_grass_haarweg = 3.5 
 
-!                  100 - rh  
+!                  100 - rh
 !  rw = 2.0 * exp(----------)
 !                    12
 
 if (SAI_present) then
-  
+
    ! External resistance according to Sutton & Fowler, 1993
    rw = 2.0 * exp((100.0 - rh)/12.0)
-   rw = sai_grass_haarweg * rw                
+   rw = sai_grass_haarweg * rw              
 
    ! Frozen soil (from Depac v1):
    if (tsurf .lt. 0) rw = 200
-     
+   
    ! Conductance:
    gw = 1./rw
 else
@@ -907,7 +907,7 @@ integer, intent (in)      :: day_of_year ! day of year
 real   , intent (in)      :: lat         ! latitude (degrees)
 integer, intent (in)      :: lu          ! landuse class
 real   , intent(out)      :: lai         ! one-sided leaf area index
-real   , intent(out)      :: sai         ! surface area index  
+real   , intent(out)      :: sai         ! surface area index
 
 ! Define type for LAI (leaf area index) parameters:
 type laitype
@@ -949,9 +949,9 @@ type(laitype),dimension(nlu), parameter :: lai_par = (/ &                       
 !        |            /             \
 !        |           /               \
 !        |          /                 \
-!  laimin|         /                   \      
+!  laimin|         /                   \    
 !        |        |                     |
-!        |        |                     |   
+!        |        |                     | 
 !        ---------|------|--------|-----|-----------
 !                sgs    sgs+     egs-   egs
 !                     s_lai_len  e_lai_len
@@ -993,19 +993,19 @@ else
       lai = 0.0;
    else
       if (day_of_year <=  sgs + lai_par1%s_lai_len ) then
-        
+      
          ! (lai    - laimin)   (day_of_year - sgs)
          ! ----------------- = -------------------
          ! (laimax - laimin)        s_lai_len
-        
+      
          lai = lai_par1%laimin + (lai_par1%laimax-lai_par1%laimin)*(day_of_year-sgs)/lai_par1%s_lai_len
-        
+      
       elseif (day_of_year >=  egs - lai_par1%e_lai_len) then
-        
+      
          ! (lai    - laimin)   (egs - day_of_year)
          ! ----------------- = -------------------
          ! (laimax - laimin)        e_lai_len
-        
+      
          lai = lai_par1%laimin + (lai_par1%laimax-lai_par1%laimin)*(egs-day_of_year)/lai_par1%e_lai_len
       else
          lai = lai_par1%laimax
@@ -1056,7 +1056,7 @@ real   , intent(out) :: gstom     ! stomatal conductance (m/s)
 
 ! Local variables
 real :: vpd  ! vapour pressure deficit (kPa)
-      
+    
 select case(trim(compnam))
 
 !case('HNO3') this routine is not called for HNO3
@@ -1066,10 +1066,10 @@ case('NO')
    gstom = 0.0
 
 case('NO2','O3','SO2','NH3')
-   
+ 
    ! if vegetation present:
    if (LAI_present) then
-      
+    
       if (glrad .gt. 0.0) then
          call rc_get_vpd(t,rh,vpd)
          call rc_gstom_emb(lu,glrad,t,vpd,lai,sinphi,gstom)
@@ -1077,11 +1077,11 @@ case('NO2','O3','SO2','NH3')
       else
          gstom = 0.0
       endif
-   else    
+   else  
       ! no vegetation; zero conductance (infinite resistance):
       gstom = 0.0
    endif
-   
+ 
 case default
    print *, 'error in subroutine rc_gstom '
    print *, 'component ',trim(compnam),' not supported'
@@ -1167,7 +1167,7 @@ IF (LAI_present) THEN
        sinphi = 0.0001
    else
        sinphi = sinp
-   end if   
+   end if 
 
    ! Direct and diffuse PAR, Photoactive (=visible) radiation:
    call par_dir_diff(glrad,sinphi,pres,pres_0,PARdir,PARdiff)
@@ -1184,16 +1184,16 @@ IF (LAI_present) THEN
    if (glrad .gt. 200 .and. LAI .gt. 2.5) then
        PARsun = PARdir**0.8*0.5/sinphi + PARshade ! Zhang et al., 2001
    end if
-   
+ 
    ! leaf area index for sunlit and shaded leaves:
-   if (sinphi .gt. 0) then  
-     LAIsun = 2*sinphi*(1-exp(-0.5*LAI/sinphi ))   
+   if (sinphi .gt. 0) then
+     LAIsun = 2*sinphi*(1-exp(-0.5*LAI/sinphi )) 
      LAIshade = LAI -LAIsun
    else
      LAIsun = 0
      LAIshade = LAI
    end if
-  
+
    ! correction factor for radiation (Emberson):
    F_light = (LAIsun*(1 - exp(-1.*alpha(lu)*PARsun)) + LAIshade*(1 - exp(-1.*alpha(lu)*PARshade)))/LAI
    F_light = max(F_light,F_min(lu))
@@ -1214,7 +1214,7 @@ IF (LAI_present) THEN
    ! ignored for now in DEPAC since influence of F_phen on lu classes in use is negligible.
    ! When other EMEP classes (e.g. med. broadleaf) are used f_phen might be too important to ignore
    F_phen = 1.
-      
+    
    ! evaluate total stomatal conductance
    F_env = F_temp*F_vpd*F_swp
    F_env = max(F_env,F_min(lu))
@@ -1225,7 +1225,7 @@ IF (LAI_present) THEN
    Gsto = lai*gsto    ! in m/s
 
 ELSE
-  GSto = 0.0        
+  GSto = 0.0      
 ENDIF
 
 END SUBROUTINE rc_gstom_emb
@@ -1252,7 +1252,7 @@ SUBROUTINE par_dir_diff(glrad,sinphi,pres,pres_0,par_dir,par_diff)
       real,    intent(in)  :: pres_0		! pressure at sea level (Pa)
       real,    intent(out) :: par_dir		! PAR direct : visible (photoactive) direct beam radiation (W m-2)
       real,    intent(out) :: par_diff		! PAR diffuse: visible (photoactive) diffuse radiation (W m-2)
-            
+          
 !     fn              = near-infrared direct beam fraction (dimensionless)
 !     fv              = PAR direct beam fraction (dimensionless)
 !     ratio           = ratio measured to potential solar radiation (dimensionless)
@@ -1270,16 +1270,16 @@ SUBROUTINE par_dir_diff(glrad,sinphi,pres,pres_0,par_dir,par_diff)
 !     600 W m-2 represents average amount of PAR (400-700 nm wavelength)
 !     at the top of the atmosphere; this is roughly 0.45*solar constant (solar constant=1320 Wm-2)
       rdu=600.*exp(-0.185*(pres/pres_0)/sinphi)*sinphi
-      
+    
 !     Calculate potential visible diffuse radiation
       rdv=0.4*(600.- rdu)*sinphi
-      
-!     Calculate the water absorption in the-near infrared    
+    
+!     Calculate the water absorption in the-near infrared  
       ww=1320*10**( -1.195+0.4459*log10(1./sinphi)-0.0345*(log10(1./sinphi))**2 )
-      
+    
 !     Calculate potential direct beam near-infrared radiation
       rdm=(720.*exp(-0.06*(pres/pres_0)/sinphi)-ww)*sinphi     !720 = solar constant - 600
-      
+    
 !     Calculate potential diffuse near-infrared radiation
       rdn=0.6*(720-rdm-ww)*sinphi
 
@@ -1289,10 +1289,10 @@ SUBROUTINE par_dir_diff(glrad,sinphi,pres,pres_0,par_dir,par_diff)
 
       ! Compute ratio between input global radiation and total radiation computed here
       ratio=min(0.9,glrad/(rv+rn))
-      
+    
 !     Calculate total visible radiation
       sv=ratio*rv
-      
+    
 !     Calculate fraction of PAR in the direct beam
       fv=min(0.99, (0.9-ratio)/0.7)            ! help variable
       fv=max(0.01,rdu/rv*(1.0-fv**0.6667))     ! fraction of PAR in the direct beam
@@ -1343,7 +1343,7 @@ integer, intent(in)  :: ipar_snow  ! choice of parameterisation in case of snow
                                    ! ipar_snow = 2 : temperature dependent parameterisation
 real   , intent(in)  :: t          ! temperature (C)
 real   , intent(out) :: rc_tot     ! total canopy resistance Rc (s/m)
-                                 
+                               
 ! Local variables:
 real, parameter :: rssnow = 2000.  ! constant resistance in case of snow and ipar_snow = 1
 
@@ -1361,7 +1361,7 @@ elseif (ipar_snow .eq. 2) then
 else
    write(*,*) ' programming error in subroutine rc_snow'
    write(*,*) ' unknown value of ipar_snow: ',ipar_snow
-   stop              
+   stop            
 endif
 
 end subroutine rc_snow
@@ -1412,7 +1412,7 @@ else
          else
             rsoil_eff = rsoil(lu) + rinc
          endif
-      
+    
       ! Non-frozen soil; wet:
       elseif (nwet .eq. 1) then
          if (missing(rsoil_wet)) then
@@ -1421,8 +1421,8 @@ else
             rsoil_eff = rsoil_wet + rinc
          endif
       else
-         write(*,*) ' programming error in rc_gsoil_eff'   
-         write(*,*) ' nwet can only be 0 or 1: ',nwet   
+         write(*,*) ' programming error in rc_gsoil_eff' 
+         write(*,*) ' nwet can only be 0 or 1: ',nwet 
          stop
       endif
    endif
@@ -1455,7 +1455,7 @@ real   , dimension(nlu)    :: h     ! vegetation height (m)
 
 !                      grass arable  perm. conif. decid.  water  urban  other desert
 !                              land  crops forest forest
-!                          1      2      3      4      5      6      7      8      9    
+!                          1      2      3      4      5      6      7      8      9  
 data b                / -999,    14,    14,    14,    14,  -999,  -999,  -999,  -999/ 
 data h                / -999,     1,     1,    20,    20,  -999,  -999,  -999,  -999/
 
@@ -1479,7 +1479,7 @@ endif
 end subroutine rc_rinc
 
 !-------------------------------------------------------------------
-! rc_rctot: compute total canopy (or surface) resistance Rc           
+! rc_rctot: compute total canopy (or surface) resistance Rc         
 !-------------------------------------------------------------------
 subroutine rc_rctot(gstom,gsoil_eff,gw,gc_tot,rc_tot)
 
@@ -1558,7 +1558,7 @@ real, intent(out)             :: ccomp_tot    ! total compensation point (weighe
 ! Variables from module:
 ! gamma_stom_c_fac: factor in linear relation between gamma_stom and NH3 air concentration.
 ! LAI_present or SAI_present: vegetation is present
-                                      
+                                    
 ! Local variables:
 real :: cw         ! external leaf compensation point (ug/m3)
 real :: cstom      ! stomatal compensation point (ug/m3)
@@ -1577,9 +1577,9 @@ real   , dimension(nlu)    :: gamma_soil_c_fac   ! factor in linear relation bet
 !
 !                      grass arable  perm. conif. decid.  water  urban  other desert
 !                              land  crops forest forest
-!                          1      2      3      4      5      6      7      8      9    
+!                          1      2      3      4      5      6      7      8      9  
 ! for current parametrization gamma_stom_c_fac is independent of lu
-data gamma_stom_c_fac /  362,   362,   362,   362,   362,  -999,  -999,   362,  -999 /  
+data gamma_stom_c_fac /  362,   362,   362,   362,   362,  -999,  -999,   362,  -999 /
 data gamma_soil_c_fac / -999,  -999,  -999,  -999,  -999,   430,  -999,  -999,  -999 /
 
 select case(trim(compnam))
@@ -1588,11 +1588,11 @@ select case(trim(compnam))
 case('NO','NO2','O3','SO2')
    ! no compensation points:
    ccomp_tot  = 0.0
-   
+ 
 case('NH3')
 
    ! Temperature factor:
-   
+ 
    ! parametrized temperature of surface water including yearly cycle
    ! parametrization based on NL Waterbase data for 2003-2008, for ~25 locations 
    ! for which NH4+, PH and temperature measurements are present
@@ -1602,20 +1602,20 @@ case('NH3')
       tk = t + 273.15
    endif
    tfac = (2.75e15/tk)*exp(-1.04e4/tk)
-   
+ 
    ! Stomatal compensation point:
    if (LAI_present .and. c_ave_prev_nh3 .gt. 0.) then
       ! gamma_stom ([NH4+]/[H+] ratio in apoplast) is linearly dependent on an 
       ! averaged air concentration in a previous period (stored in soil and leaves):
        gamma_stom = gamma_stom_c_fac(lu)*c_ave_prev_nh3*4.7*exp(-0.071*t)
-   
+ 
       ! calculate stomatal compensation point for NH3 in ug/m3:
       cstom = max(0.0,gamma_stom*tfac)
    else
       ! No concentration in previous period or no gamma-c factor:
       cstom = 0.0
    endif
-   
+ 
    ! External leaf gamma depends on atmospheric concentration and
    ! surface temperature (assumed to hold for all land use types with vegetation):
 !   if (SAI_present .and. present(catm) .and. present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. c_ave_prev_nh3 .gt. 0. .and. c_ave_prev_so2 .gt. 0.) then
@@ -1623,11 +1623,11 @@ case('NH3')
       gamma_w = -850.+1840.*catm*exp(-0.11*t)
       ! correction gamma_w for co deposition 
       ! xxx documentation to be added
-      ! gamma(with SNratio) = [1.12-1.32*SNratio(molair)]  * gamma_original   
+      ! gamma(with SNratio) = [1.12-1.32*SNratio(molair)]  * gamma_original 
       ! where SNratio(molar) = (CSO2longterm/64)/(CNH3longterm/17))
       !   where CSO2longterm and CNH3longterm in ug m-3.
       co_dep_fac = 1.12 - 1.32 * ((c_ave_prev_so2/64.)/(c_ave_prev_nh3/17.))
-      co_dep_fac = max(0.0,co_dep_fac)   
+      co_dep_fac = max(0.0,co_dep_fac) 
       gamma_w = co_dep_fac * gamma_w 
       cw      = max(0.0,gamma_w*tfac)
 !   elseif (SAI_present .and. present(catm)) then
@@ -1656,10 +1656,10 @@ case('NH3')
       ! No concentration in previous period or no gamma-c factor:
       csoil = 0.0
    endif 
-   
+ 
    ! Total compensation point is weighed average of separate compensation points:
    ccomp_tot = (gw/gc_tot)*cw + (gstom/gc_tot)*cstom + (gsoil_eff/gc_tot)*csoil
-   
+ 
 case default
    print *, 'error in subroutine rc_comp_point '
    print *, 'component ',trim(compnam),' not supported'
@@ -1681,18 +1681,18 @@ end subroutine rc_comp_point
 
 !
 ! C: with total compensation point
-!                                
-!  zr --------- Catm   
-!         |                       
-!         Ra                      
-!         |                       
-!         Rb                      
-!         |                       
-!  z0 --------- Cc    
-!         |                  
-!        Rc                          
-!         |                 
-!     --------- Ccomp_tot               
+!                              
+!  zr --------- Catm 
+!         |                     
+!         Ra                    
+!         |                     
+!         Rb                    
+!         |                     
+!  z0 --------- Cc  
+!         |                
+!        Rc                        
+!         |               
+!     --------- Ccomp_tot             
 ! 
 ! The effective Rc is defined such that instead of using 
 !
@@ -1734,9 +1734,9 @@ end subroutine rc_comp_point
 ! -------------------------------------------------------------------------------------------
 ! In fact it is the question if this correct; note the difference in differential equations
 !
-!   dCatm                              !   dCatm                              
-! H ----- = F = -vd'*Catm,             ! H ----- = F = -vd*[Catm - Ccomp_tot],               
-!    dt                                !    dt                              
+!   dCatm                              !   dCatm                            
+! H ----- = F = -vd'*Catm,             ! H ----- = F = -vd*[Catm - Ccomp_tot],             
+!    dt                                !    dt                            
 !
 ! where in the left colum vd' is a function of Catm and not a constant anymore.
 !

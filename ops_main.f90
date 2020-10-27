@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE    : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : OPS-support   
+! AUTHOR              : OPS-support 
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/FORTRAN-90
 ! DESCRIPTION         :
@@ -91,35 +91,35 @@ INTEGER*4                                        :: numbron
 INTEGER*4                                        :: ncatsel                    ! number of categories selected
 INTEGER*4                                        :: nlandsel                   ! number of countries selected
 INTEGER*4                                        :: spgrid 
-INTEGER*4                                        :: landmax                     
-INTEGER*4                                        :: nbron                       
-INTEGER*4                                        :: nsbuf                       
-INTEGER*4                                        :: btgedr(LSBUF)               
-INTEGER*4                                        :: bdegr(LSBUF)                
-INTEGER*4                                        :: bcatnr(LSBUF)               
-INTEGER*4                                        :: blandnr(LSBUF)              
-INTEGER*4                                        :: bx(LSBUF)                   
-INTEGER*4                                        :: by(LSBUF)                   
-INTEGER*4                                        :: bnr(LSBUF)      
+INTEGER*4                                        :: landmax                   
+INTEGER*4                                        :: nbron                     
+INTEGER*4                                        :: nsbuf                     
+INTEGER*4                                        :: btgedr(LSBUF)             
+INTEGER*4                                        :: bdegr(LSBUF)              
+INTEGER*4                                        :: bcatnr(LSBUF)             
+INTEGER*4                                        :: blandnr(LSBUF)            
+INTEGER*4                                        :: bx(LSBUF)                 
+INTEGER*4                                        :: by(LSBUF)                 
+INTEGER*4                                        :: bnr(LSBUF)    
 type(TbuildingEffect)                            :: buildingEffect                       ! structure with building effect tables
-INTEGER*4                                        :: jb                          
-INTEGER*4                                        :: mb                          
-INTEGER*4                                        :: idb                         
-INTEGER*4                                        :: jt                          
-INTEGER*4                                        :: mt                          
-INTEGER*4                                        :: idt                         
-INTEGER*4                                        :: dv     
-INTEGER*4                                        :: usdv   
-INTEGER*4                                        :: iseiz                       
-INTEGER*4                                        :: icm                         
-INTEGER*4                                        :: nsubsec                    ! number of sub-secondary species                       
-INTEGER*4                                        :: nrrcp  
-INTEGER*4                                        :: nrcol  
-INTEGER*4                                        :: nrrow  
-INTEGER*4                                        :: intpol                      
-INTEGER*4                                        :: kdeppar                     
-INTEGER*4                                        :: knatdeppar                  
-INTEGER*4                                        :: ideh                        
+INTEGER*4                                        :: jb                        
+INTEGER*4                                        :: mb                        
+INTEGER*4                                        :: idb                       
+INTEGER*4                                        :: jt                        
+INTEGER*4                                        :: mt                        
+INTEGER*4                                        :: idt                       
+INTEGER*4                                        :: dv   
+INTEGER*4                                        :: usdv 
+INTEGER*4                                        :: iseiz                     
+INTEGER*4                                        :: icm                       
+INTEGER*4                                        :: nsubsec                    ! number of sub-secondary species                     
+INTEGER*4                                        :: nrrcp
+INTEGER*4                                        :: nrcol
+INTEGER*4                                        :: nrrow
+INTEGER*4                                        :: intpol                    
+INTEGER*4                                        :: kdeppar                   
+INTEGER*4                                        :: knatdeppar                
+INTEGER*4                                        :: ideh                      
 INTEGER*4                                        :: i
 INTEGER*4                                        :: ircp
 INTEGER*4                                        :: mmm
@@ -128,8 +128,8 @@ INTEGER*4                                        :: lu_rcp_dom                 !
 REAL*4                                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie
 REAL*4                                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
 INTEGER*4                                        :: i1(NTRAJ-1)                ! 
-INTEGER*4                                        :: year                        
-INTEGER*4                                        :: memdone                     
+INTEGER*4                                        :: year                      
+INTEGER*4                                        :: memdone                   
 INTEGER*4                                        :: maxidx                     ! max. value of NPARTCLASS
 INTEGER*4                                        :: result                     ! returncode of system call
 INTEGER*4                                        :: ierr                       ! error code for array allocation
@@ -138,151 +138,151 @@ INTEGER*4                                        :: ntodo
 INTEGER*4                                        :: bottom
 
 REAL*4                                           :: aind                       ! hourglass
-REAL*4                                           :: amol2                       
-REAL*4                                           :: amol21                      
-REAL*4                                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]      
+REAL*4                                           :: amol2                     
+REAL*4                                           :: amol21                    
+REAL*4                                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]    
 REAL*4                                           :: z0_user                    ! roughness length specified by user [m]
 REAL*4                                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
 REAL*4                                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
 REAL*4                                           :: z0_src                     ! roughness length at source; from z0-map [m]
 REAL*4                                           :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4                                           :: vchemc                      
-INTEGER*4                                        :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                            
-REAL*4                                           :: vchemv                      
-REAL*4                                           :: xc                          
-REAL*4                                           :: yc                          
-REAL*4                                           :: rc                          
-REAL*4                                           :: ugmoldep                    
+REAL*4                                           :: vchemc                    
+INTEGER*4                                        :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                          
+REAL*4                                           :: vchemv                    
+REAL*4                                           :: xc                        
+REAL*4                                           :: yc                        
+REAL*4                                           :: rc                        
+REAL*4                                           :: ugmoldep                  
 REAL*4                                           :: gemre 
-REAL*4                                           :: somcsec                     
+REAL*4                                           :: somcsec                   
 REAL*4                                           :: gemcpri
-REAL*4                                           :: gemcsec                    
-REAL*4                                           :: totddep                    
-REAL*4                                           :: gemddep                    
-REAL*4                                           :: gemddpri                   
-REAL*4                                           :: gemddsec                   
-REAL*4                                           :: ddrpri                     
-REAL*4                                           :: ddrsec                     
-REAL*4                                           :: totwdep                    
-REAL*4                                           :: gemwdep                    
-REAL*4                                           :: gemwdpri                   
-REAL*4                                           :: gemwdsec                   
-REAL*4                                           :: wdrpri                     
-REAL*4                                           :: wdrsec                     
-REAL*4                                           :: tottdep                    
-REAL*4                                           :: gemtdep                    
-REAL*4                                           :: gemprec                    
-REAL*4                                           :: ccr                        
-REAL*4                                           :: xorg                       
-REAL*4                                           :: yorg                       
-REAL*4                                           :: bdiam(LSBUF)               
-REAL*4                                           :: bsterkte(LSBUF)            
-REAL*4                                           :: bwarmte(LSBUF)             
-REAL*4                                           :: bhoogte(LSBUF)             
-REAL*4                                           :: bsigmaz(LSBUF)    
+REAL*4                                           :: gemcsec                  
+REAL*4                                           :: totddep                  
+REAL*4                                           :: gemddep                  
+REAL*4                                           :: gemddpri                 
+REAL*4                                           :: gemddsec                 
+REAL*4                                           :: ddrpri                   
+REAL*4                                           :: ddrsec                   
+REAL*4                                           :: totwdep                  
+REAL*4                                           :: gemwdep                  
+REAL*4                                           :: gemwdpri                 
+REAL*4                                           :: gemwdsec                 
+REAL*4                                           :: wdrpri                   
+REAL*4                                           :: wdrsec                   
+REAL*4                                           :: tottdep                  
+REAL*4                                           :: gemtdep                  
+REAL*4                                           :: gemprec                  
+REAL*4                                           :: ccr                      
+REAL*4                                           :: xorg                     
+REAL*4                                           :: yorg                     
+REAL*4                                           :: bdiam(LSBUF)             
+REAL*4                                           :: bsterkte(LSBUF)          
+REAL*4                                           :: bwarmte(LSBUF)           
+REAL*4                                           :: bhoogte(LSBUF)           
+REAL*4                                           :: bsigmaz(LSBUF)  
 REAL*4                                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
 REAL*4                                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+REAL*4                                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]          
 LOGICAL                                          :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
 type(Tbuilding)                                  :: bbuilding(LSBUF)          ! array with structures with building parameters
-LOGICAL                                          :: building_present1         ! at least one building is present in the source file   
+LOGICAL                                          :: building_present1         ! at least one building is present in the source file 
 REAL*4                                           :: emis(6,NLANDMAX) 
 REAL*4                                           :: conc_cf
-REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4                                           :: ar                          
-REAL*4                                           :: rno2nox                     
-REAL*4                                           :: uurtot                      
-REAL*4                                           :: zf                          
-REAL*4                                           :: trafst(NTRAJ)               
-REAL*4                                           :: bqrv(LSBUF)                 
-REAL*4                                           :: bqtr(LSBUF)                 
-REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
-REAL*4                                           :: rainreg(NMETREG)            
-REAL*4                                           :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]           
-REAL*4                                           :: xreg(NMETREG)               
-REAL*4                                           :: yreg(NMETREG)               
-REAL*4                                           :: hourreg(NMETREG)            
+REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4                                           :: ar                        
+REAL*4                                           :: rno2nox                   
+REAL*4                                           :: uurtot                    
+REAL*4                                           :: zf                        
+REAL*4                                           :: trafst(NTRAJ)             
+REAL*4                                           :: bqrv(LSBUF)               
+REAL*4                                           :: bqtr(LSBUF)               
+REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+REAL*4                                           :: rainreg(NMETREG)          
+REAL*4                                           :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]         
+REAL*4                                           :: xreg(NMETREG)             
+REAL*4                                           :: yreg(NMETREG)             
+REAL*4                                           :: hourreg(NMETREG)          
 REAL*4                                           :: ecvl(NSTAB, NTRAJ,2*MAXDISTR) 
-REAL*4                                           :: dverl(NHRBLOCKS,MAXDISTR)   
+REAL*4                                           :: dverl(NHRBLOCKS,MAXDISTR) 
 REAL*4                                           :: usdverl(NHRBLOCKS,MAXDISTR) 
-REAL*4                                           :: pmd(NPARTCLASS,MAXDISTR)    
-REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)  
-REAL*4                                           :: amol1                      
-REAL*4                                           :: emtrend                    
-REAL*4                                           :: grid                       
-REAL*4                                           :: wdeppar                    
-REAL*4                                           :: scavcoef                   
+REAL*4                                           :: pmd(NPARTCLASS,MAXDISTR)  
+REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)
+REAL*4                                           :: amol1                    
+REAL*4                                           :: emtrend                  
+REAL*4                                           :: grid                     
+REAL*4                                           :: wdeppar                  
+REAL*4                                           :: scavcoef                 
 REAL*4                                           :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-]
 REAL*4                                           :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4                                           :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                                   
-REAL*4                                           :: rcno                       
-REAL*4                                           :: rhno2                      
-REAL*4                                           :: rchno3                     
-REAL*4                                           :: dg                         
-REAL*4                                           :: dispg(NSTAB)               
-REAL*4                                           :: ddeppar                    
-REAL*4                                           :: koh                        
-REAL*4                                           :: so2sek(NSEK)               
-REAL*4                                           :: no2sek(NSEK)               
-REAL*4, DIMENSION(:), POINTER                    :: gem_subsec                 ! grid mean for concentration of sub-secondary species [ug/m3]     
-REAL*4                                           :: scale_con                  
-REAL*4                                           :: scale_sec                  
-REAL*4, DIMENSION(:), POINTER                    :: scale_subsec              
-REAL*4                                           :: scale_dep                  
+REAL*4                                           :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                                 
+REAL*4                                           :: rcno                     
+REAL*4                                           :: rhno2                    
+REAL*4                                           :: rchno3                   
+REAL*4                                           :: dg                       
+REAL*4                                           :: dispg(NSTAB)             
+REAL*4                                           :: ddeppar                  
+REAL*4                                           :: koh                      
+REAL*4                                           :: so2sek(NSEK)             
+REAL*4                                           :: no2sek(NSEK)             
+REAL*4, DIMENSION(:), POINTER                    :: gem_subsec                 ! grid mean for concentration of sub-secondary species [ug/m3]   
+REAL*4                                           :: scale_con                
+REAL*4                                           :: scale_sec                
+REAL*4, DIMENSION(:), POINTER                    :: scale_subsec            
+REAL*4                                           :: scale_dep                
 REAL*4                                           :: so2bgtra                   ! 
 REAL*4                                           :: no2bgtra                   ! 
 REAL*4                                           :: nh3bgtra                   ! 
-type(Tvchem)                                     :: vchem2                     
-REAL*8, DIMENSION(:), POINTER                    :: sdrypri_arr                 
-REAL*8                                           :: sdrypri                     
-REAL*8, DIMENSION(:), POINTER                    :: snatpri_arr                 
-REAL*8                                           :: snatpri                     
-REAL*8, DIMENSION(:), POINTER                    :: somvnpri_arr                
-REAL*8                                           :: somvnpri                    
-REAL*8, DIMENSION(:), POINTER                    :: telvnpri_arr                
-REAL*8                                           :: telvnpri                    
-REAL*8, DIMENSION(:), POINTER                    :: sdrysec_arr                 
-REAL*8                                           :: sdrysec                     
-REAL*8, DIMENSION(:), POINTER                    :: snatsec_arr                 
-REAL*8                                           :: snatsec                     
-REAL*8, DIMENSION(:), POINTER                    :: somvnsec_arr                
-REAL*8                                           :: somvnsec                    
-REAL*8, DIMENSION(:), POINTER                    :: telvnsec_arr                
-REAL*8                                           :: telvnsec                    
-REAL*8, DIMENSION(:), POINTER                    :: vvchem_arr                  
-REAL*8                                           :: vvchem                      
-REAL*8, DIMENSION(:), POINTER                    :: vtel_arr                    
-REAL*8                                           :: vtel                        
+type(Tvchem)                                     :: vchem2                   
+REAL*8, DIMENSION(:), POINTER                    :: sdrypri_arr               
+REAL*8                                           :: sdrypri                   
+REAL*8, DIMENSION(:), POINTER                    :: snatpri_arr               
+REAL*8                                           :: snatpri                   
+REAL*8, DIMENSION(:), POINTER                    :: somvnpri_arr              
+REAL*8                                           :: somvnpri                  
+REAL*8, DIMENSION(:), POINTER                    :: telvnpri_arr              
+REAL*8                                           :: telvnpri                  
+REAL*8, DIMENSION(:), POINTER                    :: sdrysec_arr               
+REAL*8                                           :: sdrysec                   
+REAL*8, DIMENSION(:), POINTER                    :: snatsec_arr               
+REAL*8                                           :: snatsec                   
+REAL*8, DIMENSION(:), POINTER                    :: somvnsec_arr              
+REAL*8                                           :: somvnsec                  
+REAL*8, DIMENSION(:), POINTER                    :: telvnsec_arr              
+REAL*8                                           :: telvnsec                  
+REAL*8, DIMENSION(:), POINTER                    :: vvchem_arr                
+REAL*8                                           :: vvchem                    
+REAL*8, DIMENSION(:), POINTER                    :: vtel_arr                  
+REAL*8                                           :: vtel                      
 
-CHARACTER*512                                    :: namco                      
-CHARACTER*80                                     :: project                    
-CHARACTER*80                                     :: runid                      
-CHARACTER*80                                     :: namsec                     
-CHARACTER*80, DIMENSION(:), POINTER              :: nam_subsec                  
-CHARACTER*80                                     :: namse3                     
-CHARACTER*10                                     :: coneh                      
-CHARACTER*10                                     :: depeh                      
-CHARACTER*80                                     :: dll_version                     
-CHARACTER*80                                     :: dll_date               
+CHARACTER*512                                    :: namco                    
+CHARACTER*80                                     :: project                  
+CHARACTER*80                                     :: runid                    
+CHARACTER*80                                     :: namsec                   
+CHARACTER*80, DIMENSION(:), POINTER              :: nam_subsec                
+CHARACTER*80                                     :: namse3                   
+CHARACTER*10                                     :: coneh                    
+CHARACTER*10                                     :: depeh                    
+CHARACTER*80                                     :: dll_version                   
+CHARACTER*80                                     :: dll_date             
 
-LOGICAL*4                                        :: f_z0user                   
-LOGICAL                                          :: presentcode(MAXDISTR,4)     
-LOGICAL                                          :: verb                       
-LOGICAL                                          :: isec                       
-LOGICAL                                          :: igrens                     
-LOGICAL                                          :: igrid                      
-LOGICAL                                          :: checked                    
-LOGICAL                                          :: irev                       
-LOGICAL                                          :: gasv                       
-LOGICAL                                          :: idep                       
-LOGICAL                                          :: eof                        
-LOGICAL                                          :: subbron                    
+LOGICAL*4                                        :: f_z0user                 
+LOGICAL                                          :: presentcode(MAXDISTR,4)   
+LOGICAL                                          :: verb                     
+LOGICAL                                          :: isec                     
+LOGICAL                                          :: igrens                   
+LOGICAL                                          :: igrid                    
+LOGICAL                                          :: checked                  
+LOGICAL                                          :: irev                     
+LOGICAL                                          :: gasv                     
+LOGICAL                                          :: idep                     
+LOGICAL                                          :: eof                      
+LOGICAL                                          :: subbron                  
 LOGICAL                                          :: domlu
-LOGICAL                                          :: varz                       ! indicator whether value for receptorheight is read from receptorfile                    
+LOGICAL                                          :: varz                       ! indicator whether value for receptorheight is read from receptorfile                  
 LOGICAL                                          :: perc                       ! indicator whether percentages for landuse are read from receptorfile
-LOGICAL                                          :: outputfile_opened                    
+LOGICAL                                          :: outputfile_opened                  
 !LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 
 INTEGER*4, DIMENSION(:), POINTER                 :: catsel                     ! selection of categories (0: all categories)
@@ -290,44 +290,44 @@ INTEGER*4, DIMENSION(:), POINTER                 :: landsel                    !
 INTEGER*4, DIMENSION(:), POINTER                 :: lu_rcp_dom_all             ! land use at receptor points
 INTEGER*4, DIMENSION(:), POINTER                 :: jump                       ! indices skipped because grid cell is outside NL
 
-REAL*4,    DIMENSION(:), POINTER                 :: xm                         
-REAL*4,    DIMENSION(:), POINTER                 :: ym                         
-REAL*4,    DIMENSION(:), POINTER                 :: zm                         
+REAL*4,    DIMENSION(:), POINTER                 :: xm                       
+REAL*4,    DIMENSION(:), POINTER                 :: ym                       
+REAL*4,    DIMENSION(:), POINTER                 :: zm                       
 REAL*4,    DIMENSION(:), POINTER                 :: frac                       ! fraction of output cell on land surface
 INTEGER,   DIMENSION(:,:), POINTER               :: lu_rcp_per_user_all        ! percentage of landuse for all receptors, used defined in receptor file
-REAL*4,    DIMENSION(:), POINTER                 :: gxm                        
-REAL*4,    DIMENSION(:), POINTER                 :: gym                        
+REAL*4,    DIMENSION(:), POINTER                 :: gxm                      
+REAL*4,    DIMENSION(:), POINTER                 :: gym                      
 REAL*4,    DIMENSION(:), POINTER                 :: z0_rcp_all                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    DIMENSION(:), POINTER                 :: rhno3_rcp                 
-REAL*4,    DIMENSION(:,:), ALLOCATABLE           :: f_subsec_rcp               ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                          
-REAL*4,    DIMENSION(:), POINTER                 :: precip                     
+REAL*4,    DIMENSION(:), POINTER                 :: rhno3_rcp               
+REAL*4,    DIMENSION(:,:), ALLOCATABLE           :: f_subsec_rcp               ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                        
+REAL*4,    DIMENSION(:), POINTER                 :: precip                   
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: cpri_d                     ! concentration of primary component, double precision [ug/m3]
 REAL*4,    DIMENSION(:), POINTER                 :: cpri                       ! concentration of primary component [ug/m3]
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: csec_d                     ! concentration of secondary component, double precision [ug/m3]
 REAL*4,    DIMENSION(:), POINTER                 :: csec                       ! concentration of secondary component [ug/m3]
-DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: drydep_d                    
-REAL*4,    DIMENSION(:), POINTER                 :: drydep                      
-DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: wetdep_d                    
-REAL*4,    DIMENSION(:), POINTER                 :: wetdep                      
-DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: ddepri_d                   
-REAL*4,    DIMENSION(:), POINTER                 :: ddepri                      
-REAL*4,    DIMENSION(:), POINTER                 :: totdep                      
-REAL*4,    DIMENSION(:,:), POINTER               :: csubsec                    ! concentration of sub-secondary species [ug/m3]                
-REAL*4,    DIMENSION(:), POINTER                 :: nh3bg_rcp                  
-REAL*4,    DIMENSION(:), POINTER                 :: so2bg_rcp                  
+DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: drydep_d                  
+REAL*4,    DIMENSION(:), POINTER                 :: drydep                    
+DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: wetdep_d                  
+REAL*4,    DIMENSION(:), POINTER                 :: wetdep                    
+DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: ddepri_d                 
+REAL*4,    DIMENSION(:), POINTER                 :: ddepri                    
+REAL*4,    DIMENSION(:), POINTER                 :: totdep                    
+REAL*4,    DIMENSION(:,:), POINTER               :: csubsec                    ! concentration of sub-secondary species [ug/m3]              
+REAL*4,    DIMENSION(:), POINTER                 :: nh3bg_rcp                
+REAL*4,    DIMENSION(:), POINTER                 :: so2bg_rcp                
 REAL*4,    DIMENSION(:), POINTER                 :: rno2_nox_sum               ! NO2/NOx ratio, weighed sum over classes
 
 CHARACTER*12, DIMENSION(:), POINTER              :: namrcp                     ! receptor names
 
 TYPE (TApsGridInt)                               :: z0nlgrid                   ! map of roughness lengths in NL [m]
-TYPE (TApsGridInt)                               :: lugrid                     
+TYPE (TApsGridInt)                               :: lugrid                   
 TYPE (TApsGridInt)                               :: z0eurgrid                  ! map of roughness lengths in Europe [m]
-TYPE (TApsGridReal)                              :: so2bggrid                  
-TYPE (TApsGridReal)                              :: no2bggrid                  
-TYPE (TApsGridReal)                              :: nh3bggrid                  
-TYPE (TApsGridReal)                              :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                                   
-TYPE (TApsGridReal)                              :: masker                     
-TYPE (TError)                                    :: error                      
+TYPE (TApsGridReal)                              :: so2bggrid                
+TYPE (TApsGridReal)                              :: no2bggrid                
+TYPE (TApsGridReal)                              :: nh3bggrid                
+TYPE (TApsGridReal)                              :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                                 
+TYPE (TApsGridReal)                              :: masker                   
+TYPE (TError)                                    :: error                    
 !
 ! SCCS-ID VARIABLES
 !
@@ -449,7 +449,7 @@ ENDIF
 IF (isec) THEN
   allocate(nam_subsec(nsubsec))
   allocate(scale_subsec(nsubsec))
-  allocate(gem_subsec(nsubsec))                               
+  allocate(gem_subsec(nsubsec))                             
   CALL ops_read_bg(icm, iopt_vchem, nsubsec, year, so2bggrid, no2bggrid, nh3bggrid, f_subsec_grid, vchem2, error)
   IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 ENDIF
@@ -499,9 +499,9 @@ CALL alloc(nrrcp, gxm, error)
 CALL alloc(nrrcp, gym, error)
 
 CALL alloc(nrrcp, nh3bg_rcp, error)
-CALL alloc(nrrcp, so2bg_rcp, error)								   
+CALL alloc(nrrcp, so2bg_rcp, error)								 
 CALL alloc(nrrcp, rhno3_rcp, error)
-CALL alloc(nrrcp, nsubsec, f_subsec_rcp, error)                                              
+CALL alloc(nrrcp, nsubsec, f_subsec_rcp, error)                                            
 
 IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 !
@@ -582,10 +582,10 @@ ENDIF
 ! start loop over source data blocks of length LSBUF (until end-of-file of scratch file with source data)
 !
 DO WHILE (.NOT. eof)
-  !
+
   ! read source characteristics from scratch file and fill into buffer arrays (source data are read in
   ! blocks of length LSBUF (LSBUF=4000))
-  !
+
   CALL ops_bron_rek (emtrend, buildingEffect, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr,        &
                   &  bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
 
@@ -593,13 +593,13 @@ DO WHILE (.NOT. eof)
 
   ! Adjust number of processed sources
   nbron = nbron + nsbuf
-  !
+
   ! Initialise i1
-  !
+
   i1(:NTRAJ-1) = 0.
-  !
-  ! Loop over all receptor points  ++++++++++++++++++++++++  
-  !
+
+  ! Loop over all receptor points  ++++++++++++++++++++++++
+
   ndone = 0
   DO ircp = 1, nrrcp
 !
@@ -609,25 +609,25 @@ DO WHILE (.NOT. eof)
                       &  spgrid, xm(ircp), ym(ircp), lugrid, domlu, perc, lu_rcp_per_user_all, lu_rcp_dom_all, f_z0user, z0_rcp_all, &
                       &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
     IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-    !
+
     ! Loop over nsbuf sources in the buffer ++++++++++++++++++++++++
-    !
+
     DO mmm = 1, nsbuf
-      !
+
       ! compute source characteristics
-      !
+
       CALL ops_src_char (f_z0user, z0_user, bx(mmm), by(mmm), z0nlgrid, z0eurgrid, z0_src, error)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-      !
+
       ! compute trajectory characteristics
-      !
+
       CALL ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, nrrcp,  xm(ircp), ym(ircp), bx(mmm), by(mmm),               &
                       &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu,                & 
                       &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra, error)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-      !
+
       ! compute concentrations and depositions
-     
+   
       CALL ops_reken(idep, isec, icm, gasv, intpol, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,     &
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rcno, rhno2, rchno3,                  &
                   &  nrrcp, ircp, gxm(ircp), gym(ircp), xm(ircp), ym(ircp), zm(ircp),                                           &
@@ -643,9 +643,9 @@ DO WHILE (.NOT. eof)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 
     ENDDO   ! end loop over sources in buffer
-    !
+
     ! Write progress (update each 2%)
-    !
+
     ndone = ndone+1
     aind= 100.*FLOAT(nbron-nsbuf)/FLOAT(numbron)+ (100.*FLOAT(nsbuf)/FLOAT(numbron))* (FLOAT(ndone)/FLOAT(nrrcp))
     CALL ops_write_progress(aind, '(F5.1)', 5, memdone)
@@ -665,7 +665,7 @@ CALL dealloc(nh3bggrid)
 CALL dealloc(no2bggrid)
 CALL dealloc(so2bggrid)
 CALL dealloc(nh3bg_rcp)
-CALL dealloc(so2bg_rcp)					   
+CALL dealloc(so2bg_rcp)					 
 
 CALL dealloc(gxm)
 CALL dealloc(gym)
@@ -793,7 +793,7 @@ ENDDO ! End loop over classes for which to produce output fields
 ! Write additional data to print file
 !
 CALL ops_print_info (project, gasv, isec, intpol, spgrid, z0_rcp, namco, nbron, bnr, bx, by, bsterkte, bqrv, bqtr, bwarmte,     &
-    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &  
+    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &
     &  f_z0user, landmax, error)
 
 IF (error%haserror) GOTO 4000

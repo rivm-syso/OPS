@@ -16,7 +16,7 @@
 module m_ops_plumerise
 
 ! module m_ops_plumerise with plume rise due to either buoyancy or momentum
-! Marina Sterk and   2018-02-20
+! OPS-Support 2018-02-20
 
 ! ops_plumerise             : main routine containing the calls to different parts of the final plume rise, and the calculation of the final plume rise
 ! ops_plumerise_buoyancy    : determine plume rise due to buoyancy
@@ -70,12 +70,12 @@ character(len = 80), parameter :: ROUTINENAAM = 'ops_plumerise_prelim'
 prelim   = .true.
 VsDs_opt = .not. is_missing(V_stack)
 temp_C   = 12.0  ! default average value (is not a sensitive parameter for preliminary estimate)
-call ops_plumerise(-999., hemis0, -999., -999., qw, VsDs_opt, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, -999., -999., &  
+call ops_plumerise(-999., hemis0, -999., -999., qw, VsDs_opt, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, -999., -999., &
                    hemis1, dum, error, prelim, istab, isek, astat)
 ! write(*,'(a,4(1x,e12.5))') 'in routine ops_plumerise_prelim a: ',hemis0,hemis1,hemis1-hemis0,-999.0
 
 if (error%haserror) call ErrorCall(ROUTINENAAM, error) 
-                                     
+                                   
 end subroutine ops_plumerise_prelim
 
 !------------------------------------------------------------
@@ -103,7 +103,7 @@ real,    intent(in) :: temp_C            ! ambient temperature at height zmet_T 
 real,    intent(in) :: zmix              ! mixing height [m] 
 real,    intent(in) :: zmix_loc          ! mixing height, local scale [m]
 
-! Output                              
+! Output                            
 real, intent(out)   :: hemis1            ! emission height, including plume rise [m]
 real, intent(out)   :: onder             ! part of plume below mixing height 
 type (TError), intent(out) :: error      ! error handling record 
@@ -118,8 +118,8 @@ logical, intent(in), optional :: prelim  ! preliminary plume rise, based on stab
 integer, intent(in), optional :: istab   ! index of stability class and preliminary wind sector
 integer, intent(in), optional :: isek    ! index of preliminary wind sector (wind shear not yet taken into account)
 real   , intent(in), optional :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
-                                        
-! Local                                 
+                                      
+! Local                               
 real                :: u_stack           ! wind speed at stack height [m/s]
 real                :: u_threshold       ! threshold wind speed at height z_u_threshold [m/s]
 real                :: dh_buoyancy       ! plume rise due to buoyancy [m]
@@ -156,13 +156,13 @@ endif
 ! However, in the manual of the NNM (March 2002), 0.006 is not used, but the profile is reviewed per 10m layer. 
 ! For stable conditions a dtheta/dz of at least 0.005 K/m is applied. 
 ! MS Possibly better to calculate dtheta/dz per layer as well? Also due to changing stability with height which affects plume rise?
-dthetadz_stable = 0.006   
+dthetadz_stable = 0.006 
 
 ! Obtain temperature at stack height. 
 ! Use theta(z) = T(z) + Tau*z   (Tau = 9.8*10^-3 K/m = dry adiabatic lapse rate = g/Cp) (Stull 2000, Meteorology for Scientists and Engineers, Second Edition). 
 !
 !              T(z2) - T(z1) + Tau*(z2-z1)
-! dtheta/dz = ---------------------------    -->   T(z2) = dtheta/dz * (z2-z1) - Tau*(z2-z1) + T(z1);   
+! dtheta/dz = ---------------------------    -->   T(z2) = dtheta/dz * (z2-z1) - Tau*(z2-z1) + T(z1); 
 !                      z2 - z1
 ! T(z1) is the temperature at z1, taken as the temperature from the meteo-file at zmet_T = 1.5m height.
 Ta_stack = dthetadz_stable*(hemis0-zmet_T) - (9.8e-3)*(hemis0-zmet_T) + (temp_C + T0)
@@ -197,7 +197,7 @@ endif
 
 ! 4. Determine plume rise due to momentum (no momentum plume rise in case of horizontal emission):
 if (VsDs_opt .and. .not. emis_horizontal) then
-      
+    
     ! Low stack with low wind velocity may lead to large oversestimation of plume rise -> 
     ! 10 m is used as threshold for wind speed calculation (personal communication Hans Erbrink):
     if (hemis0 .lt. z_u_threshold) then
@@ -216,7 +216,7 @@ endif
 ! write(*,'(a,4(1x,e12.5))') 'in routine ops_plumerise : ',dh_buoyancy,dh_momentum
 
 ! 5. Compare plume rise due to buoyancy and momentum, which process is dominant? Adopt that plume rise.
-! If buoyancy plume rise is greater than momentum plume rise, discard momentum plume rise,   
+! If buoyancy plume rise is greater than momentum plume rise, discard momentum plume rise, 
 ! because in the parameterisation of buoyancy plume rise, momentum plume rise has been taken into account (see NNM Paarse boekje): 
 if (dh_buoyancy .ge. dh_momentum) then
     dh = dh_buoyancy
@@ -267,28 +267,28 @@ real                 :: V0                ! normal volume flux [m0**3/s)
 
 character(len = 80), parameter :: ROUTINENAAM = 'ops_plumerise_qw_Ts'
 
-! qw = rho0*Cp0*V0*(Ts - Ta)*1e-6 or 1e6*qw/(rho0*Cp0*V0) = Ts - Ta <=> Ts = Ta + 1e6*qw/(rho0*Cp0*V0)   
+! qw = rho0*Cp0*V0*(Ts - Ta)*1e-6 or 1e6*qw/(rho0*Cp0*V0) = Ts - Ta <=> Ts = Ta + 1e6*qw/(rho0*Cp0*V0) 
 ! T0   = reference temperature = 273.15 K = 0 C
 ! P0   = reference pressure = 1 atm = 101.325 kPa
 ! rho0 = reference density air (= 1.293 kg/m3) at pressure P0, temperature T0
 ! Cp0  = reference specific heat of air at pressure P0, temperature T0 (= 1005 J/kg/K)
-! V0   = normal volume flux (m03/s) at pressure P0, temperature T0  
+! V0   = normal volume flux (m03/s) at pressure P0, temperature T0
 ! Ts   = effluent temperature (K) 
 ! Ta   = ambient temperature at stack height (K) 
 
 ! write(*,*) 'ops_plumerise_qw_Ts a:',VsDs_opt,qw,Ts_stack
 if (VsDs_opt) then
    if (is_missing(Ts_stack)) then
-   
+ 
       !----------------------------------------------------------------
       ! Heat content qw given, compute effluent temperature Ts_stack2
       !----------------------------------------------------------------
-      
+    
       if (emis_horizontal) then
          Ts_stack2 = -999.0
       else
          if (qw .eq. 0.0) then
-            Ts_stack2 = Ta_stack   
+            Ts_stack2 = Ta_stack 
          else
          ! Compute effluent temperature (not needed in case of horizontal outflow):
             ! Ts = Ta + 1e6*qw/(rho0*Cp0*V0)                 (1)
@@ -296,7 +296,7 @@ if (VsDs_opt) then
             ! Substitute (2) in (1) gives Ts = Ta + f Ts <=> Ts = Ta/(1-f), with f = 1e6*qw/(rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0):
             C1 = rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0*(1.0e-6)
             Ts_stack2 = Ta_stack/(1.0 - qw/C1)
-            
+          
             ! Check:
             ! This check is not needed; next check is more stringent:
             ! if (qw .ge. C1) then
@@ -323,10 +323,10 @@ if (VsDs_opt) then
       !------------------------------------------------
       ! Ts_stack is given; compute heat content qw2
       !------------------------------------------------
-   
+ 
       ! Compute normal volume flux, according to ideal gas-law (at constant pressure): V0_flux/T0 = Vs_flux/Ts, Vs_flux = pi R**2 Vs_stack
-      V0 = (pi*(0.5*D_stack)**2)*V_stack*T0/Ts_stack  
-   
+      V0 = (pi*(0.5*D_stack)**2)*V_stack*T0/Ts_stack
+ 
       ! Compute qw:
       Ts_stack2 = Ts_stack
       qw2 = rho0*Cp0*V0*(Ts_stack - Ta_stack)*1e-6
@@ -364,9 +364,9 @@ real, intent(in)   :: qw               ! heat content (MW)
 real, intent(in)   :: Ta_stack         ! ambient temperature at stack height [K]
 real, intent(in)   :: dthetadz_stable  ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
 real, intent(in)   :: u_stack          ! wind speed at stack height [m/s]
-real, intent(in)   :: hemis0           ! initial emission height = stack height [m]   
+real, intent(in)   :: hemis0           ! initial emission height = stack height [m] 
 
-! Output                           
+! Output                         
 real, intent(out)  :: dh_buoyancy      ! plume rise due to buoyancy [m]
 
 ! Input, optional:
@@ -379,8 +379,8 @@ logical, intent(in), optional :: prelim  ! preliminary plume rise, based on stab
 integer, intent(in), optional :: istab   ! index of stability class and preliminary wind sector
 integer, intent(in), optional :: isek    ! index of preliminary wind sector (wind shear not yet taken into account)
 real   , intent(in), optional :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
-                                       
-! Local                            
+                                     
+! Local                          
 real               :: f                ! stack buoyancy flux [m^4/s^3]
 real               :: u_plume          ! wind speed at effective plume height, representative for the whole plume rise length [m/s]
 real               :: dtdz             ! potential temperature gradient [K/m]
@@ -398,7 +398,7 @@ real                     :: dh_buoyancy_prev ! plume rise of previous iteration
 integer, parameter       :: maxit = 10       ! maximal number of iterations 
 real, parameter          :: epsa = 0.1       ! absolute error tolerance (m)
 real, parameter          :: epsr = 0.05      ! relative error tolerance 
-                                          
+                                        
 !-------------------------------------------------------------------------------------------------------------------------------
 ! MS Briggs is developed for large stacks (energy production,..); should not be used for low emissions, e.g. emissions from animal housing.
 
@@ -420,7 +420,7 @@ if ( qw .gt. (0. + EPS_DELTA)) then
    ! f = g/(pi*0.0013*T)*qw = 9.81/(3.14*0.0013*273)*qw    ! 0.0013 = rho*cp*fac_W_to_MW = 1.293*1005*1e-6
    ! f = 8.8*qw
    f = (grav*1.0e6/(pi*rho0*Cp0*T0))*qw
-   
+ 
    ! We want to use a wind speed that is representative for the whole plume rise length, 
    ! but because we don't know the plume rise yet, we need an iteration.
    ! Initialisation for iteration:
@@ -430,7 +430,7 @@ if ( qw .gt. (0. + EPS_DELTA)) then
 
    ! Do iteration:
    do while (.not. converged .and. it .le. maxit) 
-   
+ 
       ! plume rise for unstable or neutral conditions, L < 0 or |L| > 50 (Eq 4.3 - 4.4 in 'The OPS-model Description of OPS 4.5.0):
       ! original value plrise_nonstab_Fbsplit = 55
       if ( non_stable ) then
@@ -438,7 +438,7 @@ if ( qw .gt. (0. + EPS_DELTA)) then
             dh_buoyancy = 38.8*f**0.6/u_plume                                 ! Briggs 1971 (as in the Dutch Nat. Mod.)
             ! char_debug1 = 'd'
          else
-            dh_buoyancy = 21.3*f**0.75/u_plume                               
+            dh_buoyancy = 21.3*f**0.75/u_plume                             
             ! char_debug1 = 'c'
          endif
      else
@@ -448,7 +448,7 @@ if ( qw .gt. (0. + EPS_DELTA)) then
         ! original value: plrise_stab_dtheta_dz = 0.006
          s    = 9.81/Ta_stack*dthetadz_stable         ! Stability parameter, Briggs (1969) Eq. 4.16. 
          dh_buoyancy = 2.6*(f/(s*u_plume))**0.333     ! Briggs 1982, Eq. 59. 
-         
+       
          ! Check with old code of routine voorlpl:
          ! if (prelim1) then
          !    ! voorlpl: dh_buoyancy = 65.*(qw/u_plume)**.333 
@@ -460,7 +460,7 @@ if ( qw .gt. (0. + EPS_DELTA)) then
 
       ! Check for convergence:
       converged = (abs(dh_buoyancy - dh_buoyancy_prev) .lt. epsa + epsr*dh_buoyancy )
-      
+    
       ! Update for next iteration:
       if (.not. converged .and. it .lt. maxit) then
          ! Compute wind speed at z = h_stack + 1/2 plume_rise:
@@ -516,7 +516,7 @@ subroutine ops_plumerise_momentum(u_stack,D_stack,V_stack,Ts_stack,Ta_stack,dthe
 !       Gaussian Plume Air Dispersion Model
 !       https://www.weblakes.com/guides/iscst3/section6/6_1_4.html  (14-2-2018)
 
-use m_commonconst, only: EPS_DELTA                      
+use m_commonconst, only: EPS_DELTA                    
 use m_ops_utils, only: is_missing
 
 ! Input:
@@ -527,7 +527,7 @@ real   , intent(in)  :: Ts_stack             ! temperature of effluent from stac
 real   , intent(in)  :: Ta_stack             ! ambient temperature at stack height [K]
 real   , intent(in)  :: dthetadz_stable      ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
 logical, intent(in)  :: non_stable           ! non-stable (unstable/neutral) conditions
-                                     
+                                   
 ! Output:
 real   , intent(out) :: dh_momentum          ! plume rise due to momentum [m]
 
@@ -542,14 +542,14 @@ else
 
    ! Plume rise due to momentum for non-stable (unstable/neutral) conditions (Briggs, 1969, Eq. 5.2) 
    dh_nonstable = 3*D_stack*V_stack/u_stack 
-   
+ 
    ! Plume rise due to momentum for stable conditions:
    !                      2        2
    !                    Vs  D_stack    1/3     1/2        -1/6
-   !     dh = 0.646 [ --------------- ]    (Ta)     (dTdz)      
+   !     dh = 0.646 [ --------------- ]    (Ta)     (dTdz)    
    !                      Ts  Us
    ! This originates from (Briggs 1969: Eq. 4.28, 4.19b, 4.16), see also Turner et al. (1986):
-   !              Fm     1/3     -1/6              rhos       2     2     Ps*Ta       2               2              g   dtheta  
+   !              Fm     1/3     -1/6              rhos       2     2     Ps*Ta       2               2              g   dtheta
    ! dh = 1.5 [ ------- ]     [s]        ;  Fm =  ------  (Vs)  (r0)  =  -------- (Vs)  0.25 (D_stack)     ;  s = [ ---  ------ ]
    !            u_stack                             rho                   P*Ts                                       Ta    dz
    ! with:
@@ -562,17 +562,17 @@ else
    ! P    = pressure ambient air, Ps = pressure of gases emitted from the stack, R = gas constant
    ! Ta   = average absolute temperature of ambient air (K) ( = Ta_stack below)
    ! Ts   = temperature of gases emitted from the stack (K) ( = Ts_stack below)
-   
+ 
    ! This can be rewritten to (assuming Ps/P = 1):
-   !                                        2        2                                                      2        2  
+   !                                        2        2                                                      2        2
    !                1/3      -1/6    Ps   Vs  D_stack    1/3     1/3     1/6            -1/6              Vs  D_stack    1/3     1/2             -1/6
    ! dh = 1.5 * 0.25   * 9.81     [ ---- -------------- ]    (Ta)    (Ta)    (dtheta/dz)      =  0.646 [ -------------- ]    (Ta)     (dtheta/dz)
    !                                 P    Ts  u_stack                                                     Ts  u_stack
-   !
+
    ! For stable conditions, the lower value of dh_nonstable and dh_stable is chosen (see also Turner et al., 1986)
    dh_stable = 0.646 * (( (V_stack**2.)*(D_stack**2.) / (Ts_stack*u_stack) )**(1./3.)) * (Ta_stack**0.5) * (dthetadz_stable**(-1./6.))
    if (dh_stable > dh_nonstable) dh_stable = dh_nonstable
-   
+ 
    ! Set output plume rise dh_momentum, depending on stability:
    if (non_stable) then
       dh_momentum = dh_nonstable
@@ -589,19 +589,19 @@ subroutine ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
 !
 ! Subroutine to determine whether there is plume penetration. 
 !
-use m_commonconst, only: EPS_DELTA                      
+use m_commonconst, only: EPS_DELTA                    
 
-! Input                          
+! Input                        
 real, intent(in)    :: hemis0     ! initial emission height = stack height [m]
 real, intent(in)    :: zmix       ! mixing height [m] 
 real, intent(in)    :: zmix_loc   ! mixing height, local scale [m]
 real, intent(in)    :: ol         ! Monin-Obukhov length [m]
 real, intent(in)    :: dh         ! plume rise due to either buoyancy or momentum [m]
 
-! Input/Output                   
+! Input/Output                 
 real, intent(inout) :: hemis1     ! emission height, including plume rise [m]
 
-! Output                         
+! Output                       
 real, intent(out)   :: onder      ! part of plume below mixing height 
 ! The emission distribution of an area source has a sigma equal to the height of the source hemis0.
 ! If hemis0 is close to the inversion height, the emission must be distributed over mixing layer and reservoir layer.
@@ -614,7 +614,7 @@ real, intent(out)   :: onder      ! part of plume below mixing height
 ! onder = 1 -> plume completely below mixing height
 ! onder = 0 -> plume completely above mixing height
 if( (hemis0 .gt. zmix + EPS_DELTA) .or. (hemis1 .le. hemis0 + EPS_DELTA) ) then
-   onder = (zmix - hemis1)/zmix + 0.5   ! OPS   
+   onder = (zmix - hemis1)/zmix + 0.5   ! OPS 
 else
    onder = (zmix - hemis1)/dh + 0.5   ! Briggs (1975) and NNM
 endif
@@ -626,8 +626,8 @@ endif
 !
 ! Stable and unstable conditions and stack < mixing height -> add extra amount plrise_ci_add_stab_unstab to onder;
 
-if ( hemis0 .lt. zmix_loc .and. abs(ol) .lt. 100 ) then   
-   onder = onder + 0.35  
+if ( hemis0 .lt. zmix_loc .and. abs(ol) .lt. 100 ) then 
+   onder = onder + 0.35
 endif
 
 ! Limit onder, such that 0 <= onder <= 1

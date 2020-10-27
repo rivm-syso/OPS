@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Defines common parameters, values, etc.
@@ -40,8 +40,8 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_commonconst
 
-USE Binas, only: pi                                                     
-           
+USE Binas, only: pi                                                   
+         
 INTEGER*4, PARAMETER                             :: NUNIT       = 6                    ! number of units for deposition
 INTEGER*4, PARAMETER                             :: NMETREG     = 6                    ! number of meteo regions
 INTEGER*4, PARAMETER                             :: NSEK        = 12                   ! number of wind sectors
@@ -58,7 +58,7 @@ INTEGER*4, PARAMETER                             :: NCATMAX     = 199           
 INTEGER*4, PARAMETER                             :: NLANDMAX    = 50                   ! maximal number of emission countries (land << country)
 INTEGER*4, PARAMETER                             :: NBGMAPS     =  5                   ! number of background maps
 INTEGER*4, PARAMETER                             :: NYEARS      = 42                   ! number of years for interpolating backgground maps
-INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)    
+INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)  
 INTEGER*4, PARAMETER                             :: MAXROW      = 9999                 ! maximal number of rows in receptor grid
 INTEGER*4, PARAMETER                             :: MAXCOL      = 9999                 ! maximal number of columns in receptor grid
 INTEGER*4, PARAMETER                             :: NLU         = 9                    ! number of landuse classes
@@ -67,10 +67,10 @@ INTEGER*4, PARAMETER                             :: ncolBuildingEffectTable = 5 
 ! CONSTANTS - overige
 REAL*4                                           :: z0_FACT_NL  = 10000.               ! default factor for conversion of z0_nl gridvalue to meters
 REAL*4                                           :: z0_FACT_EUR = 10000.               ! default factor for conversion of z0_eur gridvalue to meters
-                                                                                       
+                                                                                     
 REAL*4, PARAMETER                                :: zmet_T      = 1.5                  ! reference height for temperature measurements [m]
 
-INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]  
+INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]
 INTEGER*4, PARAMETER                             :: MISVALNUM   = -9999                ! missing value
 INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
 INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2020                 ! future year, used for interpolating background maps
@@ -78,7 +78,7 @@ REAL*4                                           :: r4_for_tiny                 
 REAL*8                                           :: r8_for_tiny                        ! help variable to define DEPS_DELTA
 REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
 REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
-REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]      
+REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]    
 CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.0.0.0'            ! model version OPS-LT
 CHARACTER*20, PARAMETER                          :: RELEASEDATE = '26 dec 2019'        ! release date
 
@@ -87,7 +87,7 @@ CHARACTER*20, PARAMETER                          :: RELEASEDATE = '26 dec 2019' 
 !
 INTEGER*4                                        :: NACHTZOMER(NSTAB, NTRAJ)           ! relative occurrences (%) of nighttime hours in summer (for each stability class and distance class) ("NACHT" = night, "ZOMER" = summer)
 INTEGER*4                                        :: NACHTWINTER(NSTAB, NTRAJ)          ! relative occurrences (%) of nighttime hours in winter (for each stability class and distance class) ("NACHT" = night)
-REAL*4                                           :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph  
+REAL*4                                           :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph
 REAL*4                                           :: STOKES(NPARTCLASS)                 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class
 REAL*4                                           :: SCWINTER(NSTAB)                    ! variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter)
 REAL*4                                           :: cf_so2(NBGMAPS)                    ! correction factors for the difference between model output and measurements for SO2
@@ -116,11 +116,11 @@ DATA nox_no2_beta  /8.6, -12.4/
 DATA NACHTZOMER  /0, 0, 61, 61, 100, 98, 17, 17, 68, 68, 63, 83, 43, 43, 44, 44, 42, 44, 43, 43, 44, 44, 42, 44/
 DATA NACHTWINTER /0 , 0 , 66, 66, 100, 99, 25, 25, 71, 71, 77, 92, 62, 64, 74, 63, 64, 63, 62, 74, 74, 63, 64, 63/
 !
-! Set coefficients for vertical dispersion coefficient; sigma_z = dispg*x**disph  
+! Set coefficients for vertical dispersion coefficient; sigma_z = dispg*x**disph
 ! (For DISPG, see ops_main DATA statements)
 DATA DISPH       /.82,.82,.76,.76,.67,.76/ 
 !
-! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class.  
+! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class.
 ! Sedimentation velocity depends on particle size according to Stokes law; see ops_conc_ini
 DATA STOKES      /0., 0., 0.0003, 0.0012, 0.0055, 0.047/ 
 !
@@ -172,9 +172,9 @@ DATA CNAME       /'SO2', 'NOx'     , 'NH3',  &
                &  '   ', 'NO3'     , '   ',  &
                &  'SOx', 'NOy'     , 'NHx',  &
                &  'SO2', 'NO2'     , 'NH3'   /
-               
-! CNAME_SEC is defined in ops_read_ctr               
-! DATA CNAME_SUBSEC /'HNO3', 'NO3_C', 'NO3_F' /   ! HNO3, NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)  
+             
+! CNAME_SEC is defined in ops_read_ctr             
+! DATA CNAME_SUBSEC /'HNO3', 'NO3_C', 'NO3_F' /   ! HNO3, NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
 ! DATA CNAME_SUBSEC /'HNO3', 'NO3_AER' /          ! HNO3, NO3_aerosol (in PM10)
 !
 ! Units for concentration and deposition

@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! USAGE              :
@@ -150,7 +150,7 @@ CONTAINS
 ! DESCRIPTION        : Stability correction function in the surface layer temperature profile. The present model is an empirical
 !                      fit by Holtslag and De Bruin(1987) of data by Hicks (1976, Quart. J. R. Meteor. Soc., 102, 535-551).
 !                      See also Holtslag (1984, BLM, 29, 225-250)
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 !-------------------------------------------------------------------------------------------------------------------------------
 REAL FUNCTION fpsih(eta)
 

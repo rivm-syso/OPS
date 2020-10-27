@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77)
 ! DESCRIPTION        : Compute source depletion (brondepl << "bron" = source, depl << depletion).
@@ -145,23 +145,23 @@ sccsida = '%W%:%E%'//char(0)
 !                                .                               1. inside an area source 
 !                        .                                       2. plume reaches the ground, but is not yet fully mixed
 !              .                                                 3. plume is fully mixed over the mixing layer.
-!       .                                                        
+!       .                                                      
 !  htt -
-!      |  .    -  
+!      |  .    -
 !      |     .        - central
 !      |        .               - axis 
-!      |           .                   - of          
+!      |           .                   - of        
 !      |              .                       - plume                               ---- xl (mixing height) ---------------------.--- 
 !      |                 .                             -                                                                    .
 !      |                    .                                 -                                                        .
 ! hbron|                       .                                    - htot                                        .
-!     | |                         .                                                                         .    
+!     | |                         .                                                                         .  
 !     | |                            .                                                                 .
 !     | |                               .                                                          .
-!     | |                                  .                                                   .      
+!     | |                                  .                                                   .    
 !     | |                                     .                                            area source
 ! -----.-----------------------------------------.2222222222.3333333.33333333        -----|11111111111|22222222222222222222222222.33333333333
-!   source           no deposition               xg              receptor                                     
+!   source           no deposition               xg              receptor                                   
 !
 ! Note: the mixing height is also rising as function of the distance.
 !
@@ -197,7 +197,7 @@ sccsida = '%W%:%E%'//char(0)
 ! for different phases of the plume.
 !-----------------------------------------------------------------------------------------------------------
 IF (disx .LT. (xg - EPS_DELTA)) THEN
-  
+
   ! Receptor located where plume is in phase 1 (area source) or 2 (plume not yet fully mixed over mixing height):
   cdn = 1.
 
@@ -214,14 +214,14 @@ IF (disx .LT. (xg - EPS_DELTA)) THEN
 ELSE
  
    ! Receptor located where plume is in phase 3: homogeneously mixed part of the plume -> Dz(x) = 1/xl = 1/mixing_height,  4.14 OPS report
-   !
+
    !             x
    !             /  vd(z)                  (x - xg) vd(z)
    ! cdn = exp[- | ------- dksi ] = exp[-  -------------- ], in which we substitute x = disx, vd(z) = vd(50) = vg50trans, u = ueff
    !             /  u xl                        u xl
    !           ksi=xg
-   !
-   !            
+
+   !          
    cdn    = EXP( - ((disx - xg)/ueff*vg50trans/xl))
 
    ! Set representative distance for phase 2 of the plume and compute sigma_z there:
@@ -230,7 +230,7 @@ ELSE
  
    ! Compute xlxg = mixing height at xg [m] by linear interpolation of xloc (near source at x = 0) and 
    ! xl100 (at 100 km from source), assuming a linear growth of the maximal mixing height with distance 
-   !
+
    ! xl(xg) - xl(0)    xl(100) - xl(0)                     xg                                     xg
    ! --------------- = ---------------- <=> xlxg - xloc = ------(xl100 - xloc) <=> xlxg = xloc + ------(xl100 - xloc), in km 
    !     xg - 0            100 - 0                         100                                    100
@@ -243,11 +243,11 @@ ELSE
    ! ugem: average wind speed depending on phase of plume development; for phase 3, ugem
    !       is the average of near source wind speed (ux0) and uxg
    ! c   : undepleted concentration at receptor at z = 0 m (without part of plume above mixing layer)
-   !
-   !
+
+
    !   |--------------------|------------------------------------------------|
    !  x=0 (source)         xg (fully mixed)                                 x=disx (receptor)
-   !
+
    ! cxx : undepleted concentration at xg; is used in the computation of cq2 (phase 2); we cannot use concentration c
    !       (at receptor) here since the receptor is further away (where the plume is in phase 3); 
    !       compute cxx (upstream) using linear scaling of concentration c at receptor with distance (factor disx/xg)
@@ -255,7 +255,7 @@ ELSE
    !       cxx     disx    xl
    !       ---   = ----- ------ (scaling factors are > 1, so cxx > c).
    !        c       xg    xlxg
-   !
+
    IF (xlxg/2. .GT. (HUMAX + EPS_DELTA)) THEN
      hf = HUMAX
    ELSE
@@ -282,7 +282,7 @@ ENDIF
 !                                                          new formula for tau;
 !
 ! According to OPS report 4.9, the concentration gradient at height z1 is: c(x,z1) = (1 - cgt) c(x,z2).
-!                                                            
+!                                                          
 ! Note: for t = 0   : cgt = 0;        c(x,z1) = (1 - cgt)c(x,z2) = c(x,z2)    (No concentration gradient installed yet)
 !
 !                                                                                   vg(z2)
@@ -327,7 +327,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
     CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, radius*2., uxr, zu, s2, error) ! output uxr is not used here
     sigzr = s2/alog((htot + s2)/htot) ! (see OPS-doc/dispersion, bookmark area_source_sigma_z) for sigma_zi = htot 
                                       ! s2 = sigma_z(r2), s1 = sigma_z(r1) = 0
-    
+  
     ! Compute uxr = wind speed representative for plume over area source; (x = near source, h = effective plume height area source hf)
     hf = (sigzr/4 + htot + 6.)/2. 
     CALL ops_wvprofile(z0_src, hf, uster_src, ol_src, uxr)
@@ -344,7 +344,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
   IF (sigzr .GT. (xl100 + EPS_DELTA)) THEN
     sigzr = xl100
   ENDIF
-  vdoppb = 1./((ra4src + rb_src + rcsrc)*sigzr)  
+  vdoppb = 1./((ra4src + rb_src + rcsrc)*sigzr)
 ENDIF
 
 !-----------------------------------------------------------------------------------------------------------
@@ -361,11 +361,11 @@ ENDIF
 !
 ! S = diameter area source; edge of area source at S/2
 ! => 5.20 new OPS report:
-!             
+!           
 !              2 beta vd(z) (x-R)   x C(x) u   2 pi 
 ! cq2 = exp(- --------------------- --------- ------ ) and C(x) = cxx*(1-cgt), Q0 = qbstf 
 !                     u                Q0       Ns
-!            
+!          
 ! ueff: wind speed at receptor at effective transport height heff; for short distances heff = plume height;
 !       for large distances heff = 1/2 mixing height; heff is interpolated for intermediate distances.
 ! ugem: average wind speed depending on phase of plume development
@@ -373,7 +373,7 @@ ENDIF
 ! source code:
 !                 2.*al*1.e-6*vg0tra*(xx - radius)     (xx + virty)*cxx*ueff*(1.-cgt)   2 pi    FS
 !    cq2 = EXP( - ----------------------------------  -------------------------------- ------) 
-!                              ugem                         onder*qbstf                  12    
+!                              ugem                         onder*qbstf                  12  
 
 ! cxx/onder is the concentration including the part above the mixing layer ??
 ! Note error in (2.5.15) thesis van Jaarsveld with factor 2 instead of 4
@@ -383,7 +383,7 @@ IF (disx .GT. (radius + EPS_DELTA) .AND. xg .GT. (radius + EPS_DELTA)) THEN
   ! Compute help variables sh = sigma_z**2/h**2 and al = beta:
   sh  = (sigzxg/htot)**2
   al  = 8./PI*sh/((1.+SQRT(1.+8/PI*sh))**2)
-  
+
   ! If NOT (stable meteo class and stack emitting above mixing layer), compute cq2 (else cq2 = 1):
   IF (flag .NE. 1) THEN 
     cq2 = EXP( -(2.*al/qbstf*1.e-6*vg0tra/12*2*PI*(xx + virty)* cxx*ueff/ugem/onder*(xx - radius)*(1.-cgt)))
@@ -399,19 +399,19 @@ ENDIF
 !  z      sqrt(2 pi) sigma_z
 !
 ! Because all terms inside the integral are independent of x, we get:
-!             x                                             
-!             /      2         vd(z)                       x        2          1          
+!             x                                           
+!             /      2         vd(z)                       x        2          1        
 ! cq1 = exp[- | ----------- ----------- dx ] = exp[-vd(z) ---  ----------- --------- ] 
-!             / sqrt(2 pi)   u sigma_z                     u    sqrt(2 pi)  sigma_z        
-!            0                                             
+!             / sqrt(2 pi)   u sigma_z                     u    sqrt(2 pi)  sigma_z      
+!            0                                           
 ! x: effective distance over which deposition takes place within an area source = diameter/4 (thesis van Jaarsveld 2.5.13)
 ! u: wind speed representative for area source = uxr
 ! Note: vdoppb = vd/sigma_z 
 !
 ! source code:
-!                vdoppb*dxeff           vd/sigma_z (S/4) exp(-a/18)           vd (S/4) exp(-((vchem+vnatpri+vd/sigma_z) S)/(18 uxr ))     
-!   cq1 = EXP( - ------------) = EXP( - ---------------------------) = EXP( - --------------------------------------------------------)   
-!                     uxr                      uxr                                      uxr sigma_z                                       
+!                vdoppb*dxeff           vd/sigma_z (S/4) exp(-a/18)           vd (S/4) exp(-((vchem+vnatpri+vd/sigma_z) S)/(18 uxr ))   
+!   cq1 = EXP( - ------------) = EXP( - ---------------------------) = EXP( - --------------------------------------------------------) 
+!                     uxr                      uxr                                      uxr sigma_z                                     
 !
 ! factor 3.6e5: conversion from percentage per hour -> fraction per second
 
@@ -425,11 +425,11 @@ ENDIF
 !         with t = travel time from centre of the area source to the edge = (radius/uxr) = diameter/(2*uxr)
 !         Parameterisation based on comparison with surface depletion model.
 !
-! help variable a = k*t = (k_chem + k_wetdep + k_drydep)*(diameter/(2*uxr)) =  
+! help variable a = k*t = (k_chem + k_wetdep + k_drydep)*(diameter/(2*uxr)) =
 !                 = ((vchem + vnatpri)/3.6e5 + vdoppb)*(diameter/(2*uxr)) 
 !
-!                       .49  
-! a > 15 -> a = 15 (a/15)    
+!                       .49
+! a > 15 -> a = 15 (a/15)  
 !
 ! See also ops_seccmp for dxeff = effective distance over which deposition takes place
 !

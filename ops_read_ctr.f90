@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Read parameters for the OPS-model from the control file. 
@@ -56,40 +56,40 @@ PARAMETER    (ROUTINENAAM = 'ops_read_ctr')
 CHARACTER*(*), INTENT(OUT)                       :: project                    ! project name
 CHARACTER*(*), INTENT(OUT)                       :: runid                      ! run identifier (is used in the output)
 INTEGER*4, INTENT(OUT)                           :: year                       ! year under consideration
-INTEGER*4, INTENT(OUT)                           :: icm                        
-CHARACTER*(*), INTENT(OUT)                       :: namco                      
-REAL*4,    INTENT(OUT)                           :: amol1                      
+INTEGER*4, INTENT(OUT)                           :: icm                      
+CHARACTER*(*), INTENT(OUT)                       :: namco                    
+REAL*4,    INTENT(OUT)                           :: amol1                    
 LOGICAL,   INTENT(OUT)                           :: gasv                       ! type of component (0: particle; 1: gas)
-LOGICAL,   INTENT(OUT)                           :: idep                       
-INTEGER*4, INTENT(OUT)                           :: kdeppar                    
-REAL*4,    INTENT(OUT)                           :: ddeppar                    
-INTEGER*4, INTENT(OUT)                           :: knatdeppar                 
-REAL*4,    INTENT(OUT)                           :: wdeppar                    
-REAL*4,    INTENT(OUT)                           :: dg                         
-LOGICAL,   INTENT(OUT)                           :: irev                       
+LOGICAL,   INTENT(OUT)                           :: idep                     
+INTEGER*4, INTENT(OUT)                           :: kdeppar                  
+REAL*4,    INTENT(OUT)                           :: ddeppar                  
+INTEGER*4, INTENT(OUT)                           :: knatdeppar               
+REAL*4,    INTENT(OUT)                           :: wdeppar                  
+REAL*4,    INTENT(OUT)                           :: dg                       
+LOGICAL,   INTENT(OUT)                           :: irev                     
 REAL*4,    INTENT(OUT)                           :: vchemc                     ! chemical conversion rate [%/h]
 INTEGER*4, INTENT(OUT)                           :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-REAL*4,    INTENT(OUT)                           :: vchemv                     
-REAL*4,    INTENT(OUT)                           :: emtrend                    
-INTEGER*4, INTENT(OUT)                           :: ncatsel                    
-INTEGER*4, INTENT(OUT)                           :: catsel(*)                  
-INTEGER*4, INTENT(OUT)                           :: nlandsel                   
-INTEGER*4, INTENT(OUT)                           :: landsel(*)                 
-INTEGER*4, INTENT(OUT)                           :: spgrid                     
+REAL*4,    INTENT(OUT)                           :: vchemv                   
+REAL*4,    INTENT(OUT)                           :: emtrend                  
+INTEGER*4, INTENT(OUT)                           :: ncatsel                  
+INTEGER*4, INTENT(OUT)                           :: catsel(*)                
+INTEGER*4, INTENT(OUT)                           :: nlandsel                 
+INTEGER*4, INTENT(OUT)                           :: landsel(*)               
+INTEGER*4, INTENT(OUT)                           :: spgrid                   
 REAL*4,    INTENT(OUT)                           :: xc                         ! x-coordinate grid centre of user specified grid (spgrid = 1)
 REAL*4,    INTENT(OUT)                           :: yc                         ! y-coordinate grid centre of user specified grid (spgrid = 1)
-INTEGER*4, INTENT(OUT)                           :: nrcol                      
-INTEGER*4, INTENT(OUT)                           :: nrrow                      
+INTEGER*4, INTENT(OUT)                           :: nrcol                    
+INTEGER*4, INTENT(OUT)                           :: nrrow                    
 REAL*4,    INTENT(OUT)                           :: grid                       ! grid resolution [m]
-LOGICAL,   INTENT(OUT)                           :: igrens                     
+LOGICAL,   INTENT(OUT)                           :: igrens                   
 REAL*4,    INTENT(OUT)                           :: z0_user                    ! roughness length specified by user [m]
-INTEGER*4, INTENT(OUT)                           :: intpol                     
-INTEGER*4, INTENT(OUT)                           :: ideh                       
-LOGICAL,   INTENT(OUT)                           :: igrid                      
-LOGICAL,   INTENT(OUT)                           :: checked                    
-LOGICAL*4, INTENT(OUT)                           :: f_z0user                   
-LOGICAL,   INTENT(OUT)                           :: isec                       
-INTEGER*4, INTENT(OUT)                           :: nsubsec                    ! number of sub-secondary species                       
+INTEGER*4, INTENT(OUT)                           :: intpol                   
+INTEGER*4, INTENT(OUT)                           :: ideh                     
+LOGICAL,   INTENT(OUT)                           :: igrid                    
+LOGICAL,   INTENT(OUT)                           :: checked                  
+LOGICAL*4, INTENT(OUT)                           :: f_z0user                 
+LOGICAL,   INTENT(OUT)                           :: isec                     
+INTEGER*4, INTENT(OUT)                           :: nsubsec                    ! number of sub-secondary species                     
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -185,7 +185,7 @@ if (error%haserror) GOTO 1000
 !!      ! EMEP has been found, but is not needed:
 !!      call ErrorParam('CONVRATE EMEP can only be used for acidifying components SO2, NOx, NH3 ','', error) 
 !!      GOTO 1000
-!!   endif      
+!!   endif    
 !!ENDIF
 !!If (iopt_vchem .eq. 0) THEN
 !!    ! vchemc has not been set, read line again and extract vchemc (if required):
@@ -205,7 +205,7 @@ if (icm .eq. 2) then
    else
       ! EMEP gives also a split between coarse and fine NO3:
       nsubsec = 4
-      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3', 'NO3_C', 'NO3_F' /)   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)  
+      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3', 'NO3_C', 'NO3_F' /)   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
    endif
 else
    ! SO4 and NH4 all in fine PM-fraction; no sub-species:
@@ -265,7 +265,7 @@ IF (.NOT. GetCheckedKey('ROUGHNESS', 0., 3., .TRUE., z0_user, error)) GOTO 1000
 !
 ! If z0_user  = 0 -> read z0 from file
 ! If z0_user /= 0 -> z0_user is the user defined fixed z0-value
-! f_z0user is TRUE if roughness length (z0) is user defined  
+! f_z0user is TRUE if roughness length (z0) is user defined
 !
 f_z0user = NINT(10000. * z0_user) /= 0
 IF (.NOT. GetCheckedKey('Z0FILE', .TRUE., .NOT.f_z0user, z0file, error)) GOTO 1000
@@ -351,14 +351,14 @@ IF (GetCheckedKey('CONVRATE', 'EMEP', 'EMEP', gasv .AND. idep .AND. isec, str1, 
          endif
          GOTO 1000
       endif
-   endif      
+   endif    
 ENDIF
 
 If (iopt_vchem .eq. 0) THEN
     ! vchemc has not been set; read line again and extract vchemc (if required):
     backspace(fu_input); error%haserror = .false.
     IF (GetCheckedKey('CONVRATE', 0., 999., gasv .AND. idep .AND. .NOT.isec, vchemc, error)) then
-    
+  
        ! If 'CONVRATE value' is not required and a value is specified anyway, generate error:
        if (.not. (gasv .AND. idep .AND. .NOT.isec)) then
           if (error%haserror) then
@@ -375,7 +375,7 @@ If (iopt_vchem .eq. 0) THEN
              endif
              GOTO 1000
           endif
-       endif      
+       endif    
     else
        ! CONVRATE value is required but not found -> error 
        if (vchemc .eq. MISVALNUM) then

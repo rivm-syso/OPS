@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support   
+! AUTHOR               : OPS-support 
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN-77/90
 ! DESCRIPTION          : General utilities
@@ -171,7 +171,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : WisselBytes
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa
-! AUTHOR      : OPS-support   
+! AUTHOR      : OPS-support 
 ! INPUTS      : string     (character*(*)) The string which should represent the number to be extracted.
 ! OUTPUTS     : default    (logical) Returns .TRUE. if no value was read because no value was defined following the = sign.
 !               error      (type TError). Is assigned when an error occurred in the number defined in the string.
@@ -187,7 +187,7 @@ END INTERFACE
 ! PURPOSE     : Initial assignment to a format string.
 ! DESCRIPTION : To be called when starting the creation of a format string. The format string is then extended through
 !               AppendFormat and PrependFormat.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : OPS-support
 ! OUTPUTS     : formatstring (character*(*)) The formnat string to be created.
 !               error      (type TError). Is assigned when an error occurred in the assignment FormatString.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ END INTERFACE
 ! REMARK      : AppendFormat checks first whether an error has occurred. If so nothing happens. This is handy, because the
 !               calling procedure only has to check the error status once after all append and prepend procedures have been
 !               called.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : OPS-support
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -222,7 +222,7 @@ END INTERFACE
 ! PURPOSE     : Puts format descriptor at beginning of a format string.
 ! DESCRIPTION : See AppendFormat.
 ! REMARK      : See AppendFormat.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : OPS-support
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -1024,7 +1024,7 @@ END SUBROUTINE getreal
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : getint
-! AUTHOR               : OPS-support   
+! AUTHOR               : OPS-support 
 ! PURPOSE              : Extraheren van integer waarde uit een string. Geeft terug of er een waarde was, welke positie, etc.
 ! CALLED FUNCTIONS     : extractint
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1153,7 +1153,7 @@ END SUBROUTINE byteswap2
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : byteswap
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa.
-! AUTHOR      : OPS-support   
+! AUTHOR      : OPS-support 
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE byteswap(ishort)
 

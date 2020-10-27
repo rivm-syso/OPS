@@ -95,7 +95,7 @@ REAL*4,    INTENT(IN)                            :: rhno3                      !
 REAL*4,    INTENT(IN)                            :: rcno                       ! surface resistance for NO [s/m]
 REAL*4,    INTENT(IN)                            :: rhno2                      ! ration hno2/nox
 REAL*4,    INTENT(IN)                            :: rchno3                     ! HNO3
-REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                   
+REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                 
 REAL*4,    INTENT(IN)                            :: rrno2nox                   ! ruimtelijke variatie in no2/nox verhouding
 REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! 
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
@@ -106,8 +106,8 @@ REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  !
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! 
 REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! 
 REAL*4,    INTENT(IN)                            :: so2bgtra                   ! 
-REAL*4,    INTENT(IN)                            :: gym                        !
-LOGICAL,   INTENT(IN)                            :: gasv                       !
+REAL*4,    INTENT(IN)                            :: gym
+LOGICAL,   INTENT(IN)                            :: gasv
 REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
 REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
 
@@ -115,7 +115,7 @@ REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            !
 REAL*4,    INTENT(INOUT)                         :: rb                         ! 
 REAL*4,    INTENT(INOUT)                         :: ra4                        ! 
 REAL*4,    INTENT(INOUT)                         :: ra50                       ! 
-LOGICAL,   INTENT(INOUT)                         :: depudone                   !
+LOGICAL,   INTENT(INOUT)                         :: depudone
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
@@ -129,14 +129,14 @@ REAL*4,    INTENT(OUT)                           :: rc                         !
 REAL*4,    INTENT(OUT)                           :: rcsec                      ! 
 REAL*4,    INTENT(OUT)                           :: rc_sec_rcp                 ! 
 REAL*4,    INTENT(OUT)                           :: rcsrc                      ! canopy resistance at the source, no re-emission allowed [s/m]; is used for the computation of 
-                                                                               ! cq1 = source depletion ratio for dry deposition for phase 1, area source  
+                                                                               ! cq1 = source depletion ratio for dry deposition for phase 1, area source
 REAL*4,    INTENT(OUT)                           :: rctra_0                    ! canopy resistance representative for the trajectory, no re-emission allowed [s/m];
                                                                                ! is used for source depletion (loss over trajectory)
 REAL*4,    INTENT(OUT)                           :: rc_rcp                     ! canopy resistance at receptor, no re-emission allowed [s/m];
                                                                                ! is used for deposition gradient at receptor
-REAL*4,    INTENT(OUT)                           :: rclocal                    ! canopy resistance at receptor, re-emission allowed [s/m];  
+REAL*4,    INTENT(OUT)                           :: rclocal                    ! canopy resistance at receptor, re-emission allowed [s/m];
                                                                                ! is used for the computation of drypri, the local depsosition at the receptor
-																			   
+																			 
 REAL*4,    INTENT(OUT)                           :: rb_rcp                     ! 
 REAL*4,    INTENT(OUT)                           :: ra4_rcp                    ! 
 REAL*4,    INTENT(OUT)                           :: ra50_rcp                   ! 
@@ -146,13 +146,13 @@ REAL*4,    INTENT(OUT)                           :: ra50src                    !
 REAL*4,    INTENT(OUT)                           :: ra4tra                     ! 
 REAL*4,    INTENT(OUT)                           :: ra50tra                    ! 
 REAL*4,    INTENT(OUT)                           :: rb_tra                     ! 
-REAL*4,    INTENT(OUT)                           :: raz_rcp                    !
+REAL*4,    INTENT(OUT)                           :: raz_rcp
 REAL*4,    INTENT(OUT)                           :: rnox                       ! NO2/NOx ratio
  
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: day_of_year                ! 
-INTEGER*4                                        :: icmpsec                    !
+INTEGER*4                                        :: icmpsec
 INTEGER*4                                        :: ipar                       ! 
 INTEGER*4                                        :: mnt                        ! 
 INTEGER*4, DIMENSION(2)                          :: mnt_select                 ! 
@@ -210,7 +210,7 @@ if ( gasv .OR. (.not.gasv .AND. .not.depudone)) THEN
 
    ! displacement height (usually 0.7 * vegetation height) (m)
    ! the effect of the displacement height is neglected here;
-   
+ 
    d = 0.
 
    ! Component number icnr for calculation of Rb;
@@ -223,7 +223,7 @@ if ( gasv .OR. (.not.gasv .AND. .not.depudone)) THEN
 
    ! Calculate deposition parameters vg, Ra and Rb (=rb) with vg=1./(Ra+Rb+Rc) at source/4 m height, 
    ! receptor/4 m height and receptor/50 m height:
-   ! Only results for ra... and rb... are used, vg NOT !
+   ! Only results for ra... and rb... are used, vg NOT
    CALL ops_depu(icnr, z0_rcp,    zm, d, rc_rcp,  ol_rcp,   uster_rcp,   vg, raz_rcp,   rb_rcp)
    CALL ops_depu(icnr, z0_src,    4., d, rcsrc,   ol_src,   uster_src,   vg, ra4src,    rb_src)
    CALL ops_depu(icnr, z0_rcp,    4., d, rc_rcp,  ol_rcp,   uster_rcp,   vg, ra4_rcp,   rb_rcp)
@@ -235,11 +235,11 @@ if ( gasv .OR. (.not.gasv .AND. .not.depudone)) THEN
    ! Compute Ra averaged over trajectory at 4 m height and 50 m height; 
    ! ra4 = Ra(4 m) from meteo statistics, based on z0_metreg_rcp, which is interpolated from meteo regions.
    ! 4.3 OPS report, neglecting the stability corrections psi_h and assuming that u* remains the same.
-   !
+
    !  Ra(z=4,trajectory)       z=4              z=4
    ! ------------------- = ln(-------) / ln(-------------)
    !    Ra(z=4)               z0_tra        z0_metreg_rcp
-      
+    
    ra4tra  = ra4*alog(4/z0_tra)/alog(4/z0_metreg_rcp)
    ra50tra = ra50*alog(50/z0_tra)/alog(50/z0_metreg_rcp)
 
@@ -288,8 +288,8 @@ IF (isec) THEN
 !
 ! k_ho	SO2 + OH -> sulphate (gas phase)      3.44 x 10-12 cm3 molec-1 s-1 
 !        at T = 20 C, p = 1013 mb: ppbfac = conversion factor ppb -> molec/cm3 = 2.5029e10 molec/cm3/ppb ->
-!        k_ho = 3.44e-12*3600*2.5029e10 = 309.96 ppb-1 h-1       
-!        k_ho*[OH] = k_ho*ar*Q = 100*309.96*62e-8*Q %/h = 0.0192*Q %/h  
+!        k_ho = 3.44e-12*3600*2.5029e10 = 309.96 ppb-1 h-1     
+!        k_ho*[OH] = k_ho*ar*Q = 100*309.96*62e-8*Q %/h = 0.0192*Q %/h
 ! k_he	SO2 -> sulphate (Particle phase) 1.7 x 10-6 s-1 = 0.612 %/h
 ! k_aq	SO2 -> sulphate (Aqueous phase)  4.0 x 10-5 s-1 = 14.4  %/h
 !
@@ -323,7 +323,7 @@ IF (isec) THEN
 
       ! Compute chemn = chemical conversion rate for NO2+O3 -> NO3 (nigthttime), assuming a 2%/h conversion rate
       ! Van Egmond N.D. and Kesseboom H. (1983) Mesoscale air pollution dispersion models-II. Lagrangian PUFF model,
-      ! and comparison with Eulerian GRID model. Atmospheric Environment, 17, 265-274.   
+      ! and comparison with Eulerian GRID model. Atmospheric Environment, 17, 265-274. 
       chemn = percn*2.
 
       ! rnox = [NO2]/[NOx] ratio consists of a space varying component (rrno2nox, computed in ops_par_chem),
@@ -352,7 +352,7 @@ IF (isec) THEN
          ! EMEP maps:
          vchem = vchem2%vchem
       ENDIF 
-      
+    
       ! routpri: in-cloud scavenging ratio for primary component (rout << rain-out = in-cloud) [-]
       routpri  = croutpri*rnox
 !
@@ -371,15 +371,15 @@ IF (isec) THEN
       ! ------------------- = ------------------ + -------------------- + --------------------
       !  Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
       ! 
-      !
+
       !            1             [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
       ! ------------------- = ----------------------- + ---------------------------- 
-      !  Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra      
-            
-      rc    = 1./(rnox/(rcno2+r) + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r  
+      !  Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra    
+          
+      rc    = 1./(rnox/(rcno2+r) + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r
       rcsec = 1./(rhno3/(r+rchno3) + (1.-rhno3)/(r+rcaerd)) - r
 !
-!   icm = 3: NH3  
+!   icm = 3: NH3
 !
    ELSE IF (icm .EQ. 3) THEN
 
@@ -404,7 +404,7 @@ IF (isec) THEN
          vchem = vchem2%vchem
       ENDIF
       routpri  = croutpri
-      rc       = rcnh3d  
+      rc       = rcnh3d
       rcsec    = rcaerd*0.8
    ELSE
       CONTINUE
@@ -413,7 +413,7 @@ IF (isec) THEN
 !-------------------------------------------------------------------------------------------
 !  Compute surface resistance Rc for acidifying components using the DEPAC module 
 !      rcsrc  : canopy resistance at the source, re-emission allowed [s/m]; is used for the computation of 
-!               cq1 = source depletion ratio for dry deposition for phase 1, area source  
+!               cq1 = source depletion ratio for dry deposition for phase 1, area source
 !      rctra_0: canopy resistance representative for the trajectory, no re-emission allowed [s/m];
 !               is used for source depletion (loss over trajectory)
 !      rc_rcp : canopy resistance at receptor, no re-emission allowed [s/m];
@@ -461,7 +461,7 @@ IF (isec) THEN
 !
    CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_tra, glrad, hum, nwet, ratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_tra_per, &
                   &  ra4tra, rb_tra, rctra_0, rclocal)
-   rcsrc   = rctra_0 !
+   rcsrc   = rctra_0
 !
 ! 2. Compute surface resistance Rc near the receptor.
 !    The same as above, but now we use the NH3 background concentration at the receptor as inputs;
@@ -501,10 +501,10 @@ IF (isec) THEN
    ENDIF
 !
 !  Compute vdaer = deposition velocity at receptor for secondary aerosols
-!   
-   CALL vdsecaer (uster_rcp, ol_rcp, vdaer, hum, nwet, uh, ra50_rcp, z0_rcp, icmpsec)   
+! 
+   CALL vdsecaer (uster_rcp, ol_rcp, vdaer, hum, nwet, uh, ra50_rcp, z0_rcp, icmpsec) 
 
-   IF (icm .EQ. 2) THEN     
+   IF (icm .EQ. 2) THEN   
 !
 !     NOx
 !     Rc for NOx is, uptil now, Rc for NO2 (from DEPAC); now we compute the 
@@ -515,10 +515,10 @@ IF (isec) THEN
 !      Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
 ! 
       r          = rb + ra4
-      rc_rcp    = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r   
+      rc_rcp    = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r 
       rclocal    = rc_rcp
       rctra_0    = 1./(rnox/(rctra_0+r) + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r
-      rcsrc      = rctra_0  
+      rcsrc      = rctra_0
 !
 !     Rc for secondary component: 1/vd = Ra + Rb + Rc and Rb is neglected for aerosols
 !
@@ -528,7 +528,7 @@ IF (isec) THEN
 !
 !              1               [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
 !     ------------------- = ----------------------- + ---------------------------- 
-!      Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra      
+!      Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra    
 
       rc_sec_rcp=1./(rhno3_rcp/(r+rchno3) + (1.-rhno3_rcp)/(r+rc_sec_rcp)) - r
 
@@ -560,7 +560,7 @@ CONTAINS
 !                      a roughness length (znul) < 0.5m and to Erisman et al (1994) and
 !                      Ruijgrok et al. (1994) for forest and other areas with a roughness
 !                      length above 0.5m.
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 !-------------------------------------------------------------------------------------------------------------------------------
 
 SUBROUTINE vdsecaer (ust, ol, vd, rh, nwet,Uh, ra, znul, icmp)

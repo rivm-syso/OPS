@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : This routine calculates sigmaz in the surface layer (all stabilities) on the basis of Monin Obukhov
@@ -103,7 +103,7 @@ IF (h .GT. (zw + EPS_DELTA)) THEN
 ENDIF
 IF (zw .GT. (zi/2. + EPS_DELTA)) THEN
    zw = zi/2.
-ENDIF                
+ENDIF              
 
 ! Initially zu = zw.
 zu    = zw
@@ -115,24 +115,24 @@ zwold = zw
 !----------------------
 50 CONTINUE
 
-   !
+
    ! Psi_h = non-dimensional temperature gradient (Businger, 1973, below 3.17 OPS report)
-   !
+
    IF (ol .GT. (0. + EPS_DELTA)) THEN
       phih = 0.74 + 4.7*zw/ol 
    ELSE
       phih = 0.74*(1.-9*zw/ol)**(-0.5)
    ENDIF
-   !
+
    ! compute wind speed at height zu from log-profile
-   !
+
    CALL ops_wvprofile(z0, zu, uster, ol, uh)
-   !
+
    ! Compute Kz at effective plume height zw;
    ! for L  > 0, according to Businger (1973); 3.17 OPS report 
    ! for L <= 0, according to Brost and Wyngaard (1978)
    ! The Businger formula includes an extra calibration factor a, derived from prairie grass data.
-   !
+
    IF (ol .GT. (0. + EPS_DELTA)) THEN
       a = 1.2
       IF (ol .LT. (30. - EPS_DELTA)) THEN
@@ -142,19 +142,19 @@ zwold = zw
    ELSE
       kz = K*uster*zw/phih*(1. - zw/zi)**1.5
    ENDIF
-   
+ 
    ! sigma_z as function of Kz (3.18 OPS report)
    szs = SQRT(2.*kz*x/uh)
-   
+ 
    ! Compute new values of zw and zu, depending on value of sigma_z
-   IF (last .NE. 1 .AND. iter .LE. 12 ) THEN  
-   ! IF (iter .LE. 12 ) THEN  
+   IF (last .NE. 1 .AND. iter .LE. 12 ) THEN
+   ! IF (iter .LE. 12 ) THEN
       last = 0
       iter = iter + 1
 
       ! s = effective plume width
-      s = szs*.69 ! OPS report s = 0.67*szs (see text below 3.18)  
-      ! s = szs*.69 + h/3   
+      s = szs*.69 ! OPS report s = 0.67*szs (see text below 3.18)
+      ! s = szs*.69 + h/3 
 
       !--------------------------------------------------------------------------------------------------
       ! 1. Plume well mixed (s > zi/2)
@@ -180,16 +180,16 @@ zwold = zw
       ! 2. Plume not well mixed AND plume does not touch the ground (s < h)
       !--------------------------------------------------------------------------------------------------
       ELSE IF (h .GE. (s - EPS_DELTA)) THEN
-        
+      
          ! zw = h - sigma_z
-         zw = h - szs    
-         ! zw = h - 0.1*s  
-         
+         zw = h - szs  
+         ! zw = h - 0.1*s
+       
          ! zw < h/2  -> zw = h/2, zu = stack_height; iteration finished
-         IF (zw .LT. (h/2. - EPS_DELTA)) THEN  
-            zw = h/2.                          
-         !IF (zw .LT. (h - EPS_DELTA)) THEN      
-         !   zw = h                              
+         IF (zw .LT. (h/2. - EPS_DELTA)) THEN
+            zw = h/2.                        
+         !IF (zw .LT. (h - EPS_DELTA)) THEN    
+         !   zw = h                            
             zu = h
             last = 1
 

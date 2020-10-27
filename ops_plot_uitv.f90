@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Write results to plot-file (*.plt)
@@ -133,7 +133,7 @@ IF (spgrid .EQ. 2) THEN
   ELSE IF (idep) THEN
 !
 !   Depositions
-!  
+!
     WRITE (fu_plt, '(a4,8x,a8,a8,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',         &
           &  'tot_dep.'
     IF (ierr .GT. 0) GOTO 4200
@@ -170,7 +170,7 @@ IF (spgrid .EQ. 2) THEN
   ENDIF
   WRITE (fu_plt, '(a1)', IOSTAT = ierr) ' '
 ELSE
-  
+
 !-------------------------------------------------------
 ! Grid output (APS format) for gridded receptors
 !-------------------------------------------------------

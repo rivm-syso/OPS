@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : This routine calculates sigmaz for near neutral cases according to Gryning et al. (1987).
@@ -137,7 +137,7 @@ DO WHILE (.NOT. finished)
          zu = s
       ENDIF
       last = 1
-      
+    
 !
 !  For high sources (h > z1/2), the inversion at the mixing height forces the centre of mass of the plume downwards. 
 !  Three cases

@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Define file unit numbers and file names. Subroutine to make full file name.
@@ -56,9 +56,9 @@ CHARACTER*24, PARAMETER                          :: BUILDINGFACTFILE   = 'buildi
 !
 INTEGER*4, PARAMETER                             :: IOB_IU       = 1           ! currently not used
 INTEGER*4, PARAMETER                             :: IOB_SETUP    = 2           ! currently not used
-INTEGER*4, PARAMETER                             :: IOB_STDIN    = 5           ! currently not used  
-INTEGER*4, PARAMETER                             :: IOB_STDOUT   = 6           ! standard output     
-INTEGER*4, PARAMETER                             :: IOB_STDERR   = 7           ! currently not used  
+INTEGER*4, PARAMETER                             :: IOB_STDIN    = 5           ! currently not used
+INTEGER*4, PARAMETER                             :: IOB_STDOUT   = 6           ! standard output   
+INTEGER*4, PARAMETER                             :: IOB_STDERR   = 7           ! currently not used
 !
 ! CONSTANTS - Other fileunits
 !
@@ -227,7 +227,7 @@ INTEGER*4                                        :: extpos                     !
 CHARACTER*512                                    :: base                       ! base name of monitor files (i.e. control file name without extension)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM              
 PARAMETER     (ROUTINENAAM = 'MakeMonitorNames')
 
 !-------------------------------------------------------------------------------------------------------------------------------

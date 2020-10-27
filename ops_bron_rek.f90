@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 !                      Chris Twenh"ofel (Cap Gemini)
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN-77/90
@@ -58,34 +58,34 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bron_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: emtrend  
-type(TbuildingEffect)                            :: buildingEffect            ! structure with building effect tables                   
+REAL*4,    INTENT(IN)                            :: emtrend
+type(TbuildingEffect)                            :: buildingEffect            ! structure with building effect tables                 
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: landmax                     
-REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)           
+INTEGER*4, INTENT(INOUT)                         :: landmax                   
+REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)         
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: nsbuf                       
-INTEGER*4, INTENT(OUT)                           :: bnr(LSBUF)                  
-INTEGER*4, INTENT(OUT)                           :: bx(LSBUF)                   
-INTEGER*4, INTENT(OUT)                           :: by(LSBUF)                   
-REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)             
-REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bhoogte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)  
+INTEGER*4, INTENT(OUT)                           :: nsbuf                     
+INTEGER*4, INTENT(OUT)                           :: bnr(LSBUF)                
+INTEGER*4, INTENT(OUT)                           :: bx(LSBUF)                 
+INTEGER*4, INTENT(OUT)                           :: by(LSBUF)                 
+REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)              
+REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)           
+REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)            
+REAL*4,    INTENT(OUT)                           :: bhoogte(LSBUF)            
+REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)
 REAL*4,    INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
 REAL*4,    INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+REAL*4,    INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]          
 LOGICAL,   INTENT(OUT)                           :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: bbuilding(LSBUF)          ! array with structures with building parameters
 INTEGER*4, INTENT(OUT)                           :: btgedr(LSBUF)
-INTEGER*4, INTENT(OUT)                           :: bdegr(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bqrv(LSBUF)                 
-REAL*4,    INTENT(OUT)                           :: bqtr(LSBUF)                 
-INTEGER*4, INTENT(OUT)                           :: bcatnr(LSBUF)               
-INTEGER*4, INTENT(OUT)                           :: blandnr(LSBUF)              
+INTEGER*4, INTENT(OUT)                           :: bdegr(LSBUF)              
+REAL*4,    INTENT(OUT)                           :: bqrv(LSBUF)               
+REAL*4,    INTENT(OUT)                           :: bqtr(LSBUF)               
+INTEGER*4, INTENT(OUT)                           :: bcatnr(LSBUF)             
+INTEGER*4, INTENT(OUT)                           :: blandnr(LSBUF)            
 LOGICAL,   INTENT(OUT)                           :: eof                        ! end of file has been reached 
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
@@ -108,7 +108,7 @@ REAL*4                                           :: hbron                      !
 REAL*4                                           :: szopp                      ! 
 REAL*4                                           :: D_stack                    ! diameter of the stack [m]
 REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]          
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
 REAL*4                                           :: qrv                        ! 
@@ -149,16 +149,16 @@ DO WHILE (nsbuf /= LSBUF)
   !                                                           ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
 
   ! Determine building factor function (function of source receptor angle and source receptor distance):
-  if (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation)) then  
+  if (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation)) then
      building%type = 0 ! no building effect
   else
      building%type = 1 ! building effect is present
-     
+   
      ! Fill array with parameters relevant for building effect (last two values (angle_SR_axis, distance) are filled in subroutine ops_building_get_function and are set to -999 here);
      ! parameters must correspond with buildingParamNames(9) = (/'hEmis', 'V_stack', 'D_stack', 'buildingHeight', 'buildingLength', 'buildingWLRatio', 'buildingOrientation', 'angleSRxaxis', 'distance' /)  in m_ops_building
      ! horizontal emission -> no momentum plume rise -> set valueArray(2) = 0 -> V_stack uses minimal value in table for building effect
      if (emis_horizontal) then
-        valueArray = (/ hbron, 0.0    , D_stack, building%height, building%length, building%width/building%length, building%orientation, -999.0, -999.0 /)  
+        valueArray = (/ hbron, 0.0    , D_stack, building%height, building%length, building%width/building%length, building%orientation, -999.0, -999.0 /)
         ! valueArray = (/ hbron, -999.0, -999.0 /)  ! TEST with three parameters
         ! valueArray = (/ 0.0, building%height, hbron, -999.0 /)  !  TEST with four parameters as in test6_fs2
      else
@@ -166,7 +166,7 @@ DO WHILE (nsbuf /= LSBUF)
         ! valueArray = (/ hbron, -999.0, -999.0 /)   ! TEST with three parameters
         ! valueArray = (/ V_stack, building%height, hbron, -999.0 /)  ! TEST with four parameters as in test6_fs2
      endif
-     
+   
      ! Values outside the table input are moved to the boundary of the table ('constant extrapolation'):
      do iParam = 1,buildingEffect%nParam
         valueArray(iParam) = min(max(valueArray(iParam),buildingEffect%minClass(iParam)),buildingEffect%maxClass(iParam))
@@ -179,7 +179,7 @@ DO WHILE (nsbuf /= LSBUF)
      ! write(*,*) 'ops_bron_rek/minClass = ',buildingEffect%minClass(1:buildingEffect%nParam)
      ! write(*,*) 'ops_bron_rek/maxClass = ',buildingEffect%maxClass(1:buildingEffect%nParam)
      ! write(*,*) 'ops_bron_rek/buildingFactArray(1:10): ',buildingEffect%buildingFactArray(1:10)
-     
+   
      call ops_building_get_function(buildingEffect%nParam, valueArray, buildingEffect%nClass, buildingEffect%classdefinitionArray,  & 
                                     buildingEffect%buildingFactAngleSRxaxis, buildingEffect%buildingFactDistances, buildingEffect%buildingFactArray, building%buildingFactFunction, error)
      ! write(*,*) 'buildingFactFunction = ',building%buildingFactFunction
@@ -245,8 +245,8 @@ DO WHILE (nsbuf /= LSBUF)
       bnr(nsbuf) = mm
       bx(nsbuf)  = NINT(x)
       by(nsbuf)  = NINT(y)
-    ELSE  
-       write(*,*) 'IGEO in ops_bron_rek = ',IGEO  
+    ELSE
+       write(*,*) 'IGEO in ops_bron_rek = ',IGEO
        stop 
     ENDIF
 

@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Deze routine berekent de pluimhoogte.
@@ -108,7 +108,7 @@ IF ( qw .GT. (0. + EPS_DELTA)) THEN
 
 
    ! f = stack buoyancy flux (3.27 OPS report)
-   ! f = g/(pi*0.0013*T) = 9.81/(3.14*0.0013*273)*qw    
+   ! f = g/(pi*0.0013*T) = 9.81/(3.14*0.0013*273)*qw  
    f = 8.8*qw                                           ! 960107 see briggs (1975)
 
    ! We want to use a wind speed that is representative for the whole plume rise length, 
@@ -120,7 +120,7 @@ IF ( qw .GT. (0. + EPS_DELTA)) THEN
 
    ! Do iteration:
    do while (.not. converged .and. it .le. maxit) 
-   
+ 
       ! plume rise for unstable or neutral conditions, L < 0 or |L| > 50 (3.25 - 3.28 OPS report):
       ! original value plrise_nonstab_Fbsplit = 55
       IF ( ol .LT. (0. - EPS_DELTA) .OR. ABS(ol) .GT. 50 ) THEN
@@ -141,7 +141,7 @@ IF ( qw .GT. (0. + EPS_DELTA)) THEN
 
       ! Check for convergence:
       converged = (abs(delh - delh_prev) .lt. epsa + epsr*delh )
-      
+    
       ! Update for next iteration:
       if (.not. converged .and. it .lt. maxit) then
         ! Compute wind speed at z = h_stack + 1/2 plume_rise:

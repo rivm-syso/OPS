@@ -72,7 +72,7 @@ TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  !
 TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! 
 TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  ! 
 TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! 
-TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2                     !
+TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2
 LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT

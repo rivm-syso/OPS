@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute long term concentration for a given source and source-receptor distance;
@@ -201,7 +201,7 @@ ELSE
       ELSE
          tl = 500.
       ENDIF
-      
+    
       ! utl = u1 * tl + radius = characteristic travel distance [m]
       utl = (u1*tl) + radius
       IF (utl .LT. (disx - EPS_DELTA)) THEN
@@ -260,7 +260,7 @@ ELSE
       ueff = vw10*((hf/10.)**pcoef)                                            ! 920906
 !
 !     Compute concentration at receptor for case 3:
-!    
+!  
 !             Q(x)                Q(x)   NSEK     1
 !     C(x) = ----- D (x) D (x) = ----- --------  ---- ,  3.7, 3.8, 3.9 OPS report
 !              u    y     z        u    2 pi x    zi
@@ -297,7 +297,7 @@ ELSE
 !
 !     Compute wind speed at effective transport height by either a power law (hf > 50 m)
 !     or by a logarithmic wind profile (hf <= 50 m).
-!      
+!    
       IF ( hf .GT. 50 ) THEN
          ueff = vw10*(hf/10)**pcoef
       ELSE
@@ -319,7 +319,7 @@ ELSE
 !        b = reflection term from source-mixing_layer-surface
 !
 !        3.15 in OPS report is rewritten as follows
-!                                              
+!                                            
 !        In the following h = htot = htt - pld
 !
 !                        2                   -h**2                 -(2 zi + h)**2           -(2 zi - h)**2
@@ -330,14 +330,14 @@ ELSE
 !         = ------------------- exp[--------------] * {1 + exp [------------------------] + exp [----------------------] }
 !           sqrt(2 pi) sigma_z       2 sigma_z**2                    2 sigma_z**2                      2 sigma_z**2
 !
-!                   2                   -h**2                    
+!                   2                   -h**2                  
 !         = ------------------- exp[--------------] * {1 + a + b} = 
-!           sqrt(2 pi) sigma_z       2 sigma_z**2                
+!           sqrt(2 pi) sigma_z       2 sigma_z**2              
 !
 !
-!                   2                   -h**2                    
+!                   2                   -h**2                  
 !         = ------------------- exp[--------------] * cls .
-!           sqrt(2 pi) sigma_z       2 sigma_z**2                
+!           sqrt(2 pi) sigma_z       2 sigma_z**2              
 !
 !         rr = sigz*sigz*2.
 !
@@ -352,8 +352,8 @@ ELSE
       ENDIF
 !
 !     Compute concentration at receptor for cases 1 and 2
-!    
-!             Q(x)                Q(x)   NSEK        2                      -h**2      
+!  
+!             Q(x)                Q(x)   NSEK        2                      -h**2    
 !     C(x) = ----- D (x) D (x) = ----- --------  ------------------- exp[--------------] * cls,  3.7, 3.8, 3.15 OPS report
 !              u    y     z        u    2 pi x   sqrt(2 pi) sigma_z       2 sigma_z**2
 !
@@ -475,7 +475,7 @@ ENDIF
 s2 = 0.92*dispg(istab)*((dsx + radius)**disp) 
 
 ! sz OPS report: represents the distribution of source heights within the area source
-sz = 0.1      
+sz = 0.1    
 
 IF (abs(s2-s1) .LE. 1.E-04) s2 = s1*1.001
 
