@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             :
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F77/90
 ! USAGE              : %M%
@@ -36,7 +39,8 @@
 ! CALLED FUNCTIONS   : depac
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_per, ra, rb, rc_eff_pos, rc_eff)
+SUBROUTINE ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster, glrad, hum, nwet, ratns, catm, c_ave_prev_nh3, c_ave_prev_so2, &
+                      & lu_per, ra, rb, rc_eff_pos, rc_eff)
 
 USE m_commonconst
 USE m_depac318
@@ -59,7 +63,8 @@ REAL*4,    INTENT(IN)                            :: gym                        !
 REAL*4,    INTENT(IN)                            :: glrad                      ! 
 REAL*4,    INTENT(IN)                            :: ratns                      ! 
 REAL*4,    INTENT(IN)                            :: catm 
-REAL*4,    INTENT(IN)                            :: c_ave_prev
+REAL*4,    INTENT(IN)                            :: c_ave_prev_nh3
+REAL*4,    INTENT(IN)                            :: c_ave_prev_so2
 REAL*4,    INTENT(IN)                            :: ra
 REAL*4,    INTENT(IN)                            :: rb
 REAL*4,    INTENT(IN)                            :: lu_per(NLU)                ! land use percentages for all land use classes
@@ -156,7 +161,7 @@ DO luclass = 1,NLU
 !           rc_eff_depac: effective Rc (includes effect of compensation point); rc_eff_depac depends on the value of Ra and Rb.
 !          
         CALL depac318(CNAME(icm,5), day_of_year, gym ,temp_C, uster, glrad, sinphi, hum, nwet, luclass, nint(ratns),   & 
-                    & rc_tot, c_ave_prev, max(catm,catm_min), ccomp_tot, ra, rb, rc_eff_depac)
+                    & rc_tot, c_ave_prev_nh3, c_ave_prev_so2, max(catm,catm_min), ccomp_tot, ra, rb, rc_eff_depac)
 !
 !          Detect missing values and set default values
 !

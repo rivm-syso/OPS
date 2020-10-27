@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             :
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F77/90
 ! USAGE              : %M%
@@ -36,16 +39,17 @@
 ! CALLED FUNCTIONS   : ops_depu
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_resist_rek(vchemc, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,                        &
-                          rno2nox, rcnh3d, vchemnh3, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,                                 &
-                          z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, temp_C, disx, zm, koh,                                &
+SUBROUTINE ops_resist_rek(vchemc, iopt_vchem, vchemv, rad, isec, icm, rcso2, regenk, rcaerd, iseiz, istab, itra, ar,            &
+                          rno2nox, rcnh3d, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, ol_tra,                         &
+                          z0_rcp, z0_metreg_rcp, rcno2d, kdeel, mb, vw10, temp_C, disx, zm, koh,                                   &
                           rations, rhno3, rcno, rhno2, rchno3, croutpri, rrno2nox, rhno3_rcp,                                   &
                           rb, ra4, ra50, rc, routpri, vchem, rcsec, uh, rc_sec_rcp, rc_rcp, rb_rcp,                             &
                           ra4_rcp, ra50_rcp, raz_rcp, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc, ra4src,                &
-                          rb_src, ra50src, ra4tra, ra50tra, rb_tra, rclocal, nh3bg_rcp, nh3bgtra, gym,                          &
-                          depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
+                          rb_src, ra50src, ra4tra, ra50tra, rb_tra, rclocal, nh3bg_rcp, nh3bgtra,                               &
+                          so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
 
 USE m_commonconst
+USE m_ops_vchem
 
 IMPLICIT NONE
 
@@ -54,7 +58,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_resist_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: vchemc                     ! 
+REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
+INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 REAL*4,    INTENT(IN)                            :: vchemv                     ! 
 REAL*4,    INTENT(IN)                            :: rad                        ! 
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE als component=[SO2, NOx, NH3]
@@ -68,7 +73,8 @@ INTEGER*4, INTENT(IN)                            :: itra                       !
 REAL*4,    INTENT(IN)                            :: ar                         ! 
 REAL*4,    INTENT(IN)                            :: rno2nox                    ! 
 REAL*4,    INTENT(IN)                            :: rcnh3d                     ! 
-REAL*4,    INTENT(IN)                            :: vchemnh3                   ! 
+REAL*4,    INTENT(IN)                            :: vchemnh3
+type(Tvchem), INTENT(IN)                         :: vchem2                     ! 
 REAL*4,    INTENT(IN)                            :: hum                        ! 
 REAL*4,    INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
 REAL*4,    INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
@@ -98,6 +104,8 @@ REAL*4,    INTENT(IN)                            :: uster_src                  !
 REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
 REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! 
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! 
+REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! 
+REAL*4,    INTENT(IN)                            :: so2bgtra                   ! 
 REAL*4,    INTENT(IN)                            :: gym                        !
 LOGICAL,   INTENT(IN)                            :: gasv                       !
 REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
@@ -112,7 +120,7 @@ LOGICAL,   INTENT(INOUT)                         :: depudone                   !
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-] 
-REAL*4,    INTENT(OUT)                           :: vchem                      ! 
+REAL*4,    INTENT(OUT)                           :: vchem                      ! chemical conversion rate [%/h]
 REAL*4,    INTENT(OUT)                           :: uh                         ! 
 
 ! Canopy resistances
@@ -144,7 +152,7 @@ REAL*4,    INTENT(OUT)                           :: rnox                       !
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: day_of_year                ! 
-INTEGER*4                                        :: icmpsec                    ! 
+INTEGER*4                                        :: icmpsec                    !
 INTEGER*4                                        :: ipar                       ! 
 INTEGER*4                                        :: mnt                        ! 
 INTEGER*4, DIMENSION(2)                          :: mnt_select                 ! 
@@ -176,13 +184,14 @@ REAL*4                                           :: som_rctra_0
 REAL*4                                           :: som_rcsrc
 REAL*4                                           :: telmaand 
 REAL*4                                           :: catm 
-REAL*4                                           :: c_ave_prev
+REAL*4                                           :: c_ave_prev_nh3
+REAL*4                                           :: c_ave_prev_so2
 REAL*4                                           :: cfact
 REAL*4                                           :: ccomp_tot
 REAL*4                                           :: rc_tot
 REAL*4                                           :: rc_sum
 REAL*4                                           :: sinphi
-INTEGER i
+INTEGER                                          :: i
 REAL*4, PARAMETER                                :: catm_min = 0.1E-05
 
 ! SCCS-ID VARIABLES
@@ -286,18 +295,24 @@ IF (isec) THEN
 !
 ! Note: in source code 1.2*[0.016 0.5 12] = [0.0192 0.6 14.4] = [ar khe kaq]
 
-      vchem   = 1.2*((rad*.016) + .5 + (regenk*12.))
-      routpri = croutpri*rations ! Note factor 2 in rations
-      rc      = rcso2 
-      rcsec   = rcaerd*0.8
+      IF (iopt_vchem .eq. 0) THEN
+         ! OPS parameterisation:
+         vchem = 1.2*((rad*.016) + .5 + (regenk*12.))
+      ELSE
+         ! EMEP maps:
+         vchem = vchem2%vchem
+      ENDIF
+      ! write(*,*) 'ops_resist_rek, vchem: ',vchem
+      routpri  = croutpri*rations ! Note factor 2 in rations
+      rc       = rcso2 
+      rcsec    = rcaerd*0.8
 
    ! NOx: 
    ELSE IF (icm .EQ. 2) THEN
-!
-!     Compute percn = fraction of nighttime hours, depending on season;
-!     NACHTZOMER and NACHTWINTER are relative occurrences (%) of nighttime hours in summer and winter,
-!     for each stability class and distance class. ("NACHT" = night, "ZOMER" = summer)
-!
+
+      ! Compute percn = fraction of nighttime hours, depending on season;
+      ! NACHTZOMER and NACHTWINTER are relative occurrences (%) of nighttime hours in summer and winter,
+      ! for each stability class and distance class. ("NACHT" = night, "ZOMER" = summer)
       IF ((iseiz .EQ. 3) .OR. (iseiz .EQ. 5)) THEN
          percn = FLOAT(NACHTZOMER(istab, itra))/100.
       ELSE IF ((iseiz .EQ. 2) .OR. (iseiz .EQ. 4)) THEN
@@ -305,37 +320,41 @@ IF (isec) THEN
       ELSE
          percn = FLOAT(NACHTWINTER(istab, itra) + NACHTZOMER(istab, itra))/200.
       ENDIF
-!
-!     Compute chemn = chemical conversion rate for NO2+O3 -> NO3 (nigthttime), assuming a 2%/h conversion rate
-!     Van Egmond N.D. and Kesseboom H. (1983) Mesoscale air pollution dispersion models-II. Lagrangian PUFF model,
-!     and comparison with Eulerian GRID model. Atmospheric Environment, 17, 265-274.
-!    
+
+      ! Compute chemn = chemical conversion rate for NO2+O3 -> NO3 (nigthttime), assuming a 2%/h conversion rate
+      ! Van Egmond N.D. and Kesseboom H. (1983) Mesoscale air pollution dispersion models-II. Lagrangian PUFF model,
+      ! and comparison with Eulerian GRID model. Atmospheric Environment, 17, 265-274.   
       chemn = percn*2.
-!
-!     rnox = [NO2]/[NOx] ratio consists of a space varying component (rrno2nox, computed in ops_par_chem),
-!     a season dependent component (rno2nox, set in ops_init)
-!     and a stability class dependent component (scno2nox, only in winter)
-!
+
+      ! rnox = [NO2]/[NOx] ratio consists of a space varying component (rrno2nox, computed in ops_par_chem),
+      ! a season dependent component (rno2nox, set in ops_init)
+      ! and a stability class dependent component (scno2nox, only in winter)
       IF ((iseiz .EQ. 2) .OR. (iseiz .EQ. 4)) THEN
          scno2nox = SCWINTER(istab)
       ELSE
          scno2nox = 1.
       ENDIF
       rnox = rrno2nox*rno2nox*scno2nox
-!
-!     Set parameters that depend on this [NO2]/[NOx] ratio.
-!     chemr : chemical conversion rate for NO2 + OH -> HNO3; [%/h] (factor 100 is to make percentage instead of fractions)
-!             rad : global radiation [J/cm2/h]
-!             ar  : proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr, with 
-!                   [OH] = OH radical concentration [ppb] , Qr = global radiation [J/cm2/h] 
-!             koh : reaction constant [ppb-1 h-1] (Van Aalst en Bergsma, 1981)
-!     vchem  : total chemical conversion rate, split into daytime and nighttime part
-!     routpri: in-cloud scavenging ratio for primary component
-!              (rout << rain-out = in-cloud) [-]
-!
-      chemr   = 100*rad*ar*koh*rnox
-      vchem   = chemr + chemn
-      routpri = croutpri*rnox
+
+      ! chemr : chemical conversion rate for NO2 + OH -> HNO3; [%/h] (factor 100 is to make percentage instead of fractions)
+      !         rad : global radiation [J/cm2/h]
+      !         ar  : proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr, with 
+      !               [OH] = OH radical concentration [ppb] , Qr = global radiation [J/cm2/h] 
+      !         koh : reaction constant [ppb-1 h-1] (Van Aalst en Bergsma, 1981)
+      ! vchem  : total chemical conversion rate, split into daytime and nighttime part
+       chemr    = 100*rad*ar*koh*rnox
+
+      ! vchem  : total chemical conversion rate, split into daytime and nighttime part
+      IF (iopt_vchem .eq. 0) THEN
+         ! OPS parameterisation:
+         vchem = chemr + chemn
+      ELSE
+         ! EMEP maps:
+         vchem = vchem2%vchem
+      ENDIF 
+      
+      ! routpri: in-cloud scavenging ratio for primary component (rout << rain-out = in-cloud) [-]
+      routpri  = croutpri*rnox
 !
 !     Set surface resistance.
 !     The primary substance is calculated as NO2 (because emissions are specified as such) but contains in reality a mixture of
@@ -376,11 +395,17 @@ IF (isec) THEN
 !     rc     : surface resistance primary component [s/m]
 !     rcsec  : surface resistance secondary component over trajectory [s/m]; taken as 0.8*Rc(NO3_aerosol)
 
-      rb      = rb*0.64
-      vchem   = vchemnh3
-      routpri = croutpri
-      rc      = rcnh3d  
-      rcsec   = rcaerd*0.8
+      rb       = rb*0.64
+      IF (iopt_vchem .eq. 0) THEN
+         ! OPS parameterisation:
+         vchem = vchemnh3
+      ELSE
+         ! EMEP maps:
+         vchem = vchem2%vchem
+      ENDIF
+      routpri  = croutpri
+      rc       = rcnh3d  
+      rcsec    = rcaerd*0.8
    ELSE
       CONTINUE
    ENDIF ! IF icm = 1,2 or 3
@@ -394,7 +419,7 @@ IF (isec) THEN
 !      rc_rcp : canopy resistance at receptor, no re-emission allowed [s/m];
 !               is used for deposition gradient at receptor
 !      rclocal: canopy resistance at receptor, re-emission allowed [s/m]; 
-!               is used for the computation of drypri, the local deposition at the receptor
+!               is used for the computation of drypri, the local depsosition at the receptor
 !-------------------------------------------------------------------------------------------
 
    ! Wesely parameterization
@@ -430,12 +455,12 @@ IF (isec) THEN
 !
 !      (17/24) = conversion factor ppb -> ug/m3.
 !
-   catm       = nh3bgtra*17/24
-   c_ave_prev = nh3bgtra*17/24
-   ! write(*,'(a,2(1x,e12.5))') 'catm,c_ave_prev traj = ',catm,c_ave_prev
-
-   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_tra, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_tra_per, ra4tra, rb_tra, &
-                  &  rctra_0, rclocal)
+   catm           = nh3bgtra*17/24
+   c_ave_prev_nh3 = nh3bgtra*17/24
+   c_ave_prev_so2 = so2bgtra*64/24
+!
+   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_tra, glrad, hum, nwet, ratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_tra_per, &
+                  &  ra4tra, rb_tra, rctra_0, rclocal)
    rcsrc   = rctra_0 !
 !
 ! 2. Compute surface resistance Rc near the receptor.
@@ -445,13 +470,12 @@ IF (isec) THEN
 !    Note: catm and c_ave_prev are only used for NH3.
 !    Conversion from ppb -> ug/m3 for nh3bg_rcp already done in ops_rcp_char.
 !
-   catm       = nh3bg_rcp
-   c_ave_prev = nh3bg_rcp
-   !write(*,'(a,2(1x,e12.5))') 'catm,c_ave_prev rcp = ',catm,c_ave_prev
-
-   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_rcp, glrad, hum, nwet, ratns, catm, c_ave_prev, lu_rcp_per, ra4_rcp, rb_rcp,  &
-                  &  rc_rcp, rclocal)
-   
+   catm           = nh3bg_rcp
+   c_ave_prev_nh3 = nh3bg_rcp
+   c_ave_prev_so2 = so2bg_rcp
+!
+   CALL ops_depos_rc(icm, iseiz, mb, gym ,temp_C, uster_rcp, glrad, hum, nwet, ratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_rcp_per, &
+                  &  ra4_rcp, rb_rcp, rc_rcp, rclocal)
 !------------------------------------------------------------------
 !  Compute surface resistance Rc for the secondary component
 !------------------------------------------------------------------
@@ -491,7 +515,7 @@ IF (isec) THEN
 !      Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
 ! 
       r          = rb + ra4
-      rc_rcp     = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r   
+      rc_rcp    = 1./(rnox/(rc_rcp+r)  + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r   
       rclocal    = rc_rcp
       rctra_0    = 1./(rnox/(rctra_0+r) + (1.-rnox)/(rcno+r) + rhno2/(rchno2+r)) - r
       rcsrc      = rctra_0  
@@ -536,7 +560,7 @@ CONTAINS
 !                      a roughness length (znul) < 0.5m and to Erisman et al (1994) and
 !                      Ruijgrok et al. (1994) for forest and other areas with a roughness
 !                      length above 0.5m.
-! AUTHOR             : Hans van Jaarsveld
+! AUTHOR             : OPS-support   
 !-------------------------------------------------------------------------------------------------------------------------------
 
 SUBROUTINE vdsecaer (ust, ol, vd, rh, nwet,Uh, ra, znul, icmp)

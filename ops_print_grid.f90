@@ -1,18 +1,21 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
 !
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
@@ -25,7 +28,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : Chris Twenh"ofel (Cap Gemini)
+! AUTHOR              : OPS-support  Chris Twenh"ofel (Cap Gemini)
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN (HP-UX, HP-F77)
 ! DESCRIPTION         : Print concentration, deposition and other gridded data.
@@ -36,11 +39,11 @@
 ! UPDATE HISTORY      :
 !
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_print_grid (nrrcp, jump, project, icm, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh,       &
-        &  conc_cf, amol21, ugmoldep, nrcol, nrrow, grid, xorg, yorg, precip, cpri, csec, drydep, wetdep, ddepri,               &
-        &  lu_rcp_dom_all, z0_rcp_all, gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, totddep, ddrpri, ddrsec, gemwdep,           &
-        &  gemwdpri, gemwdsec, totwdep, wdrpri, wdrsec, gemprec, gemtdep, tottdep, cseccor, gemcseccor, namseccor, totdep,      &
-        &  scale_con, scale_sec, scale_sec_cor, scale_dep, error)
+SUBROUTINE ops_print_grid (nrrcp, nsubsec, jump, project, icm, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh, &
+        &  conc_cf, amol21, ugmoldep, nrcol, nrrow, grid, xorg, yorg, precip, cpri, csec, drydep, wetdep, ddepri,                  &
+        &  lu_rcp_dom_all, z0_rcp_all, gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, totddep, ddrpri, ddrsec, gemwdep,       &
+        &  gemwdpri, gemwdsec, totwdep, wdrpri, wdrsec, gemprec, gemtdep, tottdep, csubsec, gem_subsec, nam_subsec, totdep,         &
+        &  scale_con, scale_sec, scale_subsec, scale_dep, error)
 
 USE m_error
 USE m_commonfile
@@ -53,7 +56,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_print_grid')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number ofreceptor points
+INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! distance between receptor points in grid units
 CHARACTER*(*), INTENT(IN)                        :: project                    ! project name
 INTEGER*4, INTENT(IN)                            :: icm                        ! component number
@@ -98,13 +102,13 @@ REAL*4,    INTENT(IN)                            :: wdrsec                     !
 REAL*4,    INTENT(IN)                            :: gemprec                    ! grid mean annual precpitation from meteo
 REAL*4,    INTENT(IN)                            :: gemtdep                    ! grid mean for total deposition
 REAL*4,    INTENT(IN)                            :: tottdep                    ! grid total total deposition
-REAL*4,    INTENT(IN)                            :: cseccor(nrrcp)             ! concentration of second secondary substance
-REAL*4,    INTENT(IN)                            :: gemcseccor                 ! grid mean for second secondary concentration
-CHARACTER*(*), INTENT(IN)                        :: namseccor                  ! 
+REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
+REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
 REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
 REAL*4,    INTENT(IN)                            :: scale_con                  ! scalefactor prim. concentration
 REAL*4,    INTENT(IN)                            :: scale_sec                  ! scalefactor sec. concentration
-REAL*4,    INTENT(IN)                            :: scale_sec_cor              ! scalefactor corrected sec. concentration
+REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
 REAL*4,    INTENT(IN)                            :: scale_dep                  ! scalefactor deposition
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -118,6 +122,8 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 ! LOCAL VARIABLES
 INTEGER                                          :: j                          ! counter through receptro points
 REAL*4                                           :: tmp(nrrcp)                 ! tempory array with values to be written
+INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
+
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -144,7 +150,7 @@ IF (igrid) THEN
   CALL print_mat(fu_prt, cpri, scale_con, nrrcp, jump, nrcol, nrrow, grid, xorg, yorg, error)
 ENDIF
 
-WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, 1x, a6)') namco(:LEN_TRIM(namco)), gemcpri, coneh
+WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, 1x, a10)') namco(:LEN_TRIM(namco)), gemcpri, coneh
 
 IF (gasv.and.(icm.ne.0.or.idep)) THEN
   WRITE (fu_prt,'('' eff. chem. conv. rate'', T50, '': '', f9.3, '' %/h'')') ccr
@@ -158,17 +164,21 @@ IF (isec) THEN
       WRITE (fu_prt, '(a)') char(12)
       CALL ops_print_kop(project, namco)
 
-      WRITE (fu_prt, '('' concentration distribution of '', a, '': ('', 1p, e7.0, 1x, a5, '')'')')                             &
-      &  namseccor(:LEN_TRIM(namseccor)), 1/scale_sec_cor, 'ug/m3'
-      CALL print_mat(fu_prt, cseccor, scale_sec_cor, nrrcp, jump, nrcol, nrrow, grid, xorg, yorg, error)
+      do isubsec = 1,nsubsec
+         WRITE (fu_prt, '('' concentration distribution of '', a, '': ('', 1p, e7.0, 1x, a5, '')'')')                             &
+         &  nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), 1/scale_subsec(isubsec), 'ug/m3'
+         CALL print_mat(fu_prt, csubsec(:,isubsec), scale_subsec(isubsec), nrrcp, jump, nrcol, nrrow, grid, xorg, yorg, error)
+      enddo
 
     ENDIF
 
-    WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a6)') namseccor(:LEN_TRIM(namseccor)),           &
-        &  gemcseccor, 'ug/m3'
+    do isubsec = 1,nsubsec
+       WRITE (fu_prt, '(/,'' average '',a,'' concentration'', T50, '': '', e9.3, a6)') nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))),           &
+        &  gem_subsec(isubsec), 'ug/m3'
+     enddo
   ENDIF
 !
-! (1aa) Concentration of secondary component
+! (1aa) Concentration of secondary component (non-NOx)
 !
   IF (verb .or. icm /= 2) THEN
     IF (igrid) THEN

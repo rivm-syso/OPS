@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME               : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             :
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! USAGE              :
@@ -112,7 +115,7 @@ REAL*4                                           :: uster_metreg_from_rb_rcp   !
 REAL*4                                           :: ol_metreg_from_rb_rcp      ! Monin-Obukhov length at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
 REAL*4                                           :: dsx                        ! ratio disx/radius, i.e. 
 !                                                                              ! (source-receptor distance)/(radius of area source)
-REAL*4                                           :: szsrc                      ! 
+REAL*4                                           :: sz_rcp_stab_src            ! vertical dispersion coefficient sigma_z at receptor with (z0,u*,L,uh,zu) of source site 
 REAL*4                                           :: uh_rcp                     ! 
 REAL*4                                           :: zu_rcp                     ! 
 REAL*4                                           :: sz_rcp                     ! 
@@ -228,10 +231,10 @@ dsx = AMAX1(disx, radius)
 IF (dsx .GT. (1. + EPS_DELTA)) THEN
 
    ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of source site
-   CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc, error)
+   CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src, error)
    if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
-      ' ircp,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc:', &
-        -999,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, szsrc
+      ' ircp,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src:', &
+        -999,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src
 
    ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of receptor site
    CALL ops_vertdisp(z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp, error)
@@ -242,15 +245,15 @@ IF (dsx .GT. (1. + EPS_DELTA)) THEN
 !
 !  Limit sigma_z at source, such that sigma_z(source) < sigma_z(receptor)
 !
-   IF (szsrc .GT. (sz_rcp + EPS_DELTA)) THEN
-      sz_rcp = szsrc
+   IF (sz_rcp_stab_src .GT. (sz_rcp + EPS_DELTA)) THEN
+      sz_rcp = sz_rcp_stab_src
    ENDIF
 !
 !  Compute dispersion coefficient dispg of average between sigma_z at source and receptor;
 !  sigma_z = dispg*disx**disph <=> dispg = sigma_z/(disx**disph),  3.16 new! OPS report
 !  Since in the rest of the code the old formula sigma_z = dispg*disx**disph is still used,
-!  we need dispg and disph and we do not use szsrc and sz_rcp hereafter. 
-   dispg(istab) = (szsrc + sz_rcp)*0.5/(dsx**DISPH(istab))
+!  we need dispg and disph and we do not use sz_rcp_stab_src and sz_rcp hereafter. 
+   dispg(istab) = (sz_rcp_stab_src + sz_rcp)*0.5/(dsx**DISPH(istab))
    if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C,', ' ircp,istab,dispg(istab):', -999,istab,dispg(istab)
         
    ! Check limits 0 <= dispg <= 50; if outside limits, generate warning:
@@ -258,8 +261,8 @@ IF (dsx .GT. (1. + EPS_DELTA)) THEN
       IF (.NOT. ops_openlog(error)) GOTO 9999
       WRITE (fu_log,'("WARNING: OPS has detected a value", " outside its limits in routine ", A)')                              &
           &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
-      WRITE (fu_log, '("istab,uster_metreg_from_rb_rcp,ol_metreg_rcp, ol_rcp, szsrc,", "sz_rcp: ", i4, 4f8.2, f10.2)') istab,   &
-           &  uster_metreg_from_rb_rcp, ol_metreg_rcp, ol_rcp, szsrc, sz_rcp
+      WRITE (fu_log, '("istab,uster_metreg_from_rb_rcp,ol_metreg_rcp, ol_rcp, sz_rcp_stab_src,", "sz_rcp: ", i4, 4f8.2, f10.2)') istab,   &
+           &  uster_metreg_from_rb_rcp, ol_metreg_rcp, ol_rcp, sz_rcp_stab_src, sz_rcp
    ENDIF
 ENDIF
 
@@ -308,7 +311,7 @@ IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
     ! temperature correction for NH3 emissions from animal housing systems; OPS report 6.33.
     ! Tavg = 10 C
     ! Temperature correction tcor = 1 + (T - Tavg)/f = 1 + T/f - 10/f = (1-10/f) + T/f = (f-10)/f + T/f = (T + f-10)/f; 
-    ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report).
+    ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report). FS
     !
     tcor=amax1((temp_C+24)/34, 0.2)
                                                    

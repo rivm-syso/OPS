@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME           : %M%
@@ -24,10 +27,10 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : HvJ/Franka Loeve (Cap Volmac)
+! AUTHOR             : OPS-support   
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
-! DESCRIPTION        : Compute concentration of secondary component (SO4,NO3,NH4) and deposition velocities
+! DESCRIPTION        : Compute concentration of secondary component (SO4,NO3,NH4) 
 ! EXIT CODES         :
 ! FILES AND OTHER    :
 !    I/O DEVICES
@@ -40,6 +43,7 @@ SUBROUTINE ops_seccmp(qbpri, ueff, rcsec, routsec, ccc, vv, amol1, amol2, xvg, s
                    &  ra50_rcp, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, vgsec, qsec, consec, vg50trans, ra50tra, rb_tra, xg)
 
 USE m_commonconst
+USE m_ops_vchem
 
 IMPLICIT NONE
 
@@ -48,7 +52,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_seccmp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary substance emitted from source
+REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
 REAL*4,    INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
 REAL*4,    INTENT(IN)                            :: rcsec                      ! opp. weerstand sec. component
 REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
@@ -80,7 +84,7 @@ REAL*4,    INTENT(IN)                            :: cgt                        !
 REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
 REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
 REAL*4,    INTENT(IN)                            :: vnatpri                    ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! 
+REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
 REAL*4,    INTENT(IN)                            :: ra4_rcp                    ! 
 REAL*4,    INTENT(IN)                            :: ra50_rcp                   ! 
 REAL*4,    INTENT(IN)                            :: rb_rcp                     ! 
@@ -93,7 +97,7 @@ REAL*4,    INTENT(OUT)                           :: pr                         !
 REAL*4,    INTENT(OUT)                           :: vnatsec                    ! 
 REAL*4,    INTENT(OUT)                           :: cgtsec                     ! 
 REAL*4,    INTENT(OUT)                           :: vgsec                      ! deposition velocity secondary component [m/s[
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary substance [g/s]
+REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
 REAL*4,    INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
 REAL*4,    INTENT(OUT)                           :: vg50trans                  ! 
 
@@ -103,7 +107,7 @@ REAL*4                                           :: diameter                   !
 REAL*4                                           :: h                          ! 
 REAL*4                                           :: hl                         ! 
 REAL*4                                           :: gradsec                    ! 
-REAL*4                                           :: qpri                       ! cross-wind integrated mass flux [g/s] of primary substance of depleted source
+REAL*4                                           :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
 
 REAL*4                                           :: rcrs                       ! 
 REAL*4                                           :: s                          ! 
@@ -285,13 +289,13 @@ CALL seccd(qbpri, disx, radius, utr, xl, vg50trans, vnatpri, vchem, vgsect, vnat
         &  qsec)
 !
 ! In reality, we have to deal with variable mixing heigth and a transport speed that depends on emission height ->
-!  a correction is needed, using the 'exact' depletion factor for primary substance vv: 
+!  a correction is needed, using the 'exact' depletion factor for primary species vv: 
 !
-! vv      : total source depletion factor for primary substance
-! qbpri   : cross-wind integrated mass flux [g/s] of primary substance emitted from source
-! qbpri*vv: cross-wind integrated mass flux [g/s] of primary substance of depleted source, using 'exact' depletion factor vv
-! qpri    : cross-wind integrated mass flux [g/s] of primary substance of depleted source (numerical approximation from subroutine seccd)
-! qsec    : cross-wind integrated mass flux [g/s] of secondary substance (numerical approximation from subroutine seccd)
+! vv      : total source depletion factor for primary species
+! qbpri   : cross-wind integrated mass flux [g/s] of primary species emitted from source
+! qbpri*vv: cross-wind integrated mass flux [g/s] of primary species of depleted source, using 'exact' depletion factor vv
+! qpri    : cross-wind integrated mass flux [g/s] of primary species of depleted source (numerical approximation from subroutine seccd)
+! qsec    : cross-wind integrated mass flux [g/s] of secondary species (numerical approximation from subroutine seccd)
 ! 
 ! Correct qsec:
 !                qbpri*vv
@@ -302,9 +306,9 @@ CALL seccd(qbpri, disx, radius, utr, xl, vg50trans, vnatpri, vchem, vgsect, vnat
 !
 IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 !
-! Compute concentration of secondary substance 
+! Compute concentration of secondary species 
 !
-! 1. sigma_z < 1.6*xl -> in Gaussian plume OPS report 3.7, 3.15
+! 1. sigma_z < 1.6*xl -> in Gaussian plume OPS report 3.7, 3.15 FS
 !     
 !         q           q   NSEK            2                      -h^2            -(2z - h)^2          -(2z + h)^2
 ! csec = --- Dy Dz = --- -------- -------------------- [ exp(------------) + exp(------------) + exp(-------------) ]
@@ -317,14 +321,14 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 ! factor 1e6 for conversion g -> ug
 !
 ! 2. sigma_z > 1.6*xl (well mixed plume) AND depleted source strength > 1e-4*undepleted source strength
-!    assume that ratio of concentration and cross-wind integrated mass flux at the receptor is the same for primary and secondary substance:
+!    assume that ratio of concentration and cross-wind integrated mass flux at the receptor is the same for primary and secondary species:
 !
 !      csec   cpri            qsec        qsec   qbpri        qsec
 !      ---- = ----  -> csec = ---- cpri = -----  ----- cpri = ----- ccc,
 !      qsec   qpri            qpri        qbpri  qpri         qbpri 
 !
 !                                                              qbpri
-!      with ccc = undepleted concentration primary substance = ----- cpri
+!      with ccc = undepleted concentration primary species = ----- cpri
 !                                                              qpri
 !
 ! 3. sigma_z > 1.6*xl (well mixed plume) AND depleted source strength <= 1e-4*undepleted source strength -> (3.7, 3.9 OPS report)
@@ -351,18 +355,20 @@ CONTAINS
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : seccd
-! DESCRIPTION        : Compute cross-wind integrated mass fluxes for primary and secondary substances.
+! DESCRIPTION        : Compute cross-wind integrated mass fluxes Q for primary and secondary substances.
 !                      A numerical time stepping scheme is used here.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE seccd(qbpri, disx, radius, vw, xl, vgpri, vnatpri, vchem, vgsec, vnatsec, amol1, amol2, diameter, sigz, qpri,       &
               &  qsec)
+
+IMPLICIT NONE
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'seccd')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary substance emitted from source
+REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
 REAL*4,    INTENT(IN)                            :: disx                       ! 
 REAL*4,    INTENT(IN)                            :: radius                     ! 
 REAL*4,    INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
@@ -378,28 +384,31 @@ REAL*4,    INTENT(IN)                            :: diameter                   !
 REAL*4,    INTENT(IN)                            :: sigz                       ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary substance of last time step (at receptor) [g/s]
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary substance of last time step (at receptor) [g/s]
+REAL*4,    INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
+REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species at receptor [g/s]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: itim                       ! time step index
 INTEGER*4                                        :: ntim                       ! number of time steps
 REAL*4                                           :: a                          ! effective transport distance over which conversion takes place
 REAL*4                                           :: a1                         ! 
-REAL*4                                           :: amolv                      ! ratio of molecular weights secondary : primary component
 REAL*4                                           :: b                          ! 
 REAL*4                                           :: dt                         ! length of time step [s]
-REAL*4                                           :: dqsec                      ! amount of secondary component produced per time step
-REAL*4                                           :: depl_pri_wetdep_chem       ! depletion factor for primary substance due to wet deposition and chemical conversion
-REAL*4                                           :: depl_pri_drydep            ! depletion factor for primary substance due to dry deposition 
-REAL*4                                           :: e2                         ! 
-REAL*4                                           :: e3                         ! 
-REAL*4                                           :: qpri_prev                  ! cross-wind integrated mass flux of primary substance in previous time step [g/s] 
-REAL*4                                           :: qsec2                      ! alternative form for qsec 
-INTEGER                                          :: iopt                       ! option for method to compute qsec; 
-                                                                               ! iopt = 0 -> old method, 
-                                                                               ! iopt = 1 -> new version, which starts deposition after the plume hits the ground
-                                                                               ! iopt = 2 -> as iopt = 1 and 'midpoint' approximation of depletion of secondary substance
+integer                                          :: it                         ! iteration count
+integer, parameter                               :: nit = 10                   ! maximal number of iterations
+logical                                          :: converged                  ! iteration procedure for Q(it) has converged : abs(Q(it-1) = Q(it)) < epsa + epsr * Q(it)
+real, parameter                                  :: epsa = 0.001               ! absolute tolerance for iterative procedure (g/s)
+real                                             :: epsr = 0.01                ! relative tolerance for iterative procedure (-)
+real                                             :: qpri_prev_tim              ! cross-wind integrated mass flux of primary species at end of previous time step (g/s)
+real                                             :: qsec_prev_tim              ! cross-wind integrated mass flux of secondary species at end of previous time step (g/s)
+real                                             :: qpri_prev_it               ! cross-wind integrated mass flux of primary species at current time step, previous iteration (g/s)
+real                                             :: qsec_prev_it               ! cross-wind integrated mass flux of secondary species at current time step, previous iteration (g/s)
+real                                             :: loss_pri                   ! loss term of primary species (g/s)
+real                                             :: prod_sec                   ! production term of secondary species (g/s)
+real                                             :: loss_sec                   ! loss term of secondary species (g/s)
+real                                             :: e3_pri_sec                 ! factor in production term of secondary species = (Msec/Mpri) * delta_t * k_chem
+real                                             :: e1_pri                     ! source depletion factor for primary species, due to dry deposition, wet deposition and chemical conversion
+real                                             :: e1_sec                     ! source depletion factor for secondary species, due to dry deposition, wet deposition and chemical conversion
 REAL*4                                           :: xseg                       ! end point of plume segment [m]
 REAL*4                                           :: dx                         ! travelled distance during one time step = length of plume segment [m]
 logical                                          :: lfound_seg_depos           ! plume segment where deposition starts has been found
@@ -408,16 +417,10 @@ logical                                          :: lfound_seg_depos           !
 CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
-! Choose method:
-iopt = 0
 
-! Ratio of molecular weights of secondary and primary component:
-!
-amolv = amol2/amol1
-!
 ! Parameterisation of a = distance over which production of secondary species takes place; 
 ! a = x, point source; a = R*exp(-kt), inside area source; a = x - R*(1-exp(-kt)), outside area source.
-! Production takes place, where the concentration of the primary substance is > 0, hence
+! Production takes place, where the concentration of the primary species is > 0, hence
 ! the loss term b = exp(-k*t), with k = loss rate primary species (due to dry and wet deposition 
 ! and chemical conversion), t = travel time = radius/u = diameter/(2*u), u wind speed.
 ! The loss rate for dry deposition is k_dry_depos = vgpri/a1, a1 = effective plume thickness.
@@ -429,7 +432,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
    ELSE
       a1 = 1.5*sigz
    ENDIF
-   b = EXP( - (diameter/(vw*3.)*(vgpri/a1 + (vchem + vnatpri)/360000.)))
+   b = EXP( - (diameter/(vw*3.)*(vgpri/a1 + (vchem + vnatpri)/360000.)))  
    IF (disx .LE. (radius + EPS_DELTA)) THEN
       a = diameter/2.*b
    ELSE
@@ -441,7 +444,7 @@ ENDIF
 
 ! Set ntim = number of time steps; start with 6 time steps for each travel distance < 50 km
 ! and add 1 time step for each further 50 km: 
-ntim = NINT(a)/50000 + 6
+ntim = NINT(a)/50000 + 6 
 
 ! Set dt = length of time step [s]; end time = ntim*dt = a/wind_velocity
 ! and dx = distance travelled in one time step [m]
@@ -457,129 +460,96 @@ ntim = NINT(a)/50000 + 6
 dt = a/vw/ntim
 dx = dt*vw
 
-!
-! Initialise qpri_prev = cross-wind integrated mass flux of primary substance in previous time step [g/s] 
-!            qpri      = cross-wind integrated mass flux of primary substance in current time step [g/s]
-!            qsec      = cross-wind integrated mass flux of secondary substance up till current time step [g/s]
+! Initialise 
+!            qpri      = cross-wind integrated mass flux of primary species [g/s]
+!            qsec      = cross-wind integrated mass flux of secondary species [g/s]
 !            xseg      = end point of plume segment after each time step [m]
-qpri_prev = qbpri
-qpri      = qbpri
-qsec      = 0.
-qsec2     = 0.
-xseg      = 0.0 
-lfound_seg_depos = .false. ! segment where deposition starts has been found
+!     lfound_seg_depos = segment where deposition starts has been found
+qpri = qbpri
+qsec = 0.0
+xseg = 0.0 
+lfound_seg_depos = .false. 
+
 !
 ! factor 3.6e5 = 3600*100 conversion from %/h to 1/s
 !
 !    dC
-!   ---- = -k C --> C(t+dt) = C(t) exp(-k dt); k = k_drydep + k_chem + k_wetdep
+!   ---- = -k C --> C(t) = C(0) exp(-k t); k = k_drydep + k_chem + k_wetdep
 !    dt
-! Source depletion -> effect on C is translated into depleted source strength: Q(t+dt) = Q(t) exp(-k dt).
+! Source depletion -> effect on C is translated into depleted source strength: Q(t) = Q(0) exp(-k t).
 !
 ! k_drydep = conversion rate for dry deposition      = vgpri/xl           [1/s]
 ! k_wetdep = conversion rate for wet deposition      = vnatpri/(3600*100) [1/s]
 ! k_chem   = conversion rate for chemical conversion = vchem/(3600*100)   [1/s]
-! dt       = time step                                                    [s]
+! delta_t  = time step                               = dt                 [s]
+! 
+! In order to resolve the interdependency between the primary and secondary species, we use an extra iteration within
+! each time step. In tests, this iteration only needs 2-3 iterations to converge. 
 !
-! depl_pri_wetdep_chem = source depletion factor for primary substance, due to wet deposition and chemical conversion
-!    = EXP( -dt*(k_wetdep + k_chem)) 
-!    = EXP( -dt*(vnatpri + vchem)/3.6e5)
+! qpri          = cross-wind integrated mass flux of primary species at current time step, current iteration (g/s)
+! qpri_prev_tim = cross-wind integrated mass flux of primary species at end of previous time step (g/s)
+! qpri_prev_it  = cross-wind integrated mass flux of primary species at current time step, previous iteration (g/s)
+! qsec, qsec_prev_tim, qsec_prev_it: the same for secondary species
 !
-! depl_pri_drydep = source depletion factor for primary substance, due to dry deposition
-!    = EXP( -dt*k_drydep) 
-!    = EXP( -dt*vgpri/xl)
+! prod_sec   = production term of secondary species (g/s) = (Msec/Mpri) * (average mass primary) * k_chem = 
+!                                                         = (Msec/Mpri) * delta_t*(qpri_prev_tim + qpri)/2 * k_chem
+! e3_pri_sec = factor in production term of secondary species = (Msec/Mpri) * delta_t * k_chem
 !
-! e2 = 1 - source depletion factor for secondary substance, due to dry deposition and wet deposition
-!    = 1. - EXP( -dt*(k_drydep + k_wetdep))     
-!    = 1. - EXP( -dt*(vgsec/xl + vnatsec/3.6e5)) 
+! mass flux at start of time interval                                      : Q(t)
+! mass flux at end of time interval, after deposition, chemical conversion : Q(t+dt) = Q(t) exp(-k dt)
+! 
+! loss_pri = loss term of primary species (g/s) = Q(t) - Q(t+dt) = Q(t) [1 - exp(-k dt)], k = k_drydep + k_wetdep + k_chem;
+!            Q = qpri_prev_tim.
+! loss_sec = loss term of secondary species (g/s) = Q(t) - Q(t+dt) = Q(t) [1 - exp(-k dt)], k = k_drydep + k_wetdep + k_chem;
+!            Q is evaluated by means of a 'midpoint' apprimation: Q = (qsec_prev_tim + 0.5*prod_sec); this makes
+!            larger time steps possible.
 !
-! e3 = help variable for conversion of mass from primary to secondary substance [-] (see below); 
-!    = dt*(k_chem/2) 
-!    = dt*vchem/(3600*100*2) 
-!    = dt*vchem/7.2e+05 
-!
+! e1_pri = source depletion factor for primary species, due to dry deposition, wet deposition and chemical conversion
+!        = 1 - EXP( -delta_t*(k_drydep + k_wetdep + k_chem)) = 1 - EXP( -dt*(vgpri/xl + (vnatpri + vchem)/3.6e5))
+! e1_sec = source depletion factor for secondary species, due to dry deposition and wet deposition
+!        = 1 - EXP( -delta_t*(k_drydep + k_wetdep)) = 1 - EXP( -dt*(vgsec/xl + vnatsec/3.6e5))
 
-depl_pri_wetdep_chem = EXP( - dt*((vnatpri + vchem)/3.6e5))
-e2 = 1. - EXP( - dt*(vgsec/xl + vnatsec/3.6e5))
-e3 = dt*vchem/7.2e+05
-!
-! Loop over time steps
-!
+e1_pri = 1. - exp( - dt*(vgpri/xl + (vnatpri + vchem)/3.6e5));
+e1_sec = 1. - exp( - dt*(vgsec/xl +  vnatsec/3.6e5));
+e3_pri_sec = (amol2/amol1)*dt*vchem/3.6e+05;
+
+! Loop over time steps:
 DO itim = 1, ntim
-  
-   if (iopt .eq. 0) then
-      ! Old method: deposition for each time step:
-      depl_pri_drydep = exp( - dt*vgpri/xl)
-   else
 
-      ! New method; deposition starts at xg
+    ! Store mass fluxes of previous time step:
+    qpri_prev_tim = qpri
+    qsec_prev_tim = qsec
+    
+    ! Loop over iterations:
+    ! NOTE; iteration is only needed if we include both reactions NH3 -> NH4 and
+    ! NH4 -> NH3; if we use the net reaction NH3 -> NH4 only, we don't need an iteration.
+    ! 
+    !it = 0
+    !converged = .false.
+    !do while (it .lt. nit .and. .not. converged)
+    !    it = it + 1
+    
+        ! Store mass fluxes of previous iteration:
+        qpri_prev_it = qpri
+        qsec_prev_it = qsec
+        
+        ! Primary species:
+        loss_pri  = qpri_prev_tim*e1_pri
+        qpri      = qpri_prev_tim - loss_pri
+
+        ! Secondary species:
+        prod_sec = 0.5*(qpri_prev_tim + qpri)*e3_pri_sec
+        loss_sec = (qsec_prev_tim + 0.5*prod_sec)*e1_sec   
+        !loss_sec = (qsec_prev_tim - 0.5*prod_sec)*e1_sec   
+        qsec     = qsec_prev_tim + prod_sec - loss_sec
+
+        !! Check for convergence:
+        !converged = (abs(qpri - qpri_prev_it) .lt. epsa + epsr*qpri .and. abs(qsec - qsec_prev_it) .lt. epsa + epsr*qsec)
+	!! write(*,*) 'seccd: ',it,qpri,abs(qpri-qpri_prev_it),qsec,abs(qsec-qsec_prev_it)
+
+    !enddo ! loop over iterations
       
-      ! Update end point:
-      xseg = xseg + dx
-      
-      ! Check whether the plume has hit the ground (and deposition is going on):
-      if (xseg .le. xg) then
-         ! No deposition:
-         depl_pri_drydep = 1.0
-      else
-         if (.not. lfound_seg_depos) then
-            ! xseg > xg, so this is the first egment with deposition; deposition takes place not over the whole time step,
-            ! but over the time neede to travel from xg to xseg: (xseg - xg)/vw
-            lfound_seg_depos = .true.
-            depl_pri_drydep = exp( - ((xseg - xg)/vw)*vgpri/xl)
-         else
-            ! Deposition takes place over the whole segment:
-            depl_pri_drydep = exp( - dt*vgpri/xl)
-         endif
-      endif
-   endif
-      
-   ! Compute new depleted cross-wind integrated mass flux [g/s] for primary substance; Q(t+dt) = Q(t)*depl_pri_wetdep_chem*depl_pri_drydep:
-   qpri = qpri*depl_pri_wetdep_chem*depl_pri_drydep 
-
-   ! dqsec    = mass flux converted (due to chemical conversion) from primary to secondary substance, in the current time step [g/s];
-   ! qpri_prev       = mass flux of primary substance in previous time step [g/s]
-   ! qpri     = mass flux of primary substance in current time step [g/s]
-   ! mass_ave_pri = average mass of primary substance over time step = dt*(qpri + qpri_prev)/2  [g]
-   ! k_chem = conversion rate for chemical conversion = vchem/(3600*100)   [1/s]
-   ! mass converted = (Msec/Mpri) * mass_ave_pri * k_chem = (Msec/Mpri) * dt*(qpri+qpri_prev)/2 * k_chem =
-   !                = (Msec/Mpri) * (qpri+qpri_prev) * e3
-   dqsec = amolv*(qpri + qpri_prev)*e3
-
-   !-----------------------------------------------------------------------
-   ! Update cross-wind integrated mass flux for secondary substance
-   !-----------------------------------------------------------------------
-   ! In case we have no production, 
-   !    mass flux at start of time interval: Q(t) = qsec
-   !    mass flux at end of time interval, without deposition : Q(t)
-   !    mass flux at end of time interval, with deposition    : Q(t) exp(-k dt)
-   !    ------------------------------------------------------------------------
-   !    L = loss term due to deposition                       : Q(t) [1 - exp(-k dt)] =  Q(t) e2
-   !
-   ! In case we have a production term P (= dqsec = production from the primary component), we can make different choices at which point the factor e2 is used: 
-   ! A. L =  Q(t) e2       (depletion at old time step)
-   ! B. L = [Q(t)+P] e2    (depletion at new time step)
-   ! C. L = [Q(t)+ P/2] e2 (depletion at 'midpoint')
-   ! 
-   ! and this leads to:
-   !
-   ! A. Q(t+dt) =  Q(t) + P - L = Q(t) + P - Q(t) e2         =  qsec(1-e2) + dqsec
-   ! B. Q(t+dt) =  Q(t) + P - L = Q(t) + P - [Q(t)+P] e2     = (qsec + dqsec)(1-e2)
-   ! C. Q(t+dt) =  Q(t) + P - L = Q(t) + P - [Q(t)+ P/2] e2  =  qsec (1-e2) + dqsec (1-e2/2)
-   ! Original formula of Hans van Jaarsveld:                    qsec + dqsec - (qsec - dqsec/2.)*e2 
-   ! identical to original formula of Hans van Jaarsveld:       qsec (1-e2) + dqsec (1 + e2/2), which looks like C, apart from a - sign -> BUG ??
-
-   if (iopt .eq. 2) then
-      ! Midpoint approximation:
-      qsec = qsec*(1-e2) + dqsec*(1-0.5*e2)
-   else
-      ! Original method 
-      qsec = qsec + dqsec - (qsec - dqsec/2.)*e2 
-   endif
-
-   ! Save mass per second [g/s] of current time step of primary substance:
-   qpri_prev = qpri
-ENDDO
+ENDDO ! end loop over time steps
 
 RETURN
 END SUBROUTINE seccd

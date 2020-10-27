@@ -1,21 +1,24 @@
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
 !-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
+!                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
 !                      The Netherlands
+!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
 ! NAME                : %M%
@@ -24,7 +27,7 @@
 ! BRANCH -SEQUENCE    : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : HvJ, Franka Loeve (Cap Volmac)
+! AUTHOR              : OPS-support   
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/FORTRAN-90
 ! DESCRIPTION         :
@@ -56,14 +59,14 @@
 ! SYSTEM DEPENDENCIES   : HP-Fortran
 ! CALLED FUNCTIONS      :
 ! UPDATE HISTORY        : 
-!                        2012-01-24, Ferd Sauter: documentation added; also references to OPS-report. In close cooperation
-!                        with Hans van Jaarsveld.
+!                        2012-01-24,  : documentation added; also references to OPS-report. In close cooperation
+!                        with  .
 !                        DISCLAIMER: although care has been taken to make the documentation as clear as possible,
 !                        it should be noted that documentation has been added some 20 years after the start of the model. 
 !                        This means that not all references have been resolved and that in some cases, source code
 !                        may have been misinterpreted. 
 !-------------------------------------------------------------------------------------------------------------------------------
-PROGRAM opsmode 
+PROGRAM ops_main
 
 USE m_ops_building
 USE m_aps
@@ -74,6 +77,7 @@ USE m_error
 USE m_commonconst
 USE m_commonfile
 USE IFPORT
+USE m_ops_vchem
 
 IMPLICIT NONE
 
@@ -108,6 +112,7 @@ INTEGER*4                                        :: dv
 INTEGER*4                                        :: usdv   
 INTEGER*4                                        :: iseiz                       
 INTEGER*4                                        :: icm                         
+INTEGER*4                                        :: nsubsec                    ! number of sub-secondary species                       
 INTEGER*4                                        :: nrrcp  
 INTEGER*4                                        :: nrcol  
 INTEGER*4                                        :: nrrow  
@@ -142,6 +147,7 @@ REAL*4                                           :: z0_rcp                     !
 REAL*4                                           :: z0_src                     ! roughness length at source; from z0-map [m]
 REAL*4                                           :: z0_tra                     ! roughness length representative for trajectory [m]
 REAL*4                                           :: vchemc                      
+INTEGER*4                                        :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                            
 REAL*4                                           :: vchemv                      
 REAL*4                                           :: xc                          
 REAL*4                                           :: yc                          
@@ -220,15 +226,15 @@ REAL*4                                           :: ddeppar
 REAL*4                                           :: koh                        
 REAL*4                                           :: so2sek(NSEK)               
 REAL*4                                           :: no2sek(NSEK)               
-REAL*4                                           :: gemcseccor                 
+REAL*4, DIMENSION(:), POINTER                    :: gem_subsec                 ! grid mean for concentration of sub-secondary species [ug/m3]     
 REAL*4                                           :: scale_con                  
 REAL*4                                           :: scale_sec                  
-REAL*4                                           :: scale_sec_cor              
+REAL*4, DIMENSION(:), POINTER                    :: scale_subsec              
 REAL*4                                           :: scale_dep                  
 REAL*4                                           :: so2bgtra                   ! 
 REAL*4                                           :: no2bgtra                   ! 
 REAL*4                                           :: nh3bgtra                   ! 
-
+type(Tvchem)                                     :: vchem2                     
 REAL*8, DIMENSION(:), POINTER                    :: sdrypri_arr                 
 REAL*8                                           :: sdrypri                     
 REAL*8, DIMENSION(:), POINTER                    :: snatpri_arr                 
@@ -254,7 +260,7 @@ CHARACTER*512                                    :: namco
 CHARACTER*80                                     :: project                    
 CHARACTER*80                                     :: runid                      
 CHARACTER*80                                     :: namsec                     
-CHARACTER*80                                     :: namseccor                  
+CHARACTER*80, DIMENSION(:), POINTER              :: nam_subsec                  
 CHARACTER*80                                     :: namse3                     
 CHARACTER*10                                     :: coneh                      
 CHARACTER*10                                     :: depeh                      
@@ -293,6 +299,7 @@ REAL*4,    DIMENSION(:), POINTER                 :: gxm
 REAL*4,    DIMENSION(:), POINTER                 :: gym                        
 REAL*4,    DIMENSION(:), POINTER                 :: z0_rcp_all                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
 REAL*4,    DIMENSION(:), POINTER                 :: rhno3_rcp                 
+REAL*4,    DIMENSION(:,:), ALLOCATABLE           :: f_subsec_rcp               ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                          
 REAL*4,    DIMENSION(:), POINTER                 :: precip                     
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: cpri_d                     ! concentration of primary component, double precision [ug/m3]
 REAL*4,    DIMENSION(:), POINTER                 :: cpri                       ! concentration of primary component [ug/m3]
@@ -305,8 +312,9 @@ REAL*4,    DIMENSION(:), POINTER                 :: wetdep
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: ddepri_d                   
 REAL*4,    DIMENSION(:), POINTER                 :: ddepri                      
 REAL*4,    DIMENSION(:), POINTER                 :: totdep                      
-REAL*4,    DIMENSION(:), POINTER                 :: cseccor                     
+REAL*4,    DIMENSION(:,:), POINTER               :: csubsec                    ! concentration of sub-secondary species [ug/m3]                
 REAL*4,    DIMENSION(:), POINTER                 :: nh3bg_rcp                  
+REAL*4,    DIMENSION(:), POINTER                 :: so2bg_rcp                  
 REAL*4,    DIMENSION(:), POINTER                 :: rno2_nox_sum               ! NO2/NOx ratio, weighed sum over classes
 
 CHARACTER*12, DIMENSION(:), POINTER              :: namrcp                     ! receptor names
@@ -317,6 +325,7 @@ TYPE (TApsGridInt)                               :: z0eurgrid                  !
 TYPE (TApsGridReal)                              :: so2bggrid                  
 TYPE (TApsGridReal)                              :: no2bggrid                  
 TYPE (TApsGridReal)                              :: nh3bggrid                  
+TYPE (TApsGridReal)                              :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                                   
 TYPE (TApsGridReal)                              :: masker                     
 TYPE (TError)                                    :: error                      
 !
@@ -388,8 +397,8 @@ IF (error%haserror) GOTO 2900 ! GOTO deallocate catsel, landsel and error handli
 ! Read variables from control file
 !
 CALL ops_read_ctr(project, runid, year, icm, namco, amol1, gasv, idep, kdeppar, ddeppar, knatdeppar, wdeppar, dg, irev,        &
-               &  vchemc, vchemv, emtrend, ncatsel, catsel, nlandsel, landsel, spgrid, xc, yc, nrcol, nrrow, grid, igrens,     &
-               &  z0_user, intpol, ideh, igrid, checked, f_z0user, isec, error)
+               &  vchemc, iopt_vchem, vchemv, emtrend, ncatsel, catsel, nlandsel, landsel, spgrid, xc, yc, nrcol, nrrow, grid, igrens,     &
+               &  z0_user, intpol, ideh, igrid, checked, f_z0user, isec, nsubsec, error)
 IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 !
 ! Generate full file names of those files that were not set explicitly in the control file.
@@ -438,7 +447,10 @@ ENDIF
 ! Read background concentrations for SO2, NH3, NO2
 !
 IF (isec) THEN
-  CALL ops_read_bg(icm, year, so2bggrid, no2bggrid, nh3bggrid, error)
+  allocate(nam_subsec(nsubsec))
+  allocate(scale_subsec(nsubsec))
+  allocate(gem_subsec(nsubsec))                               
+  CALL ops_read_bg(icm, iopt_vchem, nsubsec, year, so2bggrid, no2bggrid, nh3bggrid, f_subsec_grid, vchem2, error)
   IF (error%haserror) GOTO 1000 ! GOTO error handling at end of program
 ENDIF
 !
@@ -475,10 +487,11 @@ IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling
 !
 ! Initialisation
 !
-CALL ops_init   (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, iseiz, mb, astat, dverl,           &
+CALL ops_init   (gasv, idep, building_present1, kdeppar, knatdeppar, ddeppar, wdeppar, amol2, ideh, icm, isec, nsubsec, iseiz, mb, astat, dverl,           &
               &  usdverl, dv, usdv, namco, amol1, dg, irev, vchemc, vchemv, emtrend, rc, coneh, amol21, depeh, namsec,         &
               &  namse3, ugmoldep, scavcoef, rcno, rhno2, rchno3, routsec, routpri, conc_cf, koh, croutpri, somcsec,           &
-              &  ar, rno2nox, ecvl, namseccor, buildingEffect, error)
+              &  ar, rno2nox, ecvl, nam_subsec, buildingEffect, error)
+
 IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 
 ! Allocate miscellaneous arrays for receptor points
@@ -486,15 +499,16 @@ CALL alloc(nrrcp, gxm, error)
 CALL alloc(nrrcp, gym, error)
 
 CALL alloc(nrrcp, nh3bg_rcp, error)
+CALL alloc(nrrcp, so2bg_rcp, error)								   
 CALL alloc(nrrcp, rhno3_rcp, error)
+CALL alloc(nrrcp, nsubsec, f_subsec_rcp, error)                                              
 
 IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 !
-! Fill arrays with roughness length, landuse and rhno3_rcp for all receptor points
+! Fill arrays with roughness length, landuse and rhno3_rcp, nh3bg_rcp, f_subsec_rcp, domlu for all receptor points
 !
-CALL ops_rcp_char_all(icm, isec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, so2bggrid, nh3bggrid, nrrcp, gxm, gym,    &
-                   &  lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, domlu, error)
-
+CALL ops_rcp_char_all(icm, iopt_vchem, isec, nsubsec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, so2bggrid, nh3bggrid, f_subsec_grid, &
+                    &  nrrcp, gxm, gym, lu_rcp_dom_all, z0_rcp_all, rhno3_rcp, nh3bg_rcp, so2bg_rcp, f_subsec_rcp, domlu, error)
 !
 ! Allocate other arrays for receptor points;
 ! directly after deallocating memory for different grids, some other receptor-vectors are allocated (see below).
@@ -591,7 +605,7 @@ DO WHILE (.NOT. eof)
 !
 !   Retreive landuse values for this receptorpoint.
 !
-    CALL ops_rcp_char_1 (ircp, nrrcp, intpol, gxm(ircp), gym(ircp), cs, z0_metreg, xreg, yreg, i1, astat, z0_metreg_user,     &
+    CALL ops_rcp_char_1 (isec, ircp, nrrcp, intpol, gxm(ircp), gym(ircp), cs, z0_metreg, xreg, yreg, i1, astat, z0_metreg_user,      &
                       &  spgrid, xm(ircp), ym(ircp), lugrid, domlu, perc, lu_rcp_per_user_all, lu_rcp_dom_all, f_z0user, z0_rcp_all, &
                       &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
     IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
@@ -607,22 +621,22 @@ DO WHILE (.NOT. eof)
       !
       ! compute trajectory characteristics
       !
-      CALL ops_tra_char (icm, f_z0user, z0_user, nrrcp,  xm(ircp), ym(ircp), bx(mmm), by(mmm),               &
-                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, domlu,                & 
+      CALL ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, nrrcp,  xm(ircp), ym(ircp), bx(mmm), by(mmm),               &
+                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu,                & 
                       &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra, error)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
       !
       ! compute concentrations and depositions
      
-      CALL ops_reken(idep, isec, icm, gasv, intpol, vchemc, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,     &
+      CALL ops_reken(idep, isec, icm, gasv, intpol, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,     &
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rcno, rhno2, rchno3,                  &
                   &  nrrcp, ircp, gxm(ircp), gym(ircp), xm(ircp), ym(ircp), zm(ircp),                                           &
-                  &  frac(ircp), nh3bg_rcp(ircp), rhno3_rcp(ircp),                                                              & 
+                  &  frac(ircp), nh3bg_rcp(ircp), so2bg_rcp(ircp), rhno3_rcp(ircp),                                             & 
                   &  bqrv(mmm), bqtr(mmm), bx(mmm), by(mmm), bdiam(mmm), bsterkte(mmm), bwarmte(mmm), bhoogte(mmm),             &
                   &  bsigmaz(mmm), bD_stack(mmm), bV_stack(mmm), bTs_stack(mmm), bemis_horizontal(mmm), bbuilding(mmm),         &
                   &  buildingEffect,btgedr(mmm), bdegr(mmm),                                                                    & 
                   &  z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per,                                                         &
-                  &  lu_rcp_per, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, maxidx, pmd, uspmd, spgrid, grid,                &
+                  &  lu_rcp_per, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra,  vchem2, maxidx, pmd, uspmd, spgrid, grid,                &
                   &  subbron, uurtot, routsec, rc, somvnsec_arr, telvnsec_arr, vvchem_arr, vtel_arr, somvnpri_arr,              &
                   &  telvnpri_arr, ddepri_d, sdrypri_arr, snatpri_arr, sdrysec_arr, snatsec_arr,                                & 
                   &  cpri_d, csec_d, drydep_d, wetdep_d, astat, rno2_nox_sum, precip(ircp), routpri, dispg, error)
@@ -651,6 +665,7 @@ CALL dealloc(nh3bggrid)
 CALL dealloc(no2bggrid)
 CALL dealloc(so2bggrid)
 CALL dealloc(nh3bg_rcp)
+CALL dealloc(so2bg_rcp)					   
 
 CALL dealloc(gxm)
 CALL dealloc(gym)
@@ -662,7 +677,7 @@ IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling
 !CALL sysclose(fu_scratch, 'sources scratch file', error)
 !IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 !
-! Compute variables that are used for different output purposes
+! Compute variables that are used for different output purposes and initialise them to zero:
 !
 CALL alloc(nrrcp, 0., cpri, error)
 CALL alloc(nrrcp, 0., csec, error)
@@ -670,7 +685,7 @@ CALL alloc(nrrcp, 0., drydep, error)
 CALL alloc(nrrcp, 0., wetdep, error)
 CALL alloc(nrrcp, 0., ddepri, error)
 CALL alloc(nrrcp, 0., totdep, error)
-CALL alloc(nrrcp, 0., cseccor, error)
+CALL alloc(nrrcp, nsubsec, csubsec, error); if (nsubsec .gt. 0) csubsec = 0.0
 
 ! ntodo: number of particle size classes that are relevant for producing output fields
 ! Default value for ntodo (for gas): 
@@ -729,15 +744,15 @@ DO todo = 1,ntodo
 !
 ! compute variables used in different output sources
 !
-    CALL ops_outp_prep (nrrcp, icm, conc_cf, rhno3_rcp, csec, drydep, wetdep, cpri, totdep, cseccor, scale_con, scale_sec,      &
-        &  scale_sec_cor, scale_dep)
+    CALL ops_outp_prep (nrrcp, icm, nsubsec, conc_cf, rhno3_rcp, f_subsec_rcp, csec, drydep, wetdep, cpri, totdep, csubsec, scale_con, scale_sec,      &
+        &  scale_subsec, scale_dep)
 !
 ! Compute (grid) statistics
 !
-    CALL ops_calc_stats (nrrcp, frac, cpri, csec, drydep ,wetdep, gemre, sdrypri, sdrysec, snatpri, snatsec, somvnpri,          &
-         &  somvnsec, vvchem, vtel, telvnpri, telvnsec, grid, conc_cf, amol21, ugmoldep, cseccor, gemcpri, gemcsec, totddep,    &
+    CALL ops_calc_stats (nrrcp, nsubsec, frac, cpri, csec, drydep ,wetdep, gemre, sdrypri, sdrysec, snatpri, snatsec, somvnpri,          &
+         &  somvnsec, vvchem, vtel, telvnpri, telvnsec, grid, conc_cf, amol21, ugmoldep, csubsec, gemcpri, gemcsec, totddep,    &
          &  gemddep, gemddpri, gemddsec, ddrpri, ddrsec, totwdep, gemwdep, gemwdpri, gemwdsec, wdrpri, wdrsec,                  &
-         &  gemprec, tottdep, gemtdep, ccr, gemcseccor)
+         &  gemprec, tottdep, gemtdep, ccr, gem_subsec)
 !
 ! Open print output file
 !
@@ -749,16 +764,16 @@ DO todo = 1,ntodo
 !
     IF (spgrid .EQ. 2) THEN
       CALL ops_print_recep(project, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh, conc_cf, amol21,        &
-                        &  ugmoldep, nrrcp, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, rno2_nox_sum,           &
+                        &  ugmoldep, nrrcp, nsubsec, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, rno2_nox_sum,           &
                         &  lu_rcp_dom_all, z0_rcp_all, gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, ddrpri, ddrsec, gemwdep,    &
-                        &  gemwdpri, gemwdsec, wdrpri, wdrsec, gemprec, gemtdep, icm, cseccor, gemcseccor, namseccor, totdep,   &
-                        &  scale_con, scale_sec, scale_sec_cor, scale_dep, error)
+                        &  gemwdpri, gemwdsec, wdrpri, wdrsec, gemprec, gemtdep, icm, csubsec, gem_subsec, nam_subsec, totdep,   &
+                        &  scale_con, scale_sec, scale_subsec, scale_dep, error)
     ELSE
-      CALL ops_print_grid (nrrcp, jump, project, icm, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh,       &
+      CALL ops_print_grid (nrrcp, nsubsec, jump, project, icm, gasv, idep, isec, igrid, verb, namco, namsec, namse3, coneh, depeh,       &
             &  conc_cf, amol21, ugmoldep, nrcol, nrrow, grid, xorg, yorg, precip, cpri, csec, drydep, wetdep, ddepri,           &
             &  lu_rcp_dom_all, z0_rcp_all, gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, totddep, ddrpri, ddrsec, gemwdep,       &
-            &  gemwdpri, gemwdsec, totwdep, wdrpri, wdrsec, gemprec, gemtdep, tottdep, cseccor, gemcseccor, namseccor, totdep,  &
-            &  scale_con, scale_sec, scale_sec_cor, scale_dep, error)
+            &  gemwdpri, gemwdsec, totwdep, wdrpri, wdrsec, gemprec, gemtdep, tottdep, csubsec, gem_subsec, nam_subsec, totdep,  &
+            &  scale_con, scale_sec, scale_subsec, scale_dep, error)
     ENDIF
     IF (error%haserror) GOTO 4000
 !
@@ -768,8 +783,8 @@ DO todo = 1,ntodo
       IF (.NOT. sysopen(fu_plt, pltnam, 'w', 'plot file', error)) GOTO 3300
     ENDIF
 
-    CALL ops_plot_uitv(spgrid, isec, coneh, nrrcp, jump, xorg, yorg, nrcol, nrrow, grid, idep, namco, namse3, namsec, depeh,    &
-                    &  namrcp, xm, ym, cpri, csec, drydep, wetdep, icm, cseccor, namseccor, error)
+    CALL ops_plot_uitv(spgrid, isec, coneh, nrrcp, nsubsec, jump, xorg, yorg, nrcol, nrrow, grid, idep, namco, namse3, namsec, depeh,    &
+                    &  namrcp, xm, ym, cpri, csec, drydep, wetdep, icm, csubsec, nam_subsec, error)
     IF (error%haserror) GOTO 4000
     outputfile_opened = .TRUE.
   ENDIF
@@ -839,4 +854,4 @@ ELSE
   CALL EXIT(0)
 ENDIF
 
-END PROGRAM opsmode
+END PROGRAM ops_main

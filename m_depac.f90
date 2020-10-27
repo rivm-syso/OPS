@@ -1,21 +1,24 @@
-!-------------------------------------------------------------------------------------------------------------------------------
-! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
-!
-! This program is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with this program.  If not, see <http://www.gnu.org/licenses/>.
-!
-!                       Copyright (C) 2002 by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
+!------------------------------------------------------------------------------------------------------------------------------- 
+! 
+! This program is free software: you can redistribute it and/or modify 
+! it under the terms of the GNU General Public License as published by 
+! the Free Software Foundation, either version 3 of the License, or 
+! (at your option) any later version. 
+! 
+! This program is distributed in the hope that it will be useful, 
+! but WITHOUT ANY WARRANTY; without even the implied warranty of 
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+! GNU General Public License for more details. 
+! 
+! You should have received a copy of the GNU General Public License 
+! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+! 
+!************************************************************************
+! 2013-09-17: this version has been derived from the 'hybrid' version 
+!             depac_GCN2010, which consisted of a shell around version 
+!             depac311 (for NH3) and depac33 (for other species).
+!             In this version, only depac311 has been retained, with some 
+!             bug fixes,
 !************************************************************************
 
 !************************************************************************
@@ -27,13 +30,13 @@
 !
 !  MODULE             : m_depac
 !  INTERFACE          : depac
-!  AUTHOR             : Addo van Pul, Jan Willem Erisman, Ferd Sauter, Margreet van Zanten, Roy Wichink Kruit
+!  AUTHOR             :  
 !  FIRM/INSTITUTE     : RIVM
 !  LANGUAGE           : FORTRAN-90
 !  DESCRIPTION        : In this subroutine the canopy or surface resistance Rc
 !                       is parameterised.
 !
-! Documentation by Ferd Sauter, Mar 2009.
+! Documentation by  , Mar 2009.
 ! Deposition fluxes are computed using one of the following resistance approaches;
 ! Note that, with the appopriate definitions (see below), B and C are totally equivalent.
 !
@@ -225,10 +228,10 @@
 !  UPDATE HISTORY : 
 !    1994    , article Erisman & van Pul, Atm. Env.
 !    ?       , Franka Loeve (Cap Volmac)
-!    Jan 2003, Martien de Haan (ARIS): made single depac module.
+!    Jan 2003,  : made single depac module.
 !    ?       ,               ? (TNO) : added rc for O3
 !    ?       ,               ? (TNO) : separate routines for each species.
-!    Nov 2008, Ferd Sauter     (RIVM): v3.0 synthesis of OPS and LOTOS-EUROS versions of DEPAC
+!    Nov 2008,       (RIVM): v3.0 synthesis of OPS and LOTOS-EUROS versions of DEPAC
 !    v3.0      model structure improved; common tasks in separate routines; documentation added
 !              names have been changed for readability:
 !              
@@ -248,28 +251,28 @@
 !              gs       -> gstom        : stomatal conductance (m/s)
 !              gstot    -> gc_tot       : total canopy conductance (m/s)
 ! 
-!    10 Dec 2008, Ferd Sauter     (RIVM): v3.1 try-out version with new model structure;
+!    10 Dec 2008,       (RIVM): v3.1 try-out version with new model structure;
 !    v3.1         no calls to separate routines in subroutine depac, but all components
 !                 are dealt with in subroutine depac.
 !                 This version is NOT developed any further; depacv3.2 is developed from v3.0
 !
-!    11 Dec 2008, Ferd Sauter     (RIVM): v3.2 new model structure;
+!    11 Dec 2008,       (RIVM): v3.2 new model structure;
 !    v3.2         in subroutine depac, calls are made to routines for separate conductances, e.g.
 !                 for external, stomatal, soil conductance; the dependence on the components is 
 !                 placed inside these conductance-routines.
 !
-!    22 Jan 2009, Ferd Sauter     (RIVM): v3.3 bug fix in season dependency leaf area index;
+!    22 Jan 2009,       (RIVM): v3.3 bug fix in season dependency leaf area index;
 !    v3.3         see function rc_lai. Older versions of this routine use a wrong numbering of
 !                 land use types (no conversion to Olson land use types).  
 !                 rc_gstom_wes (Wesely) readability improved; routine gives the same results.
 !    
-!    03 Feb 2009, Ferd Sauter     (RIVM): v3.4 Rsoil(NH3,urban) = 100 (was 1000).
+!    03 Feb 2009,       (RIVM): v3.4 Rsoil(NH3,urban) = 100 (was 1000).
 !    v3.4
 !
-!    03 Feb 2009, Ferd Sauter     (RIVM): v3.5 Rinc(grass) = Inf (was 0).
+!    03 Feb 2009,       (RIVM): v3.5 Rinc(grass) = Inf (was 0).
 !    v3.5
 !
-!    03 Feb 2009, Ferd Sauter     (RIVM): v3.6 stomatal compensation point and 
+!    03 Feb 2009,       (RIVM): v3.6 stomatal compensation point and 
 !    v3.6         new parameterisation Rw.
 !                 New routines:
 !                     rc_comp_point (called from depac)
@@ -278,7 +281,7 @@
 !                 New option ipar_rw_nh3.    (obsolete in final version MCvZ Nov 2009)
 !                 New (optional) arguments of depac: see header of depac.
 !
-!    02 Mar 2009, Ferd Sauter     (RIVM): v3.7 
+!    02 Mar 2009,       (RIVM): v3.7 
 !    v3.7         - added compensation point for external leaf; 
 !                   new parameterisation for Rw (routine rw_nh3_sutton replaces rw_nh3_rwk);
 !                 - added compensation point for soil; value of compensation point
@@ -288,17 +291,17 @@
 !                   parameterisation of Rstom; it was decided to change not everything in this version
 !                   but to do it stepwise. See v3.8 for Baldocchi
 !
-!    10 Mar 2009, Ferd Sauter     (RIVM): v3.8
+!    10 Mar 2009,       (RIVM): v3.8
 !    v3.8         - the same as v3.7, but Baldocchi for Rstom
 !    
-!    24 Mar 2009, Ferd Sauter     (RIVM): v3.8.1 LAI in external leaf resistance
+!    24 Mar 2009,       (RIVM): v3.8.1 LAI in external leaf resistance
 !    v3.8.1       gw = (lai/lai(grass)) * gw   (adjusted Oct 2009; lai -> sai and 
 !                 sai_grass scaling inside rw_nh3_sutton routine)
 !
-!    9 Apr 2009, Ferd Sauter     (RIVM): v3.8.2 bug fix in temperature
+!    9 Apr 2009,       (RIVM): v3.8.2 bug fix in temperature
 !    v3.8.2      correction factor Baldocchi BT 
 !
-!    6 July 2009, Ferd Sauter    (RIVM): v3.9 call added to calculate Rstom with Emberson
+!    6 July 2009,      (RIVM): v3.9 call added to calculate Rstom with Emberson
 !    v3.9
 !
 !    13 Aug 2009, Margreet van Zanten (RIVM): Emberson update, PARshade and PARsun added 
@@ -310,13 +313,13 @@
 !    9  Sep 2009, Margreet van Zanten (RIVM): calc of PARdir and PARdiff in Emberson
 !                 according to Weiss and Norman 1985
 !
-!    22 Sep 2009, Ferd Sauter (RIVM): gstom of Emberson scaled with diffc/dO3 (instead of
+!    22 Sep 2009,   (RIVM): gstom of Emberson scaled with diffc/dO3 (instead of
 !    v3.10        erroneously with dwat)
 !
 !    24 Sep 2009, Margreet van Zanten (RIVM): choices made on lu classes, F_phen set to 1 
 !                  since described effect is negligible for chosen lu's
 !    
-!    29 Sep 2009, Ferd Sauter (RIVM): Emberson parameterisation of leaf area index (rc_lai);
+!    29 Sep 2009,   (RIVM): Emberson parameterisation of leaf area index (rc_lai);
 !                  new subroutine arguments for DEPAC: day_of_year and lat (latitude).
 !
 !    2 Oct  2009, Margreet van Zanten (RIVM): v3.10 Merged version of earlier version of 3.10 and 3.9.2 
@@ -363,14 +366,14 @@
 !                calling depac routine for several components in a row (esp. NO after NH3), 
 !                ccomp_tot added as optional argument to rc_special routine
 !
-!   04 Jan 2010, Ferd Sauter (RIVM): v3.16 is shell around versions 3.11 ('new' DEPAC for NH3 only) 
+!   04 Jan 2010,   (RIVM): v3.16 is shell around versions 3.11 ('new' DEPAC for NH3 only) 
 !   v3.16        and 3.3 (old DEPAC for other species).       
 !                This file is constructed as follows:
 !                module m_depac311
 !                module m_depac33
 !                module m_depac316
 !
-!   04 Jan 2010, Ferd Sauter (RIVM): iopt_debug -> optional writing of debug output
+!   04 Jan 2010,   (RIVM): iopt_debug -> optional writing of debug output
 !   v3.16        added to m_depac311 and m_depac33 in this file 
 !
 !   04 Jan 2010, Margreet van Zanten(RIVM): frozen version of depac v3.16, renamed in depac_GCN2010
@@ -450,7 +453,7 @@ END SUBROUTINE get_version_depac
 ! depac: compute total canopy (or surface) resistance Rc for gases
 !-------------------------------------------------------------------
 subroutine depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-                   c_ave_prev, catm, ccomp_tot, &
+                   c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
                    ra, rb, rc_eff)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: depac318
@@ -462,11 +465,11 @@ subroutine depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, 
 !
 ! B. compute Rc (incl. new parameterisation Rw) and compensation points (used for LOTOS-EUROS): 
 !     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!                  c_ave_prev, catm, ccomp_tot)
+!                  c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot)
 !
 ! C. compute effective Rc based on compensation points, incl. new parameterisation Rw (used for OPS):
 !     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!                 c_ave_prev, catm, ccomp_tot, &
+!                 c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
 !                 ra, rb, rc_eff)
 
 implicit none
@@ -490,8 +493,10 @@ integer         , intent(in)  :: iratns       ! index for NH3/SO2 ratio;
 real            , intent(out) :: rc_tot       ! total canopy resistance Rc (s/m)
 
 ! optional arguments needed only if compensation points are computed
-real, optional  , intent(in)  :: c_ave_prev   ! air concentration averaged over a previous
-                                              ! period (e.g. previous year or month) (ug/m3) 
+real, optional  , intent(in)  :: c_ave_prev_nh3   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3) 
+real, optional   , intent(in) :: c_ave_prev_so2   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3)
 real, optional  , intent(in)  :: catm         ! actual atmospheric concentration (ug/m3)
 real, optional  , intent(out) :: ccomp_tot    ! total compensation point (ug/m3)
 
@@ -546,8 +551,8 @@ if (.not. ready) then
    call rc_rctot(gstom,gsoil_eff,gw,gc_tot,rc_tot)
    
    ! Compensation points:
-   if (present(c_ave_prev) .and. present(catm) .and. present(ccomp_tot)) then
-      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+   if (present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. present(catm) .and. present(ccomp_tot)) then
+      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 
       ! Effective Rc based on compensation points:
       if (present(rc_eff)) then
@@ -1503,7 +1508,7 @@ end subroutine rc_rctot
 !-------------------------------------------------------------------
 ! rc_comp_point: calculate compensation points (stomata, external leaf)
 !-------------------------------------------------------------------
-subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 
 ! Calculate ccomp, i.e. compensation point for NH3, for different deposition path ways
 ! (external leaf, stomata, soil), according to Roy Wichink Kruit article submitted 2009 Atm. Env.
@@ -1518,7 +1523,7 @@ subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev,gw,gstom,gsoil
 ! The [NH4+]/[H+] ratio gamma depends on 
 ! 1. for stomata
 !    the average concentration over a previous period:
-!    gamma_stom = gamma_stom_c_fac * c_ave_prev
+!    gamma_stom = gamma_stom_c_fac * c_ave_prev_nh3
 !
 ! 2. for external leaf
 !    actual atmospheric concentration at 4 m. and surface temperature:
@@ -1538,8 +1543,11 @@ integer, intent(in)           :: lu           ! land use type, lu = 1,...,9
 integer, intent (in)          :: day_of_year  ! day of year 
 real, intent(in)              :: t            ! temperature (C) 
 real, intent(in)              :: catm         ! actual atmospheric concentration (ug/m3)
-real, intent(in)              :: c_ave_prev   ! air concentration averaged over a previous
-                                              ! period (e.g. previous year or month) (ug/m3) 
+real, intent(in)              :: c_ave_prev_nh3   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3) 
+!real, optional,  intent(in)   :: c_ave_prev_so2   ! air concentration averaged over a previous
+real, intent(in)   :: c_ave_prev_so2   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3)
 real, intent(in)              :: gw           ! external leaf conductance (m/s) 
 real, intent(in)              :: gstom        ! stomatal conductance (m/s)
 real, intent(in)              :: gsoil_eff    ! effective soil conductance (m/s)
@@ -1560,6 +1568,7 @@ real :: gamma_soil ! [NH4+]/[H+] ratio in soil
 real :: gamma_w    ! [NH4+]/[H+] ratio in external leaf surface water
 real :: tk         ! temperature (K) 
 real :: tfac       ! temperature factor = (2.75e15/tk)*exp(-1.04e4/tk)
+real :: co_dep_fac ! co-deposition factor 
 
 real   , dimension(nlu)    :: gamma_stom_c_fac   ! factor in linear relation between gamma_stom and NH3
                                                  ! air concentration; gamma_stom = [NH4+]/[H+] ratio in apoplast
@@ -1595,10 +1604,10 @@ case('NH3')
    tfac = (2.75e15/tk)*exp(-1.04e4/tk)
    
    ! Stomatal compensation point:
-   if (LAI_present .and. c_ave_prev .gt. 0.) then
+   if (LAI_present .and. c_ave_prev_nh3 .gt. 0.) then
       ! gamma_stom ([NH4+]/[H+] ratio in apoplast) is linearly dependent on an 
       ! averaged air concentration in a previous period (stored in soil and leaves):
-       gamma_stom = gamma_stom_c_fac(lu)*c_ave_prev*4.7*exp(-0.071*t)
+       gamma_stom = gamma_stom_c_fac(lu)*c_ave_prev_nh3*4.7*exp(-0.071*t)
    
       ! calculate stomatal compensation point for NH3 in ug/m3:
       cstom = max(0.0,gamma_stom*tfac)
@@ -1609,15 +1618,29 @@ case('NH3')
    
    ! External leaf gamma depends on atmospheric concentration and
    ! surface temperature (assumed to hold for all land use types with vegetation):
-   if (SAI_present) then
+!   if (SAI_present .and. present(catm) .and. present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. c_ave_prev_nh3 .gt. 0. .and. c_ave_prev_so2 .gt. 0.) then
+   if (SAI_present .and. c_ave_prev_nh3 .gt. 0. .and. c_ave_prev_so2 .gt. 0.) then
+      gamma_w = -850.+1840.*catm*exp(-0.11*t)
+      ! correction gamma_w for co deposition 
+      ! xxx documentation to be added
+      ! gamma(with SNratio) = [1.12-1.32*SNratio(molair)]  * gamma_original   
+      ! where SNratio(molar) = (CSO2longterm/64)/(CNH3longterm/17))
+      !   where CSO2longterm and CNH3longterm in ug m-3.
+      co_dep_fac = 1.12 - 1.32 * ((c_ave_prev_so2/64.)/(c_ave_prev_nh3/17.))
+      co_dep_fac = max(0.0,co_dep_fac)   
+      gamma_w = co_dep_fac * gamma_w 
+      cw      = max(0.0,gamma_w*tfac)
+!   elseif (SAI_present .and. present(catm)) then
+   elseif (SAI_present) then
       gamma_w = -850.+1840.*catm*exp(-0.11*t)
       cw      = max(0.0,gamma_w*tfac)
    else
       cw = 0.0
    endif
-   
+
+
    ! Soil compensation point:
-   if (c_ave_prev .gt. 0. .and. gamma_soil_c_fac(lu) > 0) then
+   if (c_ave_prev_nh3 .gt. 0. .and. gamma_soil_c_fac(lu) > 0) then
         if (lu .eq. 6)then
           ! gamma_soil for water is determined to be 430 based on Waterbase data, 
           ! here it is 'calculated' analogous to the other gamma_stom 
@@ -1625,7 +1648,7 @@ case('NH3')
         else
           ! gamma_soil ([NH4+]/[H+] ratio in soil) is linearly dependent on an 
           ! averaged air concentration in a previous period:
-          gamma_soil = gamma_soil_c_fac(lu)*c_ave_prev
+          gamma_soil = gamma_soil_c_fac(lu)*c_ave_prev_nh3
         endif
       ! calculate soil compensation point for NH3 in ug/m3:
       csoil = gamma_soil*tfac
@@ -1653,7 +1676,7 @@ end subroutine rc_comp_point
 ! old name: NH3rc (see depac v3.6 is based on Avero workshop Marc Sutton. p. 173. 
 ! Sutton 1998 AE 473-480)
 !
-! Documentation by Ferd Sauter, 2008; see also documentation block in header of this module.
+! Documentation by  , 2008; see also documentation block in header of this module.
 
 
 !
