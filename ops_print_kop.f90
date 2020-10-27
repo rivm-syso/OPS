@@ -24,7 +24,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support
+! AUTHOR             :
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F77/90
 ! DESCRIPTION        : Print page header ("kop"= head)
@@ -43,7 +43,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM
+CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'ops_print_kop')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -60,7 +60,7 @@ INTEGER*4                                        :: releaselen                 !
 INTEGER*4                                        :: marginlen                  ! number of = in margin
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida
+CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

@@ -29,7 +29,7 @@ module Binas
   !BOI
   !
   ! !TITLE:        Binas - geometrical and physical constants
-  ! !AUTHORS:      OPS-SUPPORT
+  ! !AUTHORS:      Arjo Segers
   ! !AFFILIATION:  KNMI
   ! !DATE:         \today
   !
@@ -69,7 +69,7 @@ module Binas
 
   ! Radius of earth as used in EMOS library (ECMWF model),
   ! see for example "jvod2uv.F"
-  ! NOTE: the value 6.375e6 was used in TM
+  ! NOTE: the value 6.375e6 was used in TM !
   real, parameter         ::  ae = 6.371e6     ! m
 
   ! acceleration of gravity:
@@ -89,7 +89,7 @@ module Binas
   real, parameter        ::  Avog = 6.02205e23      ! mlc/mol
 
   ! Dobson units:
-  real, parameter        ::  Dobs = 2.68668e16    ! (mlc/cm2) / DU
+  real,parameter         ::  Dobs = 2.68668e16    ! (mlc/cm2) / DU
 
 
   !
@@ -99,7 +99,7 @@ module Binas
   ! naming convention:
   !  o old names 'xm***' are in g/mol
   !  o new names 'xm_***' are in kg/mol
-
+  !
 
   ! atomic weights:
   real, parameter        ::  xm_H     =    1.00790e-3     ! kg/mol
@@ -124,7 +124,7 @@ module Binas
 
   ! mass of air
   real, parameter        ::  xm_air   =  28.964e-3        ! kg/mol
-  real, parameter        ::  xmair    =  28.94            ! g/mol; old name
+  real, parameter        ::  xmair    =  28.94            ! g/mol; old name!
 
   ! dummy weight, used for complex molecules:
   real, parameter        ::  xm_dummy =  1000.0e-3   ! kg/mol
@@ -151,6 +151,7 @@ module Binas
   !                  mlc/mol
   ! [cdob] = ------------------------ =   DU / (kg/m2)
   !          kg/mol cm2/m2 mlc/cm2/DU
+  !
 
   real, parameter :: cdob_o3 = Avog / ( xm_o3 * 1.0e4 * Dobs )  ! DU/(kg/m2)
 
@@ -176,7 +177,7 @@ module Binas
   !real, parameter        ::  p0 = 1.01325e5    ! Pa  <-- suggestion Bram Bregman
 
   ! global mean pressure:
-  real, parameter         ::  p_global = 98500.0   ! Pa
+  real,parameter         ::  p_global = 98500.0   ! Pa
 
   ! specific heat of dry air at constant pressure
   !real, parameter        ::  cp0 = 1004.0           ! J/kg/K
