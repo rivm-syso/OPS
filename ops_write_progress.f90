@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! FIRM/INSTITUTE       : RIVM/LLO
 ! LANGUAGE             : FORTRAN-77/90
 ! USAGE                :
@@ -46,23 +46,23 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_write_progress')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: progress                   ! percentage of progress reached
 CHARACTER*(*), INTENT(IN)                        :: formatstring               ! formatstring for writing progress
 INTEGER*4, INTENT(IN)                            :: numbs                      ! number of characters which have to be backspaced
-                                                                               ! in order to remain at the same position of the screen 
+                                                                               ! in order to remain at the same position of the screen
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: memdone                     
+INTEGER*4, INTENT(INOUT)                         :: memdone
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: idx                        ! do-loop index
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -77,7 +77,7 @@ sccsida = '%W%:%E%'//char(0)
 !
 !  FLUSH statements are needed HP-Ux.
 
-! Check whether to write progress, this is done each 2% 
+! Check whether to write progress, this is done each 2%
 ! See definition of memdone (2% hidden in the MOD statement).
 ! memdone is either INT(progress) or INT(progress)-1, with progress the progress of the previous call
 
@@ -97,8 +97,8 @@ IF (INT(progress)-memdone > 1) THEN
   ENDDO
 !
 ! Update memdone.
-! MOD(INT(progress)),2) is either 0 or 1 
-! memdone is either INT(progress) or INT(progress)-1 
+! MOD(INT(progress)),2) is either 0 or 1
+! memdone is either INT(progress) or INT(progress)-1
 !
   memdone = INT(progress) - MOD(INT(progress),2)
 !

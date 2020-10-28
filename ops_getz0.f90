@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Retrieve roughness length z0 for a specific location.
@@ -35,7 +35,7 @@
 ! FILES AND OTHER    :
 !    I/O DEVICES
 ! SYSTEM DEPENDENCIES: HP-Fortran
-! CALLED FUNCTIONS   : 
+! CALLED FUNCTIONS   :
 ! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_getz0(xr, yr, z0nlgrid, z0eurgrid, z0)
@@ -45,7 +45,7 @@ USE m_geoutils
 USE m_commonconst
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_getz0')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -67,7 +67,7 @@ REAL*4                                           :: lamy                       !
 LOGICAL                                          :: iscell                     ! whether point is inside z0 grid
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Retrieve z0 from NL grid (z0nlgrid). 
+! Retrieve z0 from NL grid (z0nlgrid).
 ! Note: arguments to GridValue must be in km.
 !
 cellvalue = 0
@@ -82,7 +82,7 @@ IF (.NOT. iscell .OR. z0 < (0. - EPS_DELTA)) THEN
 !
 ! Could not retrieve z0 from NL grid, so try European grid (z0eurgrid).
 ! the new z0eurgrid is in lambert azimuthal coordinatensystem.
-! Before this was a geographical coordinatesystem. 
+! Before this was a geographical coordinatesystem.
 ! The gridsize of the geographical map was 0.5x0.5 grade, now it is 10x10 km.
 !
   IF (z0eurgrid%gridheader%grixl == 0.5) THEN

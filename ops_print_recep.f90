@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -52,27 +52,27 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_print_recep')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: project                    ! 
-LOGICAL,   INTENT(IN)                            :: gasv                       ! 
-LOGICAL,   INTENT(IN)                            :: isec                       ! 
-LOGICAL,   INTENT(IN)                            :: verb                       ! 
-CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
-CHARACTER*(*), INTENT(IN)                        :: namsec                     ! 
-CHARACTER*(*), INTENT(IN)                        :: namse3                     ! 
-CHARACTER*(*), INTENT(IN)                        :: coneh                      ! 
-CHARACTER*(*), INTENT(IN)                        :: depeh                      ! 
-REAL*4,    INTENT(IN)                            :: conc_cf                    ! 
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
+CHARACTER*(*), INTENT(IN)                        :: project
+LOGICAL,   INTENT(IN)                            :: gasv
+LOGICAL,   INTENT(IN)                            :: isec
+LOGICAL,   INTENT(IN)                            :: verb
+CHARACTER*(*), INTENT(IN)                        :: namco
+CHARACTER*(*), INTENT(IN)                        :: namsec
+CHARACTER*(*), INTENT(IN)                        :: namse3
+CHARACTER*(*), INTENT(IN)                        :: coneh
+CHARACTER*(*), INTENT(IN)                        :: depeh
+REAL*4,    INTENT(IN)                            :: conc_cf
+REAL*4,    INTENT(IN)                            :: amol21
+REAL*4,    INTENT(IN)                            :: ugmoldep
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
-CHARACTER*(*), INTENT(IN)                        :: namrcp (nrrcp)             ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
+CHARACTER*(*), INTENT(IN)                        :: namrcp (nrrcp)
+REAL*4,    INTENT(IN)                            :: xm(nrrcp)
+REAL*4,    INTENT(IN)                            :: ym(nrrcp)
 REAL*4,    INTENT(IN)                            :: precip(nrrcp)              ! calculated precipitation
 REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
 REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
@@ -80,7 +80,7 @@ REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              !
 REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
 REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
 REAL*4,    INTENT(IN)                            :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
-INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! 
+INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)
 REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
 REAL*4,    INTENT(IN)                            :: gemcpri                    ! mean for prim. concentration
 REAL*4,    INTENT(IN)                            :: gemcsec                    ! mean for sec. concentration
@@ -102,36 +102,36 @@ REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     !
 REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary speciea
 REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
-REAL*4,    INTENT(IN)                            :: scale_con                  ! 
-REAL*4,    INTENT(IN)                            :: scale_sec                  ! 
+REAL*4,    INTENT(IN)                            :: scale_con
+REAL*4,    INTENT(IN)                            :: scale_sec
 REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
-REAL*4,    INTENT(IN)                            :: scale_dep                  ! 
+REAL*4,    INTENT(IN)                            :: scale_dep
 
 ! SUBROUTINE ARGUMENTS - I/O
-LOGICAL,   INTENT(INOUT)                         :: idep                       ! 
-LOGICAL,   INTENT(INOUT)                         :: igrid                      ! 
+LOGICAL,   INTENT(INOUT)                         :: idep
+LOGICAL,   INTENT(INOUT)                         :: igrid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (Terror), INTENT(INOUT)                     :: error                      ! 
+TYPE (Terror), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
-INTEGER*4                                        :: j                          ! 
+INTEGER*4                                        :: i
+INTEGER*4                                        :: j
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: scalec                     ! 
-REAL*4                                           :: scaled                     ! 
-REAL*4                                           :: scalen                     ! 
-REAL*4                                           :: scalsc                     ! 
-REAL*4                                           :: vdpri(nrrcp)               ! 
-REAL*4                                           :: vdsec(nrrcp)               ! 
+REAL*4                                           :: scalec
+REAL*4                                           :: scaled
+REAL*4                                           :: scalen
+REAL*4                                           :: scalsc
+REAL*4                                           :: vdpri(nrrcp)
+REAL*4                                           :: vdsec(nrrcp)
 REAL*4                                           :: tmp(nrrcp)                 ! dry+wet deposition
-CHARACTER*4                                      :: vdeh                       ! 
-CHARACTER*4                                      :: z0eh                       ! 
-CHARACTER*4                                      :: lueh                       ! 
+CHARACTER*4                                      :: vdeh
+CHARACTER*4                                      :: z0eh
+CHARACTER*4                                      :: lueh
 INTEGER*4                                        :: ircp
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -197,11 +197,11 @@ IF (igrid) THEN
     IF (.NOT.isec) THEN
 
       !----------------------------
-      ! only primary species 
+      ! only primary species
       !----------------------------
 
       IF (.NOT.verb) THEN
-!        
+!
 !       print primary concentration, drydep, wetdep, totdep in tables
 !
         CALL print_conc_names(namco)
@@ -213,7 +213,7 @@ IF (igrid) THEN
                        &  scale_dep)
 
       ELSE
-!        
+!
 !       print primary concentration, drydep, wetdep, totdep, vdpri, z0, lu, precip in table
 !
         CALL print_conc_names(namco)
@@ -230,13 +230,13 @@ IF (igrid) THEN
 
     ELSE
       !----------------------------
-      ! primary + secondary species 
+      ! primary + secondary species
       !----------------------------
 
       IF (icm == 2) THEN
-        
+
         ! NOx
-        
+
         IF (.NOT.verb) THEN
 !
 !         print primary concentration, drydep, wetdep, totdep, secondary concentration, second secondary concentration in tables
@@ -262,7 +262,7 @@ IF (igrid) THEN
              stop
            ENDIF
         ELSE
-!      
+!
 !         print primary concentration, drydep, wetdep, totdep, secondary conc, sub-secondary concentrations, vdpri, vdsec, z0, lu and precip in table
 !
           CALL print_conc_names(namco, namsec, nam_subsec)
@@ -294,11 +294,11 @@ IF (igrid) THEN
            ENDIF
         ENDIF
       ELSE
-      
-        ! no NOx 
-        
+
+        ! no NOx
+
         IF (.NOT.verb) THEN
-!          
+!
 !         print primary concentration, drydep, wetdep, totdep, secondary concentration in tables
 !
           CALL print_conc_names(namco, namsec)

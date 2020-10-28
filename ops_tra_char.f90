@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE     : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! FIRM/INSTITUTE       : RIVM/LLO
 ! LANGUAGE             : FORTRAN-77/90
 ! USAGE                :
@@ -40,7 +40,7 @@
 ! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, nrrcp, x_rcp, y_rcp, x_src, y_src,                           &
-                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu, & 
+                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu, &
                       &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra,       &
                       &  error)
 
@@ -53,11 +53,11 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_tra_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! 
+INTEGER*4, INTENT(IN)                            :: icm
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
 REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
@@ -69,28 +69,28 @@ INTEGER*4, INTENT(IN)                            :: y_src                      !
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! land use grid
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
-TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! 
-TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  ! 
-TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! 
-TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2                     !
+TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid
+TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid
+TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid
+TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2
 LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m] 
+REAL*4,    INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m]
 REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie (summed over intermediate points)
-REAL*4,    INTENT(OUT)                           :: so2bgtra                   ! 
-REAL*4,    INTENT(OUT)                           :: no2bgtra                   ! 
-REAL*4,    INTENT(OUT)                           :: nh3bgtra                   ! 
+REAL*4,    INTENT(OUT)                           :: so2bgtra
+REAL*4,    INTENT(OUT)                           :: no2bgtra
+REAL*4,    INTENT(OUT)                           :: nh3bgtra
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES:
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! If user specified z0 then set z0_tra and lu_tra_per (We assume grass=lu=1 if user specified z0): 
+! If user specified z0 then set z0_tra and lu_tra_per (We assume grass=lu=1 if user specified z0):
 !
 IF (f_z0user) THEN
   z0_tra        = z0_user

@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Generate coordinates of receptor points.
@@ -50,26 +50,26 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_gen_rcp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                      
-LOGICAL,   INTENT(IN)                            :: igrens                      
-TYPE (TApsGridReal), INTENT(IN)                  :: masker                      
-REAL*4,    INTENT(IN)                            :: grid                        
-INTEGER*4, INTENT(IN)                            :: nrcol                       
-INTEGER*4, INTENT(IN)                            :: nrrow                       
+INTEGER*4, INTENT(IN)                            :: spgrid
+LOGICAL,   INTENT(IN)                            :: igrens
+TYPE (TApsGridReal), INTENT(IN)                  :: masker
+REAL*4,    INTENT(IN)                            :: grid
+INTEGER*4, INTENT(IN)                            :: nrcol
+INTEGER*4, INTENT(IN)                            :: nrrow
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(IN)                            :: xorg                        
-REAL*4,    INTENT(IN)                            :: yorg                        
-LOGICAL,   INTENT(IN)                            :: varz                      
+REAL*4,    INTENT(IN)                            :: xorg
+REAL*4,    INTENT(IN)                            :: yorg
+LOGICAL,   INTENT(IN)                            :: varz
 LOGICAL,   INTENT(IN)                            :: perc
-LOGICAL,   INTENT(IN)                            :: domlu                      
+LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)              
-INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)               ! 
+INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)
+INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)
 REAL*4,    INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates
 REAL*4,    INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates
 REAL*4,    INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates
@@ -80,7 +80,7 @@ CHARACTER*(*), INTENT(OUT)                       :: namrcp(nrrcp)              !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: m                          ! column index                           
+INTEGER*4                                        :: m                          ! column index
 INTEGER*4                                        :: n                          ! row index
 INTEGER*4                                        :: i                          ! index of receptor point
 INTEGER*4                                        :: h                          ! number of header lines
@@ -90,23 +90,23 @@ INTEGER*4                                        :: lu                         !
 INTEGER*4                                        :: lu_dom                     ! landuse
 INTEGER*4                                        :: nwords                     ! number of words in string
 INTEGER*4                                        :: check_nwords               ! number of words in string
-INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)                          
-INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) 
-REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file) 
+real                                             :: ix                         ! x coordinate of receptor point (read from file)
+real                                             :: iy                         ! y coordinate of receptor point (read from file)
+REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file)
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
 INTEGER*4                                        :: ierr                       ! error status
-REAL*4                                           :: x_rcp                      ! x coordinate receptor point 
-REAL*4                                           :: y_rcp                      ! y coordinate receptor point 
+REAL*4                                           :: x_rcp                      ! x coordinate receptor point
+REAL*4                                           :: y_rcp                      ! y coordinate receptor point
 REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
-REAL*4                                           :: z0                         ! 
+REAL*4                                           :: z0
 INTEGER                                          :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point
-CHARACTER*512                                    :: string                     ! 
-CHARACTER*512                                    :: tmpstring                  ! 
+CHARACTER*512                                    :: string
+CHARACTER*512                                    :: tmpstring
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -118,13 +118,13 @@ zrcp = 4.0
 IF (ANY(spgrid == (/0,1/))) THEN
 !
 !  Regular grid of receptors.
-!  Compute the coordinates of the centres of the grid cells. If receptors must be inside NL (igrens = 0), a receptor is only 
+!  Compute the coordinates of the centres of the grid cells. If receptors must be inside NL (igrens = 0), a receptor is only
 !  accepted, if the area inside NL of the surrounding grid cell > 0.
 !  The area is stored in order to compute area averaged values.
 !
 !  Note: The call to GridValue needs coordinates in km.
 !
-!  Arrays xm, ym and jump are filled per row (nrrow in outer loop). 
+!  Arrays xm, ym and jump are filled per row (nrrow in outer loop).
 !  This way jump is assigned the right values for writing output per row, which happens in ops_print_grid
 !
    i = 1
@@ -156,7 +156,7 @@ IF (ANY(spgrid == (/0,1/))) THEN
    ENDDO
    zm = zrcp
 ! User specified receptor points, spgrid = 2, 3
-ELSE 
+ELSE
 
   IF (.NOT. sysopen(fu_recep, namrecept, 'r', 'receptor file', error)) GOTO 9999
 !
@@ -179,13 +179,13 @@ ELSE
   ! Inirialise number of data lines (i) and number of header lines (h):
   i = 0
   h = 0
-  
+
   ! Loop over lines until an valid data line (ierr = 0) has been detected:
   DO WHILE (ierr.GT.0)
     z0=0
-    lu_dom=0    
+    lu_dom=0
     check_nwords = 0
-    
+
     ! Read line:
     READ (fu_recep,'(a)',IOSTAT=ierr) string
 
@@ -194,17 +194,17 @@ ELSE
     DO WHILE (len_trim(string) .ne. 1)
       DO WHILE (string(1:1) .ne. char(32) .and. string(1:1) .ne. char(9))
         tmpstring=string(2:len_trim(string))
-        string=tmpstring  
+        string=tmpstring
         IF (len_trim(string) .eq. 0) goto 323
-      ENDDO 
+      ENDDO
       DO WHILE (string(1:1) .eq. char(32) .or. string(1:1) .eq. char(9))
         tmpstring=string(2:len_trim(string))
         string=tmpstring
       IF (len_trim(string) .eq. 0) goto 323
       ENDDO
-      check_nwords = check_nwords + 1   
+      check_nwords = check_nwords + 1
     ENDDO
-    
+
 323 BACKSPACE(fu_recep)
 
     ! Check number of words and check whether we have a valid line with data:
@@ -218,14 +218,14 @@ ELSE
       ELSEIF (nwords .EQ. 16) THEN
         READ (fu_recep,*,IOSTAT=ierr) p,namrp,ix,iy,zrcp,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
       ENDIF
-      
+
 !     Update counter for number of data lines (i) and number of header lines (h):
       IF (ierr == 0) THEN
         i = i + 1
       ELSE
         h = h + 1
       ENDIF
-      
+
     ELSE
       ! number of words in header line or first data line must be correct; if not -> error:
       CALL SetError('Error reading receptor file', error)
@@ -234,8 +234,8 @@ ELSE
       CALL ErrorParam('nwords read from rcp-file should be:', nwords, error)
       GOTO 9999
     ENDIF
-    
-    ! Check data on data line: 
+
+    ! Check data on data line:
     IF (ierr == 0) THEN
        IF (z0 > 0 .and. (nwords == 15 .or. nwords == 16) .and. sum(lu_rcp_per_user(1:NLU)) .lt. 99 .or. sum(lu_rcp_per_user(1:NLU)) .gt. 101) THEN
           CALL SetError('INPUT ERROR: No correct input in receptorfile', error)
@@ -246,7 +246,7 @@ ELSE
        ENDIF
     ENDIF
   ENDDO
-  
+
 ! Loop until end-of-file and read rest of data lines:
   DO WHILE (ierr.EQ.0)
 !
@@ -257,7 +257,7 @@ ELSE
     ym(i) = iy
     zm(i) = zrcp
     IF (nwords == 15 .OR. nwords == 16) THEN
-      z0_rcp_all(i)=z0 
+      z0_rcp_all(i)=z0
       lu_rcp_dom_all(i)=lu_dom
       DO lu = 1,NLU
         lu_rcp_per_user_all(i,lu)=lu_rcp_per_user(lu)
@@ -281,15 +281,15 @@ ELSE
       DO WHILE (len_trim(string) .ne. 1)
         DO WHILE (string(1:1) .ne. char(32) .and. string(1:1) .ne. char(9))
           tmpstring=string(2:len_trim(string))
-          string=tmpstring  
+          string=tmpstring
           IF (len_trim(string) .eq. 0) goto 321
-        ENDDO 
+        ENDDO
         DO WHILE (string(1:1) .eq. char(32) .or. string(1:1) .eq. char(9))
           tmpstring=string(2:len_trim(string))
           string=tmpstring
           IF (len_trim(string) .eq. 0) goto 321
         ENDDO
-        check_nwords = check_nwords + 1   
+        check_nwords = check_nwords + 1
       ENDDO
 321   BACKSPACE(fu_recep)
 
@@ -321,10 +321,10 @@ ELSE
     ENDIF
    IF (ierr == 0) i = i + 1
   ENDDO
- 
+
 !  spgrid = 3 -> regular grid, but not necessarily rectangular.
 !  Cordinates have already been read above, array jump (number of successive points that can be skipped for output purposes)
-!  is filled per row (nrrow in outer loop). 
+!  is filled per row (nrrow in outer loop).
 !  This way jump is assigned the right values for writing output per row, which happens in ops_print_grid
 !
   IF (spgrid == 3) THEN
@@ -335,7 +335,7 @@ ELSE
         x_rcp = xorg + FLOAT(m - 1)*grid
         y_rcp = yorg - FLOAT(n - 1)*grid
         DO j = 1, nrrcp
-          IF (x_rcp == xm(j) .and. y_rcp == ym(j) ) THEN  
+          IF (x_rcp == xm(j) .and. y_rcp == ym(j) ) THEN
              i = i + 1
              goto 100
           ENDIF

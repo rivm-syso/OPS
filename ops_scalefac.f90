@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,10 +27,10 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
-! DESCRIPTION        : Compute scaling factors for printing of concentrations and depositions. A scaling factor is the ratio between the 
+! DESCRIPTION        : Compute scaling factors for printing of concentrations and depositions. A scaling factor is the ratio between the
 !                      computed concentration (or deposition) and the value to be printed. All ratio's are based on an input source strength
 !                      in g/s and an output in ug/m3 for concentrations and mol/ha/y for depositions.
 ! EXIT CODES         :
@@ -47,7 +47,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER        (ROUTINENAAM = 'ops_scalefac')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -83,7 +83,7 @@ REAL*4                                           :: scale_dry                  !
 REAL*4                                           :: scale_wet                  ! schaal vergr. concentratie
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -103,7 +103,7 @@ scale_sec = 1.0e-10
 IF (PRESENT(csubsec)) scale_subsec = 1.0e-10
 scale_dry = 1.0e-10
 scale_wet = 1.0e-10
-! 
+!
 ! Loop over exponent in scaling factor (scaling factors range from 1e-10 to 1e30);
 ! Set scaling factor s, such that for a parameter x with maximum xmax: s*xmax < 2000 (or (2000/xmax) > s)
 !
@@ -120,7 +120,7 @@ DO i = -10, 30
        IF (csubsecmax(isubsec) .GT. (0. + EPS_DELTA) .AND. (2000./csubsecmax(isubsec)) .GT. (s + EPS_DELTA)) THEN
           scale_subsec(isubsec) = s
        ENDIF
-    enddo 
+    enddo
   ENDIF
   IF (ddepmax .GT. (0. + EPS_DELTA) .AND. (2000./ddepmax) .GT. (s + EPS_DELTA)) THEN
      scale_dry = s

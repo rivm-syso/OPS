@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Calculation of dimension of receptor point grids.
@@ -49,15 +49,15 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_get_dim')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                      
-LOGICAL,   INTENT(IN)                            :: igrens                      
-REAL*4,    INTENT(IN)                            :: xc                          
-REAL*4,    INTENT(IN)                            :: yc                          
-REAL*4,    INTENT(IN)                            :: grid                        
+INTEGER*4, INTENT(IN)                            :: spgrid
+LOGICAL,   INTENT(IN)                            :: igrens
+REAL*4,    INTENT(IN)                            :: xc
+REAL*4,    INTENT(IN)                            :: yc
+REAL*4,    INTENT(IN)                            :: grid
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: nrcol                      ! number of colums in grid
@@ -65,42 +65,42 @@ INTEGER*4, INTENT(INOUT)                         :: nrrow                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(OUT)                           :: xorg                       
-REAL*4,    INTENT(OUT)                           :: yorg                       
-TYPE (TApsGridReal), INTENT(OUT)                 :: masker                      
+REAL*4,    INTENT(OUT)                           :: xorg
+REAL*4,    INTENT(OUT)                           :: yorg
+TYPE (TApsGridReal), INTENT(OUT)                 :: masker
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 REAL*4,    PARAMETER                             :: GRID_XSTART = 0.000        ! x-coordinate of left upper corner point of NL grid
 REAL*4,    PARAMETER                             :: GRID_YSTART = 620000.000   ! y-coordinate of left upper corner point of NL grid
-REAL*4,    PARAMETER                             :: NL_XLEFT    = 13562.623    !  
-REAL*4,    PARAMETER                             :: NL_XRIGHT   = 278018.313   ! 
-REAL*4,    PARAMETER                             :: NL_YUPPER   = 619122.750   ! 
-REAL*4,    PARAMETER                             :: NL_YLOWER   = 306838.813   ! 
+REAL*4,    PARAMETER                             :: NL_XLEFT    = 13562.623
+REAL*4,    PARAMETER                             :: NL_XRIGHT   = 278018.313
+REAL*4,    PARAMETER                             :: NL_YUPPER   = 619122.750
+REAL*4,    PARAMETER                             :: NL_YLOWER   = 306838.813
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! grid index                           
-INTEGER*4                                        :: m                          ! column index                           
+INTEGER*4                                        :: i                          ! grid index
+INTEGER*4                                        :: m                          ! column index
 INTEGER*4                                        :: n                          ! row index
-INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)                          
-INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) 
+real                                             :: ix                         ! x coordinate of receptor point (read from file)
+real                                             :: iy                         ! y coordinate of receptor point (read from file)
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
 INTEGER*4                                        :: ierr                       ! error status
-REAL*4                                           :: lower                      
+REAL*4                                           :: lower
 REAL*4                                           :: xmax                       ! maximum x coordinate of receptor points
-REAL*4                                           :: xmax2                      
+REAL*4                                           :: xmax2
 REAL*4                                           :: xmin                       ! minimum x coordinate of receptor points
 REAL*4                                           :: ymax                       ! maximum y coordinate of receptor points
-REAL*4                                           :: ymax2                      
+REAL*4                                           :: ymax2
 REAL*4                                           :: ymin                       ! minimum y coordinate of receptor points
-REAL*4                                           :: x_rcp                      ! x coordinate receptor point 
-REAL*4                                           :: y_rcp                      ! y coordinate receptor point 
+REAL*4                                           :: x_rcp                      ! x coordinate receptor point
+REAL*4                                           :: y_rcp                      ! y coordinate receptor point
 REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 !
@@ -118,8 +118,8 @@ IF (ANY(spgrid == (/0,1/))) THEN
       DO WHILE (GRID_XSTART + i*grid < NL_XLEFT)
         i=i+1
       ENDDO
-      
-      
+
+
       xorg = (i-1)*grid + 0.5*grid
 
       ! Start from GRID_YSTART, move in steps of grid = grid resolution and get first index, such that y <= NL_YUPPER;
@@ -154,7 +154,7 @@ IF (ANY(spgrid == (/0,1/))) THEN
 !
 !     In this case (grid with receptor points inside NL), a mask is generated with the current grid resolution, that fits NL;
 !     "masker" is an APS-grid (type TApsGridReal) with the requested grid resolution, which contains the fraction of NL area
-!     within a grid cell. 
+!     within a grid cell.
 !
       CALL gen_mask(grid, masker, error)
       IF (error%haserror) GOTO 9999
@@ -178,7 +178,7 @@ IF (ANY(spgrid == (/0,1/))) THEN
    ENDIF
 
 ! User specified receptor points, spgrid = 2, 3
-ELSE                                                                           
+ELSE
 !
 ! --- Read receptor file for first time, just to see how many records it contains ---
 !     It's data are assigned the second time, which is in ops_gen_rcp.
@@ -273,11 +273,11 @@ SUBROUTINE  gen_mask(grid, maskergrid, error)
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'gen_mask')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: grid                       
+REAL*4,    INTENT(IN)                            :: grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TApsGridReal), INTENT(OUT)                 :: maskergrid                 ! APS-grid with fraction of area inside NL for each grid cell
@@ -296,7 +296,7 @@ INTEGER*4                                        :: nrcol                      !
 INTEGER*4                                        :: nrrow                      ! number of rows in output mask grid
 REAL*4                                           :: outputres                  ! resolution of output mask grid [km]
 CHARACTER*1                                      :: gridname                   ! denotes direction 'x' or 'y' where error occurred when checking
-                                                                               ! for grid resolution conformity 
+                                                                               ! for grid resolution conformity
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -306,12 +306,12 @@ CALL ReadAps(masknam, 'Basismasker NL', basisgrid, error)
 
 IF (error%haserror) GOTO 9999
 !
-! Check whether the output grid resolution is an N times the resolution of the base grid (N integer). 
+! Check whether the output grid resolution is an N times the resolution of the base grid (N integer).
 ! If not, generate an error.
-! Note: better to check this when reading the control file. 
+! Note: better to check this when reading the control file.
 !
 
-! First convert output resolution to km 
+! First convert output resolution to km
 outputres = grid /1000.
 
 ! Check ratio (output resolution) : (base grid resolution) and jump to error section if not ok
@@ -349,7 +349,7 @@ maskergrid%gridheader%nrrow  = nrrow
 !
 ALLOCATE (maskergrid%value(nrcol,nrrow,1))
 
-! Loop over output mask grid and compute fraction of area NL inside grid cell, 
+! Loop over output mask grid and compute fraction of area NL inside grid cell,
 ! i.e. the average of 0's and 1's of base grid that lie inside an output mask grid cell.
 ! Note that the accuracy of this area fraction depends on the ratio of the grid resolutions of
 ! the output mask grid and the base grid.

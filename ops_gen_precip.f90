@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                : OPS-support   
+! AUTHOR                : OPS-support
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Generate precipitation for receptors (sum of precipitation over
@@ -49,13 +49,13 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_gen_precip')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: uurtot                      
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
+REAL*4,    INTENT(IN)                            :: uurtot
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: precip                     ! array with precipitation per receptorpoint
@@ -63,7 +63,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! index of receptor
-INTEGER*4                                        :: isek                       ! index of wind sector 
+INTEGER*4                                        :: isek                       ! index of wind sector
 INTEGER*4                                        :: isekt                      ! dummy output of ops_statparexp
 INTEGER*4                                        :: istab                      ! index of stability class
 INTEGER*4                                        :: iwd                        ! wind direction [degrees]
@@ -72,11 +72,11 @@ REAL*4                                           :: hbron                      !
 REAL*4                                           :: disx                       ! distance source receptor, dummy input for ops_statparexp
 REAL*4                                           :: disxx                      ! dummy output of ops_statparexp
 REAL*4                                           :: radius                     ! source diameter, dummy input for ops_statparexp
-REAL*4                                           :: qww                        ! heat content of source, dummy input for ops_statparexp; 
+REAL*4                                           :: qww                        ! heat content of source, dummy input for ops_statparexp;
                                                                                ! setting it to 0 prevents unnecessary computation of plume rise
-                                                                               ! in ops_statparexp 
+                                                                               ! in ops_statparexp
 REAL*4                                           :: V_stack                    ! here a dummy
-REAL*4                                           :: Ts_stack                   ! here a dummy         
+REAL*4                                           :: Ts_stack                   ! here a dummy
 LOGICAL                                          :: emis_horizontal            ! here a dummy
 REAL*4                                           :: D_stack                    ! here a dummy
 REAL*4                                           :: vw10                       ! here a dummy
@@ -106,19 +106,19 @@ REAL*4                                           :: rad                        !
 REAL*4                                           :: rcso2                      ! here a dummy
 REAL*4                                           :: coef_space_heating         ! here a dummy
 REAL*4                                           :: buil                       ! here a dummy
-REAL*4                                           :: regenk                     
-REAL*4                                           :: rint                       
-REAL*4                                           :: percvk                    
+REAL*4                                           :: regenk
+REAL*4                                           :: rint
+REAL*4                                           :: percvk
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Initialise dummy source; this is needed because ops_statparexp needs source information
-! in order to retrieve the correct meteo data from meteo statistics; 
+! in order to retrieve the correct meteo data from meteo statistics;
 ! the source influences the distance class, and wind shear (via plume rise).
-disx   = 100 ! (first distance class, i.e. local meteo) 
+disx   = 100 ! (first distance class, i.e. local meteo)
 hbron  = 10
 radius = 0
 qww    = 0
@@ -135,7 +135,7 @@ DO isek = 1, NSEK
   iwd=(isek-1)*360/NSEK ! wind direction [degrees]
   DO istab = 1, NSTAB
 !
-!   Compute relevant parameters regenk (rain probability), rint (rain intensity) and 
+!   Compute relevant parameters regenk (rain probability), rint (rain intensity) and
 !   percvk (fraction of occurrence of meteo class) for this wind direction sector and stability class
 !
 

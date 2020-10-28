@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Define file unit numbers and file names. Subroutine to make full file name.
@@ -46,7 +46,7 @@ IMPLICIT NONE
 !
 CHARACTER*12, PARAMETER                          :: BASEMASK     = 'basemask.ops' ! base mask for The Netherlands (500mx500m)
 CHARACTER*12, PARAMETER                          :: Z0EURFILE    = 'z0eur.ops'    ! standard file for z0 in Europe
-CHARACTER*12, PARAMETER                          :: DVFILE       = 'dvepre.ops'   ! standard file for diurnal variations 
+CHARACTER*12, PARAMETER                          :: DVFILE       = 'dvepre.ops'   ! standard file for diurnal variations
 CHARACTER*12, PARAMETER                          :: PSDFILE      = 'pmdpre.ops'   ! standard file for particle size distributions
 CHARACTER*24, PARAMETER                          :: BUILDINGCLASSFILE  = 'buildingClassesTable.dat'  ! name of file with definition of parameter classes for building effect
 ! CHARACTER*24, PARAMETER                          :: BUILDINGFACTFILE   = 'buildingFactorsTable.dat'  ! name of file with building effect factors as function of different classes
@@ -56,9 +56,9 @@ CHARACTER*24, PARAMETER                          :: BUILDINGFACTFILE   = 'buildi
 !
 INTEGER*4, PARAMETER                             :: IOB_IU       = 1           ! currently not used
 INTEGER*4, PARAMETER                             :: IOB_SETUP    = 2           ! currently not used
-INTEGER*4, PARAMETER                             :: IOB_STDIN    = 5           ! currently not used  
-INTEGER*4, PARAMETER                             :: IOB_STDOUT   = 6           ! standard output     
-INTEGER*4, PARAMETER                             :: IOB_STDERR   = 7           ! currently not used  
+INTEGER*4, PARAMETER                             :: IOB_STDIN    = 5           ! currently not used
+INTEGER*4, PARAMETER                             :: IOB_STDOUT   = 6           ! standard output
+INTEGER*4, PARAMETER                             :: IOB_STDERR   = 7           ! currently not used
 !
 ! CONSTANTS - Other fileunits
 !
@@ -146,15 +146,15 @@ CONTAINS
 SUBROUTINE get_version_core(dll_version, dll_date)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'get_version_core')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
+CHARACTER*(*), INTENT(OUT)                       :: dll_version
+CHARACTER*(*), INTENT(OUT)                       :: dll_date
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -184,7 +184,7 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 CHARACTER*(*), INTENT(OUT)                       :: filepath                   ! File name including path
 !
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'MakeCommonPath')
 
 IF (.NOT. error%haserror) THEN
@@ -227,7 +227,7 @@ INTEGER*4                                        :: extpos                     !
 CHARACTER*512                                    :: base                       ! base name of monitor files (i.e. control file name without extension)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'MakeMonitorNames')
 
 !-------------------------------------------------------------------------------------------------------------------------------

@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Deze routine berekent de pluimhoogte.
@@ -47,48 +47,48 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_plrise71(z0, xl, ol, uster, hbron, qw, xloc, htt, onder)
 
-USE m_commonconst                                                               ! EPS_DELTA only 
+USE m_commonconst                                                               ! EPS_DELTA only
 
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_plrise71')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
+REAL*4,    INTENT(IN)                            :: z0
+REAL*4,    INTENT(IN)                            :: xl
 REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhovlengte
 REAL*4,    INTENT(IN)                            :: uster                      ! frictiesnelheid
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
+REAL*4,    INTENT(IN)                            :: hbron
 REAL*4,    INTENT(IN)                            :: qw                         ! warmte inhoud van het rookgas (MW)
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
+REAL*4,    INTENT(IN)                            :: xloc
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: htt                        ! 
-REAL*4,    INTENT(OUT)                           :: onder                      ! 
+REAL*4,    INTENT(OUT)                           :: htt
+REAL*4,    INTENT(OUT)                           :: onder
 
 ! LOCAL VARIABLES
-REAL*4                                           :: delh                       ! 
-REAL*4                                           :: f                          ! 
+REAL*4                                           :: delh
+REAL*4                                           :: f
 REAL*4                                           :: us                        ! wind speed at effective plume height
                                                                                ! representative for the whole plume rise length
-REAL*4                                           :: dtdz                       ! 
-REAL*4                                           :: hs                          ! 
-REAL*4                                           :: s                          ! 
+REAL*4                                           :: dtdz
+REAL*4                                           :: hs
+REAL*4                                           :: s
 
 ! Iteration variables
 ! iteration converges if |delh - delh_prev| < epsa + epsr*delh
 integer                                          :: it                         ! iteration index
 logical                                          :: converged                  ! iteration has converged
 real                                             :: delh_prev                  ! plume rise of previous iteration
-integer, parameter                               :: maxit = 10                 ! maximal number of iterations 
+integer, parameter                               :: maxit = 10                 ! maximal number of iterations
 real, parameter                                  :: epsa = 0.1                 ! absolute error tolerance (m)
-real, parameter                                  :: epsr = 0.05                ! relative error tolerance 
+real, parameter                                  :: epsr = 0.05                ! relative error tolerance
 
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -103,15 +103,15 @@ delh    = 0
 
 IF ( qw .GT. (0. + EPS_DELTA)) THEN
 
-   ! Compute wind speed from logarithmic wind profile at height h_stack: 
+   ! Compute wind speed from logarithmic wind profile at height h_stack:
    CALL ops_wvprofile(z0,hs,uster,ol, us)
 
 
    ! f = stack buoyancy flux (3.27 OPS report)
-   ! f = g/(pi*0.0013*T) = 9.81/(3.14*0.0013*273)*qw    
+   ! f = g/(pi*0.0013*T) = 9.81/(3.14*0.0013*273)*qw
    f = 8.8*qw                                           ! 960107 see briggs (1975)
 
-   ! We want to use a wind speed that is representative for the whole plume rise length, 
+   ! We want to use a wind speed that is representative for the whole plume rise length,
    ! but because we don't know the plume rise yet, we need an iteration.
    ! Initialisation for iteration:
    converged = .false.
@@ -119,8 +119,8 @@ IF ( qw .GT. (0. + EPS_DELTA)) THEN
    delh_prev = -999.
 
    ! Do iteration:
-   do while (.not. converged .and. it .le. maxit) 
-   
+   do while (.not. converged .and. it .le. maxit)
+
       ! plume rise for unstable or neutral conditions, L < 0 or |L| > 50 (3.25 - 3.28 OPS report):
       ! original value plrise_nonstab_Fbsplit = 55
       IF ( ol .LT. (0. - EPS_DELTA) .OR. ABS(ol) .GT. 50 ) THEN
@@ -141,7 +141,7 @@ IF ( qw .GT. (0. + EPS_DELTA)) THEN
 
       ! Check for convergence:
       converged = (abs(delh - delh_prev) .lt. epsa + epsr*delh )
-      
+
       ! Update for next iteration:
       if (.not. converged .and. it .lt. maxit) then
         ! Compute wind speed at z = h_stack + 1/2 plume_rise:

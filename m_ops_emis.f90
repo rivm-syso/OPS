@@ -1,22 +1,22 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 module m_ops_emis
 
-! Emission module, contains subroutines to read emissions. 
- 
+! Emission module, contains subroutines to read emissions.
+
 implicit none
 
 PRIVATE ! default for module
@@ -42,7 +42,7 @@ USE m_fileutils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_emis_read_header')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -65,14 +65,14 @@ INTEGER                                          :: brn_version_read           !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 
-! Initialisation: 
+! Initialisation:
 numbron     = 0
 nrec        = 0
 end_of_info = .FALSE.
 
 ! Default (if no ! BRN-VERSION can be found) -> old brn-file, no stack parameters:
 brn_version = 0
-VsDs_opt    = .FALSE. 
+VsDs_opt    = .FALSE.
 
 ! Read first header line:
 CALL sysread(fu_bron, cbuf, end_of_info, error)
@@ -103,7 +103,7 @@ IF (cbuf(1:1) .EQ. "!") THEN
      call SetError('Error while reading BRN-VERSION version_number in first line of header', error)
      goto 9999
   endif
-  
+
   ! Read rest of header lines:
   DO WHILE (.NOT. end_of_info)
     CALL sysread(fu_bron, cbuf, end_of_info, error)
@@ -111,7 +111,7 @@ IF (cbuf(1:1) .EQ. "!") THEN
     IF (error%haserror) GOTO 9999
     IF (cbuf(1:1) .NE. "!") THEN
        end_of_info = .TRUE.
-      
+
        ! First real emission record has been reached, so we backspace 1 line:
        backspace(fu_bron)
        nrec = nrec - 1
@@ -133,7 +133,7 @@ SUBROUTINE ops_emis_read_annual1(fu_bron, icm, check_psd, presentcode, brn_versi
 
 ! Read one data line from the emission file (brn-file; brn << bron = source)) and return emission parameters.
 ! Emission parameters that lie outside a specified range generate an error.
-! This subroutine supports old type of emission files (with no BRN-VERSION header or BRN-VERSION 1 
+! This subroutine supports old type of emission files (with no BRN-VERSION header or BRN-VERSION 1
 ! both in fixed format (old type of brn-files) and free format and extended free format (with V_stack, D_stack, Ts_stack) .
 
 USE m_error
@@ -147,7 +147,7 @@ use m_ops_building
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_emis_read_annual1')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -165,11 +165,11 @@ LOGICAL, INTENT(IN)                            :: VsDs_opt                   ! r
 ! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
 INTEGER, INTENT(INOUT)                         :: nrec                       ! record number of source file
 INTEGER, INTENT(INOUT)                         :: numbron                    ! number of (selected) source
-LOGICAL, INTENT(INOUT)                         :: building_present1          ! at least one building is present in the source file   
+LOGICAL, INTENT(INOUT)                         :: building_present1          ! at least one building is present in the source file
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER, INTENT(OUT)                           :: mm                         ! source identification number [-]
-REAL   , INTENT(OUT)                           :: x                          ! x coordinate of source location (RDM [m])                 
+REAL   , INTENT(OUT)                           :: x                          ! x coordinate of source location (RDM [m])
 REAL   , INTENT(OUT)                           :: y                          ! y coordinate of source location (RDM [m])
 REAL   , INTENT(OUT)                           :: qob                        ! emission strength [g/s]
 REAL   , INTENT(OUT)                           :: qww                        ! heat content [MW]
@@ -190,8 +190,8 @@ TYPE (TError), INTENT(OUT)                     :: error                      ! E
 
 ! LOCAL VARIABLES
 INTEGER                                        :: ierr                       ! I/O error value
-REAL                                           :: gl                         ! x coordinate of source location (longitude [degrees])                 
-REAL                                           :: gb                         ! y coordinate of source location (latitude [degrees])                 
+REAL                                           :: gl                         ! x coordinate of source location (longitude [degrees])
+REAL                                           :: gb                         ! y coordinate of source location (latitude [degrees])
 CHARACTER*512                                  :: cbuf                       ! character buffer, used to store an emission record
 real                                           :: Ts_stack_C                 ! temperature of effluent from stack [C]
 
@@ -213,53 +213,53 @@ building%orientation = -999.0
 
 ! Read string cbuf from emission file:
 CALL sysread(fu_bron, cbuf, end_of_file, error)
-IF (error%haserror) GOTO 9999 
+IF (error%haserror) GOTO 9999
 
-IF (.NOT. end_of_file) THEN 
+IF (.NOT. end_of_file) THEN
    IF (brn_version .GE. 1) THEN
       !*************************************************************************
-      !  New brn-file, free format 
-      !  BRN-VERSION 1 -> no D_stack, V_stack, Ts_stack 
-      !  BRN-VERSION 2 -> include D_stack, V_stack, Ts_stack 
-      !  BRN-VERSION 3 -> include D_stack, V_stack, Ts_stack, building%type 
+      !  New brn-file, free format
+      !  BRN-VERSION 1 -> no D_stack, V_stack, Ts_stack
+      !  BRN-VERSION 2 -> include D_stack, V_stack, Ts_stack
+      !  BRN-VERSION 3 -> include D_stack, V_stack, Ts_stack, building%type
       !  BRN-VERSION 4 -> free format, include include D_stack, V_stack, Ts_stack, building%length, building%width, building%height, building%orientation
       !*************************************************************************
        idgr=-999
-       
+
        ! Read emission line:
        IF (VsDs_opt) then
           IF (brn_version .GE. 4) THEN
              READ (cbuf, *, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack_C, ibtg, ibroncat, iland, idgr,  &
                                            building%length, building%width, building%height, building%orientation
-                                           
+
              ! Building orientation must be between 0 and 180 degrees:
-             if (.not. is_missing (building%orientation)) building%orientation = modulo(building%orientation, 180.0)  
-             
+             if (.not. is_missing (building%orientation)) building%orientation = modulo(building%orientation, 180.0)
+
              ! Set flag if one building is present:
-             if (.not. building_present1) building_present1 = (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation))) 
-             
+             if (.not. building_present1) building_present1 = (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation)))
+
           ELSEIF (brn_version .EQ. 3) THEN
              READ (cbuf, *, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack_C, ibtg, ibroncat, iland, idgr, building%type
-             
-          ELSE 
+
+          ELSE
              READ (cbuf, *, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack_C, ibtg, ibroncat, iland, idgr
           ENDIF
-          
+
           ! Negative V_stack in input -> horizontal outflow (except V_stack = -999 -> missing value):
           if (V_stack .lt. 0.0 .and. .not. is_missing(V_stack)) then
              V_stack = -V_stack
              emis_horizontal = .TRUE.
           endif
-       
+
        ELSE
           READ (cbuf, *, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, ibtg, ibroncat, iland, idgr
        ENDIF
        ! write(*,*) 'ops_read_source VsDs_opt = ',VsDs_opt
        ! write(*,'(a,i6,10(1x,e12.5),4(1x,i4),1x,l6)') 'ops_read_source a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack_C, ibtg, ibroncat, iland, idgr,emis_horizontal
-       ! write(*,*) 'ops_read_source a, nrec, ierr = ',nrec,ierr  
-       
+       ! write(*,*) 'ops_read_source a, nrec, ierr = ',nrec,ierr
+
        IF (ierr == 0) THEN
-        
+
           ! Convert lon-lat coordinates to RDM coordinates; lon-lat coordinates are detected if the value read for y is less than 90 degrees:
           IF ( abs(y) .LT. 90 ) THEN
             gb = y
@@ -271,45 +271,45 @@ IF (.NOT. end_of_file) THEN
        ENDIF
    ELSE
       !*******************************************************
-      !  Old brn-file, fixed format 
+      !  Old brn-file, fixed format
       !  Reading of D_stack, V_stack, Ts_stack not supported.
       !*******************************************************
       ! In the old format, if there is a dot at position 9, coordinates are assumed to be lon-lat
       IF ( cbuf(9:9) .EQ. '.' ) THEN
-    
-         ! Read source record with lon-lat coordinates (gl,gb) 
+
+         ! Read source record with lon-lat coordinates (gl,gb)
          ! "g" << geographical coordinates; "l" << lengtegraad = longitude, "b" << breedtegraad = latitude
          READ (cbuf, 100, IOSTAT = ierr) mm, gl, gb, qob, qww, hbron, diameter, szopp, ibtg, ibroncat, iland, idgr
 
          IF (ierr == 0) THEN
-   
+
             ! Convert lon-lat coordinates to RDM coordinates
             CALL geo2amc(gb, gl, x, y) ! (x,y) in km
             x = AINT(x*1000.) ! [m]
             y = AINT(y*1000.) ! [m]
          ENDIF
       ELSE
-      
+
          ! Read source record with RDM coordinates:
          READ (cbuf, 150, IOSTAT = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, ibtg, ibroncat, iland, idgr
       ENDIF
    ENDIF ! IF (brn_version .GE. 1)
 
-   ! Current emission record has been read and coordinates have been converted to RDM; 
+   ! Current emission record has been read and coordinates have been converted to RDM;
    ! add  1 to record number (unless ierr < 0 = end-of-file):
-   IF (ierr .GE. 0 ) nrec = nrec + 1 
-   ! write(*,*) 'nrec, ierr = ',nrec,ierr 
-   ! write(*,'(a,a)') 'cbuf: ',trim(cbuf) 
-   
+   IF (ierr .GE. 0 ) nrec = nrec + 1
+   ! write(*,*) 'nrec, ierr = ',nrec,ierr
+   ! write(*,'(a,a)') 'cbuf: ',trim(cbuf)
+
    IF (ierr == 0) THEN
-     
+
       ! Check emission strength, heat content, emission height and diameter area source.
-      ! Note: check is only performed inside check_source2 if no error has occurred; 
+      ! Note: check is only performed inside check_source2 if no error has occurred;
       !       therefore there is no need to check for error%haserror here each time.
-      ! JA*  check is only needed if source is selected. 
-      ! 
-    
-      ! Check range for 
+      ! JA*  check is only needed if source is selected.
+
+
+      ! Check range for
       !    deviation                     : 0 <= szopp <= hbron
       !    diurnal variation             : -999 <= ibtg <= 999
       !    emission category             : 1 <= ibroncat <= 9999
@@ -318,7 +318,7 @@ IF (.NOT. end_of_file) THEN
       if (brn_version .lt. 2) then
          ! Adjust value within range and continue OPS; write warning to log-file (backward compatibility for old emission files):
          CALL check_source (nrec, '<emission strength [g/s]>', 0., 99999., qob, error)
-         if (.not. is_missing(qww)) CALL check_source(nrec, '<heat content [MW]>', 0., 999., qww, error) 
+         if (.not. is_missing(qww)) CALL check_source(nrec, '<heat content [MW]>', 0., 999., qww, error)
          CALL check_source (nrec, '<emission height [m]>', 0., 5000.0, hbron, error)
          CALL check_source (nrec, '<diameter area source [m]>',-999999., 999999., diameter, error)
          CALL check_source (nrec, '<deviatie>', 0., hbron, szopp, error)
@@ -330,7 +330,7 @@ IF (.NOT. end_of_file) THEN
       else
          ! Generate error and stop OPS:
          CALL check_source2('<emission strength [g/s]>', 0., 99999., qob, error)
-         if (.not. is_missing(qww)) CALL check_source2('<heat content [MW]>', 0., 999., qww, error) 
+         if (.not. is_missing(qww)) CALL check_source2('<heat content [MW]>', 0., 999., qww, error)
          ! CALL check_source2('<emission height [m]>', 0., HUMAX, hbron, error)
          CALL check_source2('<emission height [m]>', 0., 5000.0, hbron, error)
          CALL check_source2('<diameter area source [m]>',-999999., 999999., diameter, error)
@@ -339,7 +339,7 @@ IF (.NOT. end_of_file) THEN
          CALL check_isource2('<categorie>', 1, 9999, ibroncat, error)
          CALL check_isource2('<land>', 1, 9999, iland, error)
          CALL check_isource2('<verdeling>', -999, MAXDISTR, idgr, error)
-        
+
          ! Check stack parameters:
          call check_stack_param(qww, VsDs_opt, D_stack, V_stack, Ts_stack_C, error)
 
@@ -353,26 +353,26 @@ IF (.NOT. end_of_file) THEN
             call check_building_param(building, hbron, qww, D_stack, V_stack, error)
          endif
       endif
-   
+
       if (VsDs_opt) then
          ! Convert Ts_stack to K:
          if (is_missing(Ts_stack_C)) then
             Ts_stack = Ts_stack_C
          else
-            Ts_stack = Ts_stack_C + T0   
+            Ts_stack = Ts_stack_C + T0
          endif
       endif
-    
+
       ! Check whether ibtg and idgr distributions in this record have been read (using presentcode array).
       ! Check whether ibtg is not for NH3 (icm=3) and NOx (icm=2) if a special diurnal variation (4 or 5) is used.
-      ! Check whether particle size distribution has been read.       
+      ! Check whether particle size distribution has been read.
       IF (.NOT.((icm == 2 .OR. icm == 3) .AND. (ibtg == 4 .OR. ibtg == 5)))  THEN
           CALL check_verdeling(ibtg, presentcode, 1, 3, 'ibtg', error)
       ENDIF
-      IF (check_psd) THEN                                                     
+      IF (check_psd) THEN
         CALL check_verdeling(idgr, presentcode, 2, 4, 'idgr', error)
       ENDIF
-      IF (error%haserror) GOTO 9999    
+      IF (error%haserror) GOTO 9999
 
    ELSE
 
@@ -396,7 +396,7 @@ END SUBROUTINE ops_emis_read_annual1
 ! SUBROUTINE NAME    : check_source
 ! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, the paramater is fixed at either
 !                      the lower or upper limit of the range. In this case, a warning is written to the log file;
-!                      this warning includes the record number of the source. 
+!                      this warning includes the record number of the source.
 !                      Included for backward compatibility of old source files; better use check_source2.
 ! CALLED FUNCTIONS   :
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -407,7 +407,7 @@ USE m_commonfile, only: fu_log
 USE m_commonconst, only: EPS_DELTA
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_source')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -492,7 +492,7 @@ END SUBROUTINE check_source
 ! SUBROUTINE NAME    : check_isource
 ! DESCRIPTION        : check whether an integer source parameter lies within a specified range. If not, the paramater is fixed at either
 !                      the lower or upper limit of the range. In this case, a warning is written to the log file;
-!                      this warning includes the record number of the source. 
+!                      this warning includes the record number of the source.
 !                      Included for backward compatibility of old source files; better use check_isource2.
 ! CALLED FUNCTIONS   :
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -501,7 +501,7 @@ SUBROUTINE check_isource(nr, varnaam, onder, boven, varwaarde, error)
 USE m_error
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_source')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -515,7 +515,7 @@ INTEGER*4, INTENT(INOUT)                         :: varwaarde                  !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-REAL*4                                           :: var                        ! help variable (= float(varwaarde)) 
+REAL*4                                           :: var                        ! help variable (= float(varwaarde))
 
 var = FLOAT(varwaarde)
 CALL check_source(nr, varnaam, FLOAT(onder), FLOAT(boven), var, error)
@@ -536,7 +536,7 @@ USE m_error
 USE m_commonconst, only: EPS_DELTA
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_source2')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -583,7 +583,7 @@ USE m_commonconst, only: EPS_DELTA
 USE m_commonfile, only: fu_log
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_source3')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -608,10 +608,10 @@ IF (varwaarde .LT. (onder - EPS_DELTA) .OR. varwaarde .GT. (boven + EPS_DELTA)) 
     CALL ErrorParam(trim(varnaam), varwaarde, error)
     CALL ErrorParam('upper limit', boven, error)
     CALL ErrorCall(ROUTINENAAM, error)
-    
+
    ! Reset error message (only warning):
    error%haserror = .FALSE.
-   
+
    ! Write warning to log file:
    CALL WriteError(fu_log, error)
 
@@ -633,7 +633,7 @@ SUBROUTINE check_isource2(varnaam, onder, boven, varwaarde, error)
 USE m_error
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_source2')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -662,15 +662,15 @@ USE m_error
 USE m_commonconst, only: MAXDISTR
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_verdeling')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icode                      ! code that has to be checked; 
+INTEGER*4, INTENT(IN)                            :: icode                      ! code that has to be checked;
                                                                                ! if icode < 0 -> check whether a user defined distribution is present
                                                                                ! if icode > 0 -> check whether a standard distribution is present
                                                                                ! if icode = 0 -> do not check anything
-LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)     
+LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)
 INTEGER*4, INTENT(IN)                            :: stdclass                   ! index of standard distributions in 2nd dimension of presentcode
 INTEGER*4, INTENT(IN)                            :: usdclass                   ! index of user defined distributions in 2nd dimension of presentcode
 CHARACTER*(*), INTENT(IN)                        :: parname                    ! parameter name in error messages
@@ -718,7 +718,7 @@ USE m_ops_utils, only: is_missing
 USE m_commonconst, only: EPS_DELTA
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_stack_param')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -745,14 +745,14 @@ else
   if (is_missing(qww)) then
       CALL SetError('Heat content (Qw) must be specified', error)
       CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
+      CALL ErrorCall(ROUTINENAAM, error)
    endif
 endif
 
 ! Check ranges:
 ! (for the check on Ts_stack_C -> see also check in m_ops_plume_rise - ops_plumerise_qw_Ts)
 if (.not. is_missing(D_stack))    CALL check_source2('<inner diameter stack [m]>'      , 0.01 ,   30.0 , D_stack, error)       ! Infomil NNM 2.1.2 - Modelinvoer
-if (.not. is_missing(V_stack))    CALL check_source2('<exit velocity [m/s]>'           , 0.0  ,   50.0 , V_stack, error)       ! V_stack = 0 is ok; in this case Qw = 0. Upper limit V_stack? 
+if (.not. is_missing(V_stack))    CALL check_source2('<exit velocity [m/s]>'           , 0.0  ,   50.0 , V_stack, error)       ! V_stack = 0 is ok; in this case Qw = 0. Upper limit V_stack?
 if (.not. is_missing(Ts_stack_C)) CALL check_source2('<temperature effluent gas [C]>'  , 0.0  , 2000.0 , Ts_stack_C, error)    ! temperature waste burning ~ 1300 C
 
 ! Check whether V_stack = 0 and Qw > 0 -> error
@@ -761,7 +761,7 @@ if (.not. is_missing(V_stack)) then
       CALL SetError('If exit velocity (V_stack) is zero, then heat content (Qw) must be zero also.','Use V_stack = -999. if you only want to specify Qw.', error)
       CALL ErrorParam('V_stack', V_stack, error)
       CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
+      CALL ErrorCall(ROUTINENAAM, error)
    endif
 endif
 
@@ -769,7 +769,7 @@ END SUBROUTINE check_stack_param
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE NAME    : check_building_param
-! DESCRIPTION        : Check building parameters 
+! DESCRIPTION        : Check building parameters
 ! CALLED FUNCTIONS   :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE check_building_param(building, hbron, qww, D_stack, V_stack, error)
@@ -781,7 +781,7 @@ use m_ops_building
 USE m_commonfile, only: fu_log
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'check_building_param')
 
 ! Input:
@@ -796,33 +796,35 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 
 ! Local:
 real :: wlratio ! ratio width/length building
+LOGICAL                                          :: ops_openlog                ! function for opening log file
+LOGICAL                                          :: ierr
 
 ! Check only needed if all building dimensions have been specified:
 if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation))) then
 
    ! Set width/length ratio:
    if (building%length > 0.0) then
-      wlRatio = building%width/building%length  
+      wlRatio = building%width/building%length
    else
       ! if length = 0 -> buildingType = 0 (see below)
       wlRatio = HUGE(1.0)
    endif
-   
-   ! If values outside limits -> warning   
-   ! limits based on data for 2500 animal houses in 2018  
+
+   ! If values outside limits -> warning
+   ! limits based on data for 2500 animal houses in 2018
    ! Note that it is already checked that all building dimensions (length, width, height) have been specified
 
-   ! Open log file if not already open:   
-   call ops_openlog(error)
+   ! Open log file if not already open:
+   ierr = ops_openlog(error)
    if (error%haserror) goto 9999
-   
+
    ! Error if Qw must be specified (= 0) and cannot be missing:
    if (is_missing(qww)) then
       CALL SetError('If building is present, then heat content (Qw) must be zero (cannot be missing).', error)
       CALL ErrorParam('Qw', qww, error)
-      goto 9999  
+      goto 9999
    endif
-   
+
    ! Warnings if value is outside table boundaries:
                                              CALL check_source3('check table building effect ','<building height [m]>'             ,  0.0  ,  20.0  , building%height, error)
    if (.not. is_missing(hbron))              CALL check_source3('check table building effect ','<emission height [m]>'             ,  0.0  ,  20.0  , hbron, error)
@@ -832,9 +834,9 @@ if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_m
                                              CALL check_source3('check table building effect ','<width/length ratio building [-]>' ,  0.15 ,   1.0 , wlRatio, error)
                                              CALL check_source3('check table building effect ','<building length [m]>'             , 10.0  , 105.0  , building%length, error)
                                              CALL check_source3('check table building effect ','<building orientation [degrees w.r.t. x-axis]>' , 0.0  , 180.0  , building%orientation, error)
-   
+
 endif
-   
+
 RETURN
 
 9999 CALL ErrorCall(ROUTINENAAM, error)

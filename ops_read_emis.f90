@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                : OPS-support 
+! AUTHOR                : OPS-support
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Read source file with emissions and files with diurnal emission variations and particle size distributions.
@@ -53,16 +53,16 @@ USE m_fileutils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_emis')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        
-LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: ncatsel                    
-INTEGER*4, INTENT(IN)                            :: catsel(*)                  
-INTEGER*4, INTENT(IN)                            :: nlandsel                   
-INTEGER*4, INTENT(IN)                            :: landsel(*)                 
+INTEGER*4, INTENT(IN)                            :: icm
+LOGICAL,   INTENT(IN)                            :: gasv
+INTEGER*4, INTENT(IN)                            :: ncatsel
+INTEGER*4, INTENT(IN)                            :: catsel(*)
+INTEGER*4, INTENT(IN)                            :: nlandsel
+INTEGER*4, INTENT(IN)                            :: landsel(*)
 
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -81,7 +81,7 @@ LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR,4)    !
                                                                                ! presentcode(:,2): particle size distributions
                                                                                ! presentcode(:,3): user-defined diurnal variation
                                                                                ! presentcode(:,4): user-defined particle size distributions
-LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file   
+LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file
 
 
 ! LOCAL VARIABLES
@@ -89,7 +89,7 @@ INTEGER*4                                        :: ps                         !
 INTEGER*4                                        :: usps                       ! maximum code uspmd distribution (dummy)
 
 ! SCCS-ID VARIABLE
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -109,15 +109,15 @@ ELSE
 ENDIF
 
 IF (.NOT.gasv) THEN
-  !
-  ! Read standard particle size distributions 
-  !
+
+  ! Read standard particle size distributions
+
   CALL read_variation(psdnam, 'F7.1', NPARTCLASS, 0, 'particle size distributions', .TRUE., pmd, ps, presentcode(:, 2),        &
                    &  error)
   IF (error%haserror) GOTO 9999
-  !
-  ! Read user-defined particle size distributions (optionally)  
-  !
+
+  ! Read user-defined particle size distributions (optionally)
+
   IF (LEN_TRIM(uspsdnam) /= 0) THEN
     CALL read_variation(uspsdnam, 'F7.1', NPARTCLASS, 100, 'user-defined particle size distributions', .TRUE., uspmd, usps,    &
                     &  presentcode(:,4), error)
@@ -135,7 +135,7 @@ IF (.NOT.sysopen(fu_bron, brnam, 'r', 'emission file', error)) GOTO 9999
 OPEN(fu_scratch, STATUS = 'SCRATCH')
 
 !
-! Read, select and check sources 
+! Read, select and check sources
 !
 CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, numbron, building_present1, error)
 
@@ -158,19 +158,19 @@ CONTAINS
 !
 ! Example of diurnal emission variations file:
 !
-! code   0-2   2-4   4-6   6-8  8-10 10-12 12-14 14-16 16-18 18-20 20-22 22-24 description 
+! code   0-2   2-4   4-6   6-8  8-10 10-12 12-14 14-16 16-18 18-20 20-22 22-24 description
 ! +000   100   100   100   100   100   100   100   100   100   100   100   100 Continuous emission
 ! +001    73    69    68   100   129   131   124   121   109    97    93    86 Average industrial activity
 ! +002    33    33    35    80   150   155   120   116   122   135   145    77 Average heating behaviour
 ! +003    24    16    23   150   175   121   127   154   190   112    60    48 Average traffic intensity
 
 ! Example of particle size distribution file: FS
-! 
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE read_variation(distnam, fmt, nrclass, normalvalue, compdesc, fraction, distrib, maxcode, presentcode, error)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'read_variation')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -178,20 +178,20 @@ CHARACTER*(*), INTENT(IN)                        :: distnam                    !
 CHARACTER*(*), INTENT(IN)                        :: fmt                        ! format of the numbers in distributions file
 INTEGER*4, INTENT(IN)                            :: nrclass                    ! number of distribution classes read each record
 INTEGER*4, INTENT(IN)                            :: normalvalue                ! value used in normalisation, 0 if no normalisation
-                                                                               ! normalisation means that the sum of the variation is set to 
-                                                                               ! normalvalue (e.g. 100 for a set of percentages or 
+                                                                               ! normalisation means that the sum of the variation is set to
+                                                                               ! normalvalue (e.g. 100 for a set of percentages or
                                                                                ! 1200 for a set of 2-hourly percentages in a day)
 CHARACTER*(*), INTENT(IN)                        :: compdesc                   ! type of distributions (diurnal variation or particle size)
 LOGICAL,   INTENT(IN)                            :: fraction                   ! whether conversion to fractions is required (instead of %)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions 
+REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions
 INTEGER*4, INTENT(OUT)                           :: maxcode                    ! maximum code used for distribution
 LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR)       ! which distribution codes are present
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: distcode                   ! code used for distribution; 
+INTEGER*4                                        :: distcode                   ! code used for distribution;
                                                                                ! read from the first column of the distributions file.
                                                                                ! (|distcode| = index into 2nd dimension of distrib(nclass, MAXDISTR))
 
@@ -275,7 +275,7 @@ IF (numdist == 0) THEN
 ENDIF
 !
 ! Normalise any rows, where required.
-! Normalisation means that the sum of the variation is set to normalvalue (e.g. 100 for a set of percentages or 
+! Normalisation means that the sum of the variation is set to normalvalue (e.g. 100 for a set of percentages or
 ! 1200 for a set of 2-hourly percentages in a day)
 
 IF (normalvalue > 0) THEN

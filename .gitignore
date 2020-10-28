@@ -1,0 +1,9 @@
+/*.mod
+/*.o
+/dependencies
+/*.exe
+/mess.f
+/optchk.f
+/silup.f
+/silupm.f
+/smess.f
