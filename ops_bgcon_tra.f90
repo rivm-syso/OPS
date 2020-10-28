@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,10 +27,10 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
-! DESCRIPTION        : This routine reads for a given location the background conc. and 
+! DESCRIPTION        : This routine reads for a given location the background conc. and
 !                      calculates the average conc. between the receptor and the source location
 ! EXIT CODES         :
 ! FILES AND OTHER    :
@@ -51,18 +51,18 @@ USE m_ops_bgcon
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bgcon_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: xr                         ! x coordinate receptor
 REAL*4,    INTENT(IN)                            :: yr                         ! y coordinate receptor
 REAL*4,    INTENT(IN)                            :: xb                         ! x coordinate source (b << "bron" = source)
-REAL*4,    INTENT(IN)                            :: yb                         ! y coordinate source 
+REAL*4,    INTENT(IN)                            :: yb                         ! y coordinate source
 TYPE (TApsGridReal), INTENT(IN)                  :: bgdata                     ! grid with background concentrations
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: bgcon                      ! background concentration averaged over trajecory 
+REAL*4,    INTENT(OUT)                           :: bgcon                      ! background concentration averaged over trajecory
                                                                                ! between source and receptor
 
 ! LOCAL VARIABLES

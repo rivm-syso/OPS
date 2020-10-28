@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-90
 ! DESCRIPTION        : Checks name of parameter and extracts a value for that parameter, or sets a default.
@@ -123,18 +123,18 @@ FUNCTION get_key_integer(parname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_key_integer
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: value                      ! 
+INTEGER*4, INTENT(OUT)                           :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT
-LOGICAL                                          :: get_key_integer            ! 
+LOGICAL                                          :: get_key_integer            !
 
 ! LOCAL VARIABLES
-LOGICAL                                          :: isdefault                  ! 
-CHARACTER*512                                    :: string                     ! 
+LOGICAL                                          :: isdefault                  !
+CHARACTER*512                                    :: string                     !
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Check presence of parname and determine which part of the string should contain the value.
@@ -173,18 +173,18 @@ FUNCTION get_key_logical(parname, isrequired, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_key_logical
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
-LOGICAL,   INTENT(IN)                            :: isrequired                 ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
+LOGICAL,   INTENT(IN)                            :: isrequired                 !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-LOGICAL,   INTENT(OUT)                           :: value                      ! 
+LOGICAL,   INTENT(OUT)                           :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: intvalue                   ! 
+INTEGER*4                                        :: intvalue                   !
 
 ! RESULT
-LOGICAL                                          :: get_key_logical            ! 
+LOGICAL                                          :: get_key_logical            !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -227,18 +227,18 @@ FUNCTION get_key_real(parname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_key_real
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: value                      ! 
+REAL*4,    INTENT(OUT)                           :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT
-LOGICAL                                          :: get_key_real               ! 
+LOGICAL                                          :: get_key_real               !
 
 ! LOCAL VARIABLES
-LOGICAL                                          :: nopart                     ! 
-CHARACTER*512                                    :: string                     ! 
+LOGICAL                                          :: nopart                     !
+CHARACTER*512                                    :: string                     !
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Check the validity of the keyword and determine which part of the string should contain the value.
@@ -278,21 +278,21 @@ FUNCTION get_key_string(parname, string, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_key_string
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 CHARACTER*(*), INTENT(OUT)                       :: string                     ! parameter value
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT
-LOGICAL                                          :: get_key_string             ! 
+LOGICAL                                          :: get_key_string             !
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: length                     ! 
-INTEGER*4                                        :: cutpos                     ! 
-INTEGER*4                                        :: position                   ! 
-INTEGER*4                                        :: blankpos                   ! 
-LOGICAL                                          :: stillblank                 ! 
+INTEGER*4                                        :: length                     !
+INTEGER*4                                        :: cutpos                     !
+INTEGER*4                                        :: position                   !
+INTEGER*4                                        :: blankpos                   !
+LOGICAL                                          :: stillblank                 !
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Check whether a parname is located in string and determine the value of the parameter in the string.
@@ -361,12 +361,12 @@ CHARACTER*(*), INTENT(OUT)                       :: string                     !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
-LOGICAL                                          :: checkparname               ! 
+LOGICAL                                          :: checkparname               !
 
 ! CONSTANTS
 INTEGER*4                                        :: capsdiff                   ! 'A' - 'a'
 PARAMETER    (capsdiff    = ichar('A')-ichar('a'))
-CHARACTER*14                                     :: ROUTINENAAM                ! 
+CHARACTER*14                                     :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'checkparname')
 
 ! LOCAL VARIABLES
@@ -505,7 +505,7 @@ INTEGER*4                                        :: lengte                     !
 INTEGER*4                                        :: newendpos                  ! new string length
 
 ! CONSTANTS
-CHARACTER*14                                     :: ROUTINENAAM                ! 
+CHARACTER*14                                     :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'cutfromstring')
 !
 lengte = LEN(string)
@@ -528,7 +528,7 @@ FUNCTION check_range_real(parname,lower,upper,isrequired, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: check_range_real
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 REAL*4,    INTENT(IN)                            :: lower                      ! lower limit of value
 REAL*4,    INTENT(IN)                            :: upper                      ! upper limit of value
 LOGICAL,   INTENT(IN)                            :: isrequired                 ! whether a value is required
@@ -538,7 +538,7 @@ REAL*4,    INTENT(OUT)                           :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
-LOGICAL                                          :: check_range_real           ! 
+LOGICAL                                          :: check_range_real           !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -592,7 +592,7 @@ FUNCTION check_range_integer(parname, lower, upper, isrequired, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: check_range_integer
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 INTEGER*4, INTENT(IN)                            :: lower                      ! lower limit of value
 INTEGER*4, INTENT(IN)                            :: upper                      ! upper limit of value
 LOGICAL,   INTENT(IN)                            :: isrequired                 ! whether a value is required
@@ -602,7 +602,7 @@ INTEGER*4, INTENT(OUT)                           :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT
-LOGICAL                                          :: check_range_integer        ! 
+LOGICAL                                          :: check_range_integer        !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -675,7 +675,7 @@ INTEGER                                          :: first                      !
 CHARACTER*512                                    :: string                     ! Help-string
 
 ! RESULT
-LOGICAL                                          :: check_range_integer_array  ! 
+LOGICAL                                          :: check_range_integer_array  !
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Retrieve the integer array value for parname.
@@ -792,16 +792,16 @@ FUNCTION check_exist_file(parname, checkdefine, checkexist, filename, error)
 USE m_fileutils
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
+CHARACTER*(*), INTENT(IN)                        :: parname                    !
 LOGICAL,   INTENT(IN)                            :: checkdefine                ! if set and checkexist set, this function
 LOGICAL,   INTENT(IN)                            :: checkexist                 ! if set, this function checks whether filename
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: filename                   ! 
+CHARACTER*(*), INTENT(OUT)                       :: filename                   !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
-LOGICAL                                          :: check_exist_file           ! 
+LOGICAL                                          :: check_exist_file           !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -851,8 +851,8 @@ END FUNCTION check_exist_file
 ! DESCRIPTION          : This function checks a string for the name of the parameter. Then the string value of the parameter is
 !                        extracted and assigned to the parameter.
 !                        If no value is extracted a default is set (empty string). If a value is extracted it is checked whether the value lies
-!                        within input limits (for strings, the lower and upper limits are normally the same, which means that the input string 
-!                        must be equal to the limit values. 
+!                        within input limits (for strings, the lower and upper limits are normally the same, which means that the input string
+!                        must be equal to the limit values.
 ! RESULT               : False if an error was detected.
 ! CALLED FUNCTIONS     : get_key
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -871,7 +871,7 @@ CHARACTER*(*), INTENT(OUT)                       :: value                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
-LOGICAL                                          :: check_range_string         ! 
+LOGICAL                                          :: check_range_string         !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !

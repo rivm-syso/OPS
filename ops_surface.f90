@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : This routine calculates sigmaz in the surface layer (all stabilities) on the basis of Monin Obukhov
@@ -46,7 +46,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_surface')
 
 ! CONSTANTS
@@ -63,27 +63,27 @@ REAL*4,    INTENT(IN)                            :: x                          !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: uh                         ! wind speed at downwind distance x and height zu [m/s]
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection 
+REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface [m]
 REAL*4,    INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iter                       ! 
-INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: kz                         ! 
-REAL*4                                           :: phih                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: zw                         ! 
-REAL*4                                           :: zwold                      ! 
+INTEGER*4                                        :: iter                       !
+INTEGER*4                                        :: last                       !
+REAL*4                                           :: a                          !
+REAL*4                                           :: kz                         !
+REAL*4                                           :: phih                       !
+REAL*4                                           :: s                          !
+REAL*4                                           :: zw                         !
+REAL*4                                           :: zwold                      !
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! An iterative procedure is needed, since sigma_z (verical spread of the plume)
-! depends on Kz and u (wind speed) and these two depend on the effective plume 
+! depends on Kz and u (wind speed) and these two depend on the effective plume
 ! heights zw (for computation of Kz) and zu (for computation of u), which depend on sigma_z.
 !
 
@@ -103,7 +103,7 @@ IF (h .GT. (zw + EPS_DELTA)) THEN
 ENDIF
 IF (zw .GT. (zi/2. + EPS_DELTA)) THEN
    zw = zi/2.
-ENDIF              
+ENDIF
 
 ! Initially zu = zw.
 zu    = zw
@@ -119,7 +119,7 @@ zwold = zw
    ! Psi_h = non-dimensional temperature gradient (Businger, 1973, below 3.17 OPS report)
 
    IF (ol .GT. (0. + EPS_DELTA)) THEN
-      phih = 0.74 + 4.7*zw/ol 
+      phih = 0.74 + 4.7*zw/ol
    ELSE
       phih = 0.74*(1.-9*zw/ol)**(-0.5)
    ENDIF
@@ -129,7 +129,7 @@ zwold = zw
    CALL ops_wvprofile(z0, zu, uster, ol, uh)
 
    ! Compute Kz at effective plume height zw;
-   ! for L  > 0, according to Businger (1973); 3.17 OPS report 
+   ! for L  > 0, according to Businger (1973); 3.17 OPS report
    ! for L <= 0, according to Brost and Wyngaard (1978)
    ! The Businger formula includes an extra calibration factor a, derived from prairie grass data.
 
@@ -142,10 +142,10 @@ zwold = zw
    ELSE
       kz = K*uster*zw/phih*(1. - zw/zi)**1.5
    ENDIF
- 
+
    ! sigma_z as function of Kz (3.18 OPS report)
    szs = SQRT(2.*kz*x/uh)
- 
+
    ! Compute new values of zw and zu, depending on value of sigma_z
    IF (last .NE. 1 .AND. iter .LE. 12 ) THEN
    ! IF (iter .LE. 12 ) THEN
@@ -154,7 +154,7 @@ zwold = zw
 
       ! s = effective plume width
       s = szs*.69 ! OPS report s = 0.67*szs (see text below 3.18)
-      ! s = szs*.69 + h/3 
+      ! s = szs*.69 + h/3
 
       !--------------------------------------------------------------------------------------------------
       ! 1. Plume well mixed (s > zi/2)
@@ -163,7 +163,7 @@ zwold = zw
       IF (s .GE. (zi/2. - EPS_DELTA)) THEN
          zu = zi/2.
 
-         ! set new value for zw ref. Sterk, 14-10-2015 
+         ! set new value for zw ref. Sterk, 14-10-2015
          IF (ol .LT. (0. - EPS_DELTA)) THEN
             zw = zu*0.75
          ELSE
@@ -180,23 +180,23 @@ zwold = zw
       ! 2. Plume not well mixed AND plume does not touch the ground (s < h)
       !--------------------------------------------------------------------------------------------------
       ELSE IF (h .GE. (s - EPS_DELTA)) THEN
-      
+
          ! zw = h - sigma_z
-         zw = h - szs  
+         zw = h - szs
          ! zw = h - 0.1*s
-       
+
          ! zw < h/2  -> zw = h/2, zu = stack_height; iteration finished
          IF (zw .LT. (h/2. - EPS_DELTA)) THEN
-            zw = h/2.                        
-         !IF (zw .LT. (h - EPS_DELTA)) THEN    
-         !   zw = h                            
+            zw = h/2.
+         !IF (zw .LT. (h - EPS_DELTA)) THEN
+         !   zw = h
             zu = h
             last = 1
 
          ! zw > h/2 AND relative difference between zw and zwold > 10% ->
          ! -> subtract 0.6*(difference between iterands) to get new zw value (0.6 is relaxation factor); set zu = stack_height
-         ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.1 + EPS_DELTA)) THEN 
-         !ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.01 + EPS_DELTA)) THEN 
+         ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.1 + EPS_DELTA)) THEN
+         !ELSE IF ((ABS((zw - zwold)/zw)) .GT. (0.01 + EPS_DELTA)) THEN
             zw = zw - (zw - zwold)*0.6                                            ! 960202
             zu = h
             zwold = zw

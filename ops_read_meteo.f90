@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Read meteo statistics.
@@ -49,7 +49,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM              
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_readmeteo')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -58,37 +58,37 @@ INTEGER*4, INTENT(IN)                            :: intpol                     !
                                                                                !  = 2? use meteo parameters from user specified meteo file
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: jb                        
-INTEGER*4, INTENT(OUT)                           :: mb                        
-INTEGER*4, INTENT(OUT)                           :: idb                       
-INTEGER*4, INTENT(OUT)                           :: jt                        
-INTEGER*4, INTENT(OUT)                           :: mt                        
-INTEGER*4, INTENT(OUT)                           :: idt                       
-REAL*4,    INTENT(OUT)                           :: uurtot                    
-INTEGER*4, INTENT(OUT)                           :: iseiz                     
-REAL*4,    INTENT(OUT)                           :: zf                        
+INTEGER*4, INTENT(OUT)                           :: jb
+INTEGER*4, INTENT(OUT)                           :: mb
+INTEGER*4, INTENT(OUT)                           :: idb
+INTEGER*4, INTENT(OUT)                           :: jt
+INTEGER*4, INTENT(OUT)                           :: mt
+INTEGER*4, INTENT(OUT)                           :: idt
+REAL*4,    INTENT(OUT)                           :: uurtot
+INTEGER*4, INTENT(OUT)                           :: iseiz
+REAL*4,    INTENT(OUT)                           :: zf
 REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)             
-REAL*4,    INTENT(OUT)                           :: gemre                     
+REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)
+REAL*4,    INTENT(OUT)                           :: gemre
 REAL*4,    INTENT(OUT)                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]
 REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
-REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)          
-REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]   
-REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)             
-REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)             
-REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)          
+REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER*4                                        :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4                                        :: iday                       ! day of time stamp of meteo file; currently not used
-REAL*4                                           :: xpos                      
-REAL*4                                           :: ypos                      
-REAL*4                                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]                      
+REAL*4                                           :: xpos
+REAL*4                                           :: ypos
+REAL*4                                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -96,7 +96,7 @@ sccsida = '%W%:%E%'//char(0)
 ! Note that astat is used to store the meteo parameters for one region (output of ops_readstexp);
 ! cs contains the meteo parameters for all regions (extra dimension NMETREG).
 !
-IF (intpol.EQ.0) THEN 
+IF (intpol.EQ.0) THEN
    ! Fill meteo parameters for every region (calls ops_readstexp NMETREG+1 times)
    CALL ops_statfil(jb, mb, idb,jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, z0_metreg, xreg, yreg,        &
                  &  hourreg, error)
@@ -134,29 +134,29 @@ IMPLICIT NONE
 REAL*4                                           :: XP(NMETREG)                ! x-coordinate meteo regions in NL
 REAL*4                                           :: YP(NMETREG)                ! y-coordinate meteo regions in NL
                                                                                ! (XP,YP)~ centre of circle that encompasses a meteo region.
-                                                                               ! (XP,YP) are used for interpolation of meteo parameters in a 
+                                                                               ! (XP,YP) are used for interpolation of meteo parameters in a
                                                                                ! specific location
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_statfil')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: jb                        
-INTEGER*4, INTENT(OUT)                           :: mb                        
-INTEGER*4, INTENT(OUT)                           :: idb                       
-INTEGER*4, INTENT(OUT)                           :: jt                        
-INTEGER*4, INTENT(OUT)                           :: mt                        
-INTEGER*4, INTENT(OUT)                           :: idt                       
-REAL*4,    INTENT(OUT)                           :: uurtot                    
-INTEGER*4, INTENT(OUT)                           :: iseiz                     
-REAL*4,    INTENT(OUT)                           :: zf                        
+INTEGER*4, INTENT(OUT)                           :: jb
+INTEGER*4, INTENT(OUT)                           :: mb
+INTEGER*4, INTENT(OUT)                           :: idb
+INTEGER*4, INTENT(OUT)                           :: jt
+INTEGER*4, INTENT(OUT)                           :: mt
+INTEGER*4, INTENT(OUT)                           :: idt
+REAL*4,    INTENT(OUT)                           :: uurtot
+INTEGER*4, INTENT(OUT)                           :: iseiz
+REAL*4,    INTENT(OUT)                           :: zf
 REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)             
-REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) 
-REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)          
-REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]   
-REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)             
-REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)             
-REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)          
+REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)
+REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)
+REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -166,12 +166,12 @@ INTEGER*4                                        :: imon                       !
 INTEGER*4                                        :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER                                          :: idx                        ! index of '.' in name of meteo statistics file
 REAL*4                                           :: gemre                      ! average amount of precipitation (mm/h)
-REAL*4                                           :: xpos                     
-REAL*4                                           :: ypos                     
-REAL*4                                           :: z0_metreg1                 ! roughness length of 1 meteo region [m]                    
+REAL*4                                           :: xpos
+REAL*4                                           :: ypos
+REAL*4                                           :: z0_metreg1                 ! roughness length of 1 meteo region [m]
 CHARACTER*512                                    :: nfile                      ! filename for meteo statistics file
 
-! DATA 
+! DATA
 ! (XP,YP) are locations of region (~ centre of circle that encompasses region);
 ! (XP,YP) are used for interpolation of meteo parameters in a specific location.
 
@@ -231,7 +231,7 @@ END SUBROUTINE ops_statfil
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : ops_readstexp
-! DESCRIPTION        : This routine reads the climatology (meteo statistics) file and fills the meteodata array. 
+! DESCRIPTION        : This routine reads the climatology (meteo statistics) file and fills the meteodata array.
 !                      Depending on the value of intpol, this routine is called only once, or for each region.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_readstexp(nfile, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt,          &
@@ -244,12 +244,12 @@ USE m_utils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_readstexp')
 
 INTEGER*4                                        :: ISCALE(NCOMP)              ! OPS scalefactors for the different components in the climatology.
-                                                                               ! All meteo parameters are given as integers and have to be scaled 
-                                                                               ! by 10, 100 or 1000 in order to get meaningful real values; 
+                                                                               ! All meteo parameters are given as integers and have to be scaled
+                                                                               ! by 10, 100 or 1000 in order to get meaningful real values;
                                                                                ! e.g. wind speed in 0.1 m/s -> m/s
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -263,24 +263,24 @@ REAL*4,    INTENT(OUT)                           :: gemre                      !
 INTEGER*4, INTENT(OUT)                           :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: iday                       ! day of time stamp of meteo file; currently not used
-REAL*4,    INTENT(OUT)                           :: xpos                     
-REAL*4,    INTENT(OUT)                           :: ypos                     
-REAL*4,    INTENT(OUT)                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]                      
+REAL*4,    INTENT(OUT)                           :: xpos
+REAL*4,    INTENT(OUT)                           :: ypos
+REAL*4,    INTENT(OUT)                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]
 INTEGER*4, INTENT(OUT)                           :: jt                         ! end year (meteo statistics period) ("t" << tot = until)
 INTEGER*4, INTENT(OUT)                           :: mt                         ! end month (meteo statistics period) ("t" << tot = until)
 INTEGER*4, INTENT(OUT)                           :: idt                        ! end day (meteo statistics period) ("t" << tot = until)
 REAL*4,    INTENT(OUT)                           :: uurtot                     ! total number of hours ("uur" = hour)
-INTEGER*4, INTENT(OUT)                           :: iseiz                    
-REAL*4,    INTENT(OUT)                           :: zf                        
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)             
+INTEGER*4, INTENT(OUT)                           :: iseiz
+REAL*4,    INTENT(OUT)                           :: zf
+REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: jtl                        ! four digit end year
 INTEGER*4                                        :: jbl                        ! four digit start year
 INTEGER*4                                        :: icomp                      ! index of meteo parameters
-INTEGER*2                                        :: ishort(NSTAB*NSEK)         ! meta data of meteo statistics file 
+INTEGER*2                                        :: ishort(NSTAB*NSEK)         ! meta data of meteo statistics file
 
 ! DATA
 ! OPS scalefactors for the different components in the climatology.
@@ -291,17 +291,17 @@ INTEGER*2                                        :: ishort(NSTAB*NSEK)         !
 !  3. wind speed (at 10 m height) [m/s]
 !  7. ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
 !  8. ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-]
-! 10. degree day (= 19-T for T < 12 degree C) (domestic heating coefficient) [degree C] 
+! 10. degree day (= 19-T for T < 12 degree C) (domestic heating coefficient) [degree C]
 ! 11. precipitation probability []
 ! 12. length of rainfall period []
 ! 13. rain intensity []
 ! 15. wind speed power law coefficient [-]
 ! 19. friction velocity u* [m/s]
 ! 23. sensible heat flux H0 [W/m2]
-! number     1  2   3 4/5/6   7/8  9  10    11   12   13 14   15 16 17 18    19 20 21 22  23 24 25 26 27 
+! number     1  2   3 4/5/6   7/8  9  10    11   12   13 14   15 16 17 18    19 20 21 22  23 24 25 26 27
 DATA ISCALE/ 1, 1, 10, 3*1, 2*100, 1, 10, 1000, 100, 100, 1, 100, 1, 1, 1, 1000, 1, 1, 1, 10, 1, 1, 1, 1/
 !-------------------------------------------------------------------------------------------------------------------------------
-! Read meta data into ishort and meteo parameters into astat 
+! Read meta data into ishort and meteo parameters into astat
 CALL ops_readdata(nfile, ishort, astat, error)
 
 IF (error%haserror) GOTO 9999
@@ -353,7 +353,7 @@ DO icomp = 1, NCOMP
   astat(:, icomp, :, :) = astat(:, icomp, :, :)/ISCALE(icomp)
 ENDDO
 !
-! Compute average precipitation amount [mm/h] 
+! Compute average precipitation amount [mm/h]
 !
 gemre   = SUM( astat(1, 1, :NSTAB, :NSEK) * astat(1, 11, :, :) * astat(1, 13, :, :)) / uurtot
 !
@@ -366,7 +366,7 @@ jbl = Jaartal(jb)
 ! Get time period (years, year, winter, summer or month)
 ! and set zf = interpolation factor between summer and winter (zf << "zomer fractie" = summer fraction)
 !
- 
+
 ! year_end > year_start + 1 -> multiple years, iseiz = 0 (long term)
 IF (jtl .GT. (jbl + 1)) THEN
    iseiz = 0
@@ -430,7 +430,7 @@ USE m_fileutils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_readdata')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -438,7 +438,7 @@ CHARACTER*(*), INTENT(IN)                        :: nfile                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*2, INTENT(OUT)                           :: ishort(NSTAB*NSEK)         ! meta data of meteo statistics file
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
+REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -451,10 +451,10 @@ INTEGER*4                                        :: ierr                       !
 INTEGER*4                                        :: recl                       ! record length
 
 ! FUNCTIONS
-LOGICAL                                          :: ops_checkmeteo             ! 
+LOGICAL                                          :: ops_checkmeteo             !
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Read meta data from meteo statistics file 
+! Read meta data from meteo statistics file
 !
 recl = NSTAB*NSEK*2
 
@@ -467,7 +467,7 @@ IF (.NOT.sysopen(fu_klim,nfile,'d','meteo file',error,recl)) THEN
   GOTO 9999
 ENDIF
 
-! Read from direct access file 
+! Read from direct access file
 irec = 1
 READ (fu_klim, IOSTAT = ierr, REC = irec) ishort
 
@@ -549,7 +549,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_checkmeteo')
 
 ! SUBROUTINE ARGUMENTS - INPUT

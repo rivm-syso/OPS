@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,11 +27,11 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute long term concentration for a given source and source-receptor distance;
-!                      special version including correction for heavy plumes. 
+!                      special version including correction for heavy plumes.
 !                      Concentration due to transport and dispersion only; no removal processes yet.
 !                      Here, the concentration is computed at z = 0 m height. May be a problem very near a source,
 !                      where there is a strong concentration profile. Later on, we apply a concentration profile, due to deposition,
@@ -53,7 +53,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_conltexp')
 
 ! CONSTANTS
@@ -65,67 +65,67 @@ PARAMETER  (PICON = 126987.)
 PARAMETER  (PS    = 159155.)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: rond                       ! 
+INTEGER*4, INTENT(IN)                            :: rond                       !
 REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov lengte
-REAL*4,    INTENT(IN)                            :: qbron                      ! 
+REAL*4,    INTENT(IN)                            :: qbron                      !
 REAL*4,    INTENT(IN)                            :: szopp                      ! initial vertical dispersion of source
 REAL*4,    INTENT(IN)                            :: uster                      ! frictiesnelheid
 REAL*4,    INTENT(IN)                            :: z0                         ! ruwheidslengte (m)
-REAL*4,    INTENT(IN)                            :: htt                        ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-INTEGER*4, INTENT(IN)                            :: iwd                        ! 
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
+REAL*4,    INTENT(IN)                            :: htt                        !
+REAL*4,    INTENT(IN)                            :: onder                      !
+REAL*4,    INTENT(IN)                            :: vw10                       !
+REAL*4,    INTENT(IN)                            :: pcoef                      !
+INTEGER*4, INTENT(IN)                            :: istab                      !
+REAL*4,    INTENT(IN)                            :: disx                       !
+REAL*4,    INTENT(IN)                            :: grof                       !
+INTEGER*4, INTENT(IN)                            :: iwd                        !
+REAL*4,    INTENT(IN)                            :: qww                        !
+REAL*4,    INTENT(IN)                            :: hbron                      !
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     ! 
-REAL*4,    INTENT(INOUT)                         :: htot                       ! 
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
+REAL*4,    INTENT(INOUT)                         :: radius                     !
+REAL*4,    INTENT(INOUT)                         :: htot                       !
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: c                          ! long-term concentation at receptor at z = 0; excluding removal processes
-REAL*4,    INTENT(OUT)                           :: sigz                       ! 
-REAL*4,    INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff; 
+REAL*4,    INTENT(OUT)                           :: sigz                       !
+REAL*4,    INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(OUT)                           :: xl                         ! 
-REAL*4,    INTENT(OUT)                           :: virty                      ! 
+REAL*4,    INTENT(OUT)                           :: xl                         !
+REAL*4,    INTENT(OUT)                           :: virty                      !
 
 ! LOCAL VARIABLES
 REAL*4                                           :: a                          ! reflection term source-surface-mixing height-surface
 REAL*4                                           :: b                          ! reflection term source-mixing height-surface
-REAL*4                                           :: cls                        ! 
-REAL*4                                           :: disp                       ! 
-REAL*4                                           :: f                          ! 
-REAL*4                                           :: f1                         ! 
-REAL*4                                           :: f2                         ! 
-REAL*4                                           :: h                          ! 
+REAL*4                                           :: cls                        !
+REAL*4                                           :: disp                       !
+REAL*4                                           :: f                          !
+REAL*4                                           :: f1                         !
+REAL*4                                           :: f2                         !
+REAL*4                                           :: h                          !
 REAL*4                                           :: hf                         ! effective transport height [m]
 REAL*4                                           :: pld                        ! pluimdaling
-REAL*4                                           :: pp                         ! 
-REAL*4                                           :: qq                         ! 
-REAL*4                                           :: rr                         ! 
-REAL*4                                           :: sz                         ! 
-REAL*4                                           :: tl                         ! 
-REAL*4                                           :: u1                         ! 
-REAL*4                                           :: utl                        ! 
+REAL*4                                           :: pp                         !
+REAL*4                                           :: qq                         !
+REAL*4                                           :: rr                         !
+REAL*4                                           :: sz                         !
+REAL*4                                           :: tl                         !
+REAL*4                                           :: u1                         !
+REAL*4                                           :: utl                        !
 
 ! FUNCTIONS
-REAL*4                                           :: ops_virtdist               ! 
+REAL*4                                           :: ops_virtdist               !
 
 !DATA
 DATA ZWCOR/1.2, 1.1, 0.8, 0.6, 0.75, 0.6/
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -141,7 +141,7 @@ pld  = htt - htot
 !
 IF (ABS(onder) .LE. EPS_DELTA) THEN
 !
-!  Set h = plume height, including plume descent due to heavy particles and limit to HUMAX 
+!  Set h = plume height, including plume descent due to heavy particles and limit to HUMAX
 !
    IF (htot .GT. (HUMAX + EPS_DELTA)) THEN
       h = HUMAX
@@ -190,7 +190,7 @@ ELSE
 !     grof = 1 ("grof" = coarse): heavy particles
 !     correction for large distances and heavy plumes
 !
-!     Compute u1 = wind speed at htt/2 
+!     Compute u1 = wind speed at htt/2
 !     htt = plume height, excluding plume descent due to heavy particles [m]
 
       u1 = vw10*((htt/20.)**pcoef)
@@ -201,7 +201,7 @@ ELSE
       ELSE
          tl = 500.
       ENDIF
-    
+
       ! utl = u1 * tl + radius = characteristic travel distance [m]
       utl = (u1*tl) + radius
       IF (utl .LT. (disx - EPS_DELTA)) THEN
@@ -260,7 +260,7 @@ ELSE
       ueff = vw10*((hf/10.)**pcoef)                                            ! 920906
 !
 !     Compute concentration at receptor for case 3:
-!  
+!
 !             Q(x)                Q(x)   NSEK     1
 !     C(x) = ----- D (x) D (x) = ----- --------  ---- ,  3.7, 3.8, 3.9 OPS report
 !              u    y     z        u    2 pi x    zi
@@ -277,7 +277,7 @@ ELSE
 !
       qq = .6*sqrt(1. - htot/xl)
 !
-!     Compute hf = effective transport height over trajectory, by interpolating effective plume height at short distance and 
+!     Compute hf = effective transport height over trajectory, by interpolating effective plume height at short distance and
 !     (mixing heigth)/2 at large distance (where plume is assumed to be well mixed over whole mixing layer).
 !     For heavy particles (grof > 0.2) hf = plume_height/2
 !     hf = (1. - pp/1.6)*htt + (pp/1.6)*xl/2. ?
@@ -297,21 +297,21 @@ ELSE
 !
 !     Compute wind speed at effective transport height by either a power law (hf > 50 m)
 !     or by a logarithmic wind profile (hf <= 50 m).
-!    
+!
       IF ( hf .GT. 50 ) THEN
          ueff = vw10*(hf/10)**pcoef
       ELSE
          CALL ops_wvprofile(z0, hf, uster, ol, ueff)
       ENDIF
-! 
+!
 !     qq = .6*sqrt(1. - htot/xl)
 !     pp = sigma_z/mixing_height
 !
 !     For coarse particles (grof = 1) switch pp > qq/3 instead of pp > qq;
 !     idea is that for coarse particles we have a descending plume and the reflection
-!     at the earth surface takes place earlier 
+!     at the earth surface takes place earlier
 
-      IF (pp .GT. (qq/(grof*2. + 1.) + EPS_DELTA)) THEN 
+      IF (pp .GT. (qq/(grof*2. + 1.) + EPS_DELTA)) THEN
 !
 !        Case 2 (intermediate distance)
 !
@@ -319,30 +319,30 @@ ELSE
 !        b = reflection term from source-mixing_layer-surface
 !
 !        3.15 in OPS report is rewritten as follows
-!                                            
+!
 !        In the following h = htot = htt - pld
 !
 !                        2                   -h**2                 -(2 zi + h)**2           -(2 zi - h)**2
-!        D (x) = ------------------- { exp[--------------] + exp [----------------] + exp [---------------] } = 
+!        D (x) = ------------------- { exp[--------------] + exp [----------------] + exp [---------------] } =
 !         z      sqrt(2 pi) sigma_z         2 sigma_z**2            2 sigma_z**2             2 sigma_z**2
 !
 !                   2                  -h**2                    -[(2 zi + h)**2 - h**2]          -[(2 zi - h)**2 - h**2]
 !         = ------------------- exp[--------------] * {1 + exp [------------------------] + exp [----------------------] }
 !           sqrt(2 pi) sigma_z       2 sigma_z**2                    2 sigma_z**2                      2 sigma_z**2
 !
-!                   2                   -h**2                  
-!         = ------------------- exp[--------------] * {1 + a + b} = 
-!           sqrt(2 pi) sigma_z       2 sigma_z**2              
+!                   2                   -h**2
+!         = ------------------- exp[--------------] * {1 + a + b} =
+!           sqrt(2 pi) sigma_z       2 sigma_z**2
 !
 !
-!                   2                   -h**2                  
+!                   2                   -h**2
 !         = ------------------- exp[--------------] * cls .
-!           sqrt(2 pi) sigma_z       2 sigma_z**2              
+!           sqrt(2 pi) sigma_z       2 sigma_z**2
 !
 !         rr = sigz*sigz*2.
 !
-         a   = EXP( - 4.*xl*pld/rr)* EXP( - ((2.*xl + htot)**2 - htot*htot)/rr) 
-         b   = EXP( - 4*(xl-htt)*pld/rr)* EXP(-((2*xl-htt-pld)**2 - htot*htot)/rr) 
+         a   = EXP( - 4.*xl*pld/rr)* EXP( - ((2.*xl + htot)**2 - htot*htot)/rr)
+         b   = EXP( - 4*(xl-htt)*pld/rr)* EXP(-((2*xl-htt-pld)**2 - htot*htot)/rr)
          cls = 1. + a + b
       ELSE
 !
@@ -352,8 +352,8 @@ ELSE
       ENDIF
 !
 !     Compute concentration at receptor for cases 1 and 2
-!  
-!             Q(x)                Q(x)   NSEK        2                      -h**2    
+!
+!             Q(x)                Q(x)   NSEK        2                      -h**2
 !     C(x) = ----- D (x) D (x) = ----- --------  ------------------- exp[--------------] * cls,  3.7, 3.8, 3.15 OPS report
 !              u    y     z        u    2 pi x   sqrt(2 pi) sigma_z       2 sigma_z**2
 !
@@ -372,7 +372,7 @@ ELSE
       f  = (disx + virty)/virty
       f1 = (radius - disx)/radius
       f2 = EXP( - (htt*htt)/(sigz*sigz))
-      c  = c*((f - 1)*(f1**.4)*f2 + 1.) 
+      c  = c*((f - 1)*(f1**.4)*f2 + 1.)
    ENDIF
 ENDIF
 
@@ -391,47 +391,47 @@ SUBROUTINE par_oppbr(rond, iwd, disx, istab, disp, htt, grof, dispg, zwcor, radi
 USE Binas, only: deg2rad
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'par_oppbr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: rond                       ! 
-INTEGER*4, INTENT(IN)                            :: iwd                        ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: disp                       ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! 
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
-REAL*4,    INTENT(IN)                            :: zwcor(NSTAB)               ! 
+INTEGER*4, INTENT(IN)                            :: rond                       !
+INTEGER*4, INTENT(IN)                            :: iwd                        !
+REAL*4,    INTENT(IN)                            :: disx                       !
+INTEGER*4, INTENT(IN)                            :: istab                      !
+REAL*4,    INTENT(IN)                            :: disp                       !
+REAL*4,    INTENT(IN)                            :: htt                        !
+REAL*4,    INTENT(IN)                            :: grof                       !
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
+REAL*4,    INTENT(IN)                            :: zwcor(NSTAB)               !
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     ! 
-REAL*4,    INTENT(INOUT)                         :: sz                         ! 
+REAL*4,    INTENT(INOUT)                         :: radius                     !
+REAL*4,    INTENT(INOUT)                         :: sz                         !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: virty                      ! 
-REAL*4,    INTENT(OUT)                           :: rr                         ! 
-REAL*4,    INTENT(OUT)                           :: sigz                       ! 
-REAL*4,    INTENT(OUT)                           :: pld                        ! 
-REAL*4,    INTENT(OUT)                           :: htot                       ! 
+REAL*4,    INTENT(OUT)                           :: virty                      !
+REAL*4,    INTENT(OUT)                           :: rr                         !
+REAL*4,    INTENT(OUT)                           :: sigz                       !
+REAL*4,    INTENT(OUT)                           :: pld                        !
+REAL*4,    INTENT(OUT)                           :: htot                       !
 
 ! LOCAL VARIABLES
-REAL*4                                           :: cr                         ! 
-REAL*4                                           :: radr                       ! 
-REAL*4                                           :: dx                         ! 
-REAL*4                                           :: dy                         ! 
-REAL*4                                           :: sta1                         ! 
-REAL*4                                           :: sta2                         ! 
-REAL*4                                           :: s1                         ! 
-REAL*4                                           :: s2                         ! 
-REAL*4                                           :: dsx                        ! 
+REAL*4                                           :: cr                         !
+REAL*4                                           :: radr                       !
+REAL*4                                           :: dx                         !
+REAL*4                                           :: dy                         !
+REAL*4                                           :: sta1                         !
+REAL*4                                           :: sta2                         !
+REAL*4                                           :: s1                         !
+REAL*4                                           :: s2                         !
+REAL*4                                           :: dsx                        !
 
 ! FUNCTIONS
-REAL*4                                           :: ops_virtdist               ! 
+REAL*4                                           :: ops_virtdist               !
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -446,7 +446,7 @@ IF (rond .EQ. 1) THEN
 ELSE
 !
 !   Square area source;
-!   Compute correction factor cr for corrected source radius r' = r*cr, such that r' represents a square area source 
+!   Compute correction factor cr for corrected source radius r' = r*cr, such that r' represents a square area source
 !
    dx    = ABS(radius*SIN(FLOAT(iwd)*deg2rad))
    dy    = ABS(radius*COS(FLOAT(iwd)*deg2rad))
@@ -472,10 +472,10 @@ ELSE
    s1  = dispg(istab)*((disx - radr)**disp)
    dsx = disx
 ENDIF
-s2 = 0.92*dispg(istab)*((dsx + radius)**disp) 
+s2 = 0.92*dispg(istab)*((dsx + radius)**disp)
 
 ! sz OPS report: represents the distribution of source heights within the area source
-sz = 0.1    
+sz = 0.1
 
 IF (abs(s2-s1) .LE. 1.E-04) s2 = s1*1.001
 
@@ -502,27 +502,27 @@ END SUBROUTINE par_oppbr
 SUBROUTINE par_puntbr(qww, istab, disx, disp, htt, htot, hbron, dispg, sigz, hf, a, virty)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'par_puntbr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: disp                       ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
+REAL*4,    INTENT(IN)                            :: qww                        !
+INTEGER*4, INTENT(IN)                            :: istab                      !
+REAL*4,    INTENT(IN)                            :: disx                       !
+REAL*4,    INTENT(IN)                            :: disp                       !
+REAL*4,    INTENT(IN)                            :: htt                        !
+REAL*4,    INTENT(IN)                            :: htot                       !
+REAL*4,    INTENT(IN)                            :: hbron                      !
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: sigz                       ! 
-REAL*4,    INTENT(OUT)                           :: hf                         ! 
-REAL*4,    INTENT(OUT)                           :: a                          ! 
-REAL*4,    INTENT(OUT)                           :: virty                      ! 
+REAL*4,    INTENT(OUT)                           :: sigz                       !
+REAL*4,    INTENT(OUT)                           :: hf                         !
+REAL*4,    INTENT(OUT)                           :: a                          !
+REAL*4,    INTENT(OUT)                           :: virty                      !
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -544,7 +544,7 @@ ELSE
 
    ! Add extra vertical dispersion due to buoyant plumes; 2.5066 = sqrt(2*pi);
    ! taken from OML model (Berkowicz and Olesen, 1986)
-   a = (htot - hbron)/2.5066 
+   a = (htot - hbron)/2.5066
    a = AMIN1(sigz, a)/1.5                                                      ! 960115
    sigz = SQRT((sigz*sigz) + (a*a))
 ENDIF

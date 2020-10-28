@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN-77/90
 ! DESCRIPTION          : General utilities
@@ -171,7 +171,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : WisselBytes
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa
-! AUTHOR      : OPS-support 
+! AUTHOR      : OPS-support
 ! INPUTS      : string     (character*(*)) The string which should represent the number to be extracted.
 ! OUTPUTS     : default    (logical) Returns .TRUE. if no value was read because no value was defined following the = sign.
 !               error      (type TError). Is assigned when an error occurred in the number defined in the string.
@@ -272,15 +272,15 @@ SUBROUTINE get_version_utils(dll_version, dll_date)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_version_utils
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'get_version_utils')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
+CHARACTER*(*), INTENT(OUT)                       :: dll_version                !
+CHARACTER*(*), INTENT(OUT)                       :: dll_date                   !
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -299,14 +299,14 @@ SUBROUTINE allocreal0(dim, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocreal0
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+REAL*4,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal0')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -324,18 +324,18 @@ SUBROUTINE allocreal(dim, defvalue, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocreal
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
-REAL*4,    INTENT(IN)                            :: defvalue                   ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
+REAL*4,    INTENT(IN)                            :: defvalue                   !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+REAL*4,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -361,14 +361,14 @@ SUBROUTINE allocdouble0(dim, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocdouble0
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocdouble0')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -386,18 +386,18 @@ SUBROUTINE allocdouble(dim, defvalue, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocdouble
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
-REAL*4,    INTENT(IN)                            :: defvalue                   ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
+REAL*4,    INTENT(IN)                            :: defvalue                   !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocdouble')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -423,18 +423,18 @@ SUBROUTINE allocreal2(dim1, dim2, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocreal2
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim1                       ! 
-INTEGER*4, INTENT(IN)                            :: dim2                       ! 
+INTEGER*4, INTENT(IN)                            :: dim1                       !
+INTEGER*4, INTENT(IN)                            :: dim2                       !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        ! 
+REAL*4,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -458,18 +458,18 @@ SUBROUTINE allocreal2a(dim1, dim2, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocreal2a
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim1                       ! 
-INTEGER*4, INTENT(IN)                            :: dim2                       ! 
+INTEGER*4, INTENT(IN)                            :: dim1                       !
+INTEGER*4, INTENT(IN)                            :: dim2                       !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT), DIMENSION(:,:), ALLOCATABLE :: arr                        ! 
+REAL*4,    INTENT(OUT), DIMENSION(:,:), ALLOCATABLE :: arr                        !
 TYPE (TError), INTENT(OUT)                          :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -494,18 +494,18 @@ SUBROUTINE allocdouble2(dim1, dim2, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocdouble2
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim1                       ! 
-INTEGER*4, INTENT(IN)                            :: dim2                       ! 
+INTEGER*4, INTENT(IN)                            :: dim1                       !
+INTEGER*4, INTENT(IN)                            :: dim2                       !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        ! 
+DOUBLE PRECISION,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocdouble2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -530,19 +530,19 @@ SUBROUTINE allocreal3(dim1, dim2, dim3, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocreal3
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim1                       ! 
-INTEGER*4, INTENT(IN)                            :: dim2                       ! 
-INTEGER*4, INTENT(IN)                            :: dim3                       ! 
+INTEGER*4, INTENT(IN)                            :: dim1                       !
+INTEGER*4, INTENT(IN)                            :: dim2                       !
+INTEGER*4, INTENT(IN)                            :: dim3                       !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT), DIMENSION(:,:,:), POINTER :: arr                       ! 
+REAL*4,    INTENT(OUT), DIMENSION(:,:,:), POINTER :: arr                       !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal3')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -568,14 +568,14 @@ SUBROUTINE allocinteger0(dim, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocinteger0
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+INTEGER*4, INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocinteger0')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -593,18 +593,18 @@ SUBROUTINE allocinteger(dim, defvalue, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocinteger
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
-INTEGER*4, INTENT(IN)                            :: defvalue                   ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
+INTEGER*4, INTENT(IN)                            :: defvalue                   !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT), DIMENSION(:), POINTER    :: arr                        ! 
+INTEGER*4, INTENT(OUT), DIMENSION(:), POINTER    :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocinteger')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -630,18 +630,18 @@ SUBROUTINE allocinteger2(dim1, dim2, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocinteger2
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim1                       ! 
-INTEGER*4, INTENT(IN)                            :: dim2                       ! 
+INTEGER*4, INTENT(IN)                            :: dim1                       !
+INTEGER*4, INTENT(IN)                            :: dim2                       !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        ! 
+INTEGER,    INTENT(OUT), DIMENSION(:,:), POINTER  :: arr                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocinteger2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -666,17 +666,17 @@ SUBROUTINE allocstring(dim, arr, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: allocstring
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: dim                        ! 
+INTEGER*4, INTENT(IN)                            :: dim                        !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT), DIMENSION(:), POINTER :: arr                       ! 
+CHARACTER*(*), INTENT(OUT), DIMENSION(:), POINTER :: arr                       !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocstring')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -737,10 +737,10 @@ SUBROUTINE deallocreal(arr)
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocreal
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT), DIMENSION(:), POINTER  :: arr                        ! 
+REAL*4,    INTENT(INOUT), DIMENSION(:), POINTER  :: arr                        !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocreal')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -756,10 +756,10 @@ SUBROUTINE deallocdouble(arr)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocdouble
 ! SUBROUTINE ARGUMENTS - I/O
-DOUBLE PRECISION,    INTENT(INOUT), DIMENSION(:), POINTER  :: arr              ! 
+DOUBLE PRECISION,    INTENT(INOUT), DIMENSION(:), POINTER  :: arr              !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocdouble')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -776,10 +776,10 @@ SUBROUTINE deallocreal2(arr)
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocreal2
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT), DIMENSION(:,:), POINTER :: arr                       ! 
+REAL*4,    INTENT(INOUT), DIMENSION(:,:), POINTER :: arr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocreal2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -796,10 +796,10 @@ SUBROUTINE deallocdouble2(arr)
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocdouble2
 
 ! SUBROUTINE ARGUMENTS - I/O
-DOUBLE PRECISION,    INTENT(INOUT), DIMENSION(:,:), POINTER :: arr                       ! 
+DOUBLE PRECISION,    INTENT(INOUT), DIMENSION(:,:), POINTER :: arr                       !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocdouble2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -816,10 +816,10 @@ SUBROUTINE deallocreal3(arr)
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocreal3
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT), DIMENSION(:,:,:), POINTER :: arr                     ! 
+REAL*4,    INTENT(INOUT), DIMENSION(:,:,:), POINTER :: arr                     !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocreal3')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -835,10 +835,10 @@ SUBROUTINE deallocinteger(arr)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocinteger
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT), DIMENSION(:), POINTER  :: arr                        ! 
+INTEGER*4, INTENT(INOUT), DIMENSION(:), POINTER  :: arr                        !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocinteger')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -855,10 +855,10 @@ SUBROUTINE deallocstring(arr)
 !DEC$ ATTRIBUTES DLLEXPORT:: deallocstring
 
 ! SUBROUTINE ARGUMENTS - I/O
-CHARACTER*(*), INTENT(INOUT), DIMENSION(:), POINTER :: arr                     ! 
+CHARACTER*(*), INTENT(INOUT), DIMENSION(:), POINTER :: arr                     !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'deallocstring')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -877,17 +877,17 @@ FUNCTION Jaartal(number)
 !DEC$ ATTRIBUTES DLLEXPORT:: Jaartal
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: number                     ! 
+INTEGER*4, INTENT(IN)                            :: number                     !
 
 ! FUNCTION RESULT
-INTEGER*4                                        :: Jaartal                    ! 
+INTEGER*4                                        :: Jaartal                    !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'Jaartal')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (number < 50) THEN
@@ -916,7 +916,7 @@ SUBROUTINE getreal  (string, value, nopart, error)
 CHARACTER*(*), INTENT(IN)                        :: string                     ! String with real number, starting at pos. 1.
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: value                      ! 
+REAL*4,    INTENT(OUT)                           :: value                      !
 LOGICAL,   INTENT(OUT)                           :: nopart                     ! TRUE als er geen real is gelezen
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
@@ -930,11 +930,11 @@ LOGICAL                                          :: negative                   !
 CHARACTER                                        :: testchar                   ! Character looked at
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'getreal')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1024,13 +1024,13 @@ END SUBROUTINE getreal
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : getint
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! PURPOSE              : Extraheren van integer waarde uit een string. Geeft terug of er een waarde was, welke positie, etc.
 ! CALLED FUNCTIONS     : extractint
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE getint      (string, value, isdefault, error)
 
-!DEC$ ATTRIBUTES DLLEXPORT:: getint 
+!DEC$ ATTRIBUTES DLLEXPORT:: getint
 
 USE m_error                                                                    ! leave this here, otherwise you get compiler error!(?)
 
@@ -1038,16 +1038,16 @@ USE m_error                                                                    !
 CHARACTER*(*), INTENT(IN)                        :: string                     ! String met geheel getal, beginnend op pos. 1.
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: value                      ! 
+INTEGER*4, INTENT(OUT)                           :: value                      !
 LOGICAL,   INTENT(OUT)                           :: isdefault                  ! Whether nothing is extracted
-TYPE (TError), INTENT(OUT)                       :: error                      ! 
+TYPE (TError), INTENT(OUT)                       :: error                      !
 
 ! LOCAL PARAMETERS
 INTEGER*4                                        :: beyondpos                  ! First position beyond integer in string
 INTEGER*4                                        :: intvalue                   ! Value extracted
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'getint')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ END SUBROUTINE getint
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE byteswap1(ishort, shortdim)
 
-!DEC$ ATTRIBUTES DLLEXPORT:: byteswap1 
+!DEC$ ATTRIBUTES DLLEXPORT:: byteswap1
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: shortdim                   ! number of elements in ishort
@@ -1101,11 +1101,11 @@ INTEGER*2, INTENT(INOUT)                         :: ishort(shortdim)           !
 INTEGER*4                                        :: i                          ! tellers
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'byteswap1')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 DO i = 1, shortdim
@@ -1134,11 +1134,11 @@ INTEGER*2, INTENT(INOUT)                         :: ishort(dim1, dim2)         !
 INTEGER*4                                        :: i, j                       ! tellers
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'byteswap2')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 DO i = 1, dim1
@@ -1153,7 +1153,7 @@ END SUBROUTINE byteswap2
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : byteswap
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa.
-! AUTHOR      : OPS-support 
+! AUTHOR      : OPS-support
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE byteswap(ishort)
 
@@ -1168,11 +1168,11 @@ INTEGER*2                                        :: k2                         !
 INTEGER*2                                        :: maxint2                    ! maximum integerwaarde bij INT2
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'byteswap')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 maxint2 = 256
@@ -1211,17 +1211,17 @@ CHARACTER*(*), INTENT(IN)                        :: string                     !
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: intvalue                   ! First position beyond integer read. 0 if end of line.
 INTEGER*4, INTENT(OUT)                           :: beyondpos                  ! First position beyond integer read. 0 if end of line.
-TYPE (TError), INTENT(OUT)                       :: error                      ! 
+TYPE (TError), INTENT(OUT)                       :: error                      !
 
 ! RESULT
-LOGICAL                                          :: extractint                 ! 
+LOGICAL                                          :: extractint                 !
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: zerochar,lengte            ! 
-LOGICAL                                          :: negative,doorgaan          ! 
+INTEGER*4                                        :: zerochar,lengte            !
+LOGICAL                                          :: negative,doorgaan          !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'extractint')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1299,22 +1299,22 @@ SUBROUTINE GetOS(os, slash)
 !DEC$ ATTRIBUTES DLLEXPORT:: GetOS
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: os                         ! 
-CHARACTER, INTENT(OUT), OPTIONAL                 :: slash                      ! 
+INTEGER*4, INTENT(OUT)                           :: os                         !
+CHARACTER, INTENT(OUT), OPTIONAL                 :: slash                      !
 !
 ! Local variables:
 !
-INTEGER*4                                        :: rtc                        ! 
-INTEGER*4                                        :: colonpos                   ! 
+INTEGER*4                                        :: rtc                        !
+INTEGER*4                                        :: colonpos                   !
 !
 ! De declaratie van GETCWD is uitgecommentarieerd omdat CWD in IFPORT is opgenomen. IFPORT declareert GETCWD. Als het hier toch
 ! wordt gedeclareerd neemt de compiler aan, dat dit een externe functie is. Bij het linken wordt die dan niet gevonden.
 !
 ! INTEGER*4     :: GETCWD
-CHARACTER*512                                    :: directory                  ! 
+CHARACTER*512                                    :: directory                  !
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'GetOS')
 
 rtc = GETCWD(directory)
@@ -1340,14 +1340,14 @@ SUBROUTINE GetCLArg(progpath, nrarg, arg, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: GetCLArg
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*512, INTENT(OUT)                       :: progpath                   ! 
-INTEGER*4, INTENT(OUT)                           :: nrarg                      ! 
-CHARACTER*512, INTENT(OUT), DIMENSION(:), POINTER :: arg                       ! 
+CHARACTER*512, INTENT(OUT)                       :: progpath                   !
+INTEGER*4, INTENT(OUT)                           :: nrarg                      !
+CHARACTER*512, INTENT(OUT), DIMENSION(:), POINTER :: arg                       !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 !
 ! External FUNCTIONS implemented on both HP-UX and WINNT.
 !
-INTEGER*4                                        :: iargc                      ! 
+INTEGER*4                                        :: iargc                      !
 !
 ! Local variables.
 !
@@ -1355,7 +1355,7 @@ INTEGER*4                                        :: i                          !
 INTEGER*4                                        :: ierr                       ! error status in allocation
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'GetCLArg')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1403,11 +1403,11 @@ CHARACTER*(*), INTENT(OUT)                       :: formatstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'startformat')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1437,7 +1437,7 @@ CHARACTER*(*), INTENT(INOUT)                     :: formatstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'append_format_string1')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1468,11 +1468,11 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: lastpos                    ! Last position in the string (=text lengte)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'append_format_string')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1543,7 +1543,7 @@ CHARACTER*(*), INTENT(INOUT)                     :: formatstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'prepend_format_string1')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1575,11 +1575,11 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: lastpos                    ! Last position in the string (=text lengte)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'prepend_format_string')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1637,18 +1637,18 @@ SUBROUTINE SortMatrix (matrix, nobs, column)
 !DEC$ ATTRIBUTES DLLEXPORT:: SortMatrix
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nobs                       ! 
-INTEGER*4, INTENT(IN)                            :: column                     ! 
+INTEGER*4, INTENT(IN)                            :: nobs                       !
+INTEGER*4, INTENT(IN)                            :: column                     !
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: matrix(:,:)                ! 
+REAL*4,    INTENT(INOUT)                         :: matrix(:,:)                !
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
-INTEGER*4                                        :: j                          ! 
-INTEGER*4                                        :: ctr                        ! 
-INTEGER*4                                        :: isize                      ! 
-REAL*4,    ALLOCATABLE                           :: tmp(:)                     ! 
+INTEGER*4                                        :: i                          !
+INTEGER*4                                        :: j                          !
+INTEGER*4                                        :: ctr                        !
+INTEGER*4                                        :: isize                      !
+REAL*4,    ALLOCATABLE                           :: tmp(:)                     !
 
 isize=SIZE(matrix,DIM=1)
 ALLOCATE(tmp(isize))
@@ -1683,7 +1683,7 @@ INTEGER*4, INTENT(IN)                            :: code                       !
 INTEGER*4, INTENT(INOUT)                         :: index                      ! index for numerical code
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: idents (50)                ! identities that are already known (max 50) 
+INTEGER*4                                        :: idents (50)                ! identities that are already known (max 50)
 INTEGER*4                                        :: nidents                    ! number of identities that are already known
 INTEGER*4                                        :: i                          ! do loop index
 LOGICAL                                          :: found                      ! true if identity has been encountered earlier

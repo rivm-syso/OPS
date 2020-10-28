@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 module Binas
 
   implicit none
@@ -25,7 +25,7 @@ module Binas
   !BOI
 
   ! !TITLE:        Binas - geometrical and physical constants
-  ! !AUTHORS:     
+  ! !AUTHORS:
   ! !AFFILIATION:  KNMI
   ! !DATE:         \today
   !
@@ -83,14 +83,14 @@ module Binas
 
   ! Avogadro number
   real, parameter        ::  Avog = 6.02205e23      ! mlc/mol
- 
+
   ! Dobson units:
   real,parameter         ::  Dobs = 2.68668e16    ! (mlc/cm2) / DU
 
 
 
   ! molar weights of components
-  ! 
+  !
 
   ! naming convention:
   !  o old names 'xm***' are in g/mol
@@ -155,7 +155,7 @@ module Binas
   ! gas
   ! ---------------------------------------------------------------
 
-  ! gas constant                      
+  ! gas constant
   real, parameter        ::  Rgas = 8.3144     ! J/mol/K
 
   ! gas constant for dry air

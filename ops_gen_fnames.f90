@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,13 +28,13 @@
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
 ! USAGE              :
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-90
-! DESCRIPTION        : Check existence and generate full file names of those files that have not been explicitly defined 
+! DESCRIPTION        : Check existence and generate full file names of those files that have not been explicitly defined
 !                      in the control file: files for diurnal variation, particle size distribution, z0-Europe, NL-mask,
 !                      meteo statistics. Note: meteo statisctics file names are generated in ops_read_meteo.
-! CHANGES            : 
+! CHANGES            :
 ! EXIT CODES         :
 ! REFERENCE          :
 ! FILES AND OTHER    :
@@ -53,13 +53,13 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM              
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_gen_fnames')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL,   INTENT(IN)                            :: gasv                     
-INTEGER*4, INTENT(IN)                            :: spgrid                   
-INTEGER*4, INTENT(IN)                            :: intpol                   
+LOGICAL,   INTENT(IN)                            :: gasv
+INTEGER*4, INTENT(IN)                            :: spgrid
+INTEGER*4, INTENT(IN)                            :: intpol
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
@@ -70,13 +70,13 @@ INTEGER*4                                        :: naamlengte                 !
 CHARACTER*512                                    :: helpfile                   ! meteostatistics file name, includes region number
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Standard file for diurnal variations of emissions
 CALL MakeCommonPath(DVFILE, dvnam, error)
 
-! Standard file for particle size distributions 
+! Standard file for particle size distributions
 IF (.NOT.gasv) THEN
   CALL MakeCommonPath(PSDFILE, psdnam, error)
 ENDIF

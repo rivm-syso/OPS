@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -29,13 +29,13 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-90
 ! DESCRIPTION        : This module contains geographical utilities.
 !                    : - amcgeo: conversion of RDM to geographical lon-lat coordinates
 !                    : - flrs: conversion of geographical lon-lat coordinates to RDM coordinates
-!                      RDM coordinates are based on a km grid over the Netherlands, centred at Amersfoort; 
+!                      RDM coordinates are based on a km grid over the Netherlands, centred at Amersfoort;
 !                      RDM coordinates are also called "Amersfoortse coordinaten". RDM stands for RijksDriehoeksMeting,
 !                      since this grid is determined by triangulation (driehoek = triangle) measurements (meting = meeasurements)
 !                      of the Netherlands government (Rijk ~ government).
@@ -56,7 +56,7 @@ IMPLICIT NONE
 ! SUBROUTINE  : amc2geo
 ! PURPOSE     : conversion of RDM to geographical lon-lat coordinates
 ! DESCRIPTION : Given input RDM coordinates (x,y), amcgeo uses an iterative method to compute the geographical coordinates (gl,gb).
-!               Given an initial guess for (geol,geob), the corresponding RDM coordinates (x0,y0) are computed and compared with the 
+!               Given an initial guess for (geol,geob), the corresponding RDM coordinates (x0,y0) are computed and compared with the
 !               input coordinates (amcx,amcy). In a next step, (geol,geob) are adjusted as function of the difference (dx,dy) = (xi-x,yi-y).
 !               This iterative procedure continues until (dx,dy) is samller than a specified threshold (difx,dify).
 !               limits: ca. 10000 km oost (y < 3000 km)  100 lon 16 lat
@@ -127,7 +127,7 @@ SUBROUTINE amc2geo(amcx, amcy, geol, geob)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'amc2geo')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -148,7 +148,7 @@ REAL*4                                           :: amcx0                      !
 REAL*4                                           :: amcy0                      ! RDM y-coordinate that corresponds with (gb,gl)
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ ENDIF
 !-----------------------------
 50 CONTINUE
 
-   ! Compute (x0,y0) = RDM coordinates that correspond with (gb,gl) 
+   ! Compute (x0,y0) = RDM coordinates that correspond with (gb,gl)
    CALL geo2amc(geob, geol, amcx0, amcy0)
 
    ! Compute difference between input (x,y) and iterand (x0,y0); if x or y is relatively large,
@@ -196,19 +196,19 @@ ENDIF
       ! No convergence yet; adjust lon-lat for next iteration;
       ! 111.1984 is R*CONV = R*180/pi in km, with R = earth radius. See also ops_reken
       geob  = geob + (dy/111.1984)
-      geol  = geol + (dx/(111.1984*COS(geob/57.2958))) 
+      geol  = geol + (dx/(111.1984*COS(geob/57.2958)))
       tel = tel + 1
- 
+
       ! Goto next iteration (if number of iterations < 300):
       IF (tel .LT. 300) THEN
          GOTO 50
       ENDIF
-    
+
    !   WRITE (*, '( '' x and/or y coord. in subr. amcgeo beyond limits'')')
    !   WRITE (*, '( '' x ='', f6.0, '' y ='', f6.0, '' km'')') x, y
- 
+
    ENDIF
- 
+
 ! Iteration has converged or tel >= 300
 
 RETURN
@@ -224,14 +224,14 @@ SUBROUTINE geo2amc(geob, geol, amcx, amcy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'geo2amc')
 
 ! CONSTANTS
 REAL*4                                           :: AMFI                       ! longitude (phi) of Amersfoort (centre of RDM grid)
 REAL*4                                           :: AMLA                       ! latitude (lambda) of Amersfoort (centre of RDM grid)
-PARAMETER (AMFI = 18.7762) 
-PARAMETER (AMLA =  1.9395) 
+PARAMETER (AMFI = 18.7762)
+PARAMETER (AMLA =  1.9395)
 ! 1 degree = 3600 seconds; AMFI, AMLA in units of 10000 seconds; conversion factor to degrees = 10000/3600:
 ! 10000*[AMFI, AMLA]/3600 = [AMFI, AMLA]/0.36 = [18.7762 1.9395]/0.36 = [52.1561 5.3875] = [Lat, Lon]_Amersfoort
 
@@ -244,11 +244,11 @@ REAL*4,    INTENT(OUT)                           :: amcx                       !
 REAL*4,    INTENT(OUT)                           :: amcy                       ! RDM y-coordinate (km
 
 ! LOCAL VARIABLES
-REAL*4                                           :: f1                         ! 
-REAL*4                                           :: l1                         ! 
+REAL*4                                           :: f1                         !
+REAL*4                                           :: l1                         !
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -272,7 +272,7 @@ SUBROUTINE amc2lam(amcx, amcy, lamx, lamy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'amc2lam')
 
 ! CONSTANTS
@@ -290,7 +290,7 @@ REAL*4                                           :: geol                       !
 REAL*4                                           :: geob                       ! hulpvariabele voor lambda
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -317,7 +317,7 @@ SUBROUTINE geo2lam(geob, geol, lamx, lamy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'geo2lam')
 
 ! CONSTANTS
@@ -359,11 +359,11 @@ real*8                                           :: x
 real*8                                           :: y
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Documentation: http://mathworld.wolfram.com/LambertAzimuthalEqual-AreaProjection.html 
+! Documentation: http://mathworld.wolfram.com/LambertAzimuthalEqual-AreaProjection.html
 !
 lat = dble(geob)
 lon = dble(geol)
