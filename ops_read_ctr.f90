@@ -198,14 +198,16 @@ IF (.NOT. GetCheckedKey('LDCONVRATE', 0., 99.99, gasv .AND. idep .AND..NOT.isec,
 ! Secondary species are SO4, NO3_total, NH4;
 ! for NOx with EMEP chemical conversion, we have 3 sub-secondary species (HNO3, NO3_C (coarse in PM10-PM2.5), NO3_F (fine in PM2.5)):
 if (icm .eq. 2) then
+   CNAME_SUBSEC(1) = 'NO3_AER'
+   CNAME_SUBSEC(2) = 'HNO3'           ! HNO3, NO3_aerosol (in PM10)
    if (iopt_vchem .eq. 0) then
       ! Old OPS parameterisation; no information on fine and coarse NO3:
       nsubsec = 2
-      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3' /)          ! HNO3, NO3_aerosol (in PM10)
    else
       ! EMEP gives also a split between coarse and fine NO3:
       nsubsec = 4
-      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3', 'NO3_C', 'NO3_F' /)   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
+      CNAME_SUBSEC(3) =  'NO3_C'   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
+      CNAME_SUBSEC(4) =  'NO3_F'   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
    endif
 else
    ! SO4 and NH4 all in fine PM-fraction; no sub-species:
