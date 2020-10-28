@@ -58,24 +58,24 @@ LOGICAL,   INTENT(IN)                            :: gasv                       !
 LOGICAL,   INTENT(IN)                            :: isec                       ! true when comp=SO2,NOx,NH3
 INTEGER*4, INTENT(IN)                            :: intpol                     ! 
 INTEGER*4, INTENT(IN)                            :: spgrid                     ! code for type of receptor points
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+real,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! substance name
 INTEGER*4, INTENT(IN)                            :: nbron                      ! number of emission sources (after selection)
 INTEGER*4, INTENT(IN)                            :: bnr(LSBUF)                 ! buffer with source numbers
 INTEGER*4, INTENT(IN)                            :: bx(LSBUF)                  ! buffer with x-coordinates
 INTEGER*4, INTENT(IN)                            :: by(LSBUF)                  ! buffer with y-coordinates
-REAL*4,    INTENT(IN)                            :: bsterkte(LSBUF)            ! buffer with source strengths (industrial)
-REAL*4,    INTENT(IN)                            :: bqrv(LSBUF)                ! buffer with source strengths (space heating)
-REAL*4,    INTENT(IN)                            :: bqtr(LSBUF)                ! buffer with source strengths (traffic)
-REAL*4,    INTENT(IN)                            :: bwarmte(LSBUF)             ! buffer with heat contents
-REAL*4,    INTENT(IN)                            :: bhoogte(LSBUF)             ! buffer with source heights
-REAL*4,    INTENT(IN)                            :: bdiam(LSBUF)               ! buffer with source diameters
-REAL*4,    INTENT(IN)                            :: bsigmaz(LSBUF)             ! buffer with source heigth variances
+real,      INTENT(IN)                            :: bsterkte(LSBUF)            ! buffer with source strengths (industrial)
+real,      INTENT(IN)                            :: bqrv(LSBUF)                ! buffer with source strengths (space heating)
+real,      INTENT(IN)                            :: bqtr(LSBUF)                ! buffer with source strengths (traffic)
+real,      INTENT(IN)                            :: bwarmte(LSBUF)             ! buffer with heat contents
+real,      INTENT(IN)                            :: bhoogte(LSBUF)             ! buffer with source heights
+real,      INTENT(IN)                            :: bdiam(LSBUF)               ! buffer with source diameters
+real,      INTENT(IN)                            :: bsigmaz(LSBUF)             ! buffer with source heigth variances
 INTEGER*4, INTENT(IN)                            :: btgedr(LSBUF)              ! buffer with diurnal variation codes
 INTEGER*4, INTENT(IN)                            :: bdegr(LSBUF)               ! buffer with particle size distribution codes
 INTEGER*4, INTENT(IN)                            :: bcatnr(LSBUF)              ! buffer with category codes
 INTEGER*4, INTENT(IN)                            :: blandnr(LSBUF)             ! buffer with area codes
-REAL*4,    INTENT(IN)                            :: emtrend                    ! emission correction factor
+real,      INTENT(IN)                            :: emtrend                    ! emission correction factor
 INTEGER*4, INTENT(IN)                            :: jb                         ! starting year of meteo
 INTEGER*4, INTENT(IN)                            :: mb                         ! starting month of meteo
 INTEGER*4, INTENT(IN)                            :: idb                        ! starting day of meteo
@@ -86,7 +86,7 @@ INTEGER*4, INTENT(IN)                            :: iseiz                      !
 LOGICAL*4, INTENT(IN)                            :: f_z0user                   ! true if z0 is user specified
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)
+real,      INTENT(INOUT)                         :: emis(6,NLANDMAX)
 INTEGER*4, INTENT(INOUT)                         :: landmax                    ! number of countries in emission file
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -101,7 +101,7 @@ INTEGER*4                                        :: ierr                       !
 INTEGER*4                                        :: indx                       ! 
 INTEGER*4                                        :: jndx                       ! 
 INTEGER*4                                        :: statclass                  ! 
-REAL*4                                           :: qb                         ! emission of individual source
+real                                             :: qb                         ! emission of individual source
 CHARACTER*1                                      :: statcode                   ! 
 CHARACTER*30                                     :: climper(0:6)               ! 
 

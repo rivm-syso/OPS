@@ -125,8 +125,8 @@ INTEGER*4                                        :: ircp
 INTEGER*4                                        :: mmm
 INTEGER*4                                        :: ndone
 INTEGER*4                                        :: lu_rcp_dom                 ! dominant landuse class at receptor point
-REAL*4                                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie
-REAL*4                                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
+real                                             :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie
+real                                             :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
 INTEGER*4                                        :: i1(NTRAJ-1)                ! 
 INTEGER*4                                        :: year                        
 INTEGER*4                                        :: memdone                     
@@ -137,124 +137,124 @@ INTEGER*4                                        :: todo
 INTEGER*4                                        :: ntodo
 INTEGER*4                                        :: bottom
 
-REAL*4                                           :: aind                       ! hourglass
-REAL*4                                           :: amol2                       
-REAL*4                                           :: amol21                      
-REAL*4                                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]      
-REAL*4                                           :: z0_user                    ! roughness length specified by user [m]
-REAL*4                                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4                                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4                                           :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4                                           :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4                                           :: vchemc                      
+real                                             :: aind                       ! hourglass
+real                                             :: amol2
+real                                             :: amol21
+real                                             :: z0_metreg_user             ! roughness length of user specified meteo region [m]
+real                                             :: z0_user                    ! roughness length specified by user [m]
+real                                             :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+real                                             :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+real                                             :: z0_src                     ! roughness length at source; from z0-map [m]
+real                                             :: z0_tra                     ! roughness length representative for trajectory [m]
+real                                             :: vchemc
 INTEGER*4                                        :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                            
-REAL*4                                           :: vchemv                      
-REAL*4                                           :: xc                          
-REAL*4                                           :: yc                          
-REAL*4                                           :: rc                          
-REAL*4                                           :: ugmoldep                    
-REAL*4                                           :: gemre 
-REAL*4                                           :: somcsec                     
-REAL*4                                           :: gemcpri
-REAL*4                                           :: gemcsec                    
-REAL*4                                           :: totddep                    
-REAL*4                                           :: gemddep                    
-REAL*4                                           :: gemddpri                   
-REAL*4                                           :: gemddsec                   
-REAL*4                                           :: ddrpri                     
-REAL*4                                           :: ddrsec                     
-REAL*4                                           :: totwdep                    
-REAL*4                                           :: gemwdep                    
-REAL*4                                           :: gemwdpri                   
-REAL*4                                           :: gemwdsec                   
-REAL*4                                           :: wdrpri                     
-REAL*4                                           :: wdrsec                     
-REAL*4                                           :: tottdep                    
-REAL*4                                           :: gemtdep                    
-REAL*4                                           :: gemprec                    
-REAL*4                                           :: ccr                        
-REAL*4                                           :: xorg                       
-REAL*4                                           :: yorg                       
-REAL*4                                           :: bdiam(LSBUF)               
-REAL*4                                           :: bsterkte(LSBUF)            
-REAL*4                                           :: bwarmte(LSBUF)             
-REAL*4                                           :: bhoogte(LSBUF)             
-REAL*4                                           :: bsigmaz(LSBUF)    
-REAL*4                                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
-REAL*4                                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+real                                             :: vchemv
+real                                             :: xc
+real                                             :: yc
+real                                             :: rc
+real                                             :: ugmoldep
+real                                             :: gemre
+real                                             :: somcsec
+real                                             :: gemcpri
+real                                             :: gemcsec
+real                                             :: totddep
+real                                             :: gemddep
+real                                             :: gemddpri
+real                                             :: gemddsec
+real                                             :: ddrpri
+real                                             :: ddrsec
+real                                             :: totwdep
+real                                             :: gemwdep
+real                                             :: gemwdpri
+real                                             :: gemwdsec
+real                                             :: wdrpri
+real                                             :: wdrsec
+real                                             :: tottdep
+real                                             :: gemtdep
+real                                             :: gemprec
+real                                             :: ccr
+real                                             :: xorg
+real                                             :: yorg
+real                                             :: bdiam(LSBUF)
+real                                             :: bsterkte(LSBUF)
+real                                             :: bwarmte(LSBUF)
+real                                             :: bhoogte(LSBUF)
+real                                             :: bsigmaz(LSBUF)
+real                                             :: bD_stack(LSBUF)           ! diameter of the stack [m]
+real                                             :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
+real                                             :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]
 LOGICAL                                          :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
 type(Tbuilding)                                  :: bbuilding(LSBUF)          ! array with structures with building parameters
 LOGICAL                                          :: building_present1         ! at least one building is present in the source file   
-REAL*4                                           :: emis(6,NLANDMAX) 
-REAL*4                                           :: conc_cf
-REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4                                           :: ar                          
-REAL*4                                           :: rno2nox                     
-REAL*4                                           :: uurtot                      
-REAL*4                                           :: zf                          
-REAL*4                                           :: trafst(NTRAJ)               
-REAL*4                                           :: bqrv(LSBUF)                 
-REAL*4                                           :: bqtr(LSBUF)                 
-REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
-REAL*4                                           :: rainreg(NMETREG)            
-REAL*4                                           :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]           
-REAL*4                                           :: xreg(NMETREG)               
-REAL*4                                           :: yreg(NMETREG)               
-REAL*4                                           :: hourreg(NMETREG)            
-REAL*4                                           :: ecvl(NSTAB, NTRAJ,2*MAXDISTR) 
-REAL*4                                           :: dverl(NHRBLOCKS,MAXDISTR)   
-REAL*4                                           :: usdverl(NHRBLOCKS,MAXDISTR) 
-REAL*4                                           :: pmd(NPARTCLASS,MAXDISTR)    
-REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)  
-REAL*4                                           :: amol1                      
-REAL*4                                           :: emtrend                    
-REAL*4                                           :: grid                       
-REAL*4                                           :: wdeppar                    
-REAL*4                                           :: scavcoef                   
-REAL*4                                           :: routsec                    ! in-cloud scavenging ratio for secondary component
+real                                             :: emis(6,NLANDMAX)
+real                                             :: conc_cf
+real                                             :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real                                             :: ar
+real                                             :: rno2nox
+real                                             :: uurtot
+real                                             :: zf
+real                                             :: trafst(NTRAJ)
+real                                             :: bqrv(LSBUF)
+real                                             :: bqtr(LSBUF)
+real                                             :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+real                                             :: rainreg(NMETREG)
+real                                             :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+real                                             :: xreg(NMETREG)
+real                                             :: yreg(NMETREG)
+real                                             :: hourreg(NMETREG)
+real                                             :: ecvl(NSTAB, NTRAJ,2*MAXDISTR)
+real                                             :: dverl(NHRBLOCKS,MAXDISTR)
+real                                             :: usdverl(NHRBLOCKS,MAXDISTR)
+real                                             :: pmd(NPARTCLASS,MAXDISTR)
+real                                             :: uspmd(NPARTCLASS,MAXDISTR)
+real                                             :: amol1
+real                                             :: emtrend
+real                                             :: grid
+real                                             :: wdeppar
+real                                             :: scavcoef
+real                                             :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4                                           :: routpri                    ! in-cloud scavenging ratio for primary component
+real                                             :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4                                           :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                                   
-REAL*4                                           :: rcno                       
-REAL*4                                           :: rhno2                      
-REAL*4                                           :: rchno3                     
-REAL*4                                           :: dg                         
-REAL*4                                           :: dispg(NSTAB)               
-REAL*4                                           :: ddeppar                    
-REAL*4                                           :: koh                        
-REAL*4                                           :: so2sek(NSEK)               
-REAL*4                                           :: no2sek(NSEK)               
-REAL*4, DIMENSION(:), POINTER                    :: gem_subsec                 ! grid mean for concentration of sub-secondary species [ug/m3]     
-REAL*4                                           :: scale_con                  
-REAL*4                                           :: scale_sec                  
-REAL*4, DIMENSION(:), POINTER                    :: scale_subsec              
-REAL*4                                           :: scale_dep                  
-REAL*4                                           :: so2bgtra                   ! 
-REAL*4                                           :: no2bgtra                   ! 
-REAL*4                                           :: nh3bgtra                   ! 
+real                                             :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component
+real                                             :: rcno
+real                                             :: rhno2
+real                                             :: rchno3
+real                                             :: dg
+real                                             :: dispg(NSTAB)
+real                                             :: ddeppar
+real                                             :: koh
+real                                             :: so2sek(NSEK)
+real                                             :: no2sek(NSEK)
+real,   DIMENSION(:), POINTER                    :: gem_subsec                 ! grid mean for concentration of sub-secondary species [ug/m3]
+real                                             :: scale_con
+real                                             :: scale_sec
+real,   DIMENSION(:), POINTER                    :: scale_subsec
+real                                             :: scale_dep
+real                                             :: so2bgtra
+real                                             :: no2bgtra
+real                                             :: nh3bgtra
 type(Tvchem)                                     :: vchem2                     
-REAL*8, DIMENSION(:), POINTER                    :: sdrypri_arr                 
-REAL*8                                           :: sdrypri                     
-REAL*8, DIMENSION(:), POINTER                    :: snatpri_arr                 
-REAL*8                                           :: snatpri                     
-REAL*8, DIMENSION(:), POINTER                    :: somvnpri_arr                
-REAL*8                                           :: somvnpri                    
-REAL*8, DIMENSION(:), POINTER                    :: telvnpri_arr                
-REAL*8                                           :: telvnpri                    
-REAL*8, DIMENSION(:), POINTER                    :: sdrysec_arr                 
-REAL*8                                           :: sdrysec                     
-REAL*8, DIMENSION(:), POINTER                    :: snatsec_arr                 
-REAL*8                                           :: snatsec                     
-REAL*8, DIMENSION(:), POINTER                    :: somvnsec_arr                
-REAL*8                                           :: somvnsec                    
-REAL*8, DIMENSION(:), POINTER                    :: telvnsec_arr                
-REAL*8                                           :: telvnsec                    
-REAL*8, DIMENSION(:), POINTER                    :: vvchem_arr                  
-REAL*8                                           :: vvchem                      
-REAL*8, DIMENSION(:), POINTER                    :: vtel_arr                    
-REAL*8                                           :: vtel                        
+double precision, DIMENSION(:), POINTER          :: sdrypri_arr
+double precision                                 :: sdrypri
+double precision, DIMENSION(:), POINTER          :: snatpri_arr
+double precision                                 :: snatpri
+double precision, DIMENSION(:), POINTER          :: somvnpri_arr
+double precision                                 :: somvnpri
+double precision, DIMENSION(:), POINTER          :: telvnpri_arr
+double precision                                 :: telvnpri
+double precision, DIMENSION(:), POINTER          :: sdrysec_arr
+double precision                                 :: sdrysec
+double precision, DIMENSION(:), POINTER          :: snatsec_arr
+double precision                                 :: snatsec
+double precision, DIMENSION(:), POINTER          :: somvnsec_arr
+double precision                                 :: somvnsec
+double precision, DIMENSION(:), POINTER          :: telvnsec_arr
+double precision                                 :: telvnsec
+double precision, DIMENSION(:), POINTER          :: vvchem_arr
+double precision                                 :: vvchem
+double precision, DIMENSION(:), POINTER          :: vtel_arr
+double precision                                 :: vtel
 
 CHARACTER*512                                    :: namco                      
 CHARACTER*80                                     :: project                    
@@ -290,32 +290,33 @@ INTEGER*4, DIMENSION(:), POINTER                 :: landsel                    !
 INTEGER*4, DIMENSION(:), POINTER                 :: lu_rcp_dom_all             ! land use at receptor points
 INTEGER*4, DIMENSION(:), POINTER                 :: jump                       ! indices skipped because grid cell is outside NL
 
-REAL*4,    DIMENSION(:), POINTER                 :: xm                         
-REAL*4,    DIMENSION(:), POINTER                 :: ym                         
-REAL*4,    DIMENSION(:), POINTER                 :: zm                         
-REAL*4,    DIMENSION(:), POINTER                 :: frac                       ! fraction of output cell on land surface
+real,      DIMENSION(:), POINTER                 :: xm
+real,      DIMENSION(:), POINTER                 :: ym
+real,      DIMENSION(:), POINTER                 :: zm
+real,      DIMENSION(:), POINTER                 :: frac                       ! fraction of output cell on land surface
 INTEGER,   DIMENSION(:,:), POINTER               :: lu_rcp_per_user_all        ! percentage of landuse for all receptors, used defined in receptor file
-REAL*4,    DIMENSION(:), POINTER                 :: gxm                        
-REAL*4,    DIMENSION(:), POINTER                 :: gym                        
-REAL*4,    DIMENSION(:), POINTER                 :: z0_rcp_all                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    DIMENSION(:), POINTER                 :: rhno3_rcp                 
-REAL*4,    DIMENSION(:,:), ALLOCATABLE           :: f_subsec_rcp               ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]                                                                                                                                                                          
-REAL*4,    DIMENSION(:), POINTER                 :: precip                     
+real,      DIMENSION(:), POINTER                 :: gxm
+real,      DIMENSION(:), POINTER                 :: gym
+real,      DIMENSION(:), POINTER                 :: z0_rcp_all                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      DIMENSION(:), POINTER                 :: rhno3_rcp
+real,      DIMENSION(:,:), ALLOCATABLE           :: f_subsec_rcp               ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
+real,      DIMENSION(:), POINTER                 :: precip
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: cpri_d                     ! concentration of primary component, double precision [ug/m3]
-REAL*4,    DIMENSION(:), POINTER                 :: cpri                       ! concentration of primary component [ug/m3]
+real,      DIMENSION(:), POINTER                 :: cpri                       ! concentration of primary component [ug/m3]
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: csec_d                     ! concentration of secondary component, double precision [ug/m3]
-REAL*4,    DIMENSION(:), POINTER                 :: csec                       ! concentration of secondary component [ug/m3]
+real,      DIMENSION(:), POINTER                 :: csec                       ! concentration of secondary component [ug/m3]
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: drydep_d                    
-REAL*4,    DIMENSION(:), POINTER                 :: drydep                      
+real,      DIMENSION(:), POINTER                 :: drydep
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: wetdep_d                    
-REAL*4,    DIMENSION(:), POINTER                 :: wetdep                      
+real,      DIMENSION(:), POINTER                 :: wetdep
 DOUBLE PRECISION,    DIMENSION(:,:), POINTER     :: ddepri_d                   
-REAL*4,    DIMENSION(:), POINTER                 :: ddepri                      
-REAL*4,    DIMENSION(:), POINTER                 :: totdep                      
-REAL*4,    DIMENSION(:,:), POINTER               :: csubsec                    ! concentration of sub-secondary species [ug/m3]                
-REAL*4,    DIMENSION(:), POINTER                 :: nh3bg_rcp                  
-REAL*4,    DIMENSION(:), POINTER                 :: so2bg_rcp                  
-REAL*4,    DIMENSION(:), POINTER                 :: rno2_nox_sum               ! NO2/NOx ratio, weighed sum over classes
+real,      DIMENSION(:), POINTER                 :: ddepri
+real,      DIMENSION(:), POINTER                 :: totdep
+real,      DIMENSION(:,:), POINTER               :: csubsec                    ! concentration of sub-secondary species [ug/m3]
+real,      DIMENSION(:), POINTER                 :: nh3bg_rcp
+real,      DIMENSION(:), POINTER                 :: so2bg_rcp
+real,      DIMENSION(:), POINTER                 :: rno2_nox_sum               ! NO2/NOx ratio, weighed sum over classes
+real:: r1mach
 
 CHARACTER*12, DIMENSION(:), POINTER              :: namrcp                     ! receptor names
 

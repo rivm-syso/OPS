@@ -50,21 +50,21 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_wvprofile')
 
 ! CONSTANTS
-REAL*4                                           :: K                          ! von Karman constante
+real                                             :: K                          ! von Karman constante
 PARAMETER    (K = 0.4)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zu                         ! 
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+real,      INTENT(IN)                            :: z0                         ! roughness length (m)
+real,      INTENT(IN)                            :: zu
+real,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uz                         ! wind velocity (m/s)
+real,      INTENT(OUT)                           :: uz                         ! wind velocity (m/s)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: phim                       ! 
-REAL*4                                           :: y                          ! hulpvariabele voor berekening phim
+real                                             :: phim
+real                                             :: y                          ! hulpvariabele voor berekening phim
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

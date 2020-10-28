@@ -53,30 +53,30 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_z0corr')
 
 ! CONSTANTS
-REAL*4                                           :: C1                         ! 
-REAL*4                                           :: Z                          ! 
+real                                             :: C1
+real                                             :: Z
 PARAMETER   (C1  = 93500.) 
 PARAMETER   (Z   = 50.)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z01                        ! standard roughness length [m]
-REAL*4,    INTENT(IN)                            :: uster1                     ! friction velocity at standard roughness length 
-REAL*4,    INTENT(IN)                            :: ol1                        ! Monin-Obukhov length at standard roughness length [m]
-REAL*4,    INTENT(IN)                            :: z02                        ! new roughness length [m]
+real,      INTENT(IN)                            :: z01                        ! standard roughness length [m]
+real,      INTENT(IN)                            :: uster1                     ! friction velocity at standard roughness length
+real,      INTENT(IN)                            :: ol1                        ! Monin-Obukhov length at standard roughness length [m]
+real,      INTENT(IN)                            :: z02                        ! new roughness length [m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uster2                     ! friction velocity at new roughness length 
-REAL*4,    INTENT(OUT)                           :: ol2                        ! Monin-Obukhov length at standard roughness length [m]
+real,      INTENT(OUT)                           :: uster2                     ! friction velocity at new roughness length
+real,      INTENT(OUT)                           :: ol2                        ! Monin-Obukhov length at standard roughness length [m]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: n                          ! iteration index
-REAL*4                                           :: h0                         ! 
-REAL*4                                           :: delta                      ! difference between old and new iterand for uster2
-REAL*4                                           :: phim                       ! 
-REAL*4                                           :: u50                        ! wind speed at 50 m height
-REAL*4                                           :: uold                       ! uster at previous iteration
-REAL*4                                           :: delta_old                  ! old difference between old and new iterand for uster2
-REAL*4                                           :: ur                         ! ratio uster/uold
+real                                             :: h0
+real                                             :: delta                      ! difference between old and new iterand for uster2
+real                                             :: phim
+real                                             :: u50                        ! wind speed at 50 m height
+real                                             :: uold                       ! uster at previous iteration
+real                                             :: delta_old                  ! old difference between old and new iterand for uster2
+real                                             :: ur                         ! ratio uster/uold
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -185,14 +185,14 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'stabcm')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: h                          ! hoogte
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin Obukhovlengte
+real,      INTENT(IN)                            :: h                          ! hoogte
+real,      INTENT(IN)                            :: ol                         ! Monin Obukhovlengte
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: phim                       ! correctiefactor
+real,      INTENT(OUT)                           :: phim                       ! correctiefactor
 
 ! LOCAL VARIABLES
-REAL*4                                           :: y                          ! hulpvariabele voor berekening
+real                                             :: y                          ! hulpvariabele voor berekening
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

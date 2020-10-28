@@ -50,29 +50,29 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_vertdisp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: hh                         ! source heigth, including plume rise (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+real,      INTENT(IN)                            :: z0                         ! roughness length (m)
+real,      INTENT(IN)                            :: zi                         ! mixing height (m)
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+real,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+real,      INTENT(IN)                            :: hh                         ! source heigth, including plume rise (m)
+real,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+real,      INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
+real,      INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: sz                         ! vertical dispersion coefficient (m)
+real,      INTENT(OUT)                           :: sz                         ! vertical dispersion coefficient (m)
 
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 
 ! LOCAL VARIABLES
-REAL*4                                           :: h                          ! bronhoogte (m)
-REAL*4                                           :: szc                        ! convexe dispersie (m)
-REAL*4                                           :: szn                        ! neutrale dispersie
-REAL*4                                           :: szs                        ! oppervlakte dispersie
-REAL*4                                           :: fm                         ! 
-REAL*4                                           :: fs                         ! 
+real                                             :: h                          ! bronhoogte (m)
+real                                             :: szc                        ! convexe dispersie (m)
+real                                             :: szn                        ! neutrale dispersie
+real                                             :: szs                        ! oppervlakte dispersie
+real                                             :: fm
+real                                             :: fs
 
 ! SUBROUTINE AND FUNCTION CALLS
 EXTERNAL ops_surface

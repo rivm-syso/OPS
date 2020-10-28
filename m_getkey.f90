@@ -62,7 +62,7 @@ IMPLICIT NONE
 ! REMARK      : GetKeyValue is generic for the following types:
 !                           strings (character*(*))
 !                           integer*4
-!                           real*4
+!                           real
 !                           logical
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE GetKeyValue
@@ -86,7 +86,7 @@ END INTERFACE
 ! RESULT      : Logical.    False if an error was detected.
 ! REMARK      : GetCheckedKey is generic for the following types:
 !                           integer*4
-!                           real*4
+!                           real
 ! REMARK2     : A special checked key instance checks filepaths and has a different profile (isrequired is not passed):
 !             : parname    (character*(*)). Name of the parameter. checkdefine(logical). If flag is set: test whether name was
 !                           entered.
@@ -529,12 +529,12 @@ FUNCTION check_range_real(parname,lower,upper,isrequired, value, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
-REAL*4,    INTENT(IN)                            :: lower                      ! lower limit of value
-REAL*4,    INTENT(IN)                            :: upper                      ! upper limit of value
+real,      INTENT(IN)                            :: lower                      ! lower limit of value
+real,      INTENT(IN)                            :: upper                      ! upper limit of value
 LOGICAL,   INTENT(IN)                            :: isrequired                 ! whether a value is required
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: value                      ! real value extracted
+real,      INTENT(OUT)                           :: value                      ! real value extracted
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT

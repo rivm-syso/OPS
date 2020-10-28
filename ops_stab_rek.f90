@@ -60,72 +60,72 @@ PARAMETER      (ROUTINENAAM = 'ops_stab_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! componentnummer
-REAL*4,    INTENT(IN)                            :: rb                         ! 
-REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C] 
-REAL*4,    INTENT(IN)                            :: h0                         ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: qtr                        ! 
-REAL*4,    INTENT(IN)                            :: qrv                        ! 
+real,      INTENT(IN)                            :: rb
+real,      INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
+real,      INTENT(IN)                            :: h0
+real,      INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: qtr
+real,      INTENT(IN)                            :: qrv
 INTEGER*4, INTENT(IN)                            :: dv                         ! 
-REAL*4,    INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! 
-REAL*4,    INTENT(IN)                            :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
+real,      INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)
+real,      INTENT(IN)                            :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
 INTEGER*4, INTENT(IN)                            :: ibtg                       ! 
-REAL*4,    INTENT(IN)                            :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
+real,      INTENT(IN)                            :: uster_metreg_rcp
+real,      INTENT(IN)                            :: hbron
+real,      INTENT(IN)                            :: qww
+real,      INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+real,      INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
-REAL*4,    INTENT(IN)                            :: qob                        ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! 
-REAL*4,    INTENT(IN)                            :: ra4                        ! 
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+real,      INTENT(IN)                            :: qob
+real,      INTENT(IN)                            :: xloc
+real,      INTENT(IN)                            :: regenk
+real,      INTENT(IN)                            :: ra4
+real,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+real,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: ol_metreg_rcp                         ! Monin-Obukhov length
+real,      INTENT(INOUT)                         :: ol_metreg_rcp                         ! Monin-Obukhov length
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(OUT)                           :: uster_src                  ! friction velocity u* at source [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_src                     ! Monin-Obukhov length at source [m]
-REAL*4,    INTENT(OUT)                           :: uster_tra                  ! friction velocity u*, trajectory averaged [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_tra                     ! Monin-Obukhov length, trajectory averaged  [m]
-REAL*4,    INTENT(OUT)                           :: htot                       ! 
-REAL*4,    INTENT(OUT)                           :: htt                        ! 
-REAL*4,    INTENT(OUT)                           :: onder                      ! 
-REAL*4,    INTENT(OUT)                           :: uh                         ! 
-REAL*4,    INTENT(OUT)                           :: zu                         ! 
-REAL*4,    INTENT(OUT)                           :: qruim                      ! 
-REAL*4,    INTENT(OUT)                           :: qbron                      ! 
-REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               ! 
+real,      INTENT(OUT)                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+real,      INTENT(OUT)                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
+real,      INTENT(OUT)                           :: uster_src                  ! friction velocity u* at source [m/s]
+real,      INTENT(OUT)                           :: ol_src                     ! Monin-Obukhov length at source [m]
+real,      INTENT(OUT)                           :: uster_tra                  ! friction velocity u*, trajectory averaged [m/s]
+real,      INTENT(OUT)                           :: ol_tra                     ! Monin-Obukhov length, trajectory averaged  [m]
+real,      INTENT(OUT)                           :: htot
+real,      INTENT(OUT)                           :: htt
+real,      INTENT(OUT)                           :: onder
+real,      INTENT(OUT)                           :: uh
+real,      INTENT(OUT)                           :: zu
+real,      INTENT(OUT)                           :: qruim
+real,      INTENT(OUT)                           :: qbron
+real,      INTENT(OUT)                           :: dispg(NSTAB)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: uster_metreg_from_rb_rcp   ! friction velocity at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
-REAL*4                                           :: ol_metreg_from_rb_rcp      ! Monin-Obukhov length at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
-REAL*4                                           :: dsx                        ! ratio disx/radius, i.e. 
+real                                             :: uster_metreg_from_rb_rcp   ! friction velocity at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
+real                                             :: ol_metreg_from_rb_rcp      ! Monin-Obukhov length at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
+real                                             :: dsx                        ! ratio disx/radius, i.e.
 !                                                                              ! (source-receptor distance)/(radius of area source)
-REAL*4                                           :: sz_rcp_stab_src            ! vertical dispersion coefficient sigma_z at receptor with (z0,u*,L,uh,zu) of source site 
-REAL*4                                           :: uh_rcp                     ! 
-REAL*4                                           :: zu_rcp                     ! 
-REAL*4                                           :: sz_rcp                     ! 
-REAL*4                                           :: qobb                       ! 
-REAL*4                                           :: qvk                        ! 
-REAL*4                                           :: qrvv                       ! 
-REAL*4                                           :: tcor                       ! 
-REAL*4                                           :: rcor                       ! 
-REAL*4                                           :: dncor                      ! 
-REAL*4                                           :: emf                        ! 
+real                                             :: sz_rcp_stab_src            ! vertical dispersion coefficient sigma_z at receptor with (z0,u*,L,uh,zu) of source site
+real                                             :: uh_rcp
+real                                             :: zu_rcp
+real                                             :: sz_rcp
+real                                             :: qobb
+real                                             :: qvk
+real                                             :: qrvv
+real                                             :: tcor
+real                                             :: rcor
+real                                             :: dncor
+real                                             :: emf
 logical                                          :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file
 
 ! SUBROUTINE AND FUNCTION CALLS

@@ -56,14 +56,14 @@ IMPLICIT NONE
 ! Purpose    : Defines grid dimensions.
 !-------------------------------------------------------------------------------------------------------------------------------
 TYPE TGridHeader
-   REAL*4                                        :: xorgl                      ! x-origin of the grid [km]
+   real                                          :: xorgl                      ! x-origin of the grid [km]
                                                                                ! (origin is left-upper corner of grid)
-   REAL*4                                        :: yorgl                      ! y-origin of the grid [km]
+   real                                          :: yorgl                      ! y-origin of the grid [km]
                                                                                ! (origin is left-upper corner of grid)
    INTEGER*4                                     :: nrcol                      ! number of grid columns
    INTEGER*4                                     :: nrrow                      ! number of grid rows
-   REAL*4                                        :: grixl                      ! horizontal size of grid cell [km]
-   REAL*4                                        :: griyl                      ! vertical size of grid cell [km]
+   real                                          :: grixl                      ! horizontal size of grid cell [km]
+   real                                          :: griyl                      ! vertical size of grid cell [km]
 END TYPE TGridHeader
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -81,8 +81,8 @@ END TYPE TApsGridInt
 !-------------------------------------------------------------------------------------------------------------------------------
 TYPE TApsGridReal
    TYPE (TGridHeader)                            :: gridheader                 ! grid header
-   REAL*4, DIMENSION(:), POINTER                 :: average                    ! average of all grid values
-   REAL*4, DIMENSION(:,:,:), POINTER             :: value                      ! 3D array with real values
+   real,   DIMENSION(:), POINTER                 :: average                    ! average of all grid values
+   real,   DIMENSION(:,:,:), POINTER             :: value                      ! 3D array with real values
 END TYPE TApsGridReal
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -113,10 +113,10 @@ END INTERFACE
 ! DESCRIPTION : Returns value of grid cell with input coordinates.
 !               If coordinates outside grid, the average value (real grid) or 0 (integer) grid is returned. A flag, which
 !               indicates whether coordinates were inside the grid, is also returned.
-! INPUTS      : x          (real*4). RDM x-coordinate value (in km).
-!               y          (real*4). RDM y-coordinate value (in km).
+! INPUTS      : x          (real). RDM x-coordinate value (in km).
+!               y          (real). RDM y-coordinate value (in km).
 !               grid       (type TAPSGrid, generic) The aps grid definition.
-! OUTPUTS     : value      (integer*4 or real*4, generic with grid type)
+! OUTPUTS     : value      (integer*4 or real,   generic with grid type)
 !                          The value in the grid cell or the default value (in case of location outside grid)
 !               iscell     (logical) Whether value comes from a grid cell.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ END INTERFACE
 ! SUBROUTINE  : SetAverage
 ! DESCRIPTION : Sets average field in aps grid structure. Average is calculated over all cells with value > 0. It is possible 
 !               to multiply all values by a certain factor first.
-! INPUTS      : factor     (real*4, optional). Multiplication factor.
+! INPUTS      : factor     (real,   optional). Multiplication factor.
 ! INPUT/OUTPUTS: grid      (TApsGridReal). The field grid.average is adjusted.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE SetAverage
@@ -176,8 +176,8 @@ INTEGER*4                                        :: nrcol                      !
 INTEGER*4                                        :: nrrow                      ! number of grid rows
 INTEGER*4                                        :: ierr                       ! error status (ierr != 0 => error)
 CHARACTER*1                                      :: teststring                 ! helpvariable
-REAL*4                                           :: r                          ! helpvariable
-REAL*4, DIMENSION(:,:), ALLOCATABLE              :: helpgrid
+real                                             :: r                          ! helpvariable
+real,   DIMENSION(:,:), ALLOCATABLE              :: helpgrid
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! name of subroutine
@@ -509,7 +509,7 @@ SUBROUTINE set_average(factor, grid, fieldnumber)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN), OPTIONAL                  :: factor                     ! multiplication factor for the whole grid
+real,      INTENT(IN), OPTIONAL                  :: factor                     ! multiplication factor for the whole grid
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TApsGridReal), INTENT(INOUT)               :: grid                       ! real APS grid
@@ -549,8 +549,8 @@ SUBROUTINE grid_value_integer(x, y, grid, gridvalue, iscell, fieldnumber)
 !DEC$ ATTRIBUTES DLLEXPORT:: grid_value_integer
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! RDM x-coordinate value (in km)
-REAL*4,    INTENT(IN)                            :: y                          ! RDM y-coordinate value (in km)
+real,      INTENT(IN)                            :: x                          ! RDM x-coordinate value (in km)
+real,      INTENT(IN)                            :: y                          ! RDM y-coordinate value (in km)
 TYPE (TAPSGridInt), INTENT(IN)                   :: grid                       ! integer APS grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -593,12 +593,12 @@ SUBROUTINE grid_value_real(x, y, grid, gridvalue, iscell, fieldnumber)
 !DEC$ ATTRIBUTES DLLEXPORT:: grid_value_real
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! RDM x-coordinate value (in km)
-REAL*4,    INTENT(IN)                            :: y                          ! RDM y-coordinate value (in km)
+real,      INTENT(IN)                            :: x                          ! RDM x-coordinate value (in km)
+real,      INTENT(IN)                            :: y                          ! RDM y-coordinate value (in km)
 TYPE (TAPSGridReal), INTENT(IN)                  :: grid                       ! real APS grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value 
+real,      INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value
                                                                                ! (in case of location outside grid)
 LOGICAL,   INTENT(OUT)                           :: iscell                     ! whether value comes from a grid cell
 INTEGER, OPTIONAL, INTENT(IN)                    :: fieldnumber                ! fieldnumber to retreive data from
@@ -636,8 +636,8 @@ END SUBROUTINE grid_value_real
 SUBROUTINE grid_cell_index(x, y, gridheader, m, n, iscell)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! RDM x-coordinate [km]
-REAL*4,    INTENT(IN)                            :: y                          ! RDM y-coordinate [km]
+real,      INTENT(IN)                            :: x                          ! RDM x-coordinate [km]
+real,      INTENT(IN)                            :: y                          ! RDM y-coordinate [km]
 TYPE (TGridHeader), INTENT(IN)                   :: gridheader                 ! Header definition of grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT

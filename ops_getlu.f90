@@ -48,8 +48,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'getlu')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
-REAL*4,    INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
+real,      INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
+real,      INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with landuse information
 
 ! SUBROUTINE ARGUMENTS - OUTPUT

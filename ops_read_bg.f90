@@ -73,12 +73,12 @@ INTEGER*4                                        :: j                          !
 INTEGER*4                                        :: mapnumber                  ! number of background map
 INTEGER*4                                        :: ji                         ! year index, i.e. the index in the trendfactor 
                                                                                ! arrays tf_... of the current year
-REAL*4                                           :: factor                     ! combined correction factor (calibration with 
+real                                             :: factor                     ! combined correction factor (calibration with
                                                                                ! measurements and correction for year)
 LOGICAL*1                                        :: future                     ! TRUE if year is closer to FUTUREYEAR than to last
                                                                                ! historic year
-REAL*4                                           :: nox_threshold              ! threshold value for NOx in log-function in NOx -> NO2 conversion
-REAL*4                                           :: alpha                      ! slope of linear function NOx -> NO2 conversion
+real                                             :: nox_threshold              ! threshold value for NOx in log-function in NOx -> NO2 conversion
+real                                             :: alpha                      ! slope of linear function NOx -> NO2 conversion
 INTEGER                                          :: i1                         ! index of yyyy in filename
 CHARACTER*128                                    :: fnam                       ! filename
 TYPE (TApsGridReal)                              :: qq                         ! test grid output
@@ -305,20 +305,20 @@ if (iopt_vchem .eq. 1) then
    !  !  character*10      modversie
    !  !  character*12      kname
    !  !  character*(*)     namegr          ! name of grid file (used for error message)
-   !  !
+   !
    !  !  character*12      quantity
    !  !subroutine saveaps(coord_sys,lu,namegr,xorg,yorg,gridx,gridy,matx,maty,cpri,namco,unit_conc,modversie,kname,quantity,ijg,img,idg,iug)
    !  call saveaps('RDM',34,'qq0',qq%gridheader%xorgl,qq%gridheader%yorgl,qq%gridheader%grixl,qq%gridheader%griyl,qq%gridheader%nrcol,qq%gridheader%nrrow,qq%value(:,:,1),'conv_rate ','%/h     ','OPS_tst   ','qq1         ','qq2         ',10,0,0,0)
    !  close(34)
    !  !!     TYPE TGridHeader
-   !  !!    REAL*4                                        :: xorgl                      ! x-origin of the grid [km]
+   !  !!    real                                          :: xorgl                      ! x-origin of the grid [km]
    !  !!                                                                                ! (origin is left-upper corner of grid)
-   !  !!    REAL*4                                        :: yorgl                      ! y-origin of the grid [km]
+   !  !!    real                                          :: yorgl                      ! y-origin of the grid [km]
    !  !!                                                                                ! (origin is left-upper corner of grid)
    !  !!    INTEGER*4                                     :: nrcol                      ! number of grid columns
    !  !!    INTEGER*4                                     :: nrrow                      ! number of grid rows
-   !  !!    REAL*4                                        :: grixl                      ! horizontal size of grid cell [km]
-   !  !!    REAL*4                                        :: griyl                      ! vertical size of grid cell [km]
+   !  !!    real                                          :: grixl                      ! horizontal size of grid cell [km]
+   !  !!    real                                          :: griyl                      ! vertical size of grid cell [km]
    !  !! END TYPE TGridHeader
    ! ! END TEST write to APS file --------------------------------------------------------------------------------------------
    

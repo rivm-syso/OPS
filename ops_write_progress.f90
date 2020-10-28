@@ -50,7 +50,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_write_progress')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: progress                   ! percentage of progress reached
+real,      INTENT(IN)                            :: progress                   ! percentage of progress reached
 CHARACTER*(*), INTENT(IN)                        :: formatstring               ! formatstring for writing progress
 INTEGER*4, INTENT(IN)                            :: numbs                      ! number of characters which have to be backspaced
                                                                                ! in order to remain at the same position of the screen 

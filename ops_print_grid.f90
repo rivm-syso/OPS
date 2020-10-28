@@ -68,48 +68,48 @@ CHARACTER*(*), INTENT(IN)                        :: namco                      !
 CHARACTER*(*), INTENT(IN)                        :: namse3                     ! 
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! concentration unit
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! deposition unit
-REAL*4,    INTENT(IN)                            :: conc_cf                    ! concentration correction factor
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
+real,      INTENT(IN)                            :: conc_cf                    ! concentration correction factor
+real,      INTENT(IN)                            :: amol21
+real,      INTENT(IN)                            :: ugmoldep
 INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of grid cells in X-dir
 INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of grid cells in Y-dir
-REAL*4,    INTENT(IN)                            :: grid                       ! grid cell dimension
-REAL*4,    INTENT(IN)                            :: xorg                       ! X-coor of grid origin
-REAL*4,    INTENT(IN)                            :: yorg                       ! Y-coor of grid origin
-REAL*4,    INTENT(IN)                            :: precip(nrrcp)              ! calculated precipitation
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
-REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
+real,      INTENT(IN)                            :: grid                       ! grid cell dimension
+real,      INTENT(IN)                            :: xorg                       ! X-coor of grid origin
+real,      INTENT(IN)                            :: yorg                       ! Y-coor of grid origin
+real,      INTENT(IN)                            :: precip(nrrcp)              ! calculated precipitation
+real,      INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
+real,      INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
+real,      INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
+real,      INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
+real,      INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
 INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! land use 
-REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    INTENT(IN)                            :: gemcpri                    ! grid mean for prim. concentration
-REAL*4,    INTENT(IN)                            :: gemcsec                    ! grid mean for sec. concentration
-REAL*4,    INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
-REAL*4,    INTENT(IN)                            :: gemddep                    ! grid mean for dry deposition
-REAL*4,    INTENT(IN)                            :: gemddpri                   ! grid mean for dry deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemddsec                   ! grid mean for dry deposition (sec)
-REAL*4,    INTENT(IN)                            :: totddep                    ! grid total dry deposition (g/s)
-REAL*4,    INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
-REAL*4,    INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
-REAL*4,    INTENT(IN)                            :: gemwdep                    ! grid mean for wet deposition (tot)
-REAL*4,    INTENT(IN)                            :: gemwdpri                   ! grid mean for wet deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemwdsec                   ! grid mean for wet deposition (sec)
-REAL*4,    INTENT(IN)                            :: totwdep                    ! grid total wet deposition (g/s)
-REAL*4,    INTENT(IN)                            :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
-REAL*4,    INTENT(IN)                            :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
-REAL*4,    INTENT(IN)                            :: gemprec                    ! grid mean annual precpitation from meteo
-REAL*4,    INTENT(IN)                            :: gemtdep                    ! grid mean for total deposition
-REAL*4,    INTENT(IN)                            :: tottdep                    ! grid total total deposition
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
-REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+real,      INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      INTENT(IN)                            :: gemcpri                    ! grid mean for prim. concentration
+real,      INTENT(IN)                            :: gemcsec                    ! grid mean for sec. concentration
+real,      INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
+real,      INTENT(IN)                            :: gemddep                    ! grid mean for dry deposition
+real,      INTENT(IN)                            :: gemddpri                   ! grid mean for dry deposition (pri)
+real,      INTENT(IN)                            :: gemddsec                   ! grid mean for dry deposition (sec)
+real,      INTENT(IN)                            :: totddep                    ! grid total dry deposition (g/s)
+real,      INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
+real,      INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
+real,      INTENT(IN)                            :: gemwdep                    ! grid mean for wet deposition (tot)
+real,      INTENT(IN)                            :: gemwdpri                   ! grid mean for wet deposition (pri)
+real,      INTENT(IN)                            :: gemwdsec                   ! grid mean for wet deposition (sec)
+real,      INTENT(IN)                            :: totwdep                    ! grid total wet deposition (g/s)
+real,      INTENT(IN)                            :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
+real,      INTENT(IN)                            :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
+real,      INTENT(IN)                            :: gemprec                    ! grid mean annual precpitation from meteo
+real,      INTENT(IN)                            :: gemtdep                    ! grid mean for total deposition
+real,      INTENT(IN)                            :: tottdep                    ! grid total total deposition
+real,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
+real,      INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
-REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
-REAL*4,    INTENT(IN)                            :: scale_con                  ! scalefactor prim. concentration
-REAL*4,    INTENT(IN)                            :: scale_sec                  ! scalefactor sec. concentration
-REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
-REAL*4,    INTENT(IN)                            :: scale_dep                  ! scalefactor deposition
+real,      INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
+real,      INTENT(IN)                            :: scale_con                  ! scalefactor prim. concentration
+real,      INTENT(IN)                            :: scale_sec                  ! scalefactor sec. concentration
+real,      INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
+real,      INTENT(IN)                            :: scale_dep                  ! scalefactor deposition
 
 ! SUBROUTINE ARGUMENTS - I/O
 LOGICAL,   INTENT(INOUT)                         :: idep                       ! deposition taken into account
@@ -121,7 +121,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 
 ! LOCAL VARIABLES
 INTEGER                                          :: j                          ! counter through receptro points
-REAL*4                                           :: tmp(nrrcp)                 ! tempory array with values to be written
+real                                             :: tmp(nrrcp)                 ! tempory array with values to be written
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 

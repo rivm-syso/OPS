@@ -147,36 +147,36 @@ PARAMETER    (ROUTINENAAM = 'print_values')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
 CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
-REAL*4,    INTENT(IN), OPTIONAL                  :: par1(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar1                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par2(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar2                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par3(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar3                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par4(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar4                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par5(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar5                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par6(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar6                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par7(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar7                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par8(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar8                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par9(nrrcp)                ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar9                      ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par10(nrrcp)               ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar10                     ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par11(nrrcp)               ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar11                     ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par12(nrrcp)               ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar12                     ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par13(nrrcp)               ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar13                     ! factor in parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: par14(nrrcp)               ! values of parameter
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar14                     ! factor in parameter
+real,      INTENT(IN)                            :: xm(nrrcp)
+real,      INTENT(IN)                            :: ym(nrrcp)
+real,      INTENT(IN), OPTIONAL                  :: par1(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar1                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par2(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar2                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par3(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar3                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par4(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar4                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par5(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar5                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par6(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar6                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par7(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar7                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par8(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar8                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par9(nrrcp)                ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar9                      ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par10(nrrcp)               ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar10                     ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par11(nrrcp)               ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar11                     ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par12(nrrcp)               ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar12                     ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par13(nrrcp)               ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar13                     ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: par14(nrrcp)               ! values of parameter
+real,      INTENT(IN), OPTIONAL                  :: spar14                     ! factor in parameter
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! should not happen as format string is long enough
@@ -185,8 +185,8 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 INTEGER*4                                        :: i                          ! 
 INTEGER*4                                        :: j                          ! 
 INTEGER*4                                        :: values(nrparam)            ! 
-REAL*4                                           :: factors(nrparam)           ! 
-REAL*4                                           :: factorscopy(nrparam)       ! 
+real                                             :: factors(nrparam)
+real                                             :: factorscopy(nrparam)
 INTEGER*4                                        :: nrpresent                  ! 
 INTEGER*4                                        :: nrunit                     ! 
 LOGICAL                                          :: dummybool                  ! 
@@ -299,11 +299,11 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'has_rcp_values')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN), OPTIONAL                  :: spar                       ! factor in parameter
+real,      INTENT(IN), OPTIONAL                  :: spar                       ! factor in parameter
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: nrpresent                  ! 
-REAL*4,    INTENT(INOUT)                         :: factors(:)                 ! 
+real,      INTENT(INOUT)                         :: factors(:)
 
 has_rcp_values = PRESENT(spar)
 IF (has_rcp_values) THEN
@@ -325,8 +325,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'set_rcp_values')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: formatpar                  ! 
-REAL*4,    INTENT(IN)                            :: factors(nrpresent)         ! 
+real,      INTENT(IN)                            :: formatpar
+real,      INTENT(IN)                            :: factors(nrpresent)
 INTEGER*4, INTENT(IN)                            :: nrpresent                  ! 
 
 ! SUBROUTINE ARGUMENTS - I/O

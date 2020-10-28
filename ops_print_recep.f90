@@ -65,47 +65,47 @@ CHARACTER*(*), INTENT(IN)                        :: namsec                     !
 CHARACTER*(*), INTENT(IN)                        :: namse3                     ! 
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! 
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! 
-REAL*4,    INTENT(IN)                            :: conc_cf                    ! 
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
+real,      INTENT(IN)                            :: conc_cf
+real,      INTENT(IN)                            :: amol21
+real,      INTENT(IN)                            :: ugmoldep
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 CHARACTER*(*), INTENT(IN)                        :: namrcp (nrrcp)             ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: precip(nrrcp)              ! calculated precipitation
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
-REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
-REAL*4,    INTENT(IN)                            :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
+real,      INTENT(IN)                            :: xm(nrrcp)
+real,      INTENT(IN)                            :: ym(nrrcp)
+real,      INTENT(IN)                            :: precip(nrrcp)              ! calculated precipitation
+real,      INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
+real,      INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
+real,      INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
+real,      INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
+real,      INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
+real,      INTENT(IN)                            :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
 INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! 
-REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    INTENT(IN)                            :: gemcpri                    ! mean for prim. concentration
-REAL*4,    INTENT(IN)                            :: gemcsec                    ! mean for sec. concentration
-REAL*4,    INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
-REAL*4,    INTENT(IN)                            :: gemddep                    ! mean for dry deposition
-REAL*4,    INTENT(IN)                            :: gemddpri                   ! mean for dry deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemddsec                   ! mean for dry deposition (sec)
-REAL*4,    INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
-REAL*4,    INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
-REAL*4,    INTENT(IN)                            :: gemwdep                    ! mean for wet deposition
-REAL*4,    INTENT(IN)                            :: gemwdpri                   ! mean for wet deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemwdsec                   ! mean for wet deposition (sec)
-REAL*4,    INTENT(IN)                            :: wdrpri                     ! eff. wet deposition rate (prim)
-REAL*4,    INTENT(IN)                            :: wdrsec                     ! eff. wet deposition rate (sec)
-REAL*4,    INTENT(IN)                            :: gemprec                    ! mean annual precpitation from meteo
-REAL*4,    INTENT(IN)                            :: gemtdep                    ! mean for total deposition
+real,      INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      INTENT(IN)                            :: gemcpri                    ! mean for prim. concentration
+real,      INTENT(IN)                            :: gemcsec                    ! mean for sec. concentration
+real,      INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
+real,      INTENT(IN)                            :: gemddep                    ! mean for dry deposition
+real,      INTENT(IN)                            :: gemddpri                   ! mean for dry deposition (pri)
+real,      INTENT(IN)                            :: gemddsec                   ! mean for dry deposition (sec)
+real,      INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
+real,      INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
+real,      INTENT(IN)                            :: gemwdep                    ! mean for wet deposition
+real,      INTENT(IN)                            :: gemwdpri                   ! mean for wet deposition (pri)
+real,      INTENT(IN)                            :: gemwdsec                   ! mean for wet deposition (sec)
+real,      INTENT(IN)                            :: wdrpri                     ! eff. wet deposition rate (prim)
+real,      INTENT(IN)                            :: wdrsec                     ! eff. wet deposition rate (sec)
+real,      INTENT(IN)                            :: gemprec                    ! mean annual precpitation from meteo
+real,      INTENT(IN)                            :: gemtdep                    ! mean for total deposition
 INTEGER*4, INTENT(IN)                            :: icm                        ! number of component
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
-REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+real,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+real,      INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary speciea
-REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
-REAL*4,    INTENT(IN)                            :: scale_con                  ! 
-REAL*4,    INTENT(IN)                            :: scale_sec                  ! 
-REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
-REAL*4,    INTENT(IN)                            :: scale_dep                  ! 
+real,      INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
+real,      INTENT(IN)                            :: scale_con
+real,      INTENT(IN)                            :: scale_sec
+real,      INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
+real,      INTENT(IN)                            :: scale_dep
 
 ! SUBROUTINE ARGUMENTS - I/O
 LOGICAL,   INTENT(INOUT)                         :: idep                       ! 
@@ -118,13 +118,13 @@ TYPE (Terror), INTENT(INOUT)                     :: error                      !
 INTEGER*4                                        :: i                          ! 
 INTEGER*4                                        :: j                          ! 
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: scalec                     ! 
-REAL*4                                           :: scaled                     ! 
-REAL*4                                           :: scalen                     ! 
-REAL*4                                           :: scalsc                     ! 
-REAL*4                                           :: vdpri(nrrcp)               ! 
-REAL*4                                           :: vdsec(nrrcp)               ! 
-REAL*4                                           :: tmp(nrrcp)                 ! dry+wet deposition
+real                                             :: scalec
+real                                             :: scaled
+real                                             :: scalen
+real                                             :: scalsc
+real                                             :: vdpri(nrrcp)
+real                                             :: vdsec(nrrcp)
+real                                             :: tmp(nrrcp)                 ! dry+wet deposition
 CHARACTER*4                                      :: vdeh                       ! 
 CHARACTER*4                                      :: z0eh                       ! 
 CHARACTER*4                                      :: lueh                       ! 

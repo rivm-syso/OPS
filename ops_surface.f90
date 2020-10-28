@@ -50,32 +50,32 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_surface')
 
 ! CONSTANTS
-REAL*4                                           :: K                          ! von Karman constant
+real                                             :: K                          ! von Karman constant
 PARAMETER   (K = 0.35)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source heigth, including plume rise (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+real,      INTENT(IN)                            :: z0                         ! roughness length (m)
+real,      INTENT(IN)                            :: zi                         ! mixing height (m)
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+real,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+real,      INTENT(IN)                            :: h                          ! source heigth, including plume rise (m)
+real,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! wind speed at downwind distance x and height zu [m/s]
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection 
+real,      INTENT(OUT)                           :: uh                         ! wind speed at downwind distance x and height zu [m/s]
+real,      INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface [m]
-REAL*4,    INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
+real,      INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: iter                       ! 
 INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: kz                         ! 
-REAL*4                                           :: phih                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: zw                         ! 
-REAL*4                                           :: zwold                      ! 
+real                                             :: a
+real                                             :: kz
+real                                             :: phih
+real                                             :: s
+real                                             :: zw
+real                                             :: zwold
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

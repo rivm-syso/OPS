@@ -59,32 +59,32 @@ LOGICAL*4, INTENT(IN)                            :: isec
 INTEGER*4, INTENT(IN)                            :: ircp                   
 INTEGER*4, INTENT(IN)                            :: nrrcp   
 INTEGER*4, INTENT(IN)                            :: intpol                     ! 
-REAL*4,    INTENT(IN)                            :: gxm_rcp                    ! array met x-coordinaat van receptorpunten (lola)
-REAL*4,    INTENT(IN)                            :: gym_rcp                    ! array met y-coordinaat van receptorpunten (lola)
-REAL*4,    INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
-REAL*4,    INTENT(IN)                            :: xreg(NMETREG)              ! array met x-coordinaat van meteo-regios
-REAL*4,    INTENT(IN)                            :: yreg(NMETREG)              ! array met y-coordinaat van meteo-regio's
-REAL*4,    INTENT(IN)                            :: z0_metreg_user             ! roughness length of user specified meteo region [m]
+real,      INTENT(IN)                            :: gxm_rcp                    ! array met x-coordinaat van receptorpunten (lola)
+real,      INTENT(IN)                            :: gym_rcp                    ! array met y-coordinaat van receptorpunten (lola)
+real,      INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+real,      INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+real,      INTENT(IN)                            :: xreg(NMETREG)              ! array met x-coordinaat van meteo-regios
+real,      INTENT(IN)                            :: yreg(NMETREG)              ! array met y-coordinaat van meteo-regio's
+real,      INTENT(IN)                            :: z0_metreg_user             ! roughness length of user specified meteo region [m]
 INTEGER*4, INTENT(IN)                            :: spgrid
-REAL*4,    INTENT(IN)                            :: x_rcp                      ! array met x-coordinaat van receptorpunten (RDM)
-REAL*4,    INTENT(IN)                            :: y_rcp                      ! array met y-coordinaat van receptorpunten (RDM)
+real,      INTENT(IN)                            :: x_rcp                      ! array met x-coordinaat van receptorpunten (RDM)
+real,      INTENT(IN)                            :: y_rcp                      ! array met y-coordinaat van receptorpunten (RDM)
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use information
 LOGICAL*4, INTENT(IN)                            :: domlu                      ! index of dominant land use class
 LOGICAL*4, INTENT(IN)                            :: perc                           ! 
 INTEGER,   INTENT(IN)                            :: lu_rcp_per_user_all(nrrcp,NLU) ! percentage of landuse for all receptors, used defined in receptor file
 INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! land use at receptor points
 LOGICAL*4, INTENT(IN)                            :: f_z0user                   
-REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      INTENT(IN)                            :: z0_rcp_all(nrrcp)                 ! roughness lengths for all receptors; from z0-map or receptor file [m]
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT (INOUT)                        :: i1(NTRAJ-1)                ! 
-REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK) ! 
+real,      INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK)
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uurtot                     ! 
-REAL*4,    INTENT(OUT)                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+real,      INTENT(OUT)                           :: uurtot
+real,      INTENT(OUT)                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
 INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom                 ! dominant landuse class for receptor
-REAL*4,    INTENT(OUT)                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
-REAL*4,    INTENT(OUT)                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+real,      INTENT(OUT)                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
+real,      INTENT(OUT)                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
 TYPE (TError)                                    :: error  
 
 ! LOCAL VARIABLES
@@ -201,20 +201,20 @@ INTEGER*4                                        :: NONZERO(NCOMP)             !
                                                                                ! frequency of occurrence
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! x-coordinate (longitude; degrees)
-REAL*4,    INTENT(IN)                            :: y                          ! y-coordinate (latitude; degrees)
-REAL*4,    INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
-REAL*4,    INTENT(IN)                            :: xreg(NMETREG)              ! x-coordinate region centre (longitude; degrees)
-REAL*4,    INTENT(IN)                            :: yreg(NMETREG)              ! y-coordinate region centre (latitude; degrees)
+real,      INTENT(IN)                            :: x                          ! x-coordinate (longitude; degrees)
+real,      INTENT(IN)                            :: y                          ! y-coordinate (latitude; degrees)
+real,      INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+real,      INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+real,      INTENT(IN)                            :: xreg(NMETREG)              ! x-coordinate region centre (longitude; degrees)
+real,      INTENT(IN)                            :: yreg(NMETREG)              ! y-coordinate region centre (latitude; degrees)
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: i1(NTRAJ-1)                ! indices of three regions nearest to the receptor
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_metreg_xy               ! roughness length at (x,y), interpolated from meteo regions [m]
-REAL*4,    INTENT(OUT)                           :: uurtot                     ! 
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(OUT)                           :: z0_metreg_xy               ! roughness length at (x,y), interpolated from meteo regions [m]
+real,      INTENT(OUT)                           :: uurtot
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -224,18 +224,18 @@ INTEGER*4                                        :: istab                      !
 INTEGER*4                                        :: imin                       ! index of nearest region
 INTEGER*4                                        :: itraj                      ! index of distance class
 INTEGER*4                                        :: isek                       ! index of wind sector
-REAL*4                                           :: a                          ! Set a = cos(y); needed in computation of distance
+real                                             :: a                          ! Set a = cos(y); needed in computation of distance
                                                                                ! dx = (x2 - x1)*cos(y) for geographical coordinates
 
-REAL*4                                           :: r                          ! distance region - receptor
-REAL*4                                           :: rmin                       ! distance nearest region - receptor
-REAL*4                                           :: s                          ! sum of s1()
-REAL*4                                           :: ss                         ! 
-REAL*4                                           :: rr                         ! 
-REAL*4                                           :: rrtot                      ! 
-REAL*4                                           :: r1(NTRAJ-1)                ! distance of three nearest regions - receptor
-REAL*4                                           :: s1(NTRAJ-1)                ! inverse distance = 1/r1()
-REAL*4                                           :: ss1(NTRAJ-1)               ! 
+real                                             :: r                          ! distance region - receptor
+real                                             :: rmin                       ! distance nearest region - receptor
+real                                             :: s                          ! sum of s1()
+real                                             :: ss
+real                                             :: rr
+real                                             :: rrtot
+real                                             :: r1(NTRAJ-1)                ! distance of three nearest regions - receptor
+real                                             :: s1(NTRAJ-1)                ! inverse distance = 1/r1()
+real                                             :: ss1(NTRAJ-1)
 
 ! DATA
 !            1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27

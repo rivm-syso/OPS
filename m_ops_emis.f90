@@ -413,11 +413,11 @@ PARAMETER    (ROUTINENAAM = 'check_source')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nr                         ! record number of source file
 CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
+real,      INTENT(IN)                            :: onder                      ! lower limit
+real,      INTENT(IN)                            :: boven                      ! upper limit
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
+real,      INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -541,9 +541,9 @@ PARAMETER    (ROUTINENAAM = 'check_source2')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
-REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
+real,      INTENT(IN)                            :: onder                      ! lower limit
+real,      INTENT(IN)                            :: boven                      ! upper limit
+real,      INTENT(IN)                            :: varwaarde                  ! value of variable
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
@@ -589,9 +589,9 @@ PARAMETER    (ROUTINENAAM = 'check_source3')
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: warning1                   ! first part of warning
 CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
-REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
+real,      INTENT(IN)                            :: onder                      ! lower limit
+real,      INTENT(IN)                            :: boven                      ! upper limit
+real,      INTENT(IN)                            :: varwaarde                  ! value of variable
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record

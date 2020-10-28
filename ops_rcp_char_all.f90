@@ -59,10 +59,10 @@ INTEGER*4, INTENT(IN)                            :: icm
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 LOGICAL*4, INTENT(IN)                            :: isec                       
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors
+real,      INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors
+real,      INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors
 LOGICAL*4, INTENT(IN)                            :: f_z0user                   
-REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by user [m]
+real,      INTENT(IN)                            :: z0_user                    ! roughness length specified by user [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use information
@@ -73,12 +73,12 @@ INTEGER*4, INTENT(IN)                            :: nrrcp                      !
 LOGICAL*4, INTENT(IN)                            :: domlu                      ! index of dominant land use class
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: gxm(nrrcp)                 
-REAL*4,    INTENT(OUT)                           :: gym(nrrcp)                  
-REAL*4,    INTENT(OUT)                           :: rhno3_rcp(nrrcp)           
-REAL*4,    INTENT(OUT)                           :: nh3bg_rcp(nrrcp)
-REAL*4,    INTENT(OUT)                           :: so2bg_rcp(nrrcp)
-REAL*4,    INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
+real,      INTENT(OUT)                           :: gxm(nrrcp)
+real,      INTENT(OUT)                           :: gym(nrrcp)
+real,      INTENT(OUT)                           :: rhno3_rcp(nrrcp)
+real,      INTENT(OUT)                           :: nh3bg_rcp(nrrcp)
+real,      INTENT(OUT)                           :: so2bg_rcp(nrrcp)
+real,      INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4                                        :: landuse(NLU+1)             ! land-use value at receptor
@@ -86,14 +86,14 @@ INTEGER*4                                        :: landuse(NLU+1)             !
                                                                                ! landuse(lu+1) = percentage of grid cell with landuse class lu, lu = 1,NLU
                                                                                ! For locations outside lugrid, a default land use class = 1 (grass) is taken.
 INTEGER*4, INTENT(INOUT)                         :: lu_rcp_dom_all(nrrcp)      ! index of dominant land use for all receptor points             
-REAL*4,    INTENT(INOUT)                         :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      INTENT(INOUT)                         :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
 TYPE (TError), INTENT(INOUT)                     :: error   
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: ircp                       ! index of receptor
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: so2bgconc                  ! background concentratie SO2
-REAL*4                                           :: nh3bgconc                  ! background concentration NH3 at receptor [ppb]
+real                                             :: so2bgconc                  ! background concentratie SO2
+real                                             :: nh3bgconc                  ! background concentration NH3 at receptor [ppb]
 LOGICAL                                          :: z0found                    
 INTEGER                                          :: ifield                     ! field index in f_subsec_grid
 

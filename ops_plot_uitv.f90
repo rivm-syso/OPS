@@ -56,25 +56,25 @@ CHARACTER*(*), INTENT(IN)                        :: coneh                      !
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! distance between receptor points in grid units
-REAL*4,    INTENT(IN)                            :: xorg                       ! 
-REAL*4,    INTENT(IN)                            :: yorg                       ! 
+real,      INTENT(IN)                            :: xorg
+real,      INTENT(IN)                            :: yorg
 INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of columns in grid
 INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of row in grid
-REAL*4,    INTENT(IN)                            :: grid                       ! 
+real,      INTENT(IN)                            :: grid
 LOGICAL,   INTENT(IN)                            :: idep                       ! 
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
 CHARACTER*(*), INTENT(IN)                        :: namse3                     ! 
 CHARACTER*(*), INTENT(IN)                        :: namsec                     ! 
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! 
 CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! 
+real,      INTENT(IN)                            :: xm(nrrcp)
+real,      INTENT(IN)                            :: ym(nrrcp)
+real,      INTENT(IN)                            :: cpri(nrrcp)
+real,      INTENT(IN)                            :: csec(nrrcp)
+real,      INTENT(IN)                            :: drydep(nrrcp)
+real,      INTENT(IN)                            :: wetdep(nrrcp)
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+real,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -84,9 +84,9 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: ierr                       ! 
 INTEGER*4                                        :: ls                         ! lengte textstring namse3
 INTEGER*4                                        :: j                          ! 
-REAL*4                                           :: xlb                        ! 
-REAL*4                                           :: ylb                        ! 
-REAL*4                                           :: totdep(nrrcp)              ! 
+real                                             :: xlb
+real                                             :: ylb
+real                                             :: totdep(nrrcp)
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! CONSTANTS
@@ -263,8 +263,8 @@ CHARACTER*(*), INTENT(IN)                        :: descco                     !
 CHARACTER*(*), INTENT(IN)                        :: compname                   ! name of component
 CHARACTER*(*), INTENT(IN)                        :: compunit                   ! component unit
 REAL,      INTENT(IN)                            :: grid                       ! grid size in km
-REAL*4,    INTENT(IN)                            :: xlb                        ! aps-formatted x-origin (?)
-REAL*4,    INTENT(IN)                            :: ylb                        ! aps-formatted y-origin (?)
+real,      INTENT(IN)                            :: xlb                        ! aps-formatted x-origin (?)
+real,      INTENT(IN)                            :: ylb                        ! aps-formatted y-origin (?)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
@@ -274,7 +274,7 @@ INTEGER                                          :: j                          !
 INTEGER                                          :: m                          ! do loop counter
 INTEGER                                          :: ierr                       ! error number
 INTEGER                                          :: pointto                    ! current receptor point index on line
-REAL*4                                           :: line(nrcol)                ! value from each row
+real                                             :: line(nrcol)                ! value from each row
 CHARACTER*80                                     :: formatstring               ! format string in writing
 CHARACTER*10                                     :: OPSVERSIE                  ! format string in writing
 ! ---

@@ -55,60 +55,60 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_conc_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: ueff                       ! 
-REAL*4,    INTENT(IN)                            :: qbpri                      ! 
+real,      INTENT(IN)                            :: ueff
+real,      INTENT(IN)                            :: qbpri
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
-REAL*4,    INTENT(IN)                            :: rcsec                      ! 
-REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
+real,      INTENT(IN)                            :: rcsec
+real,      INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4,    INTENT(IN)                            :: ccc                        ! 
-REAL*4,    INTENT(IN)                            :: amol1                      ! 
-REAL*4,    INTENT(IN)                            :: amol2                      ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 ! 
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    ! 
-REAL*4,    INTENT(IN)                            :: ra50_rcp                   ! 
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! 
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
-REAL*4,    INTENT(IN)                            :: cch                        ! 
-REAL*4,    INTENT(IN)                            :: cgt                        ! 
-REAL*4,    INTENT(IN)                            :: cgt_z                      ! height dependent cgt
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-REAL*4,    INTENT(IN)                            :: percvk                     ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! 
-REAL*4,    INTENT(IN)                            :: virty                      ! 
-REAL*4,    INTENT(IN)                            :: ri                         ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: rkc                        ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! 
-REAL*4,    INTENT(IN)                            :: twt                        ! 
-REAL*4,    INTENT(IN)                            :: rb                         ! 
-REAL*4,    INTENT(IN)                            :: ra50                       ! 
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: grad                       ! 
-REAL*4,    INTENT(IN)                            :: frac                       ! fraction of this grid cell that is relevant
-REAL*4,    INTENT(IN)                            :: ra50tra                    ! 
-REAL*4,    INTENT(IN)                            :: rb_tra                     ! 
-REAL*4,    INTENT(IN)                            :: rclocal                    ! 
-REAL*4,    INTENT(IN)                            :: vgpart                     ! 
-REAL*4,    INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
+real,      INTENT(IN)                            :: ccc
+real,      INTENT(IN)                            :: amol1
+real,      INTENT(IN)                            :: amol2
+real,      INTENT(IN)                            :: sigz
+real,      INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
+real,      INTENT(IN)                            :: rc_sec_rcp
+real,      INTENT(IN)                            :: ra4_rcp
+real,      INTENT(IN)                            :: ra50_rcp
+real,      INTENT(IN)                            :: rb_rcp
+real,      INTENT(IN)                            :: amol21
+real,      INTENT(IN)                            :: ugmoldep
+real,      INTENT(IN)                            :: cch
+real,      INTENT(IN)                            :: cgt
+real,      INTENT(IN)                            :: cgt_z                      ! height dependent cgt
+real,      INTENT(IN)                            :: grof
+real,      INTENT(IN)                            :: percvk
+real,      INTENT(IN)                            :: onder
+real,      INTENT(IN)                            :: regenk
+real,      INTENT(IN)                            :: virty
+real,      INTENT(IN)                            :: ri
+real,      INTENT(IN)                            :: vw10
+real,      INTENT(IN)                            :: hbron
+real,      INTENT(IN)                            :: pcoef
+real,      INTENT(IN)                            :: rkc
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: vnatpri
+real,      INTENT(IN)                            :: vchem
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: xloc
+real,      INTENT(IN)                            :: htot
+real,      INTENT(IN)                            :: twt
+real,      INTENT(IN)                            :: rb
+real,      INTENT(IN)                            :: ra50
+real,      INTENT(IN)                            :: xvghbr
+real,      INTENT(IN)                            :: xvglbr
+real,      INTENT(IN)                            :: grad
+real,      INTENT(IN)                            :: frac                       ! fraction of this grid cell that is relevant
+real,      INTENT(IN)                            :: ra50tra
+real,      INTENT(IN)                            :: rb_tra
+real,      INTENT(IN)                            :: rclocal
+real,      INTENT(IN)                            :: vgpart
+real,      INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: cdn                        ! 
-REAL*4,    INTENT(INOUT)                         :: cq2                        ! 
-REAL*4,    INTENT(INOUT)                         :: c                          ! 
+real,      INTENT(INOUT)                         :: cdn
+real,      INTENT(INOUT)                         :: cq2
+real,      INTENT(INOUT)                         :: c
 DOUBLE PRECISION, INTENT(INOUT)                  :: sdrypri                    ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: sdrysec                    ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec                    ! 
@@ -124,31 +124,31 @@ DOUBLE PRECISION, INTENT(INOUT)                  :: drydep                     !
 DOUBLE PRECISION, INTENT(INOUT)                  :: wetdep                     ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qsec                       ! 
-REAL*4,    INTENT(OUT)                           :: consec                     ! 
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: vg50trans                  ! 
+real,      INTENT(OUT)                           :: qsec
+real,      INTENT(OUT)                           :: consec
+real,      INTENT(OUT)                           :: pr
+real,      INTENT(OUT)                           :: vg50trans
 
 ! LOCAL VARIABLES
-REAL*4                                           :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
-REAL*4                                           :: vv                         ! 
-REAL*4                                           :: drypri                     ! 
-REAL*4                                           :: ddrup                      ! 
-REAL*4                                           :: vdrup                      ! 
-REAL*4                                           :: umid                       ! 
-REAL*4                                           :: virnat                     ! 
-REAL*4                                           :: dn                         ! 
-REAL*4                                           :: dnatpri                    ! 
-REAL*4                                           :: xvg                        ! factor not used; xvg = 1
-REAL*4                                           :: cgtsec                     ! 
-REAL*4                                           :: vgsec                      ! 
-REAL*4                                           :: vg_sec_rcp                 ! 
-REAL*4                                           :: vnatsec                    ! 
-REAL*4                                           :: drysec                     ! 
-REAL*4                                           :: dnatsec                    ! 
-REAL*4                                           :: vg4lok                     ! 
-REAL*4                                           :: c_z                        ! bewaren van de hoogte afhankelijke c
-REAL*4                                           :: xg
+real                                             :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
+real                                             :: vv
+real                                             :: drypri
+real                                             :: ddrup
+real                                             :: vdrup
+real                                             :: umid
+real                                             :: virnat
+real                                             :: dn
+real                                             :: dnatpri
+real                                             :: xvg                        ! factor not used; xvg = 1
+real                                             :: cgtsec
+real                                             :: vgsec
+real                                             :: vg_sec_rcp
+real                                             :: vnatsec
+real                                             :: drysec
+real                                             :: dnatsec
+real                                             :: vg4lok
+real                                             :: c_z                        ! bewaren van de hoogte afhankelijke c
+real                                             :: xg
 
 
 ! SUBROUTINE AND FUNCTION CALLS

@@ -64,10 +64,10 @@ IMPLICIT NONE
 !                       ca. 10000 km west (y < 4000 km)  -96 lon 17 lat
 !                       ca.  6000 km west (y < 5000 km)  -95 lon 47 lat
 !
-! INPUTS      : amcx     (real*4), RDM x-coordinate [km]
-!               amcy     (real*4), RDM y-coordinate [km]
-! OUTPUTS     : geol     (real*4), longitude [degrees]
-!               geob     (real*4), latitude  [degrees]
+! INPUTS      : amcx     (real), RDM x-coordinate [km]
+!               amcy     (real), RDM y-coordinate [km]
+! OUTPUTS     : geol     (real), longitude [degrees]
+!               geob     (real), latitude  [degrees]
 !               "geo" << geographical coordinates; "l" << lengtegraad = longitude, "b" << breedtegraad = latitude
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -78,10 +78,10 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : geo2amc
 ! PURPOSE     : Convert greographical lon-lat coordinates to RDM coordinates
-! INPUTS      : geob    (real*4), latitude, phi (degrees)
-!               geob    (real*4), longitude, lambda (degrees)
-! OUTPUTS     : amcx    (real*4), RDM x-coordinate
-!               amcx    (real*4), RDM y-coordinate
+! INPUTS      : geob    (real), latitude, phi (degrees)
+!               geob    (real), longitude, lambda (degrees)
+! OUTPUTS     : amcx    (real), RDM x-coordinate
+!               amcx    (real), RDM y-coordinate
 !-------------------------------------------------------------------------------------------------------------------------------
 
 INTERFACE geo2amc
@@ -91,10 +91,10 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : amc2lam
 ! PURPOSE     : Berekenen van de lambert azimuthal equal area coordinaten (x,y) in km. uit de topografische (amersfoortse) coordinaten.
-! INPUTS      : amcx   (real*4), x-coordinaat, Amersfoorts
-!               amcy   (real*4), y-coordinaat, Amersfoorts
-! OUTPUTS     : lamx   (real*4), x-coordinaat, Lambert azimuthaal
-!             : lamy   (real*4), y-coordinaat, Lambert azimuthaal
+! INPUTS      : amcx   (real), x-coordinaat, Amersfoorts
+!               amcy   (real), y-coordinaat, Amersfoorts
+! OUTPUTS     : lamx   (real), x-coordinaat, Lambert azimuthaal
+!             : lamy   (real), y-coordinaat, Lambert azimuthaal
 !-------------------------------------------------------------------------------------------------------------------------------
 
 INTERFACE amc2lam
@@ -104,10 +104,10 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : geo2lam
 ! PURPOSE     : Berekenen van de lambert azimuthal equal area coordinaten (x,y) in km. uit de geografische coordinaten.
-! INPUTS      : geob   (real*4), breedtegraad, phi (dec.)
-!               geol   (real*4), lengtegraad, labda (dec.)
-! OUTPUTS     : lamx   (real*4), x-coordinaat, Lambert azimuthaal
-!             : lamy   (real*4), y-coordinaat, Lambert azimuthaal
+! INPUTS      : geob   (real), breedtegraad, phi (dec.)
+!               geol   (real), lengtegraad, labda (dec.)
+! OUTPUTS     : lamx   (real), x-coordinaat, Lambert azimuthaal
+!             : lamy   (real), y-coordinaat, Lambert azimuthaal
 !-------------------------------------------------------------------------------------------------------------------------------
 
 INTERFACE geo2lam
@@ -131,21 +131,21 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'amc2geo')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: amcx                       ! RDM x-coordinate (km)
-REAL*4,    INTENT(IN)                            :: amcy                       ! RDM y-coordinate (km)
+real,      INTENT(IN)                            :: amcx                       ! RDM x-coordinate (km)
+real,      INTENT(IN)                            :: amcy                       ! RDM y-coordinate (km)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: geol                       ! longitude [degrees]
-REAL*4,    INTENT(OUT)                           :: geob                       ! latitude  [degrees]
+real,      INTENT(OUT)                           :: geol                       ! longitude [degrees]
+real,      INTENT(OUT)                           :: geob                       ! latitude  [degrees]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: tel                        ! iteration index
-REAL*4                                           :: difx                       ! threshold value for dx
-REAL*4                                           :: dify                       ! threshold value for dy
-REAL*4                                           :: dx                         ! x - x0
-REAL*4                                           :: dy                         ! y - y0
-REAL*4                                           :: amcx0                      ! RDM x-coordinate that corresponds with (gb,gl)
-REAL*4                                           :: amcy0                      ! RDM y-coordinate that corresponds with (gb,gl)
+real                                             :: difx                       ! threshold value for dx
+real                                             :: dify                       ! threshold value for dy
+real                                             :: dx                         ! x - x0
+real                                             :: dy                         ! y - y0
+real                                             :: amcx0                      ! RDM x-coordinate that corresponds with (gb,gl)
+real                                             :: amcy0                      ! RDM y-coordinate that corresponds with (gb,gl)
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -228,24 +228,24 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'geo2amc')
 
 ! CONSTANTS
-REAL*4                                           :: AMFI                       ! longitude (phi) of Amersfoort (centre of RDM grid)
-REAL*4                                           :: AMLA                       ! latitude (lambda) of Amersfoort (centre of RDM grid)
+real                                             :: AMFI                       ! longitude (phi) of Amersfoort (centre of RDM grid)
+real                                             :: AMLA                       ! latitude (lambda) of Amersfoort (centre of RDM grid)
 PARAMETER (AMFI = 18.7762) 
 PARAMETER (AMLA =  1.9395) 
 ! 1 degree = 3600 seconds; AMFI, AMLA in units of 10000 seconds; conversion factor to degrees = 10000/3600:
 ! 10000*[AMFI, AMLA]/3600 = [AMFI, AMLA]/0.36 = [18.7762 1.9395]/0.36 = [52.1561 5.3875] = [Lat, Lon]_Amersfoort
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: geol                       ! longitude (phi)   [degrees]
-REAL*4,    INTENT(IN)                            :: geob                       ! latitude (lambda) [degrees]
+real,      INTENT(IN)                            :: geol                       ! longitude (phi)   [degrees]
+real,      INTENT(IN)                            :: geob                       ! latitude (lambda) [degrees]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: amcx                       ! RDM x-coordinate (km)
-REAL*4,    INTENT(OUT)                           :: amcy                       ! RDM y-coordinate (km
+real,      INTENT(OUT)                           :: amcx                       ! RDM x-coordinate (km)
+real,      INTENT(OUT)                           :: amcy                       ! RDM y-coordinate (km
 
 ! LOCAL VARIABLES
-REAL*4                                           :: f1                         ! 
-REAL*4                                           :: l1                         ! 
+real                                             :: f1
+real                                             :: l1
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -278,16 +278,16 @@ PARAMETER    (ROUTINENAAM = 'amc2lam')
 ! CONSTANTS
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: amcx                       ! amersfoortse x-coordinaat (km)
-REAL*4,    INTENT(IN)                            :: amcy                       ! amersfoortse y-coordinaat (km)
+real,      INTENT(IN)                            :: amcx                       ! amersfoortse x-coordinaat (km)
+real,      INTENT(IN)                            :: amcy                       ! amersfoortse y-coordinaat (km)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: lamx                       ! lambert azimuthal x-coordinaat (km)
-REAL*4,    INTENT(OUT)                           :: lamy                       ! lambert azimuthal y-coordinaat (km)
+real,      INTENT(OUT)                           :: lamx                       ! lambert azimuthal x-coordinaat (km)
+real,      INTENT(OUT)                           :: lamy                       ! lambert azimuthal y-coordinaat (km)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: geol                       ! hulpvariabele voor phi
-REAL*4                                           :: geob                       ! hulpvariabele voor lambda
+real                                             :: geol                       ! hulpvariabele voor phi
+real                                             :: geob                       ! hulpvariabele voor lambda
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -321,12 +321,12 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'geo2lam')
 
 ! CONSTANTS
-REAL*8                                           :: false_east                 ! linear value added to the x-coordinate values (longitude)
-REAL*8                                           :: false_north                ! linear value added to the y-coordinate values (latitude)
-REAL*8                                           :: R                          ! radius of the earth (equatorial)
-REAL*8                                           :: degtorad                   ! degrees to radians
-REAL*8                                           :: cen_med                    ! central median or central longitude
-REAL*8                                           :: lat_ori                    ! latitude of origen or standard parallel
+double precision                                 :: false_east                 ! linear value added to the x-coordinate values (longitude)
+double precision                                 :: false_north                ! linear value added to the y-coordinate values (latitude)
+double precision                                 :: R                          ! radius of the earth (equatorial)
+double precision                                 :: degtorad                   ! degrees to radians
+double precision                                 :: cen_med                    ! central median or central longitude
+double precision                                 :: lat_ori                    ! latitude of origen or standard parallel
 
 PARAMETER (false_east  = 4321000)
 PARAMETER (false_north = 3210000)
@@ -336,27 +336,27 @@ PARAMETER (cen_med     = 10)
 PARAMETER (lat_ori     = 52)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: geob                         ! breedtegraad (lambda)     (dec.) (lat)
-REAL*4,    INTENT(IN)                            :: geol                         ! lengtegraad (phi)         (dec.) (lon)
+real,      INTENT(IN)                            :: geob                         ! breedtegraad (lambda)     (dec.) (lat)
+real,      INTENT(IN)                            :: geol                         ! lengtegraad (phi)         (dec.) (lon)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: lamx                         ! lambert azimuthal x-coordinaat (km)
-REAL*4,    INTENT(OUT)                           :: lamy                         ! lambert azimuthal y-coordinaat (km)
+real,      INTENT(OUT)                           :: lamx                         ! lambert azimuthal x-coordinaat (km)
+real,      INTENT(OUT)                           :: lamy                         ! lambert azimuthal y-coordinaat (km)
 
 ! LOCAL VARIABLES
-real*8                                           :: ksp
-real*8                                           :: lon                          ! longitude of the original grid
-real*8                                           :: lat                          ! latitude of the original grid
-real*8                                           :: sin_lat
-real*8                                           :: cos_lat
-real*8                                           :: sin_lon
-real*8                                           :: cos_lon
-real*8                                           :: sin_lat_ori
-real*8                                           :: cos_lat_ori
-real*8                                           :: sin_lon_delta
-real*8                                           :: cos_lon_delta
-real*8                                           :: x
-real*8                                           :: y
+double precision                                 :: ksp
+double precision                                 :: lon                          ! longitude of the original grid
+double precision                                 :: lat                          ! latitude of the original grid
+double precision                                 :: sin_lat
+double precision                                 :: cos_lat
+double precision                                 :: sin_lon
+double precision                                 :: cos_lon
+double precision                                 :: sin_lat_ori
+double precision                                 :: cos_lat_ori
+double precision                                 :: sin_lon_delta
+double precision                                 :: cos_lon_delta
+double precision                                 :: x
+double precision                                 :: y
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

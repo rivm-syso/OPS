@@ -53,12 +53,12 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_gen_precip')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: uurtot                      
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
+real,      INTENT(IN)                            :: uurtot
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(IN)                            :: trafst(NTRAJ)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: precip                     ! array with precipitation per receptorpoint
+real,      INTENT(OUT)                           :: precip                     ! array with precipitation per receptorpoint
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -68,47 +68,47 @@ INTEGER*4                                        :: isekt                      !
 INTEGER*4                                        :: istab                      ! index of stability class
 INTEGER*4                                        :: iwd                        ! wind direction [degrees]
 INTEGER*4                                        :: itra                       ! dummy output of ops_statparexp
-REAL*4                                           :: hbron                      ! source height, dummy input for ops_statparexp
-REAL*4                                           :: disx                       ! distance source receptor, dummy input for ops_statparexp
-REAL*4                                           :: disxx                      ! dummy output of ops_statparexp
-REAL*4                                           :: radius                     ! source diameter, dummy input for ops_statparexp
-REAL*4                                           :: qww                        ! heat content of source, dummy input for ops_statparexp; 
+real                                             :: hbron                      ! source height, dummy input for ops_statparexp
+real                                             :: disx                       ! distance source receptor, dummy input for ops_statparexp
+real                                             :: disxx                      ! dummy output of ops_statparexp
+real                                             :: radius                     ! source diameter, dummy input for ops_statparexp
+real                                             :: qww                        ! heat content of source, dummy input for ops_statparexp;
                                                                                ! setting it to 0 prevents unnecessary computation of plume rise
                                                                                ! in ops_statparexp 
-REAL*4                                           :: V_stack                    ! here a dummy
-REAL*4                                           :: Ts_stack                   ! here a dummy         
+real                                             :: V_stack                    ! here a dummy
+real                                             :: Ts_stack                   ! here a dummy
 LOGICAL                                          :: emis_horizontal            ! here a dummy
-REAL*4                                           :: D_stack                    ! here a dummy
-REAL*4                                           :: vw10                       ! here a dummy
-REAL*4                                           :: aksek(12)                  ! here a dummy
-REAL*4                                           :: h0                         ! here a dummy
-REAL*4                                           :: hum                        ! here a dummy
-REAL*4                                           :: ol                         ! here a dummy
-REAL*4                                           :: shear                      ! here a dummy
-REAL*4                                           :: rcaerd                     ! here a dummy
-REAL*4                                           :: rcnh3d                     ! here a dummy
-REAL*4                                           :: rcno2d                     ! here a dummy
-REAL*4                                           :: temp_C                     ! here a dummy
-REAL*4                                           :: uster                      ! here a dummy
-REAL*4                                           :: pcoef                      ! here a dummy
-REAL*4                                           :: htot                       ! here a dummy
-REAL*4                                           :: htt                        ! here a dummy
-REAL*4                                           :: aant                       ! here a dummy
-REAL*4                                           :: xl                         ! here a dummy
-REAL*4                                           :: rb                         ! here a dummy
-REAL*4                                           :: ra4                        ! here a dummy
-REAL*4                                           :: ra50                       ! here a dummy
-REAL*4                                           :: xvglbr                     ! here a dummy
-REAL*4                                           :: xvghbr                     ! here a dummy
-REAL*4                                           :: xloc                       ! here a dummy
-REAL*4                                           :: xl100                      ! here a dummy
-REAL*4                                           :: rad                        ! here a dummy
-REAL*4                                           :: rcso2                      ! here a dummy
-REAL*4                                           :: coef_space_heating         ! here a dummy
-REAL*4                                           :: buil                       ! here a dummy
-REAL*4                                           :: regenk                     
-REAL*4                                           :: rint                       
-REAL*4                                           :: percvk                    
+real                                             :: D_stack                    ! here a dummy
+real                                             :: vw10                       ! here a dummy
+real                                             :: aksek(12)                  ! here a dummy
+real                                             :: h0                         ! here a dummy
+real                                             :: hum                        ! here a dummy
+real                                             :: ol                         ! here a dummy
+real                                             :: shear                      ! here a dummy
+real                                             :: rcaerd                     ! here a dummy
+real                                             :: rcnh3d                     ! here a dummy
+real                                             :: rcno2d                     ! here a dummy
+real                                             :: temp_C                     ! here a dummy
+real                                             :: uster                      ! here a dummy
+real                                             :: pcoef                      ! here a dummy
+real                                             :: htot                       ! here a dummy
+real                                             :: htt                        ! here a dummy
+real                                             :: aant                       ! here a dummy
+real                                             :: xl                         ! here a dummy
+real                                             :: rb                         ! here a dummy
+real                                             :: ra4                        ! here a dummy
+real                                             :: ra50                       ! here a dummy
+real                                             :: xvglbr                     ! here a dummy
+real                                             :: xvghbr                     ! here a dummy
+real                                             :: xloc                       ! here a dummy
+real                                             :: xl100                      ! here a dummy
+real                                             :: rad                        ! here a dummy
+real                                             :: rcso2                      ! here a dummy
+real                                             :: coef_space_heating         ! here a dummy
+real                                             :: buil                       ! here a dummy
+real                                             :: regenk
+real                                             :: rint
+real                                             :: percvk
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
