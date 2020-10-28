@@ -153,16 +153,16 @@ CHARACTER*(*), INTENT(OUT)                       :: targetstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: eindsourcepos              !
-INTEGER*4                                        :: eindtargetpos              !
+INTEGER*4                                        :: eindsourcepos
+INTEGER*4                                        :: eindtargetpos
 LOGICAL                                          :: changeany                  ! false if nothing has been set
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'copystrpart')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (stringsetlimits(ROUTINENAAM, sourcestring, startpos, endpos, 0, targetstring, eindsourcepos, eindtargetpos, changeany,     &
@@ -196,7 +196,7 @@ CHARACTER*(*), INTENT(OUT)                       :: targetstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'copystring')
 !-------------------------------------------------------------------------------------------------------------------------------
 CALL copystrpart(sourcestring, 1, -1, targetstring, error)
@@ -227,13 +227,13 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: targetlengte               !
-INTEGER*4                                        :: eindsourcepos              !
-INTEGER*4                                        :: eindtargetpos              !
+INTEGER*4                                        :: targetlengte
+INTEGER*4                                        :: eindsourcepos
+INTEGER*4                                        :: eindtargetpos
 LOGICAL                                          :: changeany                  ! false als er niets gezet wordt
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'appendstrpart')
 !-------------------------------------------------------------------------------------------------------------------------------
 targetlengte=LEN_TRIM(targetstring)
@@ -268,7 +268,7 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'appendstring')
 
 CALL appendstrpart(sourcestring, 1, -1, targetstring, error)
@@ -298,10 +298,10 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: strlen                     !
+INTEGER*4                                        :: strlen
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'appendinteger')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -343,14 +343,14 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: targetlengte               !
-INTEGER*4                                        :: eindsourcepos              !
-INTEGER*4                                        :: eindtargetpos              !
-INTEGER*4                                        :: insertdiff                 !
+INTEGER*4                                        :: targetlengte
+INTEGER*4                                        :: eindsourcepos
+INTEGER*4                                        :: eindtargetpos
+INTEGER*4                                        :: insertdiff
 LOGICAL                                          :: changeany                  ! false als er niets gezet wordt
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'insertstrpart')
 !-------------------------------------------------------------------------------------------------------------------------------
 targetlengte=LEN_TRIM(targetstring)
@@ -391,7 +391,7 @@ CHARACTER*(*), INTENT(OUT)                       :: targetstring               !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'insertstring')
 !-------------------------------------------------------------------------------------------------------------------------------
 CALL insertstrpart(insertpos, sourcestring, 1, -1, targetstring, error)
@@ -426,7 +426,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 CHARACTER*(80)                                   :: intasstring                ! integer geconverteerd naar string
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'insertinteger')
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -472,7 +472,7 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'mergestrpart')
 !-------------------------------------------------------------------------------------------------------------------------------
 CALL copystrpart(sourcestring1,startpos1,endpos1, targetstring, error)
@@ -507,7 +507,7 @@ CHARACTER*(*), INTENT(INOUT)                     :: targetstring               !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'mergestring')
 !-------------------------------------------------------------------------------------------------------------------------------
 CALL mergestrpart(sourcestring1, 1, -1, sourcestring2, 1, -1, targetstring, error)
@@ -540,13 +540,13 @@ LOGICAL,   INTENT(OUT)                           :: changeany                  !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULTAAT
-LOGICAL                                          :: stringtestlimits           !
+LOGICAL                                          :: stringtestlimits
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: lengte                     ! lengte van de string
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'stringtestlimits')
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -616,15 +616,15 @@ LOGICAL,   INTENT(OUT)                           :: changeany                  !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT
-LOGICAL                                          :: stringsetlimits            !
+LOGICAL                                          :: stringsetlimits
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: teller                     !
+INTEGER*4                                        :: teller
 INTEGER*4                                        :: targetmaxlengte            ! dclaratie lengte in targetstring
 INTEGER*4                                        :: sourcelengte               ! bijdrage sourcestring in lengte
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'stringsetlimits')
 
 !-------------------------------------------------------------------------------------------------------------------------------

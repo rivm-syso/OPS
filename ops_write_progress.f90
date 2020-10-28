@@ -46,7 +46,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_write_progress')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -62,7 +62,7 @@ INTEGER*4, INTENT(INOUT)                         :: memdone
 INTEGER*4                                        :: idx                        ! do-loop index
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

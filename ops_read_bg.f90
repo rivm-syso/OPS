@@ -63,7 +63,7 @@ TYPE (TApsGridReal), INTENT(OUT)                 :: so2bggrid                  !
 TYPE (TApsGridReal), INTENT(OUT)                 :: no2bggrid                  ! grid with NO2 background concentration [ppb]
 TYPE (TApsGridReal), INTENT(OUT)                 :: nh3bggrid                  ! grid with NH3 background concentration [ppb]
 TYPE (TApsGridReal), INTENT(OUT)                 :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
-TYPE (Tvchem),       INTENT(INOUT)               :: vchem2                     !
+TYPE (Tvchem),       INTENT(INOUT)               :: vchem2
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -87,11 +87,11 @@ INTEGER                                          :: nfield                     !
 INTEGER                                          :: ifield                     ! field number in f_subsec_grid
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_bg')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -290,8 +290,8 @@ if (iopt_vchem .eq. 1) then
    !  qq%value = vchem2%mass_conv_dtfac_grid(1)%value/vchem2%mass_prec_grid(1)%value
    !  write(*,*) 'grid for conversion factor'
    !  open(unit = 34, file = 'cvr_tst1.aps')
-   !
-   !
+
+
    !  !  character*(*)     coord_sys       ! coordinate system, either 'RDM' or 'lon-lat'
    !  !  integer           lu
    !  !  real              xorg, yorg
@@ -304,7 +304,7 @@ if (iopt_vchem .eq. 1) then
    !  !  character*10      modversie
    !  !  character*12      kname
    !  !  character*(*)     namegr          ! name of grid file (used for error message)
-   !
+
    !  !  character*12      quantity
    !  !subroutine saveaps(coord_sys,lu,namegr,xorg,yorg,gridx,gridy,matx,maty,cpri,namco,unit_conc,modversie,kname,quantity,ijg,img,idg,iug)
    !  call saveaps('RDM',34,'qq0',qq%gridheader%xorgl,qq%gridheader%yorgl,qq%gridheader%grixl,qq%gridheader%griyl,qq%gridheader%nrcol,qq%gridheader%nrrow,qq%value(:,:,1),'conv_rate ','%/h     ','OPS_tst   ','qq1         ','qq2         ',10,0,0,0)
@@ -354,7 +354,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 CHARACTER*512                                    :: apsfile                    ! full file name of APS-file to read
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'read_bg_file')
 !-------------------------------------------------------------------------------------------------------------------------------
 

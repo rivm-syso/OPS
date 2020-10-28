@@ -51,102 +51,102 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_conc_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: ueff                       !
-REAL*4,    INTENT(IN)                            :: qbpri                      !
-LOGICAL,   INTENT(IN)                            :: isec                       !
-REAL*4,    INTENT(IN)                            :: rcsec                      !
+REAL*4,    INTENT(IN)                            :: ueff
+REAL*4,    INTENT(IN)                            :: qbpri
+LOGICAL,   INTENT(IN)                            :: isec
+REAL*4,    INTENT(IN)                            :: rcsec
 REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4,    INTENT(IN)                            :: ccc                        !
-REAL*4,    INTENT(IN)                            :: amol1                      !
-REAL*4,    INTENT(IN)                            :: amol2                      !
-REAL*4,    INTENT(IN)                            :: sigz                       !
+REAL*4,    INTENT(IN)                            :: ccc
+REAL*4,    INTENT(IN)                            :: amol1
+REAL*4,    INTENT(IN)                            :: amol2
+REAL*4,    INTENT(IN)                            :: sigz
 REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 !
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    !
-REAL*4,    INTENT(IN)                            :: ra50_rcp                   !
-REAL*4,    INTENT(IN)                            :: rb_rcp                     !
-REAL*4,    INTENT(IN)                            :: amol21                     !
-REAL*4,    INTENT(IN)                            :: ugmoldep                   !
-REAL*4,    INTENT(IN)                            :: cch                        !
-REAL*4,    INTENT(IN)                            :: cgt                        !
+REAL*4,    INTENT(IN)                            :: rc_sec_rcp
+REAL*4,    INTENT(IN)                            :: ra4_rcp
+REAL*4,    INTENT(IN)                            :: ra50_rcp
+REAL*4,    INTENT(IN)                            :: rb_rcp
+REAL*4,    INTENT(IN)                            :: amol21
+REAL*4,    INTENT(IN)                            :: ugmoldep
+REAL*4,    INTENT(IN)                            :: cch
+REAL*4,    INTENT(IN)                            :: cgt
 REAL*4,    INTENT(IN)                            :: cgt_z                      ! height dependent cgt
-REAL*4,    INTENT(IN)                            :: grof                       !
-REAL*4,    INTENT(IN)                            :: percvk                     !
-REAL*4,    INTENT(IN)                            :: onder                      !
-REAL*4,    INTENT(IN)                            :: regenk                     !
-REAL*4,    INTENT(IN)                            :: virty                      !
-REAL*4,    INTENT(IN)                            :: ri                         !
-REAL*4,    INTENT(IN)                            :: vw10                       !
-REAL*4,    INTENT(IN)                            :: hbron                      !
-REAL*4,    INTENT(IN)                            :: pcoef                      !
-REAL*4,    INTENT(IN)                            :: rkc                        !
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: vnatpri                    !
-REAL*4,    INTENT(IN)                            :: vchem                      !
-REAL*4,    INTENT(IN)                            :: radius                     !
-REAL*4,    INTENT(IN)                            :: xl                         !
-REAL*4,    INTENT(IN)                            :: xloc                       !
-REAL*4,    INTENT(IN)                            :: htot                       !
-REAL*4,    INTENT(IN)                            :: twt                        !
-REAL*4,    INTENT(IN)                            :: rb                         !
-REAL*4,    INTENT(IN)                            :: ra50                       !
-REAL*4,    INTENT(IN)                            :: xvghbr                     !
-REAL*4,    INTENT(IN)                            :: xvglbr                     !
-REAL*4,    INTENT(IN)                            :: grad                       !
+REAL*4,    INTENT(IN)                            :: grof
+REAL*4,    INTENT(IN)                            :: percvk
+REAL*4,    INTENT(IN)                            :: onder
+REAL*4,    INTENT(IN)                            :: regenk
+REAL*4,    INTENT(IN)                            :: virty
+REAL*4,    INTENT(IN)                            :: ri
+REAL*4,    INTENT(IN)                            :: vw10
+REAL*4,    INTENT(IN)                            :: hbron
+REAL*4,    INTENT(IN)                            :: pcoef
+REAL*4,    INTENT(IN)                            :: rkc
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: vnatpri
+REAL*4,    INTENT(IN)                            :: vchem
+REAL*4,    INTENT(IN)                            :: radius
+REAL*4,    INTENT(IN)                            :: xl
+REAL*4,    INTENT(IN)                            :: xloc
+REAL*4,    INTENT(IN)                            :: htot
+REAL*4,    INTENT(IN)                            :: twt
+REAL*4,    INTENT(IN)                            :: rb
+REAL*4,    INTENT(IN)                            :: ra50
+REAL*4,    INTENT(IN)                            :: xvghbr
+REAL*4,    INTENT(IN)                            :: xvglbr
+REAL*4,    INTENT(IN)                            :: grad
 REAL*4,    INTENT(IN)                            :: frac                       ! fraction of this grid cell that is relevant
-REAL*4,    INTENT(IN)                            :: ra50tra                    !
-REAL*4,    INTENT(IN)                            :: rb_tra                     !
-REAL*4,    INTENT(IN)                            :: rclocal                    !
-REAL*4,    INTENT(IN)                            :: vgpart                     !
+REAL*4,    INTENT(IN)                            :: ra50tra
+REAL*4,    INTENT(IN)                            :: rb_tra
+REAL*4,    INTENT(IN)                            :: rclocal
+REAL*4,    INTENT(IN)                            :: vgpart
 REAL*4,    INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: cdn                        !
-REAL*4,    INTENT(INOUT)                         :: cq2                        !
-REAL*4,    INTENT(INOUT)                         :: c                          !
-DOUBLE PRECISION, INTENT(INOUT)                  :: sdrypri                    !
-DOUBLE PRECISION, INTENT(INOUT)                  :: sdrysec                    !
-DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec                    !
-DOUBLE PRECISION, INTENT(INOUT)                  :: somvnsec                   !
-DOUBLE PRECISION, INTENT(INOUT)                  :: telvnsec                   !
-DOUBLE PRECISION, INTENT(INOUT)                  :: vvchem                     !
-DOUBLE PRECISION, INTENT(INOUT)                  :: vtel                       !
-DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri                    !
-DOUBLE PRECISION, INTENT(INOUT)                  :: somvnpri                   !
-DOUBLE PRECISION, INTENT(INOUT)                  :: telvnpri                   !
-DOUBLE PRECISION, INTENT(INOUT)                  :: ddepri                     !
-DOUBLE PRECISION, INTENT(INOUT)                  :: drydep                     !
-DOUBLE PRECISION, INTENT(INOUT)                  :: wetdep                     !
+REAL*4,    INTENT(INOUT)                         :: cdn
+REAL*4,    INTENT(INOUT)                         :: cq2
+REAL*4,    INTENT(INOUT)                         :: c
+DOUBLE PRECISION, INTENT(INOUT)                  :: sdrypri
+DOUBLE PRECISION, INTENT(INOUT)                  :: sdrysec
+DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec
+DOUBLE PRECISION, INTENT(INOUT)                  :: somvnsec
+DOUBLE PRECISION, INTENT(INOUT)                  :: telvnsec
+DOUBLE PRECISION, INTENT(INOUT)                  :: vvchem
+DOUBLE PRECISION, INTENT(INOUT)                  :: vtel
+DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri
+DOUBLE PRECISION, INTENT(INOUT)                  :: somvnpri
+DOUBLE PRECISION, INTENT(INOUT)                  :: telvnpri
+DOUBLE PRECISION, INTENT(INOUT)                  :: ddepri
+DOUBLE PRECISION, INTENT(INOUT)                  :: drydep
+DOUBLE PRECISION, INTENT(INOUT)                  :: wetdep
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qsec                       !
-REAL*4,    INTENT(OUT)                           :: consec                     !
-REAL*4,    INTENT(OUT)                           :: pr                         !
-REAL*4,    INTENT(OUT)                           :: vg50trans                  !
+REAL*4,    INTENT(OUT)                           :: qsec
+REAL*4,    INTENT(OUT)                           :: consec
+REAL*4,    INTENT(OUT)                           :: pr
+REAL*4,    INTENT(OUT)                           :: vg50trans
 
 ! LOCAL VARIABLES
 REAL*4                                           :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
-REAL*4                                           :: vv                         !
-REAL*4                                           :: drypri                     !
-REAL*4                                           :: ddrup                      !
-REAL*4                                           :: vdrup                      !
-REAL*4                                           :: umid                       !
-REAL*4                                           :: virnat                     !
-REAL*4                                           :: dn                         !
-REAL*4                                           :: dnatpri                    !
+REAL*4                                           :: vv
+REAL*4                                           :: drypri
+REAL*4                                           :: ddrup
+REAL*4                                           :: vdrup
+REAL*4                                           :: umid
+REAL*4                                           :: virnat
+REAL*4                                           :: dn
+REAL*4                                           :: dnatpri
 REAL*4                                           :: xvg                        ! factor not used; xvg = 1
-REAL*4                                           :: cgtsec                     !
-REAL*4                                           :: vgsec                      !
-REAL*4                                           :: vg_sec_rcp                 !
-REAL*4                                           :: vnatsec                    !
-REAL*4                                           :: drysec                     !
-REAL*4                                           :: dnatsec                    !
-REAL*4                                           :: vg4lok                     !
+REAL*4                                           :: cgtsec
+REAL*4                                           :: vgsec
+REAL*4                                           :: vg_sec_rcp
+REAL*4                                           :: vnatsec
+REAL*4                                           :: drysec
+REAL*4                                           :: dnatsec
+REAL*4                                           :: vg4lok
 REAL*4                                           :: c_z                        ! bewaren van de hoogte afhankelijke c
 REAL*4                                           :: xg
 
@@ -155,7 +155,7 @@ REAL*4                                           :: xg
 EXTERNAL ops_seccmp
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Initialisation

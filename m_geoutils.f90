@@ -127,7 +127,7 @@ SUBROUTINE amc2geo(amcx, amcy, geol, geob)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'amc2geo')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -148,7 +148,7 @@ REAL*4                                           :: amcx0                      !
 REAL*4                                           :: amcy0                      ! RDM y-coordinate that corresponds with (gb,gl)
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ SUBROUTINE geo2amc(geob, geol, amcx, amcy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'geo2amc')
 
 ! CONSTANTS
@@ -244,11 +244,11 @@ REAL*4,    INTENT(OUT)                           :: amcx                       !
 REAL*4,    INTENT(OUT)                           :: amcy                       ! RDM y-coordinate (km
 
 ! LOCAL VARIABLES
-REAL*4                                           :: f1                         !
-REAL*4                                           :: l1                         !
+REAL*4                                           :: f1
+REAL*4                                           :: l1
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -272,7 +272,7 @@ SUBROUTINE amc2lam(amcx, amcy, lamx, lamy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'amc2lam')
 
 ! CONSTANTS
@@ -290,7 +290,7 @@ REAL*4                                           :: geol                       !
 REAL*4                                           :: geob                       ! hulpvariabele voor lambda
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -317,7 +317,7 @@ SUBROUTINE geo2lam(geob, geol, lamx, lamy)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'geo2lam')
 
 ! CONSTANTS
@@ -359,7 +359,7 @@ real*8                                           :: x
 real*8                                           :: y
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

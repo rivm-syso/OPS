@@ -46,14 +46,14 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     !
-INTEGER*4, INTENT(IN)                            :: rond                       !
+REAL*4,    INTENT(IN)                            :: radius
+INTEGER*4, INTENT(IN)                            :: rond
 
 ! RESULT
-REAL*4                                           :: ops_virtdist               !
+REAL*4                                           :: ops_virtdist
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

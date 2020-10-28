@@ -66,7 +66,7 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_reken')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -154,7 +154,7 @@ REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               !
 REAL*4,    INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
-type(Tvchem), INTENT(INOUT)                      :: vchem2                     !
+type(Tvchem), INTENT(INOUT)                      :: vchem2
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
 REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
 REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
@@ -228,136 +228,136 @@ REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: istab                      ! teller over stabiliteitsklassen
 INTEGER*4                                        :: kdeel                      ! teller over deeltjesklassen
-INTEGER*4                                        :: ndone                      !
-INTEGER*4                                        :: itra                       !
-INTEGER*4                                        :: idgr                       !
-INTEGER*4                                        :: rond                       !
-INTEGER*4                                        :: iwd                        !
-INTEGER*4                                        :: ibtg                       !
-INTEGER*4                                        :: isek                       !
+INTEGER*4                                        :: ndone
+INTEGER*4                                        :: itra
+INTEGER*4                                        :: idgr
+INTEGER*4                                        :: rond
+INTEGER*4                                        :: iwd
+INTEGER*4                                        :: ibtg
+INTEGER*4                                        :: isek
 INTEGER*4                                        :: isekt                      ! uitvoer stat_parexp
 INTEGER*4                                        :: nk                         ! number of sub receptors (needed for grid averaged concentrations)
-INTEGER*4                                        :: nr                         !
-INTEGER*4                                        :: mrcp                       !
-INTEGER*4                                        :: nrcp                       !
+INTEGER*4                                        :: nr
+INTEGER*4                                        :: mrcp
+INTEGER*4                                        :: nrcp
 INTEGER*4                                        :: kk                         ! number of sub area sources
-INTEGER*4                                        :: nb                         !
-INTEGER*4                                        :: karea                      !
-INTEGER*4                                        :: larea                      !
+INTEGER*4                                        :: nb
+INTEGER*4                                        :: karea
+INTEGER*4                                        :: larea
 REAL*4                                           :: aind                       ! voortgangsindicator
-REAL*4                                           :: htot                       !
-REAL*4                                           :: c                          !
+REAL*4                                           :: htot
+REAL*4                                           :: c
 REAL*4                                           :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
 REAL*4                                           :: rations                    ! trajectory verhouding N/S
-REAL*4                                           :: qbron                      !
-REAL*4                                           :: qtr                        !
-REAL*4                                           :: qruim                      !
-REAL*4                                           :: grad                       !
-REAL*4                                           :: qob                        !
-REAL*4                                           :: qww                        !
-REAL*4                                           :: hbron                      !
-REAL*4                                           :: percvk                     !
-REAL*4                                           :: grof                       !
-REAL*4                                           :: cgt                        !
+REAL*4                                           :: qbron
+REAL*4                                           :: qtr
+REAL*4                                           :: qruim
+REAL*4                                           :: grad
+REAL*4                                           :: qob
+REAL*4                                           :: qww
+REAL*4                                           :: hbron
+REAL*4                                           :: percvk
+REAL*4                                           :: grof
+REAL*4                                           :: cgt
 REAL*4                                           :: cgt_z                      ! hoogte afhankelijkelijke cgt
-REAL*4                                           :: x                          !
-REAL*4                                           :: y                          !
-REAL*4                                           :: diam                       !
-REAL*4                                           :: diameter                   !
-REAL*4                                           :: szopp                      !
+REAL*4                                           :: x
+REAL*4                                           :: y
+REAL*4                                           :: diam
+REAL*4                                           :: diameter
+REAL*4                                           :: szopp
 REAL*4                                           :: D_stack                    ! diameter of the stack [m]
 REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
 REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
 REAL*4                                           :: buildingFact               ! The interpolated building effect from the buildingTable
-REAL*4                                           :: qrv                        !
-REAL*4                                           :: virty                      !
-REAL*4                                           :: consec                     !
+REAL*4                                           :: qrv
+REAL*4                                           :: virty
+REAL*4                                           :: consec
 REAL*4                                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
 REAL*4                                           :: disx                       ! linear distance between source and receptor [m]
 REAL*4                                           :: disxx                      ! effective travel distance between source and receptor [m]
-REAL*4                                           :: radius                     !
-REAL*4                                           :: uster_metreg_rcp           !
+REAL*4                                           :: radius
+REAL*4                                           :: uster_metreg_rcp
 REAL*4                                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4                                           :: shear                      !
-REAL*4                                           :: ol_metreg_rcp              !
-REAL*4                                           :: h0                         !
-REAL*4                                           :: hum                        !
-REAL*4                                           :: rcno2d                     !
-REAL*4                                           :: rcnh3d                     !
-REAL*4                                           :: rcaerd                     !
-REAL*4                                           :: vw10                       !
-REAL*4                                           :: pcoef                      !
-REAL*4                                           :: htt                        !
-REAL*4                                           :: aant                       !
-REAL*4                                           :: xl                         !
-REAL*4                                           :: rb                         !
-REAL*4                                           :: rbm                        !
-REAL*4                                           :: ra4                        !
-REAL*4                                           :: ra4m                       !
-REAL*4                                           :: ra50                       !
-REAL*4                                           :: ra50m                      !
-REAL*4                                           :: xvglbr                     !
-REAL*4                                           :: xvghbr                     !
-REAL*4                                           :: xloc                       !
-REAL*4                                           :: xl100                      !
-REAL*4                                           :: rad                        !
-REAL*4                                           :: rcso2                      !
+REAL*4                                           :: shear
+REAL*4                                           :: ol_metreg_rcp
+REAL*4                                           :: h0
+REAL*4                                           :: hum
+REAL*4                                           :: rcno2d
+REAL*4                                           :: rcnh3d
+REAL*4                                           :: rcaerd
+REAL*4                                           :: vw10
+REAL*4                                           :: pcoef
+REAL*4                                           :: htt
+REAL*4                                           :: aant
+REAL*4                                           :: xl
+REAL*4                                           :: rb
+REAL*4                                           :: rbm
+REAL*4                                           :: ra4
+REAL*4                                           :: ra4m
+REAL*4                                           :: ra50
+REAL*4                                           :: ra50m
+REAL*4                                           :: xvglbr
+REAL*4                                           :: xvghbr
+REAL*4                                           :: xloc
+REAL*4                                           :: xl100
+REAL*4                                           :: rad
+REAL*4                                           :: rcso2
 REAL*4                                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
-REAL*4                                           :: regenk                     !
-REAL*4                                           :: buil                       !
-REAL*4                                           :: rint                       !
+REAL*4                                           :: regenk
+REAL*4                                           :: buil
+REAL*4                                           :: rint
 REAL*4                                           :: aksek(NSEK)                ! .... (dummy output van ops_statparexp)
 REAL*4                                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
 REAL*4                                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4                                           :: uster_src                  !
-REAL*4                                           :: ol_src                     !
-REAL*4                                           :: uster_tra                  !
-REAL*4                                           :: ol_tra                     !
-REAL*4                                           :: uh                         !
-REAL*4                                           :: zu                         !
-REAL*4                                           :: onder                      !
-REAL*4                                           :: xlm                        !
-REAL*4                                           :: onderm                     !
-REAL*4                                           :: qbpri                      !
-REAL*4                                           :: qsec                       !
-REAL*4                                           :: sigz                       !
+REAL*4                                           :: uster_src
+REAL*4                                           :: ol_src
+REAL*4                                           :: uster_tra
+REAL*4                                           :: ol_tra
+REAL*4                                           :: uh
+REAL*4                                           :: zu
+REAL*4                                           :: onder
+REAL*4                                           :: xlm
+REAL*4                                           :: onderm
+REAL*4                                           :: qbpri
+REAL*4                                           :: qsec
+REAL*4                                           :: sigz
 REAL*4                                           :: ccc                        ! undepleted concentration including part above mixing layer;
                                                                                ! is needed for e.g. wet deposition.
-REAL*4                                           :: rcsec                      !
-REAL*4                                           :: rc_sec_rcp                 !
-REAL*4                                           :: rb_rcp                     !
-REAL*4                                           :: ra50_rcp                   !
-REAL*4                                           :: raz_rcp                    !
-REAL*4                                           :: rc_rcp                     !
-REAL*4                                           :: ra4_rcp                    !
-REAL*4                                           :: vg50_rcp                   !
-REAL*4                                           :: pr                         !
+REAL*4                                           :: rcsec
+REAL*4                                           :: rc_sec_rcp
+REAL*4                                           :: rb_rcp
+REAL*4                                           :: ra50_rcp
+REAL*4                                           :: raz_rcp
+REAL*4                                           :: rc_rcp
+REAL*4                                           :: ra4_rcp
+REAL*4                                           :: vg50_rcp
+REAL*4                                           :: pr
 REAL*4                                           :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4                                           :: vchem                      !
-REAL*4                                           :: vg50trans                  !
-REAL*4                                           :: vgpart                     !
-REAL*4                                           :: rkc                        !
-REAL*4                                           :: ri                         !
-REAL*4                                           :: twt                        !
-REAL*4                                           :: vnatpri                    !
-REAL*4                                           :: cq2                        !
-REAL*4                                           :: cdn                        !
-REAL*4                                           :: cch                        !
-REAL*4                                           :: cratio                     !
-REAL*4                                           :: rhno3                      !
-REAL*4                                           :: rrno2nox                   !
-REAL*4                                           :: vchemnh3                   !
-REAL*4                                           :: dx                         !
-REAL*4                                           :: dy                         !
-REAL*4                                           :: dxsub                      !
-REAL*4                                           :: dysub                      !
-REAL*4                                           :: gbx                        !
-REAL*4                                           :: gby                        !
+REAL*4                                           :: vchem
+REAL*4                                           :: vg50trans
+REAL*4                                           :: vgpart
+REAL*4                                           :: rkc
+REAL*4                                           :: ri
+REAL*4                                           :: twt
+REAL*4                                           :: vnatpri
+REAL*4                                           :: cq2
+REAL*4                                           :: cdn
+REAL*4                                           :: cch
+REAL*4                                           :: cratio
+REAL*4                                           :: rhno3
+REAL*4                                           :: rrno2nox
+REAL*4                                           :: vchemnh3
+REAL*4                                           :: dx
+REAL*4                                           :: dy
+REAL*4                                           :: dxsub
+REAL*4                                           :: dysub
+REAL*4                                           :: gbx
+REAL*4                                           :: gby
 REAL*4                                           :: rctra_0
 REAL*4                                           :: rctra_50
 REAL*4                                           :: rclocal
@@ -375,7 +375,7 @@ LOGICAL                                          :: inc_rcp                    !
 LOGICAL                                          :: z0found                    ! Wel of geen z0 gevonden
 LOGICAL                                          :: depudone                   ! Wel of niet ops_depu aangeroepen
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -741,69 +741,69 @@ SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack
 USE Binas, only: deg2rad, rad2deg
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'wind_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: bx                         !
-INTEGER*4, INTENT(IN)                            :: by                         !
-REAL*4,    INTENT(IN)                            :: bdiam                      !
-REAL*4,    INTENT(IN)                            :: bsterkte                   !
-REAL*4,    INTENT(IN)                            :: bwarmte                    !
-REAL*4,    INTENT(IN)                            :: bhoogte                    !
-REAL*4,    INTENT(IN)                            :: bsigmaz                    !
+INTEGER*4, INTENT(IN)                            :: bx
+INTEGER*4, INTENT(IN)                            :: by
+REAL*4,    INTENT(IN)                            :: bdiam
+REAL*4,    INTENT(IN)                            :: bsterkte
+REAL*4,    INTENT(IN)                            :: bwarmte
+REAL*4,    INTENT(IN)                            :: bhoogte
+REAL*4,    INTENT(IN)                            :: bsigmaz
 REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
 REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
 REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
-INTEGER*4, INTENT(IN)                            :: btgedr                     !
-INTEGER*4, INTENT(IN)                            :: bdegr                      !
-REAL*4,    INTENT(IN)                            :: bqrv                       !
-REAL*4,    INTENT(IN)                            :: bqtr                       !
-REAL*4,    INTENT(IN)                            :: gxm                        !
-REAL*4,    INTENT(IN)                            :: gym                        !
-REAL*4,    INTENT(IN)                            :: xm                         !
-REAL*4,    INTENT(IN)                            :: ym                         !
-REAL*4,    INTENT(IN)                            :: grid                       !
-INTEGER*4, INTENT(IN)                            :: nk                         !
-INTEGER*4, INTENT(IN)                            :: nr                         !
-INTEGER*4, INTENT(IN)                            :: mrcp                       !
-INTEGER*4, INTENT(IN)                            :: nrcp                       !
-INTEGER*4, INTENT(IN)                            :: kk                         !
-INTEGER*4, INTENT(IN)                            :: nb                         !
-INTEGER*4, INTENT(IN)                            :: karea                      !
-INTEGER*4, INTENT(IN)                            :: larea                      !
+INTEGER*4, INTENT(IN)                            :: btgedr
+INTEGER*4, INTENT(IN)                            :: bdegr
+REAL*4,    INTENT(IN)                            :: bqrv
+REAL*4,    INTENT(IN)                            :: bqtr
+REAL*4,    INTENT(IN)                            :: gxm
+REAL*4,    INTENT(IN)                            :: gym
+REAL*4,    INTENT(IN)                            :: xm
+REAL*4,    INTENT(IN)                            :: ym
+REAL*4,    INTENT(IN)                            :: grid
+INTEGER*4, INTENT(IN)                            :: nk
+INTEGER*4, INTENT(IN)                            :: nr
+INTEGER*4, INTENT(IN)                            :: mrcp
+INTEGER*4, INTENT(IN)                            :: nrcp
+INTEGER*4, INTENT(IN)                            :: kk
+INTEGER*4, INTENT(IN)                            :: nb
+INTEGER*4, INTENT(IN)                            :: karea
+INTEGER*4, INTENT(IN)                            :: larea
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
 REAL*4,    INTENT(OUT)                           :: disx                       ! linear distance between source and receptor [m]
-REAL*4,    INTENT(OUT)                           :: x                          !
-REAL*4,    INTENT(OUT)                           :: y                          !
-REAL*4,    INTENT(OUT)                           :: qob                        !
-REAL*4,    INTENT(OUT)                           :: qww                        !
-REAL*4,    INTENT(OUT)                           :: hbron                      !
-REAL*4,    INTENT(OUT)                           :: szopp                      !
+REAL*4,    INTENT(OUT)                           :: x
+REAL*4,    INTENT(OUT)                           :: y
+REAL*4,    INTENT(OUT)                           :: qob
+REAL*4,    INTENT(OUT)                           :: qww
+REAL*4,    INTENT(OUT)                           :: hbron
+REAL*4,    INTENT(OUT)                           :: szopp
 REAL*4,    INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
 REAL*4,    INTENT(OUT)                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
 REAL*4,    INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(OUT)                           :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: building                   ! strucure with building parameters
-INTEGER*4, INTENT(OUT)                           :: ibtg                       !
-INTEGER*4, INTENT(OUT)                           :: idgr                       !
-REAL*4,    INTENT(OUT)                           :: qrv                        !
-REAL*4,    INTENT(OUT)                           :: qtr                        !
-INTEGER*4, INTENT(OUT)                           :: rond                       !
-REAL*4,    INTENT(OUT)                           :: diameter                   !
-INTEGER*4, INTENT(OUT)                           :: iwd                        !
-INTEGER*4, INTENT(OUT)                           :: isek                       !
+INTEGER*4, INTENT(OUT)                           :: ibtg
+INTEGER*4, INTENT(OUT)                           :: idgr
+REAL*4,    INTENT(OUT)                           :: qrv
+REAL*4,    INTENT(OUT)                           :: qtr
+INTEGER*4, INTENT(OUT)                           :: rond
+REAL*4,    INTENT(OUT)                           :: diameter
+INTEGER*4, INTENT(OUT)                           :: iwd
+INTEGER*4, INTENT(OUT)                           :: isek
 
 ! LOCAL VARIABLES
-REAL*4                                           :: dx                         !
-REAL*4                                           :: dy                         !
+REAL*4                                           :: dx
+REAL*4                                           :: dy
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

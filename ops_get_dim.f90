@@ -49,7 +49,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_get_dim')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -73,10 +73,10 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 ! LOCAL VARIABLES
 REAL*4,    PARAMETER                             :: GRID_XSTART = 0.000        ! x-coordinate of left upper corner point of NL grid
 REAL*4,    PARAMETER                             :: GRID_YSTART = 620000.000   ! y-coordinate of left upper corner point of NL grid
-REAL*4,    PARAMETER                             :: NL_XLEFT    = 13562.623    !
-REAL*4,    PARAMETER                             :: NL_XRIGHT   = 278018.313   !
-REAL*4,    PARAMETER                             :: NL_YUPPER   = 619122.750   !
-REAL*4,    PARAMETER                             :: NL_YLOWER   = 306838.813   !
+REAL*4,    PARAMETER                             :: NL_XLEFT    = 13562.623
+REAL*4,    PARAMETER                             :: NL_XRIGHT   = 278018.313
+REAL*4,    PARAMETER                             :: NL_YUPPER   = 619122.750
+REAL*4,    PARAMETER                             :: NL_YLOWER   = 306838.813
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! grid index
@@ -100,7 +100,7 @@ LOGICAL                                          :: iscell                     !
 CHARACTER*12                                     :: namrp                      ! name of receptor point
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 !
@@ -273,7 +273,7 @@ SUBROUTINE  gen_mask(grid, maskergrid, error)
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'gen_mask')
 
 ! SUBROUTINE ARGUMENTS - INPUT

@@ -49,12 +49,12 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_z0corr')
 
 ! CONSTANTS
-REAL*4                                           :: C1                         !
-REAL*4                                           :: Z                          !
+REAL*4                                           :: C1
+REAL*4                                           :: Z
 PARAMETER   (C1  = 93500.)
 PARAMETER   (Z   = 50.)
 
@@ -70,16 +70,16 @@ REAL*4,    INTENT(OUT)                           :: ol2                        !
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: n                          ! iteration index
-REAL*4                                           :: h0                         !
+REAL*4                                           :: h0
 REAL*4                                           :: delta                      ! difference between old and new iterand for uster2
-REAL*4                                           :: phim                       !
+REAL*4                                           :: phim
 REAL*4                                           :: u50                        ! wind speed at 50 m height
 REAL*4                                           :: uold                       ! uster at previous iteration
 REAL*4                                           :: delta_old                  ! old difference between old and new iterand for uster2
 REAL*4                                           :: ur                         ! ratio uster/uold
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -181,7 +181,7 @@ CONTAINS
 SUBROUTINE stabcm(h, ol, phim)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'stabcm')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -195,7 +195,7 @@ REAL*4,    INTENT(OUT)                           :: phim                       !
 REAL*4                                           :: y                          ! hulpvariabele voor berekening
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (ol .GT. (0. + EPS_DELTA)) THEN

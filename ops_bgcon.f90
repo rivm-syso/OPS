@@ -51,7 +51,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_bgcon')
 
 ! SUBROUTINE ARGUMENTS - INPUT

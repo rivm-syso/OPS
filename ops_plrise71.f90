@@ -52,30 +52,30 @@ USE m_commonconst                                                               
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_plrise71')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         !
-REAL*4,    INTENT(IN)                            :: xl                         !
+REAL*4,    INTENT(IN)                            :: z0
+REAL*4,    INTENT(IN)                            :: xl
 REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhovlengte
 REAL*4,    INTENT(IN)                            :: uster                      ! frictiesnelheid
-REAL*4,    INTENT(IN)                            :: hbron                      !
+REAL*4,    INTENT(IN)                            :: hbron
 REAL*4,    INTENT(IN)                            :: qw                         ! warmte inhoud van het rookgas (MW)
-REAL*4,    INTENT(IN)                            :: xloc                       !
+REAL*4,    INTENT(IN)                            :: xloc
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: htt                        !
-REAL*4,    INTENT(OUT)                           :: onder                      !
+REAL*4,    INTENT(OUT)                           :: htt
+REAL*4,    INTENT(OUT)                           :: onder
 
 ! LOCAL VARIABLES
-REAL*4                                           :: delh                       !
-REAL*4                                           :: f                          !
+REAL*4                                           :: delh
+REAL*4                                           :: f
 REAL*4                                           :: us                        ! wind speed at effective plume height
                                                                                ! representative for the whole plume rise length
-REAL*4                                           :: dtdz                       !
-REAL*4                                           :: hs                          !
-REAL*4                                           :: s                          !
+REAL*4                                           :: dtdz
+REAL*4                                           :: hs
+REAL*4                                           :: s
 
 ! Iteration variables
 ! iteration converges if |delh - delh_prev| < epsa + epsr*delh
@@ -88,7 +88,7 @@ real, parameter                                  :: epsr = 0.05                !
 
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

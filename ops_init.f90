@@ -51,7 +51,7 @@ USE m_ops_building
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_init')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -124,7 +124,7 @@ REAL*4                                           :: som
 CHARACTER*512                                    :: line
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

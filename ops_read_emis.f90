@@ -53,7 +53,7 @@ USE m_fileutils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_emis')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -89,7 +89,7 @@ INTEGER*4                                        :: ps                         !
 INTEGER*4                                        :: usps                       ! maximum code uspmd distribution (dummy)
 
 ! SCCS-ID VARIABLE
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -170,7 +170,7 @@ CONTAINS
 SUBROUTINE read_variation(distnam, fmt, nrclass, normalvalue, compdesc, fraction, distrib, maxcode, presentcode, error)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'read_variation')
 
 ! SUBROUTINE ARGUMENTS - INPUT

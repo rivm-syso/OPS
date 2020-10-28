@@ -51,7 +51,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_get_arg')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -77,7 +77,7 @@ LOGICAL*4                                        :: iexist                     !
 !     INTEGER*4     GETCWD
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

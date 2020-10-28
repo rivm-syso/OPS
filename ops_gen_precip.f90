@@ -49,7 +49,7 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_gen_precip')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -111,7 +111,7 @@ REAL*4                                           :: rint
 REAL*4                                           :: percvk
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

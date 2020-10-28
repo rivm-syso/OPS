@@ -53,7 +53,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_conltexp')
 
 ! CONSTANTS
@@ -65,67 +65,67 @@ PARAMETER  (PICON = 126987.)
 PARAMETER  (PS    = 159155.)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: rond                       !
+INTEGER*4, INTENT(IN)                            :: rond
 REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov lengte
-REAL*4,    INTENT(IN)                            :: qbron                      !
+REAL*4,    INTENT(IN)                            :: qbron
 REAL*4,    INTENT(IN)                            :: szopp                      ! initial vertical dispersion of source
 REAL*4,    INTENT(IN)                            :: uster                      ! frictiesnelheid
 REAL*4,    INTENT(IN)                            :: z0                         ! ruwheidslengte (m)
-REAL*4,    INTENT(IN)                            :: htt                        !
-REAL*4,    INTENT(IN)                            :: onder                      !
-REAL*4,    INTENT(IN)                            :: vw10                       !
-REAL*4,    INTENT(IN)                            :: pcoef                      !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: grof                       !
-INTEGER*4, INTENT(IN)                            :: iwd                        !
-REAL*4,    INTENT(IN)                            :: qww                        !
-REAL*4,    INTENT(IN)                            :: hbron                      !
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
+REAL*4,    INTENT(IN)                            :: htt
+REAL*4,    INTENT(IN)                            :: onder
+REAL*4,    INTENT(IN)                            :: vw10
+REAL*4,    INTENT(IN)                            :: pcoef
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: grof
+INTEGER*4, INTENT(IN)                            :: iwd
+REAL*4,    INTENT(IN)                            :: qww
+REAL*4,    INTENT(IN)                            :: hbron
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     !
-REAL*4,    INTENT(INOUT)                         :: htot                       !
+REAL*4,    INTENT(INOUT)                         :: radius
+REAL*4,    INTENT(INOUT)                         :: htot
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: c                          ! long-term concentation at receptor at z = 0; excluding removal processes
-REAL*4,    INTENT(OUT)                           :: sigz                       !
+REAL*4,    INTENT(OUT)                           :: sigz
 REAL*4,    INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(OUT)                           :: xl                         !
-REAL*4,    INTENT(OUT)                           :: virty                      !
+REAL*4,    INTENT(OUT)                           :: xl
+REAL*4,    INTENT(OUT)                           :: virty
 
 ! LOCAL VARIABLES
 REAL*4                                           :: a                          ! reflection term source-surface-mixing height-surface
 REAL*4                                           :: b                          ! reflection term source-mixing height-surface
-REAL*4                                           :: cls                        !
-REAL*4                                           :: disp                       !
-REAL*4                                           :: f                          !
-REAL*4                                           :: f1                         !
-REAL*4                                           :: f2                         !
-REAL*4                                           :: h                          !
+REAL*4                                           :: cls
+REAL*4                                           :: disp
+REAL*4                                           :: f
+REAL*4                                           :: f1
+REAL*4                                           :: f2
+REAL*4                                           :: h
 REAL*4                                           :: hf                         ! effective transport height [m]
 REAL*4                                           :: pld                        ! pluimdaling
-REAL*4                                           :: pp                         !
-REAL*4                                           :: qq                         !
-REAL*4                                           :: rr                         !
-REAL*4                                           :: sz                         !
-REAL*4                                           :: tl                         !
-REAL*4                                           :: u1                         !
-REAL*4                                           :: utl                        !
+REAL*4                                           :: pp
+REAL*4                                           :: qq
+REAL*4                                           :: rr
+REAL*4                                           :: sz
+REAL*4                                           :: tl
+REAL*4                                           :: u1
+REAL*4                                           :: utl
 
 ! FUNCTIONS
-REAL*4                                           :: ops_virtdist               !
+REAL*4                                           :: ops_virtdist
 
 !DATA
 DATA ZWCOR/1.2, 1.1, 0.8, 0.6, 0.75, 0.6/
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -391,47 +391,47 @@ SUBROUTINE par_oppbr(rond, iwd, disx, istab, disp, htt, grof, dispg, zwcor, radi
 USE Binas, only: deg2rad
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'par_oppbr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: rond                       !
-INTEGER*4, INTENT(IN)                            :: iwd                        !
-REAL*4,    INTENT(IN)                            :: disx                       !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: disp                       !
-REAL*4,    INTENT(IN)                            :: htt                        !
-REAL*4,    INTENT(IN)                            :: grof                       !
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
-REAL*4,    INTENT(IN)                            :: zwcor(NSTAB)               !
+INTEGER*4, INTENT(IN)                            :: rond
+INTEGER*4, INTENT(IN)                            :: iwd
+REAL*4,    INTENT(IN)                            :: disx
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: disp
+REAL*4,    INTENT(IN)                            :: htt
+REAL*4,    INTENT(IN)                            :: grof
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)
+REAL*4,    INTENT(IN)                            :: zwcor(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     !
-REAL*4,    INTENT(INOUT)                         :: sz                         !
+REAL*4,    INTENT(INOUT)                         :: radius
+REAL*4,    INTENT(INOUT)                         :: sz
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: virty                      !
-REAL*4,    INTENT(OUT)                           :: rr                         !
-REAL*4,    INTENT(OUT)                           :: sigz                       !
-REAL*4,    INTENT(OUT)                           :: pld                        !
-REAL*4,    INTENT(OUT)                           :: htot                       !
+REAL*4,    INTENT(OUT)                           :: virty
+REAL*4,    INTENT(OUT)                           :: rr
+REAL*4,    INTENT(OUT)                           :: sigz
+REAL*4,    INTENT(OUT)                           :: pld
+REAL*4,    INTENT(OUT)                           :: htot
 
 ! LOCAL VARIABLES
-REAL*4                                           :: cr                         !
-REAL*4                                           :: radr                       !
-REAL*4                                           :: dx                         !
-REAL*4                                           :: dy                         !
-REAL*4                                           :: sta1                         !
-REAL*4                                           :: sta2                         !
-REAL*4                                           :: s1                         !
-REAL*4                                           :: s2                         !
-REAL*4                                           :: dsx                        !
+REAL*4                                           :: cr
+REAL*4                                           :: radr
+REAL*4                                           :: dx
+REAL*4                                           :: dy
+REAL*4                                           :: sta1
+REAL*4                                           :: sta2
+REAL*4                                           :: s1
+REAL*4                                           :: s2
+REAL*4                                           :: dsx
 
 ! FUNCTIONS
-REAL*4                                           :: ops_virtdist               !
+REAL*4                                           :: ops_virtdist
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -502,27 +502,27 @@ END SUBROUTINE par_oppbr
 SUBROUTINE par_puntbr(qww, istab, disx, disp, htt, htot, hbron, dispg, sigz, hf, a, virty)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'par_puntbr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qww                        !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: disp                       !
-REAL*4,    INTENT(IN)                            :: htt                        !
-REAL*4,    INTENT(IN)                            :: htot                       !
-REAL*4,    INTENT(IN)                            :: hbron                      !
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
+REAL*4,    INTENT(IN)                            :: qww
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: disp
+REAL*4,    INTENT(IN)                            :: htt
+REAL*4,    INTENT(IN)                            :: htot
+REAL*4,    INTENT(IN)                            :: hbron
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: sigz                       !
-REAL*4,    INTENT(OUT)                           :: hf                         !
-REAL*4,    INTENT(OUT)                           :: a                          !
-REAL*4,    INTENT(OUT)                           :: virty                      !
+REAL*4,    INTENT(OUT)                           :: sigz
+REAL*4,    INTENT(OUT)                           :: hf
+REAL*4,    INTENT(OUT)                           :: a
+REAL*4,    INTENT(OUT)                           :: virty
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

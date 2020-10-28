@@ -90,7 +90,7 @@ module Binas
 
 
   ! molar weights of components
-  !
+
 
   ! naming convention:
   !  o old names 'xm***' are in g/mol

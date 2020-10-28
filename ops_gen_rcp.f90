@@ -50,7 +50,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_gen_rcp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -69,7 +69,7 @@ LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)
-INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)               !
+INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)
 REAL*4,    INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates
 REAL*4,    INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates
 REAL*4,    INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates
@@ -98,15 +98,15 @@ INTEGER*4                                        :: ierr                       !
 REAL*4                                           :: x_rcp                      ! x coordinate receptor point
 REAL*4                                           :: y_rcp                      ! y coordinate receptor point
 REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
-REAL*4                                           :: z0                         !
+REAL*4                                           :: z0
 INTEGER                                          :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point
-CHARACTER*512                                    :: string                     !
-CHARACTER*512                                    :: tmpstring                  !
+CHARACTER*512                                    :: string
+CHARACTER*512                                    :: tmpstring
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 !-------------------------------------------------------------------------------------------------------------------------------

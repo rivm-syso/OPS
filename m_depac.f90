@@ -425,15 +425,15 @@ SUBROUTINE get_version_depac(dll_version, dll_date)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_version_depac
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'get_version_depac')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                !
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   !
+CHARACTER*(*), INTENT(OUT)                       :: dll_version
+CHARACTER*(*), INTENT(OUT)                       :: dll_date
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

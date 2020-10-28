@@ -47,7 +47,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER        (ROUTINENAAM = 'ops_scalefac')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -83,7 +83,7 @@ REAL*4                                           :: scale_dry                  !
 REAL*4                                           :: scale_wet                  ! schaal vergr. concentratie
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

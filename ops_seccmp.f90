@@ -48,7 +48,7 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_seccmp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -63,64 +63,64 @@ REAL*4,    INTENT(IN)                            :: vv                         !
 REAL*4,    INTENT(IN)                            :: amol1                      ! molgewicht primaire component
 REAL*4,    INTENT(IN)                            :: amol2                      ! molgewicht secundaire component
 REAL*4,    INTENT(IN)                            :: xvg                        ! factor not used; xvg = 1
-REAL*4,    INTENT(IN)                            :: sigz                       !
-REAL*4,    INTENT(IN)                            :: grad                       !
+REAL*4,    INTENT(IN)                            :: sigz
+REAL*4,    INTENT(IN)                            :: grad
 REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: radius                     !
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: xl                         !
-REAL*4,    INTENT(IN)                            :: xloc                       !
-REAL*4,    INTENT(IN)                            :: vw10                       !
-REAL*4,    INTENT(IN)                            :: pcoef                      !
-REAL*4,    INTENT(IN)                            :: virty                      !
-REAL*4,    INTENT(IN)                            :: regenk                     !
-REAL*4,    INTENT(IN)                            :: htot                       !
-REAL*4,    INTENT(IN)                            :: onder                      !
-REAL*4,    INTENT(IN)                            :: twt                        !
-REAL*4,    INTENT(IN)                            :: ri                         !
-REAL*4,    INTENT(IN)                            :: rb                         !
-REAL*4,    INTENT(IN)                            :: ra50                       !
-REAL*4,    INTENT(IN)                            :: cgt                        !
-REAL*4,    INTENT(IN)                            :: xvghbr                     !
-REAL*4,    INTENT(IN)                            :: xvglbr                     !
-REAL*4,    INTENT(IN)                            :: vnatpri                    !
+REAL*4,    INTENT(IN)                            :: radius
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: xl
+REAL*4,    INTENT(IN)                            :: xloc
+REAL*4,    INTENT(IN)                            :: vw10
+REAL*4,    INTENT(IN)                            :: pcoef
+REAL*4,    INTENT(IN)                            :: virty
+REAL*4,    INTENT(IN)                            :: regenk
+REAL*4,    INTENT(IN)                            :: htot
+REAL*4,    INTENT(IN)                            :: onder
+REAL*4,    INTENT(IN)                            :: twt
+REAL*4,    INTENT(IN)                            :: ri
+REAL*4,    INTENT(IN)                            :: rb
+REAL*4,    INTENT(IN)                            :: ra50
+REAL*4,    INTENT(IN)                            :: cgt
+REAL*4,    INTENT(IN)                            :: xvghbr
+REAL*4,    INTENT(IN)                            :: xvglbr
+REAL*4,    INTENT(IN)                            :: vnatpri
 REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    !
-REAL*4,    INTENT(IN)                            :: ra50_rcp                   !
-REAL*4,    INTENT(IN)                            :: rb_rcp                     !
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 !
-REAL*4,    INTENT(IN)                            :: ra50tra                    !
-REAL*4,    INTENT(IN)                            :: rb_tra                     !
+REAL*4,    INTENT(IN)                            :: ra4_rcp
+REAL*4,    INTENT(IN)                            :: ra50_rcp
+REAL*4,    INTENT(IN)                            :: rb_rcp
+REAL*4,    INTENT(IN)                            :: rc_sec_rcp
+REAL*4,    INTENT(IN)                            :: ra50tra
+REAL*4,    INTENT(IN)                            :: rb_tra
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: pr                         !
-REAL*4,    INTENT(OUT)                           :: vnatsec                    !
-REAL*4,    INTENT(OUT)                           :: cgtsec                     !
+REAL*4,    INTENT(OUT)                           :: pr
+REAL*4,    INTENT(OUT)                           :: vnatsec
+REAL*4,    INTENT(OUT)                           :: cgtsec
 REAL*4,    INTENT(OUT)                           :: vgsec                      ! deposition velocity secondary component [m/s[
 REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
 REAL*4,    INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
-REAL*4,    INTENT(OUT)                           :: vg50trans                  !
+REAL*4,    INTENT(OUT)                           :: vg50trans
 
 ! LOCAL VARIABLES
-REAL*4                                           :: a                          !
-REAL*4                                           :: diameter                   !
-REAL*4                                           :: h                          !
-REAL*4                                           :: hl                         !
-REAL*4                                           :: gradsec                    !
+REAL*4                                           :: a
+REAL*4                                           :: diameter
+REAL*4                                           :: h
+REAL*4                                           :: hl
+REAL*4                                           :: gradsec
 REAL*4                                           :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
 
-REAL*4                                           :: rcrs                       !
-REAL*4                                           :: s                          !
-REAL*4                                           :: sigzsec                    !
-REAL*4                                           :: vgsect                     !
+REAL*4                                           :: rcrs
+REAL*4                                           :: s
+REAL*4                                           :: sigzsec
+REAL*4                                           :: vgsect
 REAL*4                                           :: vnatrainv                  ! uitregensnelheid
 REAL*4                                           :: vnatwashv                  ! uitwassnelheid
-REAL*4                                           :: vw                         !
+REAL*4                                           :: vw
 REAL*4                                           :: qsec_uncorr                ! uncorrected qsec (from seccd)
 REAL*4                                           :: xg
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -364,24 +364,24 @@ SUBROUTINE seccd(qbpri, disx, radius, vw, xl, vgpri, vnatpri, vchem, vgsec, vnat
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'seccd')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: radius                     !
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: radius
 REAL*4,    INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
-REAL*4,    INTENT(IN)                            :: xl                         !
-REAL*4,    INTENT(IN)                            :: vgpri                      !
+REAL*4,    INTENT(IN)                            :: xl
+REAL*4,    INTENT(IN)                            :: vgpri
 REAL*4,    INTENT(IN)                            :: vnatpri                    ! loss rate due to wet deposition of primary component [%/h]
 REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: vgsec                      !
+REAL*4,    INTENT(IN)                            :: vgsec
 REAL*4,    INTENT(IN)                            :: vnatsec                    ! loss rate due to wet deposition of secondary component [%/h]
 REAL*4,    INTENT(IN)                            :: amol1                      ! molecular weight primary component
 REAL*4,    INTENT(IN)                            :: amol2                      ! molecular weight secondary component
-REAL*4,    INTENT(IN)                            :: diameter                   !
-REAL*4,    INTENT(IN)                            :: sigz                       !
+REAL*4,    INTENT(IN)                            :: diameter
+REAL*4,    INTENT(IN)                            :: sigz
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
@@ -391,8 +391,8 @@ REAL*4,    INTENT(OUT)                           :: qsec                       !
 INTEGER*4                                        :: itim                       ! time step index
 INTEGER*4                                        :: ntim                       ! number of time steps
 REAL*4                                           :: a                          ! effective transport distance over which conversion takes place
-REAL*4                                           :: a1                         !
-REAL*4                                           :: b                          !
+REAL*4                                           :: a1
+REAL*4                                           :: b
 REAL*4                                           :: dt                         ! length of time step [s]
 integer                                          :: it                         ! iteration count
 integer, parameter                               :: nit = 10                   ! maximal number of iterations
@@ -414,7 +414,7 @@ REAL*4                                           :: dx                         !
 logical                                          :: lfound_seg_depos           ! plume segment where deposition starts has been found
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 

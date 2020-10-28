@@ -44,7 +44,7 @@ USE m_aps
 USE m_commonconst
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'getlu')
 
 ! SUBROUTINE ARGUMENTS - INPUT

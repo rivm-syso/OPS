@@ -54,7 +54,7 @@ use m_ops_utils, only: is_missing
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_bron_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -90,34 +90,34 @@ LOGICAL,   INTENT(OUT)                           :: eof                        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: mm                         !
-INTEGER*4                                        :: ibtg                       !
-INTEGER*4                                        :: ibroncat                   !
-INTEGER*4                                        :: idgr                       !
+INTEGER*4                                        :: mm
+INTEGER*4                                        :: ibtg
+INTEGER*4                                        :: ibroncat
+INTEGER*4                                        :: idgr
 INTEGER*4                                        :: iland                      ! country code
 INTEGER*4                                        :: index                      ! index of country code iland, in list of country codes
-REAL*4                                           :: gl                         !
-REAL*4                                           :: gb                         !
-REAL*4                                           :: qtr                        !
-REAL*4                                           :: qob                        !
-REAL*4                                           :: x                          !
-REAL*4                                           :: y                          !
-REAL*4                                           :: diameter                   !
-REAL*4                                           :: qww                        !
-REAL*4                                           :: hbron                      !
-REAL*4                                           :: szopp                      !
+REAL*4                                           :: gl
+REAL*4                                           :: gb
+REAL*4                                           :: qtr
+REAL*4                                           :: qob
+REAL*4                                           :: x
+REAL*4                                           :: y
+REAL*4                                           :: diameter
+REAL*4                                           :: qww
+REAL*4                                           :: hbron
+REAL*4                                           :: szopp
 REAL*4                                           :: D_stack                    ! diameter of the stack [m]
 REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
 REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
-REAL*4                                           :: qrv                        !
+REAL*4                                           :: qrv
 CHARACTER*512                                    :: cbuf                       ! character buffer
 REAL                                             :: valueArray(buildingEffect%nParam)  ! array with parameters needed to compute building effect
 INTEGER                                          :: iParam                     ! index of building parameter
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
  50  FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw

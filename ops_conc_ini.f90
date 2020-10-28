@@ -46,55 +46,55 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_conc_ini')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL,   INTENT(IN)                            :: gasv                       !
-REAL*4,    INTENT(IN)                            :: vw10                       !
+LOGICAL,   INTENT(IN)                            :: gasv
+REAL*4,    INTENT(IN)                            :: vw10
 REAL*4,    INTENT(IN)                            :: htt                        ! plume height, excluding plume descent due to heavy particles [m]
-REAL*4,    INTENT(IN)                            :: pcoef                      !
-REAL*4,    INTENT(IN)                            :: disx                       !
-INTEGER*4, INTENT(IN)                            :: kdeel                      !
-REAL*4,    INTENT(IN)                            :: qbpri                      !
+REAL*4,    INTENT(IN)                            :: pcoef
+REAL*4,    INTENT(IN)                            :: disx
+INTEGER*4, INTENT(IN)                            :: kdeel
+REAL*4,    INTENT(IN)                            :: qbpri
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: szopp                      !
-INTEGER*4, INTENT(IN)                            :: rond                       !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-INTEGER*4, INTENT(IN)                            :: iwd                        !
-REAL*4,    INTENT(IN)                            :: qww                        !
-REAL*4,    INTENT(IN)                            :: hbron                      !
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
+REAL*4,    INTENT(IN)                            :: szopp
+INTEGER*4, INTENT(IN)                            :: rond
+REAL*4,    INTENT(IN)                            :: uster_src
+REAL*4,    INTENT(IN)                            :: ol_src
+INTEGER*4, INTENT(IN)                            :: istab
+INTEGER*4, INTENT(IN)                            :: iwd
+REAL*4,    INTENT(IN)                            :: qww
+REAL*4,    INTENT(IN)                            :: hbron
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     !
-REAL*4,    INTENT(INOUT)                         :: xl                         !
-REAL*4,    INTENT(INOUT)                         :: onder                      !
+REAL*4,    INTENT(INOUT)                         :: radius
+REAL*4,    INTENT(INOUT)                         :: xl
+REAL*4,    INTENT(INOUT)                         :: onder
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: htot                       ! plume height, including plume descent due to heavy particles [m]
                                                                                ! htot = htt - pldaling
-REAL*4,    INTENT(OUT)                           :: grof                       !
-REAL*4,    INTENT(OUT)                           :: c                          !
-REAL*4,    INTENT(OUT)                           :: sigz                       !
+REAL*4,    INTENT(OUT)                           :: grof
+REAL*4,    INTENT(OUT)                           :: c
+REAL*4,    INTENT(OUT)                           :: sigz
 REAL*4,    INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
 
-REAL*4,    INTENT(OUT)                           :: virty                      !
-REAL*4,    INTENT(OUT)                           :: ccc                        !
+REAL*4,    INTENT(OUT)                           :: virty
+REAL*4,    INTENT(OUT)                           :: ccc
 
 ! LOCAL VARIABLES
-REAL*4                                           :: ff                         !
-REAL*4                                           :: pldaling                   !
+REAL*4                                           :: ff
+REAL*4                                           :: pldaling
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
