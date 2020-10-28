@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE     : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! FIRM/INSTITUTE       : RIVM/LLO
 ! LANGUAGE             : FORTRAN-77/90
 ! USAGE                :
@@ -49,7 +49,7 @@ USE m_aps
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_src_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -65,7 +65,7 @@ REAL*4,    INTENT(OUT)                           :: z0_src                     !
 TYPE (TError)                                    :: error
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

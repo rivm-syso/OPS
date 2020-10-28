@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! USAGE              :
@@ -71,7 +71,7 @@ SUBROUTINE ops_depu(icnr, z0, zra, d, rc, ol, uster, vg, ra, rb)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_depu')
 
 ! CONSTANTS
@@ -102,12 +102,12 @@ REAL*4                                           :: sc                         !
 REAL*4                                           :: zru                        ! correction for displacement height
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Schmidt number:
-! (note: in calling routine only icnr = 1 or 9 
+! (note: in calling routine only icnr = 1 or 9
 !
 IF (icnr .EQ. 1 .OR. icnr .LE. 0) THEN                                         ! SO2 or user-defined substance
    sc = 1.25
@@ -150,14 +150,14 @@ CONTAINS
 ! DESCRIPTION        : Stability correction function in the surface layer temperature profile. The present model is an empirical
 !                      fit by Holtslag and De Bruin(1987) of data by Hicks (1976, Quart. J. R. Meteor. Soc., 102, 535-551).
 !                      See also Holtslag (1984, BLM, 29, 225-250)
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 !-------------------------------------------------------------------------------------------------------------------------------
 REAL FUNCTION fpsih(eta)
 
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'fpsih')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -170,7 +170,7 @@ REAL*4,    INTENT(IN)                            :: eta                        !
 REAL*4                                           :: y                          ! hulpvariabele bij de berekening
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (eta .LT. (0. - EPS_DELTA)) THEN

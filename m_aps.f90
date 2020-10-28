@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -32,7 +32,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
+! AUTHOR               : OPS-support
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN(HP-F90)
 ! DESCRIPTION          : Handling of aps grid data.
@@ -88,7 +88,7 @@ END TYPE TApsGridReal
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : ReadAps
 ! DESCRIPTION : Reading of aps file with grid data.
-! INPUTS      : filename   (character*(*)). Name of the aps file 
+! INPUTS      : filename   (character*(*)). Name of the aps file
 !               gridtitle  (character*(*)). Description of grid shown in error messages.
 ! OUTPUTS     : gridvalues (type). Grid values read from grid file. Generic for different types of grid (float, integer).
 !               error      (TError object). Assigned when an error occurred.
@@ -127,7 +127,7 @@ END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : SetAverage
-! DESCRIPTION : Sets average field in aps grid structure. Average is calculated over all cells with value > 0. It is possible 
+! DESCRIPTION : Sets average field in aps grid structure. Average is calculated over all cells with value > 0. It is possible
 !               to multiply all values by a certain factor first.
 ! INPUTS      : factor     (real*4, optional). Multiplication factor.
 ! INPUT/OUTPUTS: grid      (TApsGridReal). The field grid.average is adjusted.
@@ -156,11 +156,11 @@ SUBROUTINE read_aps_real(filename, gridtitle, floatgrid, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: read_aps_real
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: filename                   ! name of the aps file 
+CHARACTER*(*), INTENT(IN)                        :: filename                   ! name of the aps file
 CHARACTER*(*), INTENT(IN)                        :: gridtitle                  ! description of grid shown in error messages
-! INPUTS      : filename   (character*(*)). 
-!               gridtitle  (character*(*)). 
-! OUTPUTS     : gridvalues (type). 
+! INPUTS      : filename   (character*(*)).
+!               gridtitle  (character*(*)).
+! OUTPUTS     : gridvalues (type).
 !               error      (TError object). .
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -184,7 +184,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER            (ROUTINENAAM = 'read_aps_real')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -288,11 +288,11 @@ SUBROUTINE read_aps_integer(filename, gridtitle, intgrid, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: read_aps_integer
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: filename                   ! name of the aps file 
+CHARACTER*(*), INTENT(IN)                        :: filename                   ! name of the aps file
 CHARACTER*(*), INTENT(IN)                        :: gridtitle                  ! description of grid shown in error messages
-! INPUTS      : filename   (character*(*)). 
-!               gridtitle  (character*(*)). 
-! OUTPUTS     : gridvalues (type). 
+! INPUTS      : filename   (character*(*)).
+!               gridtitle  (character*(*)).
+! OUTPUTS     : gridvalues (type).
 !               error      (TError object). .
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -313,7 +313,7 @@ INTEGER*2, DIMENSION(:,:), ALLOCATABLE           :: helpgrid
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! name of subroutine
 PARAMETER         (ROUTINENAAM = 'read_aps_integer')
-! 
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Open aps file and read header.
@@ -353,7 +353,7 @@ ENDIF
 DO n = 1,nfield
 
   READ (88, IOSTAT=ierr) j
-!  CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error) 
+!  CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error)
 !
 ! Read integer grid values.
 !
@@ -453,16 +453,16 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 
 ! LOCAL VARIABLES
 CHARACTER*22                                     :: comment                    ! comment in grid header
-CHARACTER*10                                     :: kmpnm                      ! component name (parameter name of grid values) 
+CHARACTER*10                                     :: kmpnm                      ! component name (parameter name of grid values)
 CHARACTER*10                                     :: eenheid                    ! unit of parameter
 CHARACTER*10                                     :: oors                       ! origin of grid values
 CHARACTER*6                                      :: form                       ! format which is used to read grid values (?? is this used?)
-INTEGER*4                                        :: ij                         ! 
-INTEGER*4                                        :: inu1                       ! 
-INTEGER*4                                        :: inu2                       ! 
-INTEGER*4                                        :: inu3                       ! 
-INTEGER*4                                        :: kode                       ! 
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ij                         !
+INTEGER*4                                        :: inu1                       !
+INTEGER*4                                        :: inu2                       !
+INTEGER*4                                        :: inu3                       !
+INTEGER*4                                        :: kode                       !
+INTEGER*4                                        :: ierr                       !
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! name of subroutine
@@ -554,7 +554,7 @@ REAL*4,    INTENT(IN)                            :: y                          !
 TYPE (TAPSGridInt), INTENT(IN)                   :: grid                       ! integer APS grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value 
+INTEGER*4, INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value
                                                                                ! (in case of location outside grid)
 LOGICAL,   INTENT(OUT)                           :: iscell                     ! whether value comes from a grid cell
 INTEGER, OPTIONAL, INTENT(IN)                    :: fieldnumber                ! fieldnumber to retreive data from
@@ -598,7 +598,7 @@ REAL*4,    INTENT(IN)                            :: y                          !
 TYPE (TAPSGridReal), INTENT(IN)                  :: grid                       ! real APS grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value 
+REAL*4,    INTENT(OUT)                           :: gridvalue                  ! the value in the grid cell or the default value
                                                                                ! (in case of location outside grid)
 LOGICAL,   INTENT(OUT)                           :: iscell                     ! whether value comes from a grid cell
 INTEGER, OPTIONAL, INTENT(IN)                    :: fieldnumber                ! fieldnumber to retreive data from
@@ -643,7 +643,7 @@ TYPE (TGridHeader), INTENT(IN)                   :: gridheader                 !
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: m                          ! x-index of cell
 INTEGER*4, INTENT(OUT)                           :: n                          ! y-index of cell
-LOGICAL,   INTENT(OUT)                           :: iscell                     ! whether (x,y) is inside grid 
+LOGICAL,   INTENT(OUT)                           :: iscell                     ! whether (x,y) is inside grid
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! name of subroutine

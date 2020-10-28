@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Defines common parameters, values, etc.
@@ -40,12 +40,12 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_commonconst
 
-USE Binas, only: pi                                                   
-         
+USE Binas, only: pi
+
 INTEGER*4, PARAMETER                             :: NUNIT       = 6                    ! number of units for deposition
 INTEGER*4, PARAMETER                             :: NMETREG     = 6                    ! number of meteo regions
 INTEGER*4, PARAMETER                             :: NSEK        = 12                   ! number of wind sectors
-INTEGER*4, PARAMETER                             :: NSTAB       = 6                    ! number of stability classes 
+INTEGER*4, PARAMETER                             :: NSTAB       = 6                    ! number of stability classes
 INTEGER*4, PARAMETER                             :: NTRAJ       = 4                    ! number of distance classes
 INTEGER*4, PARAMETER                             :: NCOMP       = 27                   ! number of components in meteo input (from METPRO)
 INTEGER*4, PARAMETER                             :: NHRBLOCKS   = 12                   ! number of two-hour blocks in a day
@@ -58,7 +58,7 @@ INTEGER*4, PARAMETER                             :: NCATMAX     = 199           
 INTEGER*4, PARAMETER                             :: NLANDMAX    = 50                   ! maximal number of emission countries (land << country)
 INTEGER*4, PARAMETER                             :: NBGMAPS     =  5                   ! number of background maps
 INTEGER*4, PARAMETER                             :: NYEARS      = 42                   ! number of years for interpolating backgground maps
-INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)  
+INTEGER*4, PARAMETER                             :: MAXDISTR    = 9999                 ! maximal number of distributions (for particle size or emission variation)
 INTEGER*4, PARAMETER                             :: MAXROW      = 9999                 ! maximal number of rows in receptor grid
 INTEGER*4, PARAMETER                             :: MAXCOL      = 9999                 ! maximal number of columns in receptor grid
 INTEGER*4, PARAMETER                             :: NLU         = 9                    ! number of landuse classes
@@ -67,7 +67,7 @@ INTEGER*4, PARAMETER                             :: ncolBuildingEffectTable = 5 
 ! CONSTANTS - overige
 REAL*4                                           :: z0_FACT_NL  = 10000.               ! default factor for conversion of z0_nl gridvalue to meters
 REAL*4                                           :: z0_FACT_EUR = 10000.               ! default factor for conversion of z0_eur gridvalue to meters
-                                                                                     
+
 REAL*4, PARAMETER                                :: zmet_T      = 1.5                  ! reference height for temperature measurements [m]
 
 INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]
@@ -78,7 +78,7 @@ REAL*4                                           :: r4_for_tiny                 
 REAL*8                                           :: r8_for_tiny                        ! help variable to define DEPS_DELTA
 REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
 REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
-REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]    
+REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]
 CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.0.0.0'            ! model version OPS-LT
 CHARACTER*20, PARAMETER                          :: RELEASEDATE = '26 dec 2019'        ! release date
 
@@ -105,7 +105,7 @@ CHARACTER*40                                     :: KLIGEB(NKLIGEB)             
 
 !
 ! Set coefficients in conversion function NO2 = beta1*log(NOx) + beta2;
-! based on LML-measurements in 1993 
+! based on LML-measurements in 1993
 !
 DATA nox_no2_beta  /8.6, -12.4/
 
@@ -118,11 +118,11 @@ DATA NACHTWINTER /0 , 0 , 66, 66, 100, 99, 25, 25, 71, 71, 77, 92, 62, 64, 74, 6
 !
 ! Set coefficients for vertical dispersion coefficient; sigma_z = dispg*x**disph
 ! (For DISPG, see ops_main DATA statements)
-DATA DISPH       /.82,.82,.76,.76,.67,.76/ 
+DATA DISPH       /.82,.82,.76,.76,.67,.76/
 !
 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class.
 ! Sedimentation velocity depends on particle size according to Stokes law; see ops_conc_ini
-DATA STOKES      /0., 0., 0.0003, 0.0012, 0.0055, 0.047/ 
+DATA STOKES      /0., 0., 0.0003, 0.0012, 0.0055, 0.047/
 !
 ! Set SCWINTER (variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter))
 ! see OPS-doc/chem, bookmark table_no2_nox. [0.47 0.47 0.62 0.69 0.39 0.58] /0.58 = [0.81  0.81  1.19  1.03  0.67  1.00]
@@ -132,7 +132,7 @@ DATA SCWINTER    /.81, .81, 1.07, 1.19, .67, 1.0/
 ! Correction factors for the difference between model output and measurements
 ! These correction factors are given for 4 historical years and one year in
 ! the future. The correction factor for the future year is by definition equal
-! to the correction factor for the last historical year. 
+! to the correction factor for the last historical year.
 !
 DATA cf_so2      / 1.04, 0.96, 0.69, 0.72, 0.72 /
 DATA cf_nox      / 0.93, 0.94, 0.77, 0.94, 0.94 /
@@ -172,8 +172,8 @@ DATA CNAME       /'SO2', 'NOx'     , 'NH3',  &
                &  '   ', 'NO3'     , '   ',  &
                &  'SOx', 'NOy'     , 'NHx',  &
                &  'SO2', 'NO2'     , 'NH3'   /
-             
-! CNAME_SEC is defined in ops_read_ctr             
+
+! CNAME_SEC is defined in ops_read_ctr
 ! DATA CNAME_SUBSEC /'HNO3', 'NO3_C', 'NO3_F' /   ! HNO3, NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
 ! DATA CNAME_SUBSEC /'HNO3', 'NO3_AER' /          ! HNO3, NO3_aerosol (in PM10)
 !
@@ -186,7 +186,7 @@ DATA DEPUNITS    /' mmol/m2/s', ' g/m2/s   ', ' mol/ha/y ', ' kg/ha/y  ', ' mmol
 ! meteo regions (KLIGEB << klimaatgebieden = climate regions)
 !
 DATA KLIGEB      /'The_Netherlands                    ',                    &
-               &  'N-Holland, N-Friesland, N-Groningen',                    & 
+               &  'N-Holland, N-Friesland, N-Groningen',                    &
                &  'Randstad, W-Brabant, E-Zeeland     ',                    &
                &  'Drente, S-Friesland, S-Groningen   ',                    &
                &  'W-Zeeland, ZH-Islands              ',                    &

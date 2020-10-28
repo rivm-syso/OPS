@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Write results to plot-file (*.plt)
@@ -50,30 +50,30 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                     ! 
-LOGICAL,   INTENT(IN)                            :: isec                       ! 
-CHARACTER*(*), INTENT(IN)                        :: coneh                      ! 
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
+INTEGER*4, INTENT(IN)                            :: spgrid                     !
+LOGICAL,   INTENT(IN)                            :: isec                       !
+CHARACTER*(*), INTENT(IN)                        :: coneh                      !
+INTEGER*4, INTENT(IN)                            :: nrrcp                      !
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! distance between receptor points in grid units
-REAL*4,    INTENT(IN)                            :: xorg                       ! 
-REAL*4,    INTENT(IN)                            :: yorg                       ! 
+REAL*4,    INTENT(IN)                            :: xorg                       !
+REAL*4,    INTENT(IN)                            :: yorg                       !
 INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of columns in grid
 INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of row in grid
-REAL*4,    INTENT(IN)                            :: grid                       ! 
-LOGICAL,   INTENT(IN)                            :: idep                       ! 
-CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
-CHARACTER*(*), INTENT(IN)                        :: namse3                     ! 
-CHARACTER*(*), INTENT(IN)                        :: namsec                     ! 
-CHARACTER*(*), INTENT(IN)                        :: depeh                      ! 
-CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! 
-INTEGER*4, INTENT(IN)                            :: icm                        ! 
+REAL*4,    INTENT(IN)                            :: grid                       !
+LOGICAL,   INTENT(IN)                            :: idep                       !
+CHARACTER*(*), INTENT(IN)                        :: namco                      !
+CHARACTER*(*), INTENT(IN)                        :: namse3                     !
+CHARACTER*(*), INTENT(IN)                        :: namsec                     !
+CHARACTER*(*), INTENT(IN)                        :: depeh                      !
+CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              !
+REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  !
+REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  !
+REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                !
+REAL*4,    INTENT(IN)                            :: csec(nrrcp)                !
+REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              !
+REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              !
+INTEGER*4, INTENT(IN)                            :: icm                        !
 REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
 
@@ -81,20 +81,20 @@ CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        !
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
+INTEGER*4                                        :: ierr                       !
 INTEGER*4                                        :: ls                         ! lengte textstring namse3
-INTEGER*4                                        :: j                          ! 
-REAL*4                                           :: xlb                        ! 
-REAL*4                                           :: ylb                        ! 
-REAL*4                                           :: totdep(nrrcp)              ! 
+INTEGER*4                                        :: j                          !
+REAL*4                                           :: xlb                        !
+REAL*4                                           :: ylb                        !
+REAL*4                                           :: totdep(nrrcp)              !
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_plot_uitv')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -249,7 +249,7 @@ USE m_commonconst
 USE m_utils
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'plot_mat')
 
 ! SUBROUTINE ARGUMENTS - INPUT

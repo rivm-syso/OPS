@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                : OPS-support 
+! AUTHOR                : OPS-support
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Retrieves the command line arguments and determines whether syntax is correct. If so, the complete
@@ -51,15 +51,15 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_get_arg')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: diag                     
-LOGICAL,   INTENT(INOUT)                         :: subbron                  
-LOGICAL,   INTENT(INOUT)                         :: domlu                  
-LOGICAL,   INTENT(INOUT)                         :: varz                  
-LOGICAL,   INTENT(INOUT)                         :: perc                  
+INTEGER*4, INTENT(OUT)                           :: diag
+LOGICAL,   INTENT(INOUT)                         :: subbron
+LOGICAL,   INTENT(INOUT)                         :: domlu
+LOGICAL,   INTENT(INOUT)                         :: varz
+LOGICAL,   INTENT(INOUT)                         :: perc
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -77,7 +77,7 @@ LOGICAL*4                                        :: iexist                     !
 !     INTEGER*4     GETCWD
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida                    !
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -103,35 +103,35 @@ perc    = .FALSE.
 !
 ! Check for the optional arguments
 !
-IF (numarg == 3) THEN 
+IF (numarg == 3) THEN
   IF (arg(3) == '-nosub')  subbron = .FALSE.
   IF (arg(3) == '-domlu')  domlu   = .TRUE.
   IF (arg(3) == '-varz')   varz    = .TRUE.
   IF (arg(3) == '-perc')   perc    = .TRUE.
 ENDIF
-IF (numarg == 4) THEN 
+IF (numarg == 4) THEN
   IF (arg(3) == '-nosub' .or. arg(4) == '-nosub' ) subbron = .FALSE.
   IF (arg(3) == '-domlu' .or. arg(4) == '-domlu' ) domlu   = .TRUE.
   IF (arg(3) == '-varz'  .or. arg(4) == '-varz'  ) varz    = .TRUE.
   IF (arg(3) == '-perc'  .or. arg(4) == '-perc')   perc    = .TRUE.
 ENDIF
-IF (numarg == 5) THEN 
+IF (numarg == 5) THEN
   IF (arg(3) == '-nosub' .or. arg(4) == '-nosub' .or. arg(5) == '-nosub' ) subbron = .FALSE.
   IF (arg(3) == '-domlu' .or. arg(4) == '-domlu' .or. arg(5) == '-domlu' ) domlu   = .TRUE.
   IF (arg(3) == '-varz'  .or. arg(4) == '-varz'  .or. arg(5) == '-varz'  ) varz    = .TRUE.
   IF (arg(3) == '-perc'  .or. arg(4) == '-perc'  .or. arg(5) == '-perc')   perc    = .TRUE.
 ENDIF
-IF (numarg == 6) THEN 
+IF (numarg == 6) THEN
   IF (arg(3) == '-nosub' .or. arg(4) == '-nosub' .or. arg(5) == '-nosub' .or. arg(6) == '-nosub' ) subbron = .FALSE.
   IF (arg(3) == '-domlu' .or. arg(4) == '-domlu' .or. arg(5) == '-domlu' .or. arg(6) == '-domlu' ) domlu   = .TRUE.
   IF (arg(3) == '-varz'  .or. arg(4) == '-varz'  .or. arg(5) == '-varz'  .or. arg(6) == '-varz'  ) varz    = .TRUE.
   IF (arg(3) == '-perc'  .or. arg(4) == '-perc'  .or. arg(5) == '-perc'  .or. arg(6) == '-perc')   perc    = .TRUE.
 ENDIF
 
-IF (.NOT.subbron) numarg = numarg -1 
-IF (domlu)        numarg = numarg -1 
-IF (varz)         numarg = numarg -1 
-IF (perc)         numarg = numarg -1 
+IF (.NOT.subbron) numarg = numarg -1
+IF (domlu)        numarg = numarg -1
+IF (varz)         numarg = numarg -1
+IF (perc)         numarg = numarg -1
 
 ! Check number of arguments:
 IF ((numarg < 1) .OR. (numarg > 3)) THEN

@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Retrieve dominant landuse class and percentages of each landuse class for a specific point.
@@ -44,7 +44,7 @@ USE m_aps
 USE m_commonconst
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'getlu')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -53,7 +53,7 @@ REAL*4,    INTENT(IN)                            :: yr                         !
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with landuse information
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: landuse(NLU+1)             ! land-use value at (xr,yr); 
+INTEGER*4, INTENT(OUT)                           :: landuse(NLU+1)             ! land-use value at (xr,yr);
 																			   ! landuse(1) = index of dominant landuse
 																			   ! landuse(lu+1) = percentage of grid cell with landuse class lu, lu = 1,NLU
                                                                                ! For locations outside lugrid, a default land use class = 1 (grass) is taken.

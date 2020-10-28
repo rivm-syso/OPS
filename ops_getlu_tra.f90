@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute dominant land use class and percentage of each land use
@@ -47,7 +47,7 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_getlu_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -62,7 +62,7 @@ LOGICAL, INTENT(IN)                              :: domlu
 REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of land use classes over trajectorie (over intermediate points)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: x                          ! x-coordinate intermediate point 
+REAL*4                                           :: x                          ! x-coordinate intermediate point
 REAL*4                                           :: y                          ! y-coordinate intermediate point
 INTEGER*4                                        :: lu_tra_per_sum(NLU)        ! sum of percentages of land use classes over trajectorie (over intermediate points)
 INTEGER*4                                        :: lu_tra_dom                 ! dominant land use class over trajectory source-receptor
@@ -71,8 +71,8 @@ INTEGER*4                                        :: lu                         !
 INTEGER*4                                        :: landuse(NLU+1)             ! land use information at intermediate point; for locations outside lugrid
                                                                                ! a default land use class = 1 (grass) is taken.
 INTEGER*4                                        :: ludom                      ! maximum of dominant land use classes over intermediate points
-INTEGER*4, DIMENSION(NLU)                        :: lu_count                   ! total number of intermediate points that have a certain land use class 
-                                                                             
+INTEGER*4, DIMENSION(NLU)                        :: lu_count                   ! total number of intermediate points that have a certain land use class
+
 INTEGER*4                                        :: ns                         ! number of sub sectors between intermediate points
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -127,7 +127,7 @@ ENDIF
 IF (sum(lu_tra_per_sum(1:NLU)) .le. 0) THEN
   lu_tra_per_sum=0
   lu_tra_per_sum(1)=100
-ENDIF      
+ENDIF
 
 !
 !  Compute percentages per land use class
