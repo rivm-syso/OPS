@@ -321,7 +321,7 @@ CHARACTER*(*), INTENT(IN)                        :: filetype                   !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
-INTEGER,   INTENT(OUT), OPTIONAL                 :: LREC                       ! Lenght of a direct access record
+INTEGER,   INTENT(IN), OPTIONAL                 :: LREC                       ! Lenght of a direct access record
 
 ! FUNCTION RESULT
 LOGICAL                                          :: sys_open_file              ! .FALSE. when error detected
