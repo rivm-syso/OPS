@@ -55,12 +55,12 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_brondepl')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: xg                         !
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: xg
 REAL*4,    INTENT(IN)                            :: c                          ! undepleted concentration at z = 0 m
                                                                                ! (without part of plume above mixing layer)
 REAL*4,    INTENT(IN)                            :: ux0                        ! wind speed near source at plume height (m/s)
@@ -68,73 +68,73 @@ REAL*4,    INTENT(IN)                            :: ueff                       !
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(IN)                            :: sigz                       !
-REAL*4,    INTENT(IN)                            :: vg50trans                  !
-REAL*4,    INTENT(IN)                            :: xl                         !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: xloc                       !
-REAL*4,    INTENT(IN)                            :: xl100                      !
-REAL*4,    INTENT(IN)                            :: vw10                       !
-REAL*4,    INTENT(IN)                            :: pcoef                      !
-REAL*4,    INTENT(IN)                            :: virty                      !
-REAL*4,    INTENT(IN)                            :: radius                     !
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    !
+REAL*4,    INTENT(IN)                            :: sigz
+REAL*4,    INTENT(IN)                            :: vg50trans
+REAL*4,    INTENT(IN)                            :: xl
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: xloc
+REAL*4,    INTENT(IN)                            :: xl100
+REAL*4,    INTENT(IN)                            :: vw10
+REAL*4,    INTENT(IN)                            :: pcoef
+REAL*4,    INTENT(IN)                            :: virty
+REAL*4,    INTENT(IN)                            :: radius
+REAL*4,    INTENT(IN)                            :: ra4_rcp
 REAL*4,    INTENT(IN)                            :: raz_rcp                    ! EvdS: hoogte afhankelijkheid
-REAL*4,    INTENT(IN)                            :: rc_rcp                     !
-REAL*4,    INTENT(IN)                            :: rb_rcp                     !
+REAL*4,    INTENT(IN)                            :: rc_rcp
+REAL*4,    INTENT(IN)                            :: rb_rcp
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
-REAL*4,    INTENT(IN)                            :: htot                       !
-REAL*4,    INTENT(IN)                            :: ra4src                     !
-REAL*4,    INTENT(IN)                            :: rb_src                      !
-REAL*4,    INTENT(IN)                            :: rcsrc                      !
-REAL*4,    INTENT(IN)                            :: qbstf                      !
-REAL*4,    INTENT(IN)                            :: vg0tra                     !
-REAL*4,    INTENT(IN)                            :: onder                      !
+REAL*4,    INTENT(IN)                            :: ol_src
+REAL*4,    INTENT(IN)                            :: uster_src
+REAL*4,    INTENT(IN)                            :: htot
+REAL*4,    INTENT(IN)                            :: ra4src
+REAL*4,    INTENT(IN)                            :: rb_src
+REAL*4,    INTENT(IN)                            :: rcsrc
+REAL*4,    INTENT(IN)                            :: qbstf
+REAL*4,    INTENT(IN)                            :: vg0tra
+REAL*4,    INTENT(IN)                            :: onder
 INTEGER*4, INTENT(IN)                            :: flag                       ! stable meteo class and stack emitting above mixing layer
-REAL*4,    INTENT(IN)                            :: vchem                      !
-REAL*4,    INTENT(IN)                            :: vnatpri                    !
-REAL*4,    INTENT(IN)                            :: diameter                   !
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               !
+REAL*4,    INTENT(IN)                            :: vchem
+REAL*4,    INTENT(IN)                            :: vnatpri
+REAL*4,    INTENT(IN)                            :: diameter
+REAL*4,    INTENT(IN)                            :: dispg(NSTAB)
 REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: cgt                        !
+REAL*4,    INTENT(INOUT)                         :: cgt
 REAL*4,    INTENT(INOUT)                         :: cgt_z                      ! height dependent cgt
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: cdn                        !
+REAL*4,    INTENT(OUT)                           :: cdn
 REAL*4,    INTENT(OUT)                           :: ugem                       ! average wind speed depending on phase of plume development (m/s)
-REAL*4,    INTENT(OUT)                           :: hf                         !
-REAL*4,    INTENT(OUT)                           :: a                          !
-REAL*4,    INTENT(OUT)                           :: cq1                        !
-REAL*4,    INTENT(OUT)                           :: cq2                        !
+REAL*4,    INTENT(OUT)                           :: hf
+REAL*4,    INTENT(OUT)                           :: a
+REAL*4,    INTENT(OUT)                           :: cq1
+REAL*4,    INTENT(OUT)                           :: cq2
 REAL*4,    INTENT(OUT)                           :: uxr                        ! wind speed representative for plume over area source (m/s)
 REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: sigzr                      !
-REAL*4,    INTENT(OUT)                           :: dxeff                      !
+REAL*4,    INTENT(OUT)                           :: sigzr
+REAL*4,    INTENT(OUT)                           :: dxeff
 
 ! LOCAL VARIABLES
 REAL*4                                           :: cxx                        ! representative concentration (undepleted) for plume in phase 2
 REAL*4                                           :: xx                         ! representative distance for plume in phase 2
 REAL*4                                           :: sigzxg                     ! sigma_z at xx
-REAL*4                                           :: xlxg                       !
-REAL*4                                           :: uxg                        !
-REAL*4                                           :: s2                         !
-REAL*4                                           :: vdoppb                     !
-REAL*4                                           :: sh                         !
-REAL*4                                           :: al                         !
+REAL*4                                           :: xlxg
+REAL*4                                           :: uxg
+REAL*4                                           :: s2
+REAL*4                                           :: vdoppb
+REAL*4                                           :: sh
+REAL*4                                           :: al
 
 ! SUBROUTINE AND FUNCTION CALLS
 EXTERNAL ops_vertdisp
 EXTERNAL ops_wvprofile
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -221,7 +221,7 @@ ELSE
    !             /  u xl                        u xl
    !           ksi=xg
 
-   !
+
    cdn    = EXP( - ((disx - xg)/ueff*vg50trans/xl))
 
    ! Set representative distance for phase 2 of the plume and compute sigma_z there:
@@ -323,7 +323,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
     ! zu : representative plume height (m), taking into account reflection
     !      at the top of the mixing layer and at the ground surface
     ! s2 : sigma_z at x
-    !
+
     CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, radius*2., uxr, zu, s2, error) ! output uxr is not used here
     sigzr = s2/alog((htot + s2)/htot) ! (see OPS-doc/dispersion, bookmark area_source_sigma_z) for sigma_zi = htot
                                       ! s2 = sigma_z(r2), s1 = sigma_z(r1) = 0

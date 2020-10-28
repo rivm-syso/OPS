@@ -307,7 +307,7 @@ IF (.NOT. end_of_file) THEN
       ! Note: check is only performed inside check_source2 if no error has occurred;
       !       therefore there is no need to check for error%haserror here each time.
       ! JA*  check is only needed if source is selected.
-      !
+
 
       ! Check range for
       !    deviation                     : 0 <= szopp <= hbron

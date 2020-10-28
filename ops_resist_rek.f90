@@ -54,80 +54,80 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_resist_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-REAL*4,    INTENT(IN)                            :: vchemv                     !
-REAL*4,    INTENT(IN)                            :: rad                        !
+REAL*4,    INTENT(IN)                            :: vchemv
+REAL*4,    INTENT(IN)                            :: rad
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE als component=[SO2, NOx, NH3]
-INTEGER*4, INTENT(IN)                            :: icm                        !
-REAL*4,    INTENT(IN)                            :: rcso2                      !
-REAL*4,    INTENT(IN)                            :: regenk                     !
+INTEGER*4, INTENT(IN)                            :: icm
+REAL*4,    INTENT(IN)                            :: rcso2
+REAL*4,    INTENT(IN)                            :: regenk
 REAL*4,    INTENT(IN)                            :: rcaerd                     ! surface resistance NO3_aerosol [s/m]
-INTEGER*4, INTENT(IN)                            :: iseiz                      !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-INTEGER*4, INTENT(IN)                            :: itra                       !
-REAL*4,    INTENT(IN)                            :: ar                         !
-REAL*4,    INTENT(IN)                            :: rno2nox                    !
-REAL*4,    INTENT(IN)                            :: rcnh3d                     !
+INTEGER*4, INTENT(IN)                            :: iseiz
+INTEGER*4, INTENT(IN)                            :: istab
+INTEGER*4, INTENT(IN)                            :: itra
+REAL*4,    INTENT(IN)                            :: ar
+REAL*4,    INTENT(IN)                            :: rno2nox
+REAL*4,    INTENT(IN)                            :: rcnh3d
 REAL*4,    INTENT(IN)                            :: vchemnh3
-type(Tvchem), INTENT(IN)                         :: vchem2                     !
-REAL*4,    INTENT(IN)                            :: hum                        !
+type(Tvchem), INTENT(IN)                         :: vchem2
+REAL*4,    INTENT(IN)                            :: hum
 REAL*4,    INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
 REAL*4,    INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: uster_tra                  !
-REAL*4,    INTENT(IN)                            :: ol_tra                     !
+REAL*4,    INTENT(IN)                            :: uster_tra
+REAL*4,    INTENT(IN)                            :: ol_tra
 REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
 REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4,    INTENT(IN)                            :: rcno2d                     !
-INTEGER*4, INTENT(IN)                            :: kdeel                      !
-INTEGER*4, INTENT(IN)                            :: mb                         !
-REAL*4,    INTENT(IN)                            :: vw10                       !
+REAL*4,    INTENT(IN)                            :: rcno2d
+INTEGER*4, INTENT(IN)                            :: kdeel
+INTEGER*4, INTENT(IN)                            :: mb
+REAL*4,    INTENT(IN)                            :: vw10
 REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: zm                         !
-REAL*4,    INTENT(IN)                            :: koh                        !
-REAL*4,    INTENT(IN)                            :: rations                    !
-REAL*4,    INTENT(IN)                            :: rhno3                      !
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: zm
+REAL*4,    INTENT(IN)                            :: koh
+REAL*4,    INTENT(IN)                            :: rations
+REAL*4,    INTENT(IN)                            :: rhno3
 REAL*4,    INTENT(IN)                            :: rcno                       ! surface resistance for NO [s/m]
 REAL*4,    INTENT(IN)                            :: rhno2                      ! ration hno2/nox
 REAL*4,    INTENT(IN)                            :: rchno3                     ! HNO3
 REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component
 REAL*4,    INTENT(IN)                            :: rrno2nox                   ! ruimtelijke variatie in no2/nox verhouding
-REAL*4,    INTENT(IN)                            :: rhno3_rcp                  !
+REAL*4,    INTENT(IN)                            :: rhno3_rcp
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
+REAL*4,    INTENT(IN)                            :: ol_src
+REAL*4,    INTENT(IN)                            :: uster_src
 REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  !
-REAL*4,    INTENT(IN)                            :: nh3bgtra                   !
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  !
-REAL*4,    INTENT(IN)                            :: so2bgtra                   !
+REAL*4,    INTENT(IN)                            :: nh3bg_rcp
+REAL*4,    INTENT(IN)                            :: nh3bgtra
+REAL*4,    INTENT(IN)                            :: so2bg_rcp
+REAL*4,    INTENT(IN)                            :: so2bgtra
 REAL*4,    INTENT(IN)                            :: gym
 LOGICAL,   INTENT(IN)                            :: gasv
 REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
 REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: rb                         !
-REAL*4,    INTENT(INOUT)                         :: ra4                        !
-REAL*4,    INTENT(INOUT)                         :: ra50                       !
+REAL*4,    INTENT(INOUT)                         :: rb
+REAL*4,    INTENT(INOUT)                         :: ra4
+REAL*4,    INTENT(INOUT)                         :: ra50
 LOGICAL,   INTENT(INOUT)                         :: depudone
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
 REAL*4,    INTENT(OUT)                           :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(OUT)                           :: uh                         !
+REAL*4,    INTENT(OUT)                           :: uh
 
 ! Canopy resistances
 ! Note: for particles, Rc is defined in ops_depoparexp
-REAL*4,    INTENT(OUT)                           :: rc                         !
-REAL*4,    INTENT(OUT)                           :: rcsec                      !
-REAL*4,    INTENT(OUT)                           :: rc_sec_rcp                 !
+REAL*4,    INTENT(OUT)                           :: rc
+REAL*4,    INTENT(OUT)                           :: rcsec
+REAL*4,    INTENT(OUT)                           :: rc_sec_rcp
 REAL*4,    INTENT(OUT)                           :: rcsrc                      ! canopy resistance at the source, no re-emission allowed [s/m]; is used for the computation of
                                                                                ! cq1 = source depletion ratio for dry deposition for phase 1, area source
 REAL*4,    INTENT(OUT)                           :: rctra_0                    ! canopy resistance representative for the trajectory, no re-emission allowed [s/m];
@@ -137,44 +137,44 @@ REAL*4,    INTENT(OUT)                           :: rc_rcp                     !
 REAL*4,    INTENT(OUT)                           :: rclocal                    ! canopy resistance at receptor, re-emission allowed [s/m];
                                                                                ! is used for the computation of drypri, the local depsosition at the receptor
 																			
-REAL*4,    INTENT(OUT)                           :: rb_rcp                     !
-REAL*4,    INTENT(OUT)                           :: ra4_rcp                    !
-REAL*4,    INTENT(OUT)                           :: ra50_rcp                   !
-REAL*4,    INTENT(OUT)                           :: ra4src                     !
-REAL*4,    INTENT(OUT)                           :: rb_src                     !
-REAL*4,    INTENT(OUT)                           :: ra50src                    !
-REAL*4,    INTENT(OUT)                           :: ra4tra                     !
-REAL*4,    INTENT(OUT)                           :: ra50tra                    !
-REAL*4,    INTENT(OUT)                           :: rb_tra                     !
+REAL*4,    INTENT(OUT)                           :: rb_rcp
+REAL*4,    INTENT(OUT)                           :: ra4_rcp
+REAL*4,    INTENT(OUT)                           :: ra50_rcp
+REAL*4,    INTENT(OUT)                           :: ra4src
+REAL*4,    INTENT(OUT)                           :: rb_src
+REAL*4,    INTENT(OUT)                           :: ra50src
+REAL*4,    INTENT(OUT)                           :: ra4tra
+REAL*4,    INTENT(OUT)                           :: ra50tra
+REAL*4,    INTENT(OUT)                           :: rb_tra
 REAL*4,    INTENT(OUT)                           :: raz_rcp
 REAL*4,    INTENT(OUT)                           :: rnox                       ! NO2/NOx ratio
 
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: day_of_year                !
+INTEGER*4                                        :: day_of_year
 INTEGER*4                                        :: icmpsec
-INTEGER*4                                        :: ipar                       !
-INTEGER*4                                        :: mnt                        !
-INTEGER*4, DIMENSION(2)                          :: mnt_select                 !
-INTEGER*4                                        :: nwet                       !
-INTEGER*4                                        :: icnr                       !
-INTEGER*4                                        :: luclass                    !
-REAL*4                                           :: percn                      !
-REAL*4                                           :: chemn                      !
-REAL*4                                           :: scno2nox                   !
-REAL*4                                           :: chemr                      !
-REAL*4                                           :: rcno2                      !
-REAL*4                                           :: r                          !
-REAL*4                                           :: glrad                      !
-REAL*4                                           :: d                          !
-REAL*4                                           :: ratns                      !
-REAL*4                                           :: rcc                        !
-REAL*4                                           :: vdc                        !
-REAL*4                                           :: rcaer                      !
-REAL*4                                           :: vdaer                      !
-REAL*4                                           :: vg                         !
-REAL*4                                           :: rchno2                     !
-REAL*4                                           :: dh                         !
+INTEGER*4                                        :: ipar
+INTEGER*4                                        :: mnt
+INTEGER*4, DIMENSION(2)                          :: mnt_select
+INTEGER*4                                        :: nwet
+INTEGER*4                                        :: icnr
+INTEGER*4                                        :: luclass
+REAL*4                                           :: percn
+REAL*4                                           :: chemn
+REAL*4                                           :: scno2nox
+REAL*4                                           :: chemr
+REAL*4                                           :: rcno2
+REAL*4                                           :: r
+REAL*4                                           :: glrad
+REAL*4                                           :: d
+REAL*4                                           :: ratns
+REAL*4                                           :: rcc
+REAL*4                                           :: vdc
+REAL*4                                           :: rcaer
+REAL*4                                           :: vdaer
+REAL*4                                           :: vg
+REAL*4                                           :: rchno2
+REAL*4                                           :: dh
 REAL*4                                           :: fx                         ! weegfactor
 REAL*4                                           :: som_rc_rcp
 REAL*4                                           :: som2_rc_rcp
@@ -195,7 +195,7 @@ INTEGER                                          :: i
 REAL*4, PARAMETER                                :: catm_min = 0.1E-05
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -365,12 +365,12 @@ IF (isec) THEN
       r      = rb + ra4    ! R = Rb + Ra = Rb + Ra = boundary layer resistance + aerodynamic resistance
       rchno2 = rcso2       ! Rc(HNO2) = Rc(SO2)
 
-      !
-      !
+
+
       !            1             [NO2]/[NOx]         (1-[NO2]/[NOx])        [HNO2]/[NOx]
       ! ------------------- = ------------------ + -------------------- + --------------------
       !  Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
-      !
+
 
       !            1             [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
       ! ------------------- = ----------------------- + ----------------------------
@@ -568,27 +568,27 @@ SUBROUTINE vdsecaer (ust, ol, vd, rh, nwet,Uh, ra, znul, icmp)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'vdsecaer')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icmp                       !
-INTEGER*4, INTENT(IN)                            :: nwet                       !
-REAL*4,    INTENT(IN)                            :: ust                        !
-REAL*4,    INTENT(IN)                            :: ol                         !
-REAL*4,    INTENT(IN)                            :: rh                         !
-REAL*4,    INTENT(IN)                            :: Uh                         !
-REAL*4,    INTENT(IN)                            :: ra                         !
-REAL*4,    INTENT(IN)                            :: znul                       !
+INTEGER*4, INTENT(IN)                            :: icmp
+INTEGER*4, INTENT(IN)                            :: nwet
+REAL*4,    INTENT(IN)                            :: ust
+REAL*4,    INTENT(IN)                            :: ol
+REAL*4,    INTENT(IN)                            :: rh
+REAL*4,    INTENT(IN)                            :: Uh
+REAL*4,    INTENT(IN)                            :: ra
+REAL*4,    INTENT(IN)                            :: znul
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: vd                         !
+REAL*4,    INTENT(OUT)                           :: vd
 
 ! LOCAL VARIABLES
-REAL*4                                           :: E                          !
+REAL*4                                           :: E
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! components:

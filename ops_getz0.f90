@@ -45,7 +45,7 @@ USE m_geoutils
 USE m_commonconst
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_getz0')
 
 ! SUBROUTINE ARGUMENTS - INPUT

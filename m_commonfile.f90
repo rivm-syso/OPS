@@ -146,15 +146,15 @@ CONTAINS
 SUBROUTINE get_version_core(dll_version, dll_date)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'get_version_core')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                !
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   !
+CHARACTER*(*), INTENT(OUT)                       :: dll_version
+CHARACTER*(*), INTENT(OUT)                       :: dll_date
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -184,7 +184,7 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 CHARACTER*(*), INTENT(OUT)                       :: filepath                   ! File name including path
 !
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'MakeCommonPath')
 
 IF (.NOT. error%haserror) THEN

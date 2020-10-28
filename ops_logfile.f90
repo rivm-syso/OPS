@@ -58,14 +58,14 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 LOGICAL                                          :: isopen                     ! file is open
 
 ! FUNCTION RESULT
-LOGICAL                                          :: ops_openlog                !
+LOGICAL                                          :: ops_openlog
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_openlog')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !
 ! Inquire whether the log file is already opened. If not so, open the log file.
@@ -101,10 +101,10 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 
 ! LOCAL VARIABLES
 LOGICAL                                          :: isopen                     ! file is open
-LOGICAL                                          :: haderror                   !
+LOGICAL                                          :: haderror
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_closelog')
 !
 ! We also come here when an error has already occurred. In that case this routine should not appear in the traceback. This is

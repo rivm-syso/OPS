@@ -70,7 +70,7 @@ INTEGER*4                                        :: naamlengte                 !
 CHARACTER*512                                    :: helpfile                   ! meteostatistics file name, includes region number
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Standard file for diurnal variations of emissions

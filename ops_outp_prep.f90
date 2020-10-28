@@ -45,36 +45,36 @@ SUBROUTINE ops_outp_prep(nrrcp, icm, nsubsec, conc_cf, rhno3_rcp, f_subsec_rcp, 
 IMPLICIT NONE
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrrcp                      !
-INTEGER*4, INTENT(IN)                            :: icm                        !
+INTEGER*4, INTENT(IN)                            :: nrrcp
+INTEGER*4, INTENT(IN)                            :: icm
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
-REAL*4,    INTENT(IN)                            :: conc_cf                    !
-REAL*4,    INTENT(IN)                            :: rhno3_rcp(nrrcp)           !
+REAL*4,    INTENT(IN)                            :: conc_cf
+REAL*4,    INTENT(IN)                            :: rhno3_rcp(nrrcp)
 REAL*4,    INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                !
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              !
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              !
+REAL*4,    INTENT(IN)                            :: csec(nrrcp)
+REAL*4,    INTENT(IN)                            :: drydep(nrrcp)
+REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: cpri(nrrcp)                !
+REAL*4,    INTENT(INOUT)                         :: cpri(nrrcp)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: totdep(nrrcp)              !
+REAL*4,    INTENT(OUT)                           :: totdep(nrrcp)
 REAL*4,    INTENT(OUT)                           :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
-REAL*4,    INTENT(OUT)                           :: scale_con                  !
-REAL*4,    INTENT(OUT)                           :: scale_sec                  !
+REAL*4,    INTENT(OUT)                           :: scale_con
+REAL*4,    INTENT(OUT)                           :: scale_sec
 REAL*4,    INTENT(OUT)                           :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
-REAL*4,    INTENT(OUT)                           :: scale_dep                  !
+REAL*4,    INTENT(OUT)                           :: scale_dep
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_outp_prep')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

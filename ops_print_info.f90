@@ -49,14 +49,14 @@ USE m_utils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_print_info')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: project                    ! project name
 LOGICAL,   INTENT(IN)                            :: gasv                       ! code for substance appearance (gas/particle)
 LOGICAL,   INTENT(IN)                            :: isec                       ! true when comp=SO2,NOx,NH3
-INTEGER*4, INTENT(IN)                            :: intpol                     !
+INTEGER*4, INTENT(IN)                            :: intpol
 INTEGER*4, INTENT(IN)                            :: spgrid                     ! code for type of receptor points
 REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! substance name
@@ -82,7 +82,7 @@ INTEGER*4, INTENT(IN)                            :: idb                        !
 INTEGER*4, INTENT(IN)                            :: jt                         ! ending year of meteo
 INTEGER*4, INTENT(IN)                            :: mt                         ! ending month of meteo
 INTEGER*4, INTENT(IN)                            :: idt                        ! ending day of meteo
-INTEGER*4, INTENT(IN)                            :: iseiz                      !
+INTEGER*4, INTENT(IN)                            :: iseiz
 LOGICAL*4, INTENT(IN)                            :: f_z0user                   ! true if z0 is user specified
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -96,17 +96,17 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: istatgeb                   ! climatological area
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          !
-INTEGER*4                                        :: ierr                       !
-INTEGER*4                                        :: indx                       !
-INTEGER*4                                        :: jndx                       !
-INTEGER*4                                        :: statclass                  !
+INTEGER*4                                        :: i
+INTEGER*4                                        :: ierr
+INTEGER*4                                        :: indx
+INTEGER*4                                        :: jndx
+INTEGER*4                                        :: statclass
 REAL*4                                           :: qb                         ! emission of individual source
-CHARACTER*1                                      :: statcode                   !
-CHARACTER*30                                     :: climper(0:6)               !
+CHARACTER*1                                      :: statcode
+CHARACTER*30                                     :: climper(0:6)
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 ! DATA
@@ -315,12 +315,12 @@ CONTAINS
 SUBROUTINE print_region (regionname, regionindex )
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'print_region')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: regionname                 !
-INTEGER*4, INTENT(IN)                            :: regionindex                !
+CHARACTER*(*), INTENT(IN)                        :: regionname
+INTEGER*4, INTENT(IN)                            :: regionindex
 
 WRITE (fu_prt, '(/,1x,''climatological area  :  '', a, '' (region '', I1, '')'')') regionname(1:LEN_TRIM(regionname)),         &
                 &  regionindex

@@ -55,7 +55,7 @@ USE m_ops_plumerise
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_statparexp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -72,62 +72,62 @@ REAL*4,    INTENT(IN)                            :: uurtot
 REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)
 REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]
-INTEGER*4, INTENT(IN)                            :: isek                       !
+INTEGER*4, INTENT(IN)                            :: isek
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
-INTEGER*4, INTENT(OUT)                           :: isekt                      !
-REAL*4,    INTENT(OUT)                           :: vw10                       !
-REAL*4,    INTENT(OUT)                           :: aksek(12)                  !
-REAL*4,    INTENT(OUT)                           :: h0                         !
-REAL*4,    INTENT(OUT)                           :: hum                        !
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              !
-REAL*4,    INTENT(OUT)                           :: shear                      !
-REAL*4,    INTENT(OUT)                           :: rcaer                      !
-REAL*4,    INTENT(OUT)                           :: rcnh3                      !
-REAL*4,    INTENT(OUT)                           :: rcno2                      !
+INTEGER*4, INTENT(OUT)                           :: isekt
+REAL*4,    INTENT(OUT)                           :: vw10
+REAL*4,    INTENT(OUT)                           :: aksek(12)
+REAL*4,    INTENT(OUT)                           :: h0
+REAL*4,    INTENT(OUT)                           :: hum
+REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp
+REAL*4,    INTENT(OUT)                           :: shear
+REAL*4,    INTENT(OUT)                           :: rcaer
+REAL*4,    INTENT(OUT)                           :: rcnh3
+REAL*4,    INTENT(OUT)                           :: rcno2
 REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           !
-REAL*4,    INTENT(OUT)                           :: pcoef                      !
-REAL*4,    INTENT(OUT)                           :: htot                       !
-REAL*4,    INTENT(OUT)                           :: htt                        !
-INTEGER*4, INTENT(OUT)                           :: itra                       !
-REAL*4,    INTENT(OUT)                           :: aant                       !
-REAL*4,    INTENT(OUT)                           :: xl                         !
-REAL*4,    INTENT(OUT)                           :: rb                         !
-REAL*4,    INTENT(OUT)                           :: ra4                        !
-REAL*4,    INTENT(OUT)                           :: ra50                       !
-REAL*4,    INTENT(OUT)                           :: xvglbr                     !
-REAL*4,    INTENT(OUT)                           :: xvghbr                     !
-REAL*4,    INTENT(OUT)                           :: xloc                       !
-REAL*4,    INTENT(OUT)                           :: xl100                      !
-REAL*4,    INTENT(OUT)                           :: rad                        !
-REAL*4,    INTENT(OUT)                           :: rcso2                      !
+REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp
+REAL*4,    INTENT(OUT)                           :: pcoef
+REAL*4,    INTENT(OUT)                           :: htot
+REAL*4,    INTENT(OUT)                           :: htt
+INTEGER*4, INTENT(OUT)                           :: itra
+REAL*4,    INTENT(OUT)                           :: aant
+REAL*4,    INTENT(OUT)                           :: xl
+REAL*4,    INTENT(OUT)                           :: rb
+REAL*4,    INTENT(OUT)                           :: ra4
+REAL*4,    INTENT(OUT)                           :: ra50
+REAL*4,    INTENT(OUT)                           :: xvglbr
+REAL*4,    INTENT(OUT)                           :: xvghbr
+REAL*4,    INTENT(OUT)                           :: xloc
+REAL*4,    INTENT(OUT)                           :: xl100
+REAL*4,    INTENT(OUT)                           :: rad
+REAL*4,    INTENT(OUT)                           :: rcso2
 REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
-REAL*4,    INTENT(OUT)                           :: regenk                     !
-REAL*4,    INTENT(OUT)                           :: buil                       !
-REAL*4,    INTENT(OUT)                           :: rint                       !
-REAL*4,    INTENT(OUT)                           :: percvk                     !
+REAL*4,    INTENT(OUT)                           :: regenk
+REAL*4,    INTENT(OUT)                           :: buil
+REAL*4,    INTENT(OUT)                           :: rint
+REAL*4,    INTENT(OUT)                           :: percvk
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: is                         !
-INTEGER*4                                        :: ids                        !
-INTEGER*4                                        :: ispecial                   !
-INTEGER*4                                        :: iss                        !
-INTEGER*4                                        :: itrx                       !
-INTEGER*4                                        :: iwdd                       !
+INTEGER*4                                        :: is
+INTEGER*4                                        :: ids
+INTEGER*4                                        :: ispecial
+INTEGER*4                                        :: iss
+INTEGER*4                                        :: itrx
+INTEGER*4                                        :: iwdd
 INTEGER*4                                        :: itraj                      ! index of distance class
 REAL*4                                           :: ccor                       ! concentration correction factor for area sources
-REAL*4                                           :: stt(NCOMP)                 !
-REAL*4                                           :: tal(NTRAJ)                 !
-REAL*4                                           :: dscor(NTRAJ)               !
-REAL*4                                           :: phi                        !
-REAL*4                                           :: r                          !
-REAL*4                                           :: r4                         !
-REAL*4                                           :: r50                        !
+REAL*4                                           :: stt(NCOMP)
+REAL*4                                           :: tal(NTRAJ)
+REAL*4                                           :: dscor(NTRAJ)
+REAL*4                                           :: phi
+REAL*4                                           :: r
+REAL*4                                           :: r4
+REAL*4                                           :: r50
 REAL*4                                           :: s                          ! interpolation factor (0-1) for the contribution of wind sector is
                                                                                ! (i.e. the second interpolation sector), to the wind direction
                                                                                ! from source to receptor
@@ -137,15 +137,15 @@ REAL*4                                           :: s1(NTRAJ)                  !
                                                                                ! where the source-receptor distance lies in, then 0 <= s1(ids) <= 1 and
                                                                                ! s1(i) = 0 for i /= ids
 
-REAL*4                                           :: stta(NCOMP)                !
-REAL*4                                           :: sttr(NCOMP)                !
-REAL*4                                           :: sa                         !
-REAL*4                                           :: so                         !
-REAL*4                                           :: sp                         !
+REAL*4                                           :: stta(NCOMP)
+REAL*4                                           :: sttr(NCOMP)
+REAL*4                                           :: sa
+REAL*4                                           :: so
+REAL*4                                           :: sp
 real                                             :: dum                        ! dummy output variable
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -336,27 +336,27 @@ CONTAINS
 SUBROUTINE bepafst(itra, s, trafst, disx, dscor, xl, disxx)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'bepafst')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       !
-REAL*4,    INTENT(IN)                            :: s(NTRAJ)                   !
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              !
+INTEGER*4, INTENT(IN)                            :: itra
+REAL*4,    INTENT(IN)                            :: s(NTRAJ)
+REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)
 REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: dscor(NTRAJ)               ! Note: dscor is not used anymore after this routine
-REAL*4,    INTENT(INOUT)                         :: xl                         !
+REAL*4,    INTENT(INOUT)                         :: xl
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ids                        !
+INTEGER*4                                        :: ids
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -446,33 +446,33 @@ END SUBROUTINE bepafst
 SUBROUTINE voorlpl(istab, isek, hbron, qww, astat, vw10, pcoef, htt)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'voorlpl')
 
 ! CONSTANTS
-REAL*4                                           :: VWREP(NSTAB)               !
+REAL*4                                           :: VWREP(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      !
-INTEGER*4, INTENT(IN)                            :: isek                       !
-REAL*4,    INTENT(IN)                            :: hbron                      !
-REAL*4,    INTENT(IN)                            :: qww                        !
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
+INTEGER*4, INTENT(IN)                            :: istab
+INTEGER*4, INTENT(IN)                            :: isek
+REAL*4,    INTENT(IN)                            :: hbron
+REAL*4,    INTENT(IN)                            :: qww
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: vw10                       !
-REAL*4,    INTENT(OUT)                           :: pcoef                      !
-REAL*4,    INTENT(OUT)                           :: htt                        !
+REAL*4,    INTENT(OUT)                           :: vw10
+REAL*4,    INTENT(OUT)                           :: pcoef
+REAL*4,    INTENT(OUT)                           :: htt
 
 ! LOCAL VARIABLES
-REAL*4                                           :: delh                       !
-REAL*4                                           :: utop                       !
+REAL*4                                           :: delh
+REAL*4                                           :: utop
 
 ! DATA
 DATA VWREP /2.6, 3.8, 4.0, 6.9, 1.4, 2.5/
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -546,49 +546,49 @@ END SUBROUTINE voorlpl
 SUBROUTINE ronafhpar(radius, disxx, istab, s, isek, astat, s1,ids, aksek, sa, phi, so, stta, sttr)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ronafhpar')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     !
-REAL*4,    INTENT(IN)                            :: disxx                      !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: s                          !
+REAL*4,    INTENT(IN)                            :: radius
+REAL*4,    INTENT(IN)                            :: disxx
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: s
 INTEGER*4, INTENT(IN)                            :: isek                       ! middle of contributing wind sectors; note that ronafhpar
                                                                                ! is called with isek = isekt, i.e. the first of the two
                                                                                ! interpolating wind sectors
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
-REAL*4,    INTENT(IN)                            :: s1(NTRAJ)                  !
-INTEGER*4, INTENT(IN)                            :: ids                        !
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4,    INTENT(IN)                            :: s1(NTRAJ)
+INTEGER*4, INTENT(IN)                            :: ids
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: aksek(12)                  !
-REAL*4,    INTENT(OUT)                           :: sa                         !
-REAL*4,    INTENT(OUT)                           :: phi                        !
-REAL*4,    INTENT(OUT)                           :: so                         !
-REAL*4,    INTENT(OUT)                           :: stta(NCOMP)                !
-REAL*4,    INTENT(OUT)                           :: sttr(NCOMP)                !
+REAL*4,    INTENT(OUT)                           :: aksek(12)
+REAL*4,    INTENT(OUT)                           :: sa
+REAL*4,    INTENT(OUT)                           :: phi
+REAL*4,    INTENT(OUT)                           :: so
+REAL*4,    INTENT(OUT)                           :: stta(NCOMP)
+REAL*4,    INTENT(OUT)                           :: sttr(NCOMP)
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          !
-INTEGER*4                                        :: icomp                      !
-INTEGER*4                                        :: lpsek                      !
-INTEGER*4                                        :: jsek                       !
-INTEGER*4                                        :: scomp(14)                  !
-REAL*4                                           :: a                          !
-REAL*4                                           :: asek                       !
-REAL*4                                           :: statfactor                 !
-REAL*4                                           :: zz                         !
-REAL*4                                           :: p1                         !
-REAL*4                                           :: p2                         !
-REAL*4                                           :: pa                         !
+INTEGER*4                                        :: i
+INTEGER*4                                        :: icomp
+INTEGER*4                                        :: lpsek
+INTEGER*4                                        :: jsek
+INTEGER*4                                        :: scomp(14)
+REAL*4                                           :: a
+REAL*4                                           :: asek
+REAL*4                                           :: statfactor
+REAL*4                                           :: zz
+REAL*4                                           :: p1
+REAL*4                                           :: p2
+REAL*4                                           :: pa
 
 ! DATA
 !     De arrayelementen uit de meteostatistiek die hier gebruikt worden.
 DATA scomp / 2, 4, 5, 6, 11, 14, 16, 19, 20, 22, 23, 25, 26, 27 /
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -693,7 +693,7 @@ DO i = -3, 3
    ! pa is correction factor to correct for the deviation of the neighbouring sector
    ! w.r.t to the source-receptor direction;
    ! 0 <= pa <= 1 and for i = 0 (central sector): pa = asek/2 - s + 1/2
-   !
+
    ! iss: wind sector in which the source-receptor direction lies.
    ! s between 0 and 0.5 -> source-receptor direction lies in isekt, so isekt is the middle of the contributing sectors
    ! s between 0.5 and 1 -> source-receptor direction lies in isekt+1, so isekt+1 is the middle of the contributing sectors
@@ -753,32 +753,32 @@ END SUBROUTINE ronafhpar
 SUBROUTINE windsek(istab, htt, disx, iwd, astat, isek, isekt, shear, htot, iwdd, iss, is, s)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'windsek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: htt                        !
-REAL*4,    INTENT(IN)                            :: disx                       !
-INTEGER*4, INTENT(IN)                            :: iwd                        !
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
-INTEGER*4, INTENT(IN)                            :: isek                       !
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: htt
+REAL*4,    INTENT(IN)                            :: disx
+INTEGER*4, INTENT(IN)                            :: iwd
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+INTEGER*4, INTENT(IN)                            :: isek
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: isekt                      !
-REAL*4,    INTENT(OUT)                           :: shear                      !
-REAL*4,    INTENT(OUT)                           :: htot                       !
-INTEGER*4, INTENT(OUT)                           :: iwdd                       !
-INTEGER*4, INTENT(OUT)                           :: iss                        !
-INTEGER*4, INTENT(OUT)                           :: is                         !
-REAL*4,    INTENT(OUT)                           :: s                          !
+INTEGER*4, INTENT(OUT)                           :: isekt
+REAL*4,    INTENT(OUT)                           :: shear
+REAL*4,    INTENT(OUT)                           :: htot
+INTEGER*4, INTENT(OUT)                           :: iwdd
+INTEGER*4, INTENT(OUT)                           :: iss
+INTEGER*4, INTENT(OUT)                           :: is
+REAL*4,    INTENT(OUT)                           :: s
 
 ! LOCAL VARIABLES
-REAL*4                                           :: alpha                      !
-REAL*4                                           :: sek                        !
+REAL*4                                           :: alpha
+REAL*4                                           :: sek
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -898,32 +898,32 @@ SUBROUTINE windcorr(itra, istab, radius, disx, isek, iwdd, is, astat, iss, ispec
 USE Binas, only: rad2deg
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'windcorr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       !
-INTEGER*4, INTENT(IN)                            :: istab                      !
-REAL*4,    INTENT(IN)                            :: radius                     !
-REAL*4,    INTENT(IN)                            :: disx                       !
-INTEGER*4, INTENT(IN)                            :: isek                       !
-INTEGER*4, INTENT(IN)                            :: iwdd                       !
-INTEGER*4, INTENT(IN)                            :: is                         !
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
+INTEGER*4, INTENT(IN)                            :: itra
+INTEGER*4, INTENT(IN)                            :: istab
+REAL*4,    INTENT(IN)                            :: radius
+REAL*4,    INTENT(IN)                            :: disx
+INTEGER*4, INTENT(IN)                            :: isek
+INTEGER*4, INTENT(IN)                            :: iwdd
+INTEGER*4, INTENT(IN)                            :: is
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: iss                        !
+INTEGER*4, INTENT(INOUT)                         :: iss
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: ispecial                   !
+INTEGER*4, INTENT(OUT)                           :: ispecial
 REAL*4,    INTENT(OUT)                           :: phi                        ! is not used as output
-REAL*4,    INTENT(OUT)                           :: s                          !
+REAL*4,    INTENT(OUT)                           :: s
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iwr                        !
+INTEGER*4                                        :: iwr
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -942,7 +942,7 @@ IF ((ABS(astat(itra, 1, istab, iss)) .LE. EPS_DELTA) .AND. (radius .GT. (0. + EP
    ! disx >> radius, then radius/disx -> 0, asin(radius/disx) -> 0, phi -> pi/NSEK = 15 degrees (NSEK = 12)
    ! disx = radius,  then radius/disx -> 1, asin(radius/disx) -> pi/2, phi -> 105 degrees
    ! disx < radius,  then phi = 60 degrees
-   !
+
    IF (radius .LT. (disx - EPS_DELTA)) THEN
       phi = (ASIN(radius/disx) + PI/NSEK)*rad2deg
    ELSE
@@ -1001,23 +1001,23 @@ SUBROUTINE interp_ctr(disx, trafst, itra, s, ids)
 
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'interp_ctr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: disx                       !
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              !
+REAL*4,    INTENT(IN)                            :: disx
+REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: itra                       !
-REAL*4,    INTENT(OUT)                           :: s(NTRAJ)                   !
-INTEGER*4, INTENT(OUT)                           :: ids                        !
+INTEGER*4, INTENT(OUT)                           :: itra
+REAL*4,    INTENT(OUT)                           :: s(NTRAJ)
+INTEGER*4, INTENT(OUT)                           :: ids
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          !
+INTEGER*4                                        :: i
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1094,28 +1094,28 @@ END SUBROUTINE interp_ctr
 SUBROUTINE interp_tra(itra, s, ids, istab, iss, tal, astat, itrx, aant, stt)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'interp_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       !
-REAL*4,    INTENT(IN)                            :: s(NTRAJ)                   !
+INTEGER*4, INTENT(IN)                            :: itra
+REAL*4,    INTENT(IN)                            :: s(NTRAJ)
 INTEGER*4, INTENT(IN)                            :: ids                        ! index element in s dat niet 0 is.
-INTEGER*4, INTENT(IN)                            :: istab                      !
-INTEGER*4, INTENT(IN)                            :: iss                        !
-REAL*4,    INTENT(IN)                            :: tal(NTRAJ)                 !
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
+INTEGER*4, INTENT(IN)                            :: istab
+INTEGER*4, INTENT(IN)                            :: iss
+REAL*4,    INTENT(IN)                            :: tal(NTRAJ)
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: itrx                       !
-REAL*4,    INTENT(OUT)                           :: aant                       !
-REAL*4,    INTENT(OUT)                           :: stt(NCOMP)                 !
+INTEGER*4, INTENT(OUT)                           :: itrx
+REAL*4,    INTENT(OUT)                           :: aant
+REAL*4,    INTENT(OUT)                           :: stt(NCOMP)
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: icomp                      !
+INTEGER*4                                        :: icomp
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1174,57 +1174,57 @@ SUBROUTINE interp_sek(istab, iss, itrx, is, s, isek, stt, astat, xl, vw10, rb, r
                    &  dscor, coef_space_heating, regenk)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'interp_sek')
 
 ! CONSTANTS
 INTEGER*4                                        :: MENGH(NSTAB)               ! menghoogte
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      !
-INTEGER*4, INTENT(IN)                            :: iss                        !
-INTEGER*4, INTENT(IN)                            :: itrx                       !
-INTEGER*4, INTENT(IN)                            :: is                         !
-REAL*4,    INTENT(IN)                            :: s                          !
-INTEGER*4, INTENT(IN)                            :: isek                       !
-REAL*4,    INTENT(IN)                            :: stt(NCOMP)                 !
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) !
+INTEGER*4, INTENT(IN)                            :: istab
+INTEGER*4, INTENT(IN)                            :: iss
+INTEGER*4, INTENT(IN)                            :: itrx
+INTEGER*4, INTENT(IN)                            :: is
+REAL*4,    INTENT(IN)                            :: s
+INTEGER*4, INTENT(IN)                            :: isek
+REAL*4,    INTENT(IN)                            :: stt(NCOMP)
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: xl                         !
-REAL*4,    INTENT(OUT)                           :: vw10                       !
-REAL*4,    INTENT(OUT)                           :: rb                         !
-REAL*4,    INTENT(OUT)                           :: ra4                        !
-REAL*4,    INTENT(OUT)                           :: ra50                       !
-REAL*4,    INTENT(OUT)                           :: xvglbr                     !
-REAL*4,    INTENT(OUT)                           :: xvghbr                     !
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           !
+REAL*4,    INTENT(OUT)                           :: xl
+REAL*4,    INTENT(OUT)                           :: vw10
+REAL*4,    INTENT(OUT)                           :: rb
+REAL*4,    INTENT(OUT)                           :: ra4
+REAL*4,    INTENT(OUT)                           :: ra50
+REAL*4,    INTENT(OUT)                           :: xvglbr
+REAL*4,    INTENT(OUT)                           :: xvghbr
+REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp
 REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              !
-REAL*4,    INTENT(OUT)                           :: h0                         !
-REAL*4,    INTENT(OUT)                           :: xloc                       !
-REAL*4,    INTENT(OUT)                           :: xl100                      !
-REAL*4,    INTENT(OUT)                           :: sp                         !
-REAL*4,    INTENT(OUT)                           :: rad                        !
-REAL*4,    INTENT(OUT)                           :: rcso2                      !
-REAL*4,    INTENT(OUT)                           :: hum                        !
-REAL*4,    INTENT(OUT)                           :: pcoef                      !
-REAL*4,    INTENT(OUT)                           :: rcnh3                      !
-REAL*4,    INTENT(OUT)                           :: rcno2                      !
-REAL*4,    INTENT(OUT)                           :: rcaer                      !
-REAL*4,    INTENT(OUT)                           :: buil                       !
-REAL*4,    INTENT(OUT)                           :: rint                       !
-REAL*4,    INTENT(OUT)                           :: shear                      !
-REAL*4,    INTENT(OUT)                           :: dscor(NTRAJ)               !
+REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp
+REAL*4,    INTENT(OUT)                           :: h0
+REAL*4,    INTENT(OUT)                           :: xloc
+REAL*4,    INTENT(OUT)                           :: xl100
+REAL*4,    INTENT(OUT)                           :: sp
+REAL*4,    INTENT(OUT)                           :: rad
+REAL*4,    INTENT(OUT)                           :: rcso2
+REAL*4,    INTENT(OUT)                           :: hum
+REAL*4,    INTENT(OUT)                           :: pcoef
+REAL*4,    INTENT(OUT)                           :: rcnh3
+REAL*4,    INTENT(OUT)                           :: rcno2
+REAL*4,    INTENT(OUT)                           :: rcaer
+REAL*4,    INTENT(OUT)                           :: buil
+REAL*4,    INTENT(OUT)                           :: rint
+REAL*4,    INTENT(OUT)                           :: shear
+REAL*4,    INTENT(OUT)                           :: dscor(NTRAJ)
 REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
-REAL*4,    INTENT(OUT)                           :: regenk                     !
+REAL*4,    INTENT(OUT)                           :: regenk
 
 ! DATA
 ! MENGH is default value for mixing height for 6 stability classes
 DATA MENGH /300, 985, 302, 537, 50, 153/
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

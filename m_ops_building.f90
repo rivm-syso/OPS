@@ -571,7 +571,7 @@ IMPLICIT NONE
 ! Note the cut-off value of 50 m from the source.
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_building_get_factor')
 
 ! SUBROUTINE ARGUMENTS - INPUT

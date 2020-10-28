@@ -88,7 +88,7 @@ REAL*4                                           :: ypos
 REAL*4                                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -136,7 +136,7 @@ REAL*4                                           :: YP(NMETREG)                !
                                                                                ! (XP,YP)~ centre of circle that encompasses a meteo region.
                                                                                ! (XP,YP) are used for interpolation of meteo parameters in a
                                                                                ! specific location
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_statfil')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -244,7 +244,7 @@ USE m_utils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_readstexp')
 
 INTEGER*4                                        :: ISCALE(NCOMP)              ! OPS scalefactors for the different components in the climatology.
@@ -430,7 +430,7 @@ USE m_fileutils
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_readdata')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -451,7 +451,7 @@ INTEGER*4                                        :: ierr                       !
 INTEGER*4                                        :: recl                       ! record length
 
 ! FUNCTIONS
-LOGICAL                                          :: ops_checkmeteo             !
+LOGICAL                                          :: ops_checkmeteo
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Read meta data from meteo statistics file
@@ -549,7 +549,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_checkmeteo')
 
 ! SUBROUTINE ARGUMENTS - INPUT

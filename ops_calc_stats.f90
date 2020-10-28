@@ -47,7 +47,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_calc_stats')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -59,23 +59,23 @@ REAL*4,    INTENT(IN)                            :: csec(nrrcp)                !
 REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
 REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
 REAL*4,    INTENT(IN)                            :: gemre                      ! yearly mean precipitation from meteo statistics [mm/h]
-DOUBLE PRECISION, INTENT(IN)                     :: sdrypri                    !
-DOUBLE PRECISION, INTENT(IN)                     :: sdrysec                    !
-DOUBLE PRECISION, INTENT(IN)                     :: somvnpri                   !
-DOUBLE PRECISION, INTENT(IN)                     :: somvnsec                   !
-DOUBLE PRECISION, INTENT(IN)                     :: vvchem                     !
-DOUBLE PRECISION, INTENT(IN)                     :: vtel                       !
-DOUBLE PRECISION, INTENT(IN)                     :: telvnpri                   !
-DOUBLE PRECISION, INTENT(IN)                     :: telvnsec                   !
-REAL*4,    INTENT(IN)                            :: grid                       !
-REAL*4,    INTENT(IN)                            :: conc_cf                    !
-REAL*4,    INTENT(IN)                            :: amol21                     !
-REAL*4,    INTENT(IN)                            :: ugmoldep                   !
+DOUBLE PRECISION, INTENT(IN)                     :: sdrypri
+DOUBLE PRECISION, INTENT(IN)                     :: sdrysec
+DOUBLE PRECISION, INTENT(IN)                     :: somvnpri
+DOUBLE PRECISION, INTENT(IN)                     :: somvnsec
+DOUBLE PRECISION, INTENT(IN)                     :: vvchem
+DOUBLE PRECISION, INTENT(IN)                     :: vtel
+DOUBLE PRECISION, INTENT(IN)                     :: telvnpri
+DOUBLE PRECISION, INTENT(IN)                     :: telvnsec
+REAL*4,    INTENT(IN)                            :: grid
+REAL*4,    INTENT(IN)                            :: conc_cf
+REAL*4,    INTENT(IN)                            :: amol21
+REAL*4,    INTENT(IN)                            :: ugmoldep
 REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 
 ! SUBROUTINE ARGUMENTS - I/O
-DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri                    !
-DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec                    !
+DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri
+DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: gemcpri                    ! grid mean for primary concentration [ug/m3]
@@ -111,7 +111,7 @@ REAL*4                                           :: somfrac                    !
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Summation over grid cells

@@ -46,7 +46,7 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_print_kop')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -63,7 +63,7 @@ INTEGER*4                                        :: releaselen                 !
 INTEGER*4                                        :: marginlen                  ! number of = in margin
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

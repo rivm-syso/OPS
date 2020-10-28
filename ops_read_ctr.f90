@@ -49,7 +49,7 @@ USE m_commonfile
 USE m_commonconst
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_ctr')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -98,7 +98,7 @@ REAL*4                                           :: upper                      !
 CHARACTER*(512)                                  :: str1                       ! string value read from control file
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

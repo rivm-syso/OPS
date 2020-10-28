@@ -46,7 +46,7 @@ USE m_commonconst                                                              !
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_surface')
 
 ! CONSTANTS
@@ -68,17 +68,17 @@ REAL*4,    INTENT(OUT)                           :: zu                         !
 REAL*4,    INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iter                       !
-INTEGER*4                                        :: last                       !
-REAL*4                                           :: a                          !
-REAL*4                                           :: kz                         !
-REAL*4                                           :: phih                       !
-REAL*4                                           :: s                          !
-REAL*4                                           :: zw                         !
-REAL*4                                           :: zwold                      !
+INTEGER*4                                        :: iter
+INTEGER*4                                        :: last
+REAL*4                                           :: a
+REAL*4                                           :: kz
+REAL*4                                           :: phih
+REAL*4                                           :: s
+REAL*4                                           :: zw
+REAL*4                                           :: zwold
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

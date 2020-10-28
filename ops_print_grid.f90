@@ -52,7 +52,7 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_print_grid')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -65,12 +65,12 @@ LOGICAL,   INTENT(IN)                            :: gasv                       !
 LOGICAL,   INTENT(IN)                            :: isec                       ! sec. comp taken into account
 LOGICAL,   INTENT(IN)                            :: verb                       ! extra calculations if true
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! component name
-CHARACTER*(*), INTENT(IN)                        :: namse3                     !
+CHARACTER*(*), INTENT(IN)                        :: namse3
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! concentration unit
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! deposition unit
 REAL*4,    INTENT(IN)                            :: conc_cf                    ! concentration correction factor
-REAL*4,    INTENT(IN)                            :: amol21                     !
-REAL*4,    INTENT(IN)                            :: ugmoldep                   !
+REAL*4,    INTENT(IN)                            :: amol21
+REAL*4,    INTENT(IN)                            :: ugmoldep
 INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of grid cells in X-dir
 INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of grid cells in Y-dir
 REAL*4,    INTENT(IN)                            :: grid                       ! grid cell dimension
@@ -114,7 +114,7 @@ REAL*4,    INTENT(IN)                            :: scale_dep                  !
 ! SUBROUTINE ARGUMENTS - I/O
 LOGICAL,   INTENT(INOUT)                         :: idep                       ! deposition taken into account
 LOGICAL,   INTENT(INOUT)                         :: igrid                      ! print grids if value = 1
-CHARACTER*(*), INTENT(INOUT)                     :: namsec                     !
+CHARACTER*(*), INTENT(INOUT)                     :: namsec
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! whether an error occurred
@@ -126,7 +126,7 @@ INTEGER*4                                        :: isubsec                    !
 
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -346,7 +346,7 @@ SUBROUTINE print_mat(lun, value, fact, nrrcp, jump, nrcol, nrrow, grid, xorg, yo
 USE m_utils
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'print_mat')
 
 ! SUBROUTINE ARGUMENTS - INPUT

@@ -49,7 +49,7 @@ USE m_aps
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_src_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -65,7 +65,7 @@ REAL*4,    INTENT(OUT)                           :: z0_src                     !
 TYPE (TError)                                    :: error
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

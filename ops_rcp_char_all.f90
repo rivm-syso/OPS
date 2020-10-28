@@ -51,7 +51,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_rcp_char_all')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -98,7 +98,7 @@ LOGICAL                                          :: z0found
 INTEGER                                          :: ifield                     ! field index in f_subsec_grid
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 
 !-------------------------------------------------------------------------------------------------------------------------------

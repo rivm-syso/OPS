@@ -71,7 +71,7 @@ SUBROUTINE ops_depu(icnr, z0, zra, d, rc, ol, uster, vg, ra, rb)
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_depu')
 
 ! CONSTANTS
@@ -102,7 +102,7 @@ REAL*4                                           :: sc                         !
 REAL*4                                           :: zru                        ! correction for displacement height
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -157,7 +157,7 @@ REAL FUNCTION fpsih(eta)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'fpsih')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -170,7 +170,7 @@ REAL*4,    INTENT(IN)                            :: eta                        !
 REAL*4                                           :: y                          ! hulpvariabele bij de berekening
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (eta .LT. (0. - EPS_DELTA)) THEN

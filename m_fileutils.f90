@@ -161,14 +161,14 @@ SUBROUTINE get_directory(fullpath, directory, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_directory
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'get_directory')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: fullpath                   !
+CHARACTER*(*), INTENT(IN)                        :: fullpath
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: directory                  !
+CHARACTER*(*), INTENT(OUT)                       :: directory
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -178,7 +178,7 @@ INTEGER*4                                        :: os                         !
 CHARACTER*1                                      :: slash                      ! directory separator (\ or /)
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -221,14 +221,14 @@ SUBROUTINE get_filename(fullpath, filename, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: get_filename
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'get_filename')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: fullpath                   !
+CHARACTER*(*), INTENT(IN)                        :: fullpath
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: filename                   !
+CHARACTER*(*), INTENT(OUT)                       :: filename
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 !
 ! LOCAL VARIABLES
@@ -278,7 +278,7 @@ FUNCTION chk_file_exist(fname, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: chk_file_exist
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'chk_file_exist')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -288,10 +288,10 @@ CHARACTER*(*), INTENT(IN)                        :: fname                      !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! FUNCTION RESULT
-LOGICAL                                          :: chk_file_exist             !
+LOGICAL                                          :: chk_file_exist
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 INQUIRE (FILE = fname, EXIST = chk_file_exist)
@@ -335,8 +335,8 @@ LOGICAL                                          :: isbinary                   !
 LOGICAL                                          :: isdirect                   ! Whether reading/writing binary file
 
 ! CONSTANTS
-CHARACTER*512                                    :: tmp_ROUTINENAAM                !
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: tmp_ROUTINENAAM
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'sysopen')
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -447,11 +447,11 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: io_status                  ! Status of I/O action
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'sysclose')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 CLOSE (iu, IOSTAT = io_status)
@@ -475,8 +475,8 @@ END SUBROUTINE sys_close_file
 SUBROUTINE sysopen_read(iu, fnam, io_status)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: iu                         !
-CHARACTER*(*), INTENT(IN)                        :: fnam                       !
+INTEGER*4, INTENT(IN)                            :: iu
+CHARACTER*(*), INTENT(IN)                        :: fnam
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: io_status                  ! Status of I/O action
@@ -485,7 +485,7 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 INTEGER*4                                        :: flen                       ! Length of filename
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
@@ -507,14 +507,14 @@ END SUBROUTINE sysopen_read
 SUBROUTINE sysopen_read_bin(iu, fnam, io_status)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: iu                         !
-CHARACTER*(*), INTENT(IN)                        :: fnam                       !
+INTEGER*4, INTENT(IN)                            :: iu
+CHARACTER*(*), INTENT(IN)                        :: fnam
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: io_status                  ! Status of I/O action
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: flen                       !
+INTEGER*4                                        :: flen
 
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
@@ -550,7 +550,7 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 INTEGER*4                                        :: flen                       ! Length of filename
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
@@ -587,7 +587,7 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 INTEGER*4                                        :: flen                       ! Length of filename
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
@@ -611,7 +611,7 @@ SUBROUTINE sys_read_string(fdin, in_str, end_of_file, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: sys_read_string
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER     (ROUTINENAAM = 'sys_read_string')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -626,7 +626,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 INTEGER*4                                        :: io_status                  ! Status of IO-actions
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 end_of_file = .FALSE.

@@ -47,7 +47,7 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_getlu_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT

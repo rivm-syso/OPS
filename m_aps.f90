@@ -184,7 +184,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER            (ROUTINENAAM = 'read_aps_real')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -457,12 +457,12 @@ CHARACTER*10                                     :: kmpnm                      !
 CHARACTER*10                                     :: eenheid                    ! unit of parameter
 CHARACTER*10                                     :: oors                       ! origin of grid values
 CHARACTER*6                                      :: form                       ! format which is used to read grid values (?? is this used?)
-INTEGER*4                                        :: ij                         !
-INTEGER*4                                        :: inu1                       !
-INTEGER*4                                        :: inu2                       !
-INTEGER*4                                        :: inu3                       !
-INTEGER*4                                        :: kode                       !
-INTEGER*4                                        :: ierr                       !
+INTEGER*4                                        :: ij
+INTEGER*4                                        :: inu1
+INTEGER*4                                        :: inu2
+INTEGER*4                                        :: inu3
+INTEGER*4                                        :: kode
+INTEGER*4                                        :: ierr
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! name of subroutine

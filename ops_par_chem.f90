@@ -48,7 +48,7 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_par_chem')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -71,22 +71,22 @@ REAL*4,    INTENT(OUT)                           :: rrno2nox
 REAL*4,    INTENT(OUT)                           :: rations
 
 ! LOCAL VARIABLES
-REAL*4                                           :: C1                         !
-REAL*4                                           :: C2                         !
-REAL*4                                           :: ch                         !
-REAL*4                                           :: cr                         !
-REAL*4                                           :: wdc_so2                    !
-REAL*4                                           :: wdc_no2                    !
-REAL*4                                           :: so2bgtra_corr              !
-REAL*4                                           :: no2bgtra_corr              !
-REAL*4                                           :: nh3bgtra_corr              !
+REAL*4                                           :: C1
+REAL*4                                           :: C2
+REAL*4                                           :: ch
+REAL*4                                           :: cr
+REAL*4                                           :: wdc_so2
+REAL*4                                           :: wdc_no2
+REAL*4                                           :: so2bgtra_corr
+REAL*4                                           :: no2bgtra_corr
+REAL*4                                           :: nh3bgtra_corr
 REAL*4                                           :: nox_threshold              ! threshold value for NOx in log-function in NOx -> NO2 conversion
 REAL*4                                           :: no2_threshold              ! threshold value for NO2 in exp-function in NO2 -> NOx conversion
 REAL*4                                           :: alpha                      ! slope of linear function NOx -> NO2 conversion
 REAL*4                                           :: noxbgtra_corr              ! conversion of no2bgtra_corr to NOx
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

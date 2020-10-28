@@ -82,7 +82,7 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_main')
 
 ! LOCAL VARIABLES
@@ -127,7 +127,7 @@ INTEGER*4                                        :: ndone
 INTEGER*4                                        :: lu_rcp_dom                 ! dominant landuse class at receptor point
 REAL*4                                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie
 REAL*4                                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
-INTEGER*4                                        :: i1(NTRAJ-1)                !
+INTEGER*4                                        :: i1(NTRAJ-1)
 INTEGER*4                                        :: year
 INTEGER*4                                        :: memdone
 INTEGER*4                                        :: maxidx                     ! max. value of NPARTCLASS
@@ -231,9 +231,9 @@ REAL*4                                           :: scale_con
 REAL*4                                           :: scale_sec
 REAL*4, DIMENSION(:), POINTER                    :: scale_subsec
 REAL*4                                           :: scale_dep
-REAL*4                                           :: so2bgtra                   !
-REAL*4                                           :: no2bgtra                   !
-REAL*4                                           :: nh3bgtra                   !
+REAL*4                                           :: so2bgtra
+REAL*4                                           :: no2bgtra
+REAL*4                                           :: nh3bgtra
 type(Tvchem)                                     :: vchem2
 REAL*8, DIMENSION(:), POINTER                    :: sdrypri_arr
 REAL*8                                           :: sdrypri
@@ -331,7 +331,7 @@ TYPE (TError)                                    :: error
 !
 ! SCCS-ID VARIABLES
 !
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! DATA:

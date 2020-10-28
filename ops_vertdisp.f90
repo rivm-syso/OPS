@@ -46,7 +46,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_vertdisp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -71,8 +71,8 @@ REAL*4                                           :: h                          !
 REAL*4                                           :: szc                        ! convexe dispersie (m)
 REAL*4                                           :: szn                        ! neutrale dispersie
 REAL*4                                           :: szs                        ! oppervlakte dispersie
-REAL*4                                           :: fm                         !
-REAL*4                                           :: fs                         !
+REAL*4                                           :: fm
+REAL*4                                           :: fs
 
 ! SUBROUTINE AND FUNCTION CALLS
 EXTERNAL ops_surface
@@ -80,7 +80,7 @@ EXTERNAL ops_convec
 EXTERNAL ops_neutral
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 

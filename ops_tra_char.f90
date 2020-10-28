@@ -53,11 +53,11 @@ USE m_ops_vchem
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_tra_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        !
+INTEGER*4, INTENT(IN)                            :: icm
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
 REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
@@ -69,24 +69,24 @@ INTEGER*4, INTENT(IN)                            :: y_src                      !
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! land use grid
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
-TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  !
-TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  !
-TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  !
+TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid
+TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid
+TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid
 TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2
 LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m]
 REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie (summed over intermediate points)
-REAL*4,    INTENT(OUT)                           :: so2bgtra                   !
-REAL*4,    INTENT(OUT)                           :: no2bgtra                   !
-REAL*4,    INTENT(OUT)                           :: nh3bgtra                   !
+REAL*4,    INTENT(OUT)                           :: so2bgtra
+REAL*4,    INTENT(OUT)                           :: no2bgtra
+REAL*4,    INTENT(OUT)                           :: nh3bgtra
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES:
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !

@@ -48,20 +48,20 @@ USE m_depac318
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                !
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_depos_rc')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        !
-INTEGER*4, INTENT(IN)                            :: iseiz                      !
-INTEGER*4, INTENT(IN)                            :: mb                         !
-INTEGER*4, INTENT(IN)                            :: nwet                       !
-REAL*4,    INTENT(IN)                            :: hum                        !
+INTEGER*4, INTENT(IN)                            :: icm
+INTEGER*4, INTENT(IN)                            :: iseiz
+INTEGER*4, INTENT(IN)                            :: mb
+INTEGER*4, INTENT(IN)                            :: nwet
+REAL*4,    INTENT(IN)                            :: hum
 REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity [m/s]
 REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
 REAL*4,    INTENT(IN)                            :: gym
-REAL*4,    INTENT(IN)                            :: glrad                      !
-REAL*4,    INTENT(IN)                            :: ratns                      !
+REAL*4,    INTENT(IN)                            :: glrad
+REAL*4,    INTENT(IN)                            :: ratns
 REAL*4,    INTENT(IN)                            :: catm
 REAL*4,    INTENT(IN)                            :: c_ave_prev_nh3
 REAL*4,    INTENT(IN)                            :: c_ave_prev_so2
@@ -74,10 +74,10 @@ REAL*4,    INTENT(OUT)                           :: rc_eff_pos                 !
 REAL*4,    INTENT(OUT)                           :: rc_eff                     ! canopy resistance, re-emission allowed [s/m];
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: day_of_year                !
-INTEGER*4                                        :: mnt                        !
-INTEGER*4, DIMENSION(2)                          :: mnt_select                 !
-INTEGER*4                                        :: luclass                    !
+INTEGER*4                                        :: day_of_year
+INTEGER*4                                        :: mnt
+INTEGER*4, DIMENSION(2)                          :: mnt_select
+INTEGER*4                                        :: luclass
 REAL*4                                           :: som_vd_month               ! summed vd over representative months
 REAL*4                                           :: som_vd_eff_ave             ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
 REAL*4                                           :: som_vd_eff_ave_pos         ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
@@ -91,7 +91,7 @@ REAL*4, PARAMETER                                :: catm_min = 0.1E-05
 REAL*4                                           :: rc_eff_depac               ! canopy resistance from depac, re-emission allowed [s/m];
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    !
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
