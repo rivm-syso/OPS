@@ -237,8 +237,7 @@ ELSE
   
     ! Check data on data line: 
     IF (ierr == 0) THEN
-       IF (z0 > 0 .and. (nwords == 15 .or. nwords == 16) .and.  &
-          ( sum(lu_rcp_per_user(1:NLU)) .lt. 99 .or. sum(lu_rcp_per_user(1:NLU)) .gt. 101)) THEN
+       IF (z0 > 0 .and. (nwords == 15 .or. nwords == 16) .and. sum(lu_rcp_per_user(1:NLU)) .lt. 99 .or. sum(lu_rcp_per_user(1:NLU)) .gt. 101) THEN
           CALL SetError('INPUT ERROR: No correct input in receptorfile', error)
           CALL ErrorParam('filename', namrecept, error)
           CALL ErrorParam('record number', i + h, error)
@@ -312,8 +311,7 @@ ELSE
         CALL ErrorParam('nwords read from rcp-file should be:', nwords, error)
         GOTO 9999
       ENDIF
-      IF (z0 > 0.0 .AND. ierr == 0 .AND. (nwords == 15 .or. nwords == 16) .AND.  &
-         ( sum(lu_rcp_per_user(1:NLU)) .lt. 99 .or. sum(lu_rcp_per_user(1:NLU)) .gt. 101)) THEN
+      IF (z0 > 0.0 .AND. ierr == 0 .AND. (nwords == 15 .or. nwords == 16) .AND. sum(lu_rcp_per_user(1:NLU)) .lt. 99 .or. sum(lu_rcp_per_user(1:NLU)) .gt. 101) THEN
         CALL SetError('INPUT ERROR: No correct input in receptorfile', error)
         CALL ErrorParam('filename', namrecept, error)
         CALL ErrorParam('record number', i + h, error)

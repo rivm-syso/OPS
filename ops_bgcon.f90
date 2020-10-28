@@ -72,12 +72,12 @@ LOGICAL                                          :: iscell                     !
 !
 if (present(fieldnumber)) then
    CALL GridValue(x/1000., y/1000., bgdata, bgcon, iscell, fieldnumber)
-   IF ( (.not. iscell ) .OR. bgcon < 0.+EPS_DELTA) THEN
+   IF (iscell .AND. bgcon < 0.+EPS_DELTA) THEN 
      bgcon = bgdata%average(fieldnumber)
    ENDIF
 else
    CALL GridValue(x/1000., y/1000., bgdata, bgcon, iscell)
-   IF ( (.not. iscell ) .OR. bgcon < 0.+EPS_DELTA) THEN
+   IF (iscell .AND. bgcon < 0.+EPS_DELTA) THEN 
      bgcon = bgdata%average(1)
    ENDIF
 endif
