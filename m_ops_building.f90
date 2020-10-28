@@ -62,7 +62,17 @@ integer, parameter         :: mClass = 100                     ! maximal number 
 
 ! Define parameter names - these must be the same as the parameters as filled into valueArray (see ops_bron_rek) - distance must be last parameter !
 !character(len=200)         :: buildingParamNames(3) = (/'hEmis', 'angleSRxaxis', 'distance' /)  ! 3 parameters, simple test 
-character(len=200)         :: buildingParamNames(9) = (/'hEmis', 'V_stack', 'D_stack', 'buildingHeight', 'buildingLength', 'buildingWLRatio', 'buildingOrientation', 'angleSRxaxis', 'distance' /)  ! 9 parameters
+integer, parameter         :: mBparms = 9
+character(len=200)         :: CbuildingParamNames(mBparms) =  &
+                                 (/'hEmis              ', &
+                                   'V_stack            ', &
+                                   'D_stack            ', &
+                                   'buildingHeight     ', &
+                                   'buildingLength     ', &
+                                   'buildingWLRatio    ', &
+                                   'buildingOrientation', &
+                                   'angleSRxaxis       ', &
+                                   'distance           ' /)  ! 9 parameters
 ! character(len=200)         :: buildingParamNames(7) = (/'hEmis', 'V_stack', 'D_stack', 'buildingHeight', 'buildingLength', 'buildingWLRatio', 'distance' /)  ! 7 parameters
 ! character(len=200)         :: buildingParamNames(4) = (/'V_stack', 'buildingHeight', 'hEmis', 'distance' /)  ! simple test with 4 parameters
 
@@ -180,6 +190,12 @@ use m_fileutils
     integer                    :: n                                ! number of values read from file
     character(100)             :: paramNames(mParam)               ! parameter names 
     integer                    :: nClassSum                        ! sum of number of classes for each parameter
+character(len=200) :: buildingParamNames(mBparms)
+integer :: j
+    do j = 1, mBparms
+       buildingParamNames(j) = trim( CbuildingParamNames(j) )
+    enddo
+
 
     ! Initialisation:
     iParam = 0
@@ -300,6 +316,11 @@ use m_fileutils
     integer                    :: iClassExpected(nParam)           ! class indices as expected by the order in which SILUPM wants it (last index fastest, then last but one, ...)
     logical                    :: shiftNext                        ! shift next parameter index (counting from last to first parameter)
     logical                    :: read_unformatted = .true.        ! read unformatted file (is much faster than formatted file)
+character(len=200) :: buildingParamNames(mBparms)
+integer :: j
+    do j = 1, mBparms
+       buildingParamNames(j) = trim( CbuildingParamNames(j) )
+    enddo
 
     ! Allocate memory for  building effects table:
     allocate(buildingFactArray(nClassProd)) 
@@ -527,7 +548,7 @@ subroutine ops_building_get_function(nParam, valueArray, nClass, classdefinition
      else
         call ErrorParam('error status (see documentation netlib/SILUPM) ', IOPT(1), error) 
      endif
-     call ErrorParam('parameter names  ', buildingParamNames, error) 
+     call ErrorParam('parameter names  ', CbuildingParamNames, error)
      call ErrorParam('parameter values ', valueArray, error) 
      goto 9999
   endif

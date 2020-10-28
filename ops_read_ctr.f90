@@ -201,11 +201,11 @@ if (icm .eq. 2) then
    if (iopt_vchem .eq. 0) then
       ! Old OPS parameterisation; no information on fine and coarse NO3:
       nsubsec = 2 
-      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3' /)          ! HNO3, NO3_aerosol (in PM10)
    else
       ! EMEP gives also a split between coarse and fine NO3:
       nsubsec = 4
-      CNAME_SUBSEC(1:nsubsec) = (/'NO3_AER', 'HNO3', 'NO3_C', 'NO3_F' /)   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)  
+      CNAME_SUBSEC(3) =  'NO3_C'   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
+      CNAME_SUBSEC(4) =  'NO3_F'   ! HNO3, NO3_aerosol (in PM10), NO3_coarse (in PM10-PM2.5), NO3_fine (in PM2.5)
    endif
 else
    ! SO4 and NH4 all in fine PM-fraction; no sub-species:

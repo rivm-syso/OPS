@@ -76,7 +76,9 @@ USE m_fileutils
 USE m_error
 USE m_commonconst
 USE m_commonfile
+#ifndef GNU
 USE IFPORT
+#endif
 USE m_ops_vchem
 
 IMPLICIT NONE

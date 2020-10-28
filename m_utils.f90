@@ -55,7 +55,9 @@ MODULE m_utils
 
 USE m_error
 USE m_string
+#ifndef GNU
 USE IFPORT
+#endif
 
 IMPLICIT NONE
 

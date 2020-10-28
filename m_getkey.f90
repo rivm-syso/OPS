@@ -671,11 +671,12 @@ INTEGER                                          :: beginpos                   !
 INTEGER                                          :: endpos                     ! end-position of a single word
 INTEGER                                          :: endlpos                    ! end-position of a line
 INTEGER                                          :: i                          ! loop-teller
-INTEGER                                          :: first                      ! TRUE is character is blank
+LOGICAL                                          :: first                      ! TRUE is character is blank
 CHARACTER*512                                    :: string                     ! Help-string
 
 ! RESULT
 LOGICAL                                          :: check_range_integer_array  ! 
+INTEGER                                          :: inum
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Retrieve the integer array value for parname.
