@@ -198,17 +198,17 @@ ENDIF
       geob  = geob + (dy/111.1984)
       geol  = geol + (dx/(111.1984*COS(geob/57.2958))) 
       tel = tel + 1
-   
+ 
       ! Goto next iteration (if number of iterations < 300):
       IF (tel .LT. 300) THEN
          GOTO 50
       ENDIF
-      
+    
    !   WRITE (*, '( '' x and/or y coord. in subr. amcgeo beyond limits'')')
    !   WRITE (*, '( '' x ='', f6.0, '' y ='', f6.0, '' km'')') x, y
-   
+ 
    ENDIF
-   
+ 
 ! Iteration has converged or tel >= 300
 
 RETURN

@@ -28,7 +28,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-90
 ! DESCRIPTION        : Checks name of parameter and extracts a value for that parameter, or sets a default.
@@ -300,7 +300,7 @@ LOGICAL                                          :: stillblank                 !
 get_key_string = checkparname(parname,string,error)
 IF (error%haserror) GOTO 9999
 !
-! Move up until we reach commentary. Remove the commentary. This is either the first character a a blank followed by a !
+! Move up until we reach commentary. Remove the commentary. This is either the first character a a blank followed by a
 !
 length = LEN_TRIM(string)
 IF (length.GT.0) THEN

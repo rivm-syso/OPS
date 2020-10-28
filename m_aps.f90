@@ -32,7 +32,7 @@
 ! BRANCH - SEQUENCE    : %B% - %S%
 ! DATE - TIME          : %E% - %U%
 ! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support   
+! AUTHOR               : OPS-support 
 ! FIRM/INSTITUTE       : RIVM/LLO/IS
 ! LANGUAGE             : FORTRAN(HP-F90)
 ! DESCRIPTION          : Handling of aps grid data.
@@ -191,7 +191,7 @@ sccsida = '%W%:%E%'//char(0)
 ! Open aps file and read header.
 !
 nfield = 1
-CALL read_aps_header(88, filename, gridtitle, floatgrid%gridheader, error)  
+CALL read_aps_header(88, filename, gridtitle, floatgrid%gridheader, error)
 IF (error%haserror) GOTO 3000
 
 ! Allocate help grid:
@@ -243,7 +243,7 @@ ENDIF
 DO n = 1,nfield
 
   READ (88, IOSTAT=ierr) teststring
-!  CALL read_aps_header(88, filename, gridtitle, floatgrid%gridheader, error)  
+!  CALL read_aps_header(88, filename, gridtitle, floatgrid%gridheader, error)
 !
 ! Read float grid values.
 !
@@ -318,7 +318,7 @@ PARAMETER         (ROUTINENAAM = 'read_aps_integer')
 !
 ! Open aps file and read header.
 !
-CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error)  
+CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error)
 nrcol = intgrid%gridheader%nrcol
 nrrow = intgrid%gridheader%nrrow
 ALLOCATE(helpgrid(nrcol,nrrow))
@@ -353,7 +353,7 @@ ENDIF
 DO n = 1,nfield
 
   READ (88, IOSTAT=ierr) j
-!  CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error)   
+!  CALL read_aps_header(88, filename, gridtitle, intgrid%gridheader, error) 
 !
 ! Read integer grid values.
 !

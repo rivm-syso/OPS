@@ -103,7 +103,7 @@ IF (cbuf(1:1) .EQ. "!") THEN
      call SetError('Error while reading BRN-VERSION version_number in first line of header', error)
      goto 9999
   endif
-  
+
   ! Read rest of header lines:
   DO WHILE (.NOT. end_of_info)
     CALL sysread(fu_bron, cbuf, end_of_info, error)
@@ -233,7 +233,7 @@ IF (.NOT. end_of_file) THEN
                                            building%length, building%width, building%height, building%orientation
                                            
              ! Building orientation must be between 0 and 180 degrees:
-             if (.not. is_missing (building%orientation)) building%orientation = modulo(building%orientation, 180.0)  
+             if (.not. is_missing (building%orientation)) building%orientation = modulo(building%orientation, 180.0)
              
              ! Set flag if one building is present:
              if (.not. building_present1) building_present1 = (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation))) 
@@ -256,7 +256,7 @@ IF (.NOT. end_of_file) THEN
        ENDIF
        ! write(*,*) 'ops_read_source VsDs_opt = ',VsDs_opt
        ! write(*,'(a,i6,10(1x,e12.5),4(1x,i4),1x,l6)') 'ops_read_source a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack_C, ibtg, ibroncat, iland, idgr,emis_horizontal
-       ! write(*,*) 'ops_read_source a, nrec, ierr = ',nrec,ierr  
+       ! write(*,*) 'ops_read_source a, nrec, ierr = ',nrec,ierr
        
        IF (ierr == 0) THEN
         
@@ -745,7 +745,7 @@ else
   if (is_missing(qww)) then
       CALL SetError('Heat content (Qw) must be specified', error)
       CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
+      CALL ErrorCall(ROUTINENAAM, error)
    endif
 endif
 
@@ -761,7 +761,7 @@ if (.not. is_missing(V_stack)) then
       CALL SetError('If exit velocity (V_stack) is zero, then heat content (Qw) must be zero also.','Use V_stack = -999. if you only want to specify Qw.', error)
       CALL ErrorParam('V_stack', V_stack, error)
       CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
+      CALL ErrorCall(ROUTINENAAM, error)
    endif
 endif
 
@@ -804,14 +804,14 @@ if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_m
 
    ! Set width/length ratio:
    if (building%length > 0.0) then
-      wlRatio = building%width/building%length  
+      wlRatio = building%width/building%length
    else
       ! if length = 0 -> buildingType = 0 (see below)
       wlRatio = HUGE(1.0)
    endif
    
    ! If values outside limits -> warning   
-   ! limits based on data for 2500 animal houses in 2018  
+   ! limits based on data for 2500 animal houses in 2018
    ! Note that it is already checked that all building dimensions (length, width, height) have been specified
 
    ! Open log file if not already open:   
@@ -822,7 +822,7 @@ if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_m
    if (is_missing(qww)) then
       CALL SetError('If building is present, then heat content (Qw) must be zero (cannot be missing).', error)
       CALL ErrorParam('Qw', qww, error)
-      goto 9999  
+      goto 9999
    endif
    
    ! Warnings if value is outside table boundaries:

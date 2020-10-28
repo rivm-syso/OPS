@@ -115,9 +115,9 @@ INTEGER*4                                        :: usdv
 INTEGER*4                                        :: iseiz                       
 INTEGER*4                                        :: icm                         
 INTEGER*4                                        :: nsubsec                    ! number of sub-secondary species                       
-INTEGER*4                                        :: nrrcp  
-INTEGER*4                                        :: nrcol  
-INTEGER*4                                        :: nrrow  
+INTEGER*4                                        :: nrrcp
+INTEGER*4                                        :: nrcol
+INTEGER*4                                        :: nrrow
 INTEGER*4                                        :: intpol                      
 INTEGER*4                                        :: kdeppar                     
 INTEGER*4                                        :: knatdeppar                  
@@ -190,7 +190,7 @@ type(Tbuilding)                                  :: bbuilding(LSBUF)          ! 
 LOGICAL                                          :: building_present1         ! at least one building is present in the source file   
 REAL*4                                           :: emis(6,NLANDMAX) 
 REAL*4                                           :: conc_cf
-REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
+REAL*4                                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 REAL*4                                           :: ar                          
 REAL*4                                           :: rno2nox                     
 REAL*4                                           :: uurtot                      
@@ -198,7 +198,7 @@ REAL*4                                           :: zf
 REAL*4                                           :: trafst(NTRAJ)               
 REAL*4                                           :: bqrv(LSBUF)                 
 REAL*4                                           :: bqtr(LSBUF)                 
-REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
+REAL*4                                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
 REAL*4                                           :: rainreg(NMETREG)            
 REAL*4                                           :: z0_metreg(NMETREG)    ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]           
 REAL*4                                           :: xreg(NMETREG)               
@@ -208,7 +208,7 @@ REAL*4                                           :: ecvl(NSTAB, NTRAJ,2*MAXDISTR
 REAL*4                                           :: dverl(NHRBLOCKS,MAXDISTR)   
 REAL*4                                           :: usdverl(NHRBLOCKS,MAXDISTR) 
 REAL*4                                           :: pmd(NPARTCLASS,MAXDISTR)    
-REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)  
+REAL*4                                           :: uspmd(NPARTCLASS,MAXDISTR)
 REAL*4                                           :: amol1                      
 REAL*4                                           :: emtrend                    
 REAL*4                                           :: grid                       
@@ -585,10 +585,10 @@ ENDIF
 ! start loop over source data blocks of length LSBUF (until end-of-file of scratch file with source data)
 !
 DO WHILE (.NOT. eof)
-  !
+
   ! read source characteristics from scratch file and fill into buffer arrays (source data are read in
   ! blocks of length LSBUF (LSBUF=4000))
-  !
+
   CALL ops_bron_rek (emtrend, buildingEffect, landmax, emis, nsbuf, bnr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr,        &
                   &  bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
 
@@ -596,13 +596,13 @@ DO WHILE (.NOT. eof)
 
   ! Adjust number of processed sources
   nbron = nbron + nsbuf
-  !
+
   ! Initialise i1
-  !
+
   i1(:NTRAJ-1) = 0.
-  !
-  ! Loop over all receptor points  ++++++++++++++++++++++++  
-  !
+
+  ! Loop over all receptor points  ++++++++++++++++++++++++
+
   ndone = 0
   DO ircp = 1, nrrcp
 !
@@ -612,23 +612,23 @@ DO WHILE (.NOT. eof)
                       &  spgrid, xm(ircp), ym(ircp), lugrid, domlu, perc, lu_rcp_per_user_all, lu_rcp_dom_all, f_z0user, z0_rcp_all, &
                       &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
     IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-    !
+
     ! Loop over nsbuf sources in the buffer ++++++++++++++++++++++++
-    !
+
     DO mmm = 1, nsbuf
-      !
+
       ! compute source characteristics
-      !
+
       CALL ops_src_char (f_z0user, z0_user, bx(mmm), by(mmm), z0nlgrid, z0eurgrid, z0_src, error)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-      !
+
       ! compute trajectory characteristics
-      !
+
       CALL ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, nrrcp,  xm(ircp), ym(ircp), bx(mmm), by(mmm),               &
                       &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu,                & 
                       &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra, error)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
-      !
+
       ! compute concentrations and depositions
      
       CALL ops_reken(idep, isec, icm, gasv, intpol, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf,     &
@@ -646,9 +646,9 @@ DO WHILE (.NOT. eof)
       IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
 
     ENDDO   ! end loop over sources in buffer
-    !
+
     ! Write progress (update each 2%)
-    !
+
     ndone = ndone+1
     aind= 100.*FLOAT(nbron-nsbuf)/FLOAT(numbron)+ (100.*FLOAT(nsbuf)/FLOAT(numbron))* (FLOAT(ndone)/FLOAT(nrrcp))
     CALL ops_write_progress(aind, '(F5.1)', 5, memdone)
@@ -796,7 +796,7 @@ ENDDO ! End loop over classes for which to produce output fields
 ! Write additional data to print file
 !
 CALL ops_print_info (project, gasv, isec, intpol, spgrid, z0_rcp, namco, nbron, bnr, bx, by, bsterkte, bqrv, bqtr, bwarmte,     &
-    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &  
+    &  bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,                 &
     &  f_z0user, landmax, error)
 
 IF (error%haserror) GOTO 4000

@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Generate coordinates of receptor points.
@@ -54,21 +54,21 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_gen_rcp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                      
-LOGICAL,   INTENT(IN)                            :: igrens                      
-TYPE (TApsGridReal), INTENT(IN)                  :: masker                      
-REAL*4,    INTENT(IN)                            :: grid                        
-INTEGER*4, INTENT(IN)                            :: nrcol                       
-INTEGER*4, INTENT(IN)                            :: nrrow                       
+INTEGER*4, INTENT(IN)                            :: spgrid                    
+LOGICAL,   INTENT(IN)                            :: igrens                    
+TYPE (TApsGridReal), INTENT(IN)                  :: masker                    
+REAL*4,    INTENT(IN)                            :: grid                      
+INTEGER*4, INTENT(IN)                            :: nrcol                     
+INTEGER*4, INTENT(IN)                            :: nrrow                     
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(IN)                            :: xorg                        
-REAL*4,    INTENT(IN)                            :: yorg                        
-LOGICAL,   INTENT(IN)                            :: varz                      
+REAL*4,    INTENT(IN)                            :: xorg                      
+REAL*4,    INTENT(IN)                            :: yorg                      
+LOGICAL,   INTENT(IN)                            :: varz                    
 LOGICAL,   INTENT(IN)                            :: perc
-LOGICAL,   INTENT(IN)                            :: domlu                      
+LOGICAL,   INTENT(IN)                            :: domlu                    
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)              
+INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)            
 INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)               ! 
 REAL*4,    INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates
 REAL*4,    INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates
@@ -80,7 +80,7 @@ CHARACTER*(*), INTENT(OUT)                       :: namrcp(nrrcp)              !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: m                          ! column index                           
+INTEGER*4                                        :: m                          ! column index                         
 INTEGER*4                                        :: n                          ! row index
 INTEGER*4                                        :: i                          ! index of receptor point
 INTEGER*4                                        :: h                          ! number of header lines
@@ -90,7 +90,7 @@ INTEGER*4                                        :: lu                         !
 INTEGER*4                                        :: lu_dom                     ! landuse
 INTEGER*4                                        :: nwords                     ! number of words in string
 INTEGER*4                                        :: check_nwords               ! number of words in string
-INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)                          
+INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)                        
 INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) 
 REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file) 
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
@@ -179,13 +179,13 @@ ELSE
   ! Inirialise number of data lines (i) and number of header lines (h):
   i = 0
   h = 0
-  
+
   ! Loop over lines until an valid data line (ierr = 0) has been detected:
   DO WHILE (ierr.GT.0)
     z0=0
-    lu_dom=0    
+    lu_dom=0  
     check_nwords = 0
-    
+  
     ! Read line:
     READ (fu_recep,'(a)',IOSTAT=ierr) string
 
@@ -194,7 +194,7 @@ ELSE
     DO WHILE (len_trim(string) .ne. 1)
       DO WHILE (string(1:1) .ne. char(32) .and. string(1:1) .ne. char(9))
         tmpstring=string(2:len_trim(string))
-        string=tmpstring  
+        string=tmpstring
         IF (len_trim(string) .eq. 0) goto 323
       ENDDO 
       DO WHILE (string(1:1) .eq. char(32) .or. string(1:1) .eq. char(9))
@@ -202,9 +202,9 @@ ELSE
         string=tmpstring
       IF (len_trim(string) .eq. 0) goto 323
       ENDDO
-      check_nwords = check_nwords + 1   
+      check_nwords = check_nwords + 1 
     ENDDO
-    
+  
 323 BACKSPACE(fu_recep)
 
     ! Check number of words and check whether we have a valid line with data:
@@ -218,14 +218,14 @@ ELSE
       ELSEIF (nwords .EQ. 16) THEN
         READ (fu_recep,*,IOSTAT=ierr) p,namrp,ix,iy,zrcp,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
       ENDIF
-      
+    
 !     Update counter for number of data lines (i) and number of header lines (h):
       IF (ierr == 0) THEN
         i = i + 1
       ELSE
         h = h + 1
       ENDIF
-      
+    
     ELSE
       ! number of words in header line or first data line must be correct; if not -> error:
       CALL SetError('Error reading receptor file', error)
@@ -234,7 +234,7 @@ ELSE
       CALL ErrorParam('nwords read from rcp-file should be:', nwords, error)
       GOTO 9999
     ENDIF
-    
+  
     ! Check data on data line: 
     IF (ierr == 0) THEN
        IF (z0 > 0 .and. (nwords == 15 .or. nwords == 16) .and.  &
@@ -247,7 +247,7 @@ ELSE
        ENDIF
     ENDIF
   ENDDO
-  
+
 ! Loop until end-of-file and read rest of data lines:
   DO WHILE (ierr.EQ.0)
 !
@@ -282,7 +282,7 @@ ELSE
       DO WHILE (len_trim(string) .ne. 1)
         DO WHILE (string(1:1) .ne. char(32) .and. string(1:1) .ne. char(9))
           tmpstring=string(2:len_trim(string))
-          string=tmpstring  
+          string=tmpstring
           IF (len_trim(string) .eq. 0) goto 321
         ENDDO 
         DO WHILE (string(1:1) .eq. char(32) .or. string(1:1) .eq. char(9))
@@ -290,7 +290,7 @@ ELSE
           string=tmpstring
           IF (len_trim(string) .eq. 0) goto 321
         ENDDO
-        check_nwords = check_nwords + 1   
+        check_nwords = check_nwords + 1 
       ENDDO
 321   BACKSPACE(fu_recep)
 
@@ -337,7 +337,7 @@ ELSE
         x_rcp = xorg + FLOAT(m - 1)*grid
         y_rcp = yorg - FLOAT(n - 1)*grid
         DO j = 1, nrrcp
-          IF (x_rcp == xm(j) .and. y_rcp == ym(j) ) THEN  
+          IF (x_rcp == xm(j) .and. y_rcp == ym(j) ) THEN
              i = i + 1
              goto 100
           ENDIF

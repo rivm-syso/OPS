@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute concentration, taking into account source depletion factors for dry deposition,
@@ -166,7 +166,7 @@ dnatsec = 0.
 ! source depletion factor for wet deposition/chemical conversion (cch) and gradient factor (1-cgt).
 !
 ! grof = 0 -> cdn*cch*(1. - cgt)*(1. - (1. - cq2)/(1. + grof)) = cdn*cch*(1. - cgt)*cq2
-! grof = 1 -> cdn*cch*(1. - cgt)*(1. - (1. - cq2)/(1. + grof)) = cdn*cch*(1. - cgt)*(1 + cq2)/2    
+! grof = 1 -> cdn*cch*(1. - cgt)*(1. - (1. - cq2)/(1. + grof)) = cdn*cch*(1. - cgt)*(1 + cq2)/2  
 !             (1+cq2)/2 = 0.5 for cq2 = 0 (all depleted)
 !             (1+cq2)/2 = 1   for cq2 = 1 (nothing depleted), and linear for 0 < cq2 < 1 
 !             meaning that the concentration is higher due to sedimentation 
@@ -186,7 +186,7 @@ ELSE
 ENDIF
 !
 ! Compute drypri  = dry deposition mass flux [ug/m2/h] of primary component = -vd*concentration
-! and     sdrypri = summed dry deposition [ug/m2/h] of primary component (weighed with fraction cell inside NL)  
+! and     sdrypri = summed dry deposition [ug/m2/h] of primary component (weighed with fraction cell inside NL)
 !
 ! grof = 0 -> (1. - .5*grof) = 1 
 ! grof = 1 -> (1. - .5*grof) = 1/2 
@@ -252,7 +252,7 @@ qpri_depl = qbpri*cdn*cq2*cch
 ! Compute dnatpri = wet deposition flux [ug/m2/h] of primary component 
 ! and     snatpri = summed wet deposition of primary component (weighed with fraction cell inside NL)
 !         vnatpri: [%/h] wet deposition loss rate for primary components
-!         qpri_depl     : [g/s]  
+!         qpri_depl     : [g/s]
 !         dn            : [s/m2 ug/g]
 !         qpri_depl*dn  : [ug/m2] deposited mass per area, during time step dt; qpri_depl*dn = Q(x)*dt*percvk*1e6/A
 ! 
@@ -289,7 +289,7 @@ IF (isec) THEN
 !     sdrysec   : summed dry deposition flux                    [ug/m2/h]
 !     snatsec   : summed wet deposition flux                    [ug/m2/h]
 !     Summed fluxed (drysec and snatsec) are weighed with the fraction of cell inside NL
-!                   
+!                 
       vg_sec_rcp = 1./(rc_sec_rcp + ra50_rcp + rb_rcp)
       drysec     = consec*percvk*vg_sec_rcp*3600*onder
       sdrysec    = sdrysec + drysec*frac

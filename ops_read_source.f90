@@ -53,12 +53,12 @@ USE m_ops_building
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                 
+CHARACTER*512                                    :: ROUTINENAAM               
 PARAMETER    (ROUTINENAAM = 'ops_read_source')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! component nummer
-LOGICAL,   INTENT(IN)                            :: gasv                       ! component is gasuous       
+LOGICAL,   INTENT(IN)                            :: gasv                       ! component is gasuous     
 INTEGER*4, INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
 INTEGER*4, INTENT(IN)                            :: catsel(*)                  ! selected emission categories
 INTEGER*4, INTENT(IN)                            :: nlandsel                   ! number of selected emission countries
@@ -72,7 +72,7 @@ LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)    !
 ! SUBROUTINE ARGUMENTS - OUTPUT
 ! Note: emission parameters are written to scratch file and are not part of the output arguments
 INTEGER*4, INTENT(OUT)                           :: numbron                    ! number of (selected) sources
-LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file   
+LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file 
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
@@ -90,7 +90,7 @@ REAL*4                                           :: qww                        !
 REAL*4                                           :: hbron                      ! emission height read from emission record [m] 
 REAL*4                                           :: diameter                   ! diameter area source read from emission record (NOT stack diameter) [m] 
 REAL*4                                           :: szopp                      ! deviation emission height for area source = initial sigma_z [m] 
-REAL*4                                           :: x                          ! x coordinate of source location (RDM [m])                 
+REAL*4                                           :: x                          ! x coordinate of source location (RDM [m])               
 REAL*4                                           :: y                          ! y coordinate of source location (RDM [m])
 LOGICAL                                          :: country_selected           ! emission country has been selected
 LOGICAL                                          :: category_selected          ! emission category has been selected
@@ -114,12 +114,12 @@ building_present1 = .FALSE.
 ! BRN-VERSION 0         -> fixed format
 ! BRN-VERSION 1         -> free format
 ! BRN-VERSION 2         -> free format, include stack parameters D_stack, V_stack, Ts_stack.
-! BRN-VERSION 3         -> free format, add parameter building%type with respect to BRN-VERSION 2 - NOT SUPPORTED ANYMORE !
+! BRN-VERSION 3         -> free format, add parameter building%type with respect to BRN-VERSION 2 - NOT SUPPORTED ANYMORE
 ! BRN-VERSION 4         -> free format, add parameters building%length, building%width, building%height, building%orientation with respect to BRN-VERSION 2
 call ops_emis_read_header(fu_bron, brn_version, VsDs_opt, nrec, numbron, error)
 IF (error%haserror) GOTO 9999
 
-! Read source file until end of file:  
+! Read source file until end of file:
 DO WHILE (.NOT. end_of_file)
 
    ! Do not check particle size distribution for gaseous component:
@@ -129,15 +129,15 @@ DO WHILE (.NOT. end_of_file)
    call ops_emis_read_annual1(fu_bron, icm, check_psd, presentcode, brn_version, VsDs_opt, nrec, numbron, building_present1, &
                mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, ibroncat, iland, idgr, end_of_file, error)
    IF (error%haserror) GOTO 9999
-  
+
    IF (.NOT. end_of_file) THEN
 
       ! Copy valid (emission > 0) and selected sources to scratch file:
       IF (qob .GT. EPS_DELTA) THEN
-      
+    
          country_selected  = any((landsel(1:nlandsel) .eq. 0) .OR. (iland    .eq. landsel(1:nlandsel)))
          category_selected = any((catsel(1:ncatsel)   .eq. 0) .OR. (ibroncat .eq. catsel(1:ncatsel)))
-         
+       
          IF (country_selected .AND. category_selected) THEN
             WRITE (fu_scratch, 50) mm,x,y,qob,qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
             numbron = numbron+1

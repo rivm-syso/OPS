@@ -55,11 +55,11 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_get_arg')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: diag                       
-LOGICAL,   INTENT(INOUT)                         :: subbron                    
-LOGICAL,   INTENT(INOUT)                         :: domlu                    
-LOGICAL,   INTENT(INOUT)                         :: varz                    
-LOGICAL,   INTENT(INOUT)                         :: perc                    
+INTEGER*4, INTENT(OUT)                           :: diag                     
+LOGICAL,   INTENT(INOUT)                         :: subbron                  
+LOGICAL,   INTENT(INOUT)                         :: domlu                  
+LOGICAL,   INTENT(INOUT)                         :: varz                  
+LOGICAL,   INTENT(INOUT)                         :: perc                  
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES

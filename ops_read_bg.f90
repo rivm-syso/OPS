@@ -14,7 +14,6 @@
 ! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 ! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
 !           Laboratory for Air Research (RIVM/LLO)
@@ -28,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Handling of background concentrations.
@@ -56,7 +55,7 @@ IMPLICIT NONE
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! substance index
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                     
 INTEGER*4, INTENT(IN)                            :: year                       ! year under consideration
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -199,8 +198,8 @@ IF (icm /= 1) THEN
     ENDDO
   ENDDO
   ! Now, no2bggrid contains the NO2-concentration
-  
-!  
+
+!
 ! Now the correction for the actual year (factor tf_no2) is done.
 !
   factor = tf_no2(ji)
@@ -238,12 +237,12 @@ if (iopt_vchem .eq. 1) then
    CALL read_bg_file(trim(fnam),'(100/dt) * mass converted chemistry', vchem2%mass_conv_dtfac_grid, error)
    if (error%haserror) GOTO 9999
  
-   call SetAverage(grid = vchem2%mass_conv_dtfac_grid)  
+   call SetAverage(grid = vchem2%mass_conv_dtfac_grid)
  
-   ! write(*,*) 'average of mass_prec_grid: ', vchem2%mass_prec_grid%average            
+   ! write(*,*) 'average of mass_prec_grid: ', vchem2%mass_prec_grid%average          
    ! write(*,*) 'average of mass_conv_dtfac_grid: ', vchem2%mass_conv_dtfac_grid%average
    ! write(*,*) 'average conversion rate [%/h]: ', vchem2%mass_conv_dtfac_grid%average/vchem2%mass_prec_grid%average 
-   
+ 
    ! Read distribution maps for NO3_total: HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total;
    ! from file 'no3_distr_yyyy.ops'; yyyy = year (e.g. 2019)
    if (icm .eq. 2) then
@@ -256,10 +255,10 @@ if (iopt_vchem .eq. 1) then
       if (error%haserror) goto 9999
 
       ! Read fractions for sub-secondary species:
-      ! write(*,*) 'reading fractions NO3 from file ',trim(apsfile)  
+      ! write(*,*) 'reading fractions NO3 from file ',trim(apsfile)
       CALL read_bg_file(trim(fnam),'fractions of NO3' , f_subsec_grid, error)
       if (error%haserror) GOTO 9999
-      
+    
       ! Get number of fields in f_subsec_grid; should be equal to nsubsec-1 
       ! (3 fields HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total; 4 sub species NO3_aerosol, HNO3, NO3_C, NO3_F)
       nfield = size(f_subsec_grid%value,3)
@@ -291,8 +290,8 @@ if (iopt_vchem .eq. 1) then
    !  qq%value = vchem2%mass_conv_dtfac_grid(1)%value/vchem2%mass_prec_grid(1)%value
    !  write(*,*) 'grid for conversion factor'
    !  open(unit = 34, file = 'cvr_tst1.aps')
-   !  !
-   !  !
+   !
+   !
    !  !  character*(*)     coord_sys       ! coordinate system, either 'RDM' or 'lon-lat'
    !  !  integer           lu
    !  !  real              xorg, yorg
@@ -305,7 +304,7 @@ if (iopt_vchem .eq. 1) then
    !  !  character*10      modversie
    !  !  character*12      kname
    !  !  character*(*)     namegr          ! name of grid file (used for error message)
-   !  !
+   !
    !  !  character*12      quantity
    !  !subroutine saveaps(coord_sys,lu,namegr,xorg,yorg,gridx,gridy,matx,maty,cpri,namco,unit_conc,modversie,kname,quantity,ijg,img,idg,iug)
    !  call saveaps('RDM',34,'qq0',qq%gridheader%xorgl,qq%gridheader%yorgl,qq%gridheader%grixl,qq%gridheader%griyl,qq%gridheader%nrcol,qq%gridheader%nrrow,qq%value(:,:,1),'conv_rate ','%/h     ','OPS_tst   ','qq1         ','qq2         ',10,0,0,0)
@@ -321,7 +320,7 @@ if (iopt_vchem .eq. 1) then
    !  !!    REAL*4                                        :: griyl                      ! vertical size of grid cell [km]
    !  !! END TYPE TGridHeader
    ! ! END TEST write to APS file --------------------------------------------------------------------------------------------
-   
+ 
    IF (error%haserror) GOTO 9999
 endif
 

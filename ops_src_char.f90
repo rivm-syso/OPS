@@ -62,7 +62,7 @@ TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: z0_src                     ! roughness length at source; from z0-map [m]
-TYPE (TError)                                    :: error  
+TYPE (TError)                                    :: error
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

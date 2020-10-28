@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Prepare output process (print/plot)
@@ -47,7 +47,7 @@ IMPLICIT NONE
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                     
 REAL*4,    INTENT(IN)                            :: conc_cf                    ! 
 REAL*4,    INTENT(IN)                            :: rhno3_rcp(nrrcp)           ! 
 REAL*4,    INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]

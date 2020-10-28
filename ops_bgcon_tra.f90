@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : This routine reads for a given location the background conc. and 
@@ -84,7 +84,7 @@ DO i=0,ns
 !
   x=xr+(xb-xr)/ns*i
   y=yr+(yb-yr)/ns*i
-  
+
 !
 ! Calculate background concentration contribution at this point and add to total
 !

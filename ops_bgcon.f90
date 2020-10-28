@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Returns grid value at a specific location. 
@@ -81,7 +81,7 @@ else
      bgcon = bgdata%average(1)
    ENDIF
 endif
-! write(*,'(a,3(1x,e12.5),L3,1x,e12.5)') 'ops_bgcon: ',x,y,bgcon,iscell,bgdata%average  
+! write(*,'(a,3(1x,e12.5),L3,1x,e12.5)') 'ops_bgcon: ',x,y,bgcon,iscell,bgdata%average
 
 RETURN
 END SUBROUTINE ops_bgcon

@@ -72,7 +72,7 @@ INTEGER*4                                        :: landuse(NLU+1)             !
                                                                                ! a default land use class = 1 (grass) is taken.
 INTEGER*4                                        :: ludom                      ! maximum of dominant land use classes over intermediate points
 INTEGER*4, DIMENSION(NLU)                        :: lu_count                   ! total number of intermediate points that have a certain land use class 
-                                                                               
+                                                                             
 INTEGER*4                                        :: ns                         ! number of sub sectors between intermediate points
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -127,7 +127,7 @@ ENDIF
 IF (sum(lu_tra_per_sum(1:NLU)) .le. 0) THEN
   lu_tra_per_sum=0
   lu_tra_per_sum(1)=100
-ENDIF        
+ENDIF      
 
 !
 !  Compute percentages per land use class

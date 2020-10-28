@@ -83,7 +83,7 @@ INTEGER*4, INTENT(IN)                            :: intpol                     !
                                                                                ! 1 use meteo parameters from user specified meteo region
                                                                                ! 2? use meteo parameters from user specified meteo file
 REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate, independent of light [%/h]
-INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                           
+INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                         
 REAL*4,    INTENT(IN)                            :: vchemv                     ! chemical conversion rate, dependent on light [%/h]
 INTEGER*4, INTENT(IN)                            :: dv                         ! maximum code diurnal emission variation dverl
 REAL*4,    INTENT(IN)                            :: amol1                      ! molar mass primary component [g/mol]
@@ -112,7 +112,7 @@ REAL*4,    INTENT(IN)                            :: croutpri                   !
 REAL*4,    INTENT(IN)                            :: rcno                       ! surface resistance Rc for NO [s/m]
 REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio [HNO2]/[NOx] 
 REAL*4,    INTENT(IN)                            :: rchno3                     ! surface resistance Rc for HNO3 [s/m] 
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points  
+INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
 INTEGER*4, INTENT(IN)                            :: ircp                       ! index of receptorpoint
 REAL*4,    INTENT(IN)                            :: gxm                        ! x-coordinate of receptors (lon-lat) [degrees]
 REAL*4,    INTENT(IN)                            :: gym                        ! y-coordinate of receptors (lon-lat) [degrees]
@@ -120,8 +120,8 @@ REAL*4,    INTENT(IN)                            :: xm                         !
 REAL*4,    INTENT(IN)                            :: ym                         ! y-coordinate of receptor points (RDM)
 REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
 REAL*4,    INTENT(IN)                            :: frac                       ! fraction of grid cell inside NL 
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]  
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]  																																	   
+REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]
+REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]  																																	 
 REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3]_total at receptor points, [NO3]_total = [HNO3] + [NO3_aerosol] 
 REAL*4,    INTENT(IN)                            :: bqrv                       ! source strength of space heating source (rv << "ruimteverwarming" = space heating) [g/s]
 REAL*4,    INTENT(IN)                            :: bqtr                       ! source strength of traffic source [g/s]
@@ -135,7 +135,7 @@ REAL*4,    INTENT(IN)                            :: bsigmaz                    !
                                                                                ! also used for initial sigma_z (vertical dispersion) of emission (e.g. traffic, building influence) [m] 
 REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
 REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]          
 LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 type(TbuildingEffect), INTENT(IN)                :: buildingEffect             ! structure containing building effect tables
@@ -154,7 +154,7 @@ REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               !
 REAL*4,    INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
-type(Tvchem), INTENT(INOUT)                      :: vchem2                     !                                                                                  
+type(Tvchem), INTENT(INOUT)                      :: vchem2                     !                                                                                
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
 REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions 
 REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions 
@@ -164,7 +164,7 @@ INTEGER*4, INTENT(IN)                            :: spgrid                     !
                                                                                ! spgrid = 2: receptors at specific locations, read from file
                                                                                ! spgrid = 3: receptors at user specific regular grid, not necessarily rectangular
 REAL*4,    INTENT(IN)                            :: grid                       ! grid resolution [m] 
-LOGICAL,   INTENT(IN)                            :: subbron                    ! whether to create "subbrons" (sub-sources inside a area source) and "subareas" (sub receptors inside a grid cell) or not  
+LOGICAL,   INTENT(IN)                            :: subbron                    ! whether to create "subbrons" (sub-sources inside a area source) and "subareas" (sub receptors inside a grid cell) or not
 REAL*4,    INTENT(IN)                            :: uurtot                     ! total number of hours in meteo statistics period ("uur"= hour) [hours]
 REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud (rain-out) scavenging ratio for secondary component
 
@@ -219,10 +219,10 @@ REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK
                                                                                !        27. surface resistance Rc of NO3 aerosol [s/m]
 REAL*4,    INTENT(INOUT)                         :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
-       
+     
 ! SUBROUTINE ARGUMENTS - OUTPUT       (OUT)
 REAL*4,    INTENT(OUT)                           :: precip                     ! precipitation amount [mm]
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud (rain-out) scavenging ratio for primary component [-]  
+REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud (rain-out) scavenging ratio for primary component [-]
 REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               ! dispersion coefficients for vertical dispersion; sigma_z = dispg*x^disph [-]
 
 ! LOCAL VARIABLES
@@ -271,7 +271,7 @@ REAL*4                                           :: szopp                      !
 REAL*4                                           :: D_stack                    ! diameter of the stack [m]
 REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
 REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]
-LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission  
+LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
 REAL*4                                           :: buildingFact               ! The interpolated building effect from the buildingTable
 REAL*4                                           :: qrv                        ! 
@@ -402,7 +402,7 @@ sccsida = '%W%:%E%'//char(0)
 !   concentration gradients of the source are relatively small and no sub receptors are needed. Note that in this case,
 !   we also subdivide the area source into several sub-area sources.
 !   Also check the command line argument subbron.
-!      
+!    
     inc_rcp = spgrid /= 2 .AND. diam /= grid 
     IF (inc_rcp .AND. subbron) THEN
 !
@@ -410,7 +410,7 @@ sccsida = '%W%:%E%'//char(0)
 !
       dx = xm - bx
       dy = ym - by
-!     
+!   
 !    If source and receptor are close, we have strong gradients;
 !    low source -> high concentration gradients -> many sub receptors 
 !    small diameter -> point source -> high concentration gradients -> many sub receptors 
@@ -429,7 +429,7 @@ sccsida = '%W%:%E%'//char(0)
         nk = grid/(sqrt(dx**2+dy**2) + diam + bhoogte*10)*2
         nk = min0(nk,4)                                                        ! This (4) is an arbitrary limit
       ENDIF
-!      
+!    
 !     Compute nr = number of sub receptors within a grid cell;
 !     maximal (128*2+1)**2 = 66049 sub receptors.
 !
@@ -477,7 +477,7 @@ sccsida = '%W%:%E%'//char(0)
           ELSE
             kk = int(diam/(sqrt(dxsub**2+dysub**2) + 0.1)*2)
           ENDIF
-!      
+!    
 !         Compute nb = number of sub area sources;
 !         maximal (32*2+1)**2 = 4225 sub receptors.
 !
@@ -514,14 +514,14 @@ sccsida = '%W%:%E%'//char(0)
               CALL ops_par_chem(icm, iopt_vchem, isek, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, vchem2, disx, diameter, vchemnh3, rhno3,       &
                              &  rrno2nox, rations)
             ENDIF
-            if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3, rrno2nox, rations :',ircp,vchemnh3, rhno3, rrno2nox, rations    
+            if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3, rrno2nox, rations :',ircp,vchemnh3, rhno3, rrno2nox, rations  
 
 
 !
 !++++++++++ Loop over stability classes ++++++++++++++++++++++++
 !
-            DO istab = 1, NSTAB  
-        
+            DO istab = 1, NSTAB
+      
               ! Compute source radius
               radius = diameter/2.
 !
@@ -576,14 +576,14 @@ sccsida = '%W%:%E%'//char(0)
 !                 Continue if source strength > 0
 !
                   IF (qbron > (0. + EPS_DELTA)) THEN
-                    
+                  
 !                   Store parameters xl, onder, rb, ra50 and ra4 for further use
                     xlm    = xl
                     onderm = onder
                     rbm    = rb                                                        ! 960215
                     ra50m  = ra50                                                      ! 960215
                     ra4m   = ra4                                                       ! 960215
-         
+       
 !
 !++++++++++++++++   Loop over particle classes ++++++++++++++++++++++++
 !                   For a gaseous component, there is only one such class.
@@ -616,11 +616,11 @@ sccsida = '%W%:%E%'//char(0)
                       ENDIF
 !
 !                     Continue if source strength of this particle class > 0
-!                      
+!                    
                       IF (ABS(qbpri) .GT. EPS_DELTA) THEN
 !
 !                       Compute initial concentrations due to transport and dispersion; no removal processes yet
-!                        
+!                      
                         CALL ops_conc_ini(gasv, vw10, htt, pcoef, disxx, kdeel, qbpri, z0_src, szopp, rond, uster_src, ol_src,  &
                                        &  istab, iwd, qww, hbron, dispg, radius, xl, onder,                                     &
                                        &  htot, grof, c, sigz, ueff, virty, ccc, error)
@@ -639,7 +639,7 @@ sccsida = '%W%:%E%'//char(0)
                                            &  ra4_rcp, ra50_rcp, raz_rcp, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc,    &
                                            &  ra4src, rb_src, ra50src, ra4tra, ra50tra, rb_tra, rclocal, nh3bg_rcp, nh3bgtra,   &
                                            &  so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
-        
+      
                           cratio = 1.
                           CALL ops_depoparexp(kdeel, c, ol_src, qbpri, ra4_rcp, ra50_rcp, raz_rcp, rb_rcp, sigz, ueff,          &
                                            &  uster_src, z0_src, virty, gasv, itra, rb, ra4, istab, grof, ra50, xvghbr, xvglbr, &
@@ -649,7 +649,7 @@ sccsida = '%W%:%E%'//char(0)
                                            &  vg50trans, rkc, ri, vnatpri, cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src,& 
                                            &  z0_tra, rctra_0, rcsrc, ra4src, rb_src, ra50src, ra4tra, ra50tra, rb_tra, vgpart, &
                                            &  xm, ym, zm, bx, by, xg)
-        
+      
                           IF (.NOT.gasv) rclocal = rc_rcp
                           CALL ops_conc_rek(ueff, qbpri, isec, rcsec, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp,         &
                                          &  ra4_rcp, ra50_rcp, rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder,   &
@@ -659,10 +659,10 @@ sccsida = '%W%:%E%'//char(0)
                                          &  vtel(kdeel), snatpri(kdeel), somvnpri(kdeel), telvnpri(kdeel), ddepri(ircp,kdeel),   &
                                          &  drydep(ircp,kdeel),  wetdep(ircp,kdeel), qsec, consec, pr,                       & 
                                          &  vg50trans, ra50tra, rb_tra, rclocal, vgpart, xg, buildingFact)
-                                                                                
+                                                                              
 !
 !                         Update summed concentration for secondary concentration
-!                                           
+!                                         
                           csec(ircp,kdeel) = csec(ircp,kdeel) + (consec*percvk)
                         ELSE
                            ! Building effect for idep = 0:
@@ -670,7 +670,7 @@ sccsida = '%W%:%E%'//char(0)
                         ENDIF                                        ! end condition idep (compute deposition)
 !
 !                       Update summed concentration for primary concentration
-!                                            
+!                                          
                         cpri(ircp,kdeel) = cpri(ircp,kdeel) + (c*percvk)
                         IF (idep) THEN
                           rno2_nox_sum(ircp) = rno2_nox_sum(ircp) + (rnox*percvk)
@@ -739,7 +739,7 @@ SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack
                  &  qtr, rond, diameter, iwd, isek)
 
 USE Binas, only: deg2rad, rad2deg
-                 
+               
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'wind_rek')
@@ -754,7 +754,7 @@ REAL*4,    INTENT(IN)                            :: bhoogte                    !
 REAL*4,    INTENT(IN)                            :: bsigmaz                    ! 
 REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
 REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]          
 LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 INTEGER*4, INTENT(IN)                            :: btgedr                     ! 
@@ -786,7 +786,7 @@ REAL*4,    INTENT(OUT)                           :: hbron                      !
 REAL*4,    INTENT(OUT)                           :: szopp                      ! 
 REAL*4,    INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
 REAL*4,    INTENT(OUT)                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+REAL*4,    INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]          
 LOGICAL,   INTENT(OUT)                           :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: building                   ! strucure with building parameters
 INTEGER*4, INTENT(OUT)                           :: ibtg                       ! 
@@ -822,7 +822,7 @@ hbron    = bhoogte                    ! emission height [m]
 szopp    = bsigmaz                    ! spread in emission height [m]
 D_stack  = bD_stack                   ! diameter of the stack [m]
 V_stack  = bV_stack                   ! exit velocity of plume at stack tip [m/s]
-Ts_stack = bTs_stack                  ! temperature of effluent from stack [K]            
+Ts_stack = bTs_stack                  ! temperature of effluent from stack [K]          
 emis_horizontal = bemis_horizontal    ! horizontal outflow of emission
 building = bbuilding                  ! building parameters 
 ibtg     = btgedr                     ! diurnal variation code
@@ -848,7 +848,7 @@ ENDIF
 ! distance in y-direction = R*(y2 - y1)*deg2rad, y latitude
 ! distance in x-direction = R*cos(y*deg2rad)*(x2 - x1)*deg2rad, x longitude
 ! distance between 1 and 2: R*sqrt([cos(y*deg2rad)*(x2-x1)*deg2rad]^2 + [(y2-y1)*deg2rad]^2) = R*deg2rad*([cos(y*deg2rad)*(x2-x1)]^2 + (y2-y1)^2)
-! Note: R1 = equatorial radius: 6378.137 km, R2 = distance centre - pole: 6356.752 km   
+! Note: R1 = equatorial radius: 6378.137 km, R2 = distance centre - pole: 6356.752 km 
 !       R1*deg2rad = 111319.5 m, R2*deg2rad = 110946.3 m (average = 111132.9 m). Here rounded to 111000 m.
 ! 
 IF (IGEO .EQ. 1) THEN
@@ -862,15 +862,15 @@ ELSE
   dy    = ym + nrcp*grid/(nk*2 + 1) - y
   disx  = SQRT((dx*dx) + (dy*dy))
 ENDIF
-                                   
-!   North     receptor                          
-!    |       /                        
-!    |      /                         
-!    |     /                          
-!  dy|    /                           
-!    |   /                            
-!    |  /                             
-!    | /alpha                               
+                                 
+!   North     receptor                        
+!    |       /                      
+!    |      /                       
+!    |     /                        
+!  dy|    /                         
+!    |   /                          
+!    |  /                           
+!    | /alpha                             
 !    |--------
 !   source    dx
 !

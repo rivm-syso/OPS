@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Get parameters needed for dry deposition, wet deposition and chemical conversion.
@@ -66,7 +66,7 @@ SUBROUTINE ops_depoparexp(kdeel, c, ol, qbstf, ra4_rcp, ra50_rcp, raz_rcp, rb_rc
                        &  error, pr, twt, cratio, rc_rcp, grad, rc, utr, vg50_rcp, routpri, vg50trans, rkc, ri, vnatpri,        &
                        &  cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, z0_tra, rctra_0, rcsrc, ra4src, rb_src,         &
                        &  ra50src, ra4tra, ra50tra, rb_tra, vgpart, xm, ym, zm, bx, by, xg)
-                       
+                     
 
 USE m_commonconst
 USE m_commonfile
@@ -134,15 +134,15 @@ REAL*4,    INTENT(IN)                            :: pcoef                      !
 REAL*4,    INTENT(IN)                            :: vchem                      ! 
 REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
+REAL*4,    INTENT(IN)                            :: ol_src
+REAL*4,    INTENT(IN)                            :: uster_src
 REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: ra4src                     !
-REAL*4,    INTENT(IN)                            :: rb_src                     !
-REAL*4,    INTENT(IN)                            :: ra50src                    !
-REAL*4,    INTENT(IN)                            :: ra4tra                     !
-REAL*4,    INTENT(IN)                            :: rb_tra                     !
-REAL*4,    INTENT(IN)                            :: ra50tra                    !
+REAL*4,    INTENT(IN)                            :: ra4src
+REAL*4,    INTENT(IN)                            :: rb_src
+REAL*4,    INTENT(IN)                            :: ra50src
+REAL*4,    INTENT(IN)                            :: ra4tra
+REAL*4,    INTENT(IN)                            :: rb_tra
+REAL*4,    INTENT(IN)                            :: ra50tra
 REAL*4,    INTENT(IN)                            :: xm
 REAL*4,    INTENT(IN)                            :: ym
 REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
@@ -150,9 +150,9 @@ INTEGER*4, INTENT(IN)                            :: bx
 INTEGER*4, INTENT(IN)                            :: by
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: rctra_0                    !
+REAL*4,    INTENT(INOUT)                         :: rctra_0
 REAL*4,    INTENT(INOUT)                         :: htot                       ! 
-REAL*4,    INTENT(INOUT)                         :: rcsrc                      !
+REAL*4,    INTENT(INOUT)                         :: rcsrc
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -161,7 +161,7 @@ REAL*4,    INTENT(OUT)                           :: twt                        !
 REAL*4,    INTENT(OUT)                           :: cratio                     ! 
 REAL*4,    INTENT(OUT)                           :: rc_rcp                     ! 
 REAL*4,    INTENT(OUT)                           :: grad                       ! 
-REAL*4,    INTENT(OUT)                           :: rc                         
+REAL*4,    INTENT(OUT)                           :: rc                       
 REAL*4,    INTENT(OUT)                           :: utr                        ! average wind speed over the trajectory (m/s)
 REAL*4,    INTENT(OUT)                           :: vg50_rcp                   ! 
 REAL*4,    INTENT(OUT)                           :: vgpart                     ! 
@@ -331,7 +331,7 @@ CALL par_nat(regenk, rint, buil, zf, isek, iseiz, mb, disx, radius, diameter, ue
 cgt   = 1. - grad
 cgt_z = 1. - grad_z      ! EvdS
 
-! Default value for wind speed for area source  
+! Default value for wind speed for area source
 uxr = ueff
 !
 ! onder is fraction of plume in mixing layer ("onder"= below)
@@ -346,12 +346,12 @@ IF ((ABS(onder) .LE. EPS_DELTA) .OR. (ABS(grof - 1.) .LE. EPS_DELTA)) THEN
    cq1   = 1.
    cgt   = 0.
    cgt_z = 0.
-   utr   = ueff  
+   utr   = ueff
 
    ! dxeff is effective travel distance, computed by using a large number of point sources and by
    ! comparing concentrations from the area source with those point sources; this means that sources
    ! that are close have more effect than point sources further away.
-   !  
+   !
    dxeff = diameter/4.
 ELSE
 !
@@ -367,12 +367,12 @@ ELSE
 ! ------------- xl (mixing height) -------------------------.-------------------------------------------------------------                                                                    .
 !                                                  .
 !                                         .                      3 stages of plume development:
-!                                .                               1. plume does not reach the ground                                                      
+!                                .                               1. plume does not reach the ground                                                    
 !                        .                                       2. plume reaches the ground, but is not yet fully mixed
 !              .                                                 3. plume is fully mixed over the mixing layer
-!       .                                                                                     
+!       .                                                                                   
 !  htt -
-!      |  .    -  
+!      |  .    -
 !      |     .        - central
 !      |        .               - axis 
 !      |           .                   - of
@@ -380,11 +380,11 @@ ELSE
 !      |                 .                             -
 !      |                    .                                 -
 ! hbron|                       .                                    - htot
-!     | |                         .                                       
-!     | |                            .                          
-!     | |                               .                          
-!     | |                                  .                     
-!     | |                                     .                         
+!     | |                         .                                     
+!     | |                            .                        
+!     | |                               .                        
+!     | |                                  .                   
+!     | |                                     .                       
 ! -----.11111111111111111111111111111111111111111.2222222222.3333333.33333333
 !   source                                                  xg      receptor
 !
@@ -401,16 +401,16 @@ ELSE
 !       the plume within the mixing layer can be neglected).
 !    3. the plume travels without dispersion above the mixing layer.
 !
-!                                                                          .C' xl(100)                                                                             
-!                                                                  .                                                                              
-!                                                          .                                                                              
+!                                                                          .C' xl(100)                                                                           
+!                                                                  .                                                                            
+!                                                          .                                                                            
 !            plume above mixing layer              .
 !  htot-------------------------------------.C
 !      |                             .      @
 !      |                       .            @ 
 !      |               .  layer             @
 !      |       .   mixing                   @
-! xl(0).A   rising                          @ B                             B'      
+! xl(0).A   rising                          @ B                             B'    
 !      |                                    @ 
 !      |                                    @ 
 ! hbron|                                    @ plume 
@@ -437,13 +437,13 @@ ELSE
 !
 ! ------------- xl (mixing height) -------------------------.-------------------------------------------------------------                                                                    .
 !                                                  .
-!                                         .                      
-!                                .                               
-!                        .                                       
-!                .                                                 
-!         .                                                                                     
+!                                         .                    
+!                                .                             
+!                        .                                     
+!                .                                               
+!         .                                                                                   
 !  htot.
-!      |  .    
+!      |  .  
 !      |     . 
 !      |        .
 !      |           .
@@ -451,11 +451,11 @@ ELSE
 !      |                 .
 !      |                    .
 ! hbron|                       .
-!     | |                         .                                       
-!     | |                            .                          
-!     | |                               .                          
-!     | |                                  .                     
-!     | |                                     .                         
+!     | |                         .                                     
+!     | |                            .                        
+!     | |                               .                        
+!     | |                                  .                   
+!     | |                                     .                       
 ! -----.----------------------------------------------------|-----------------
 !   source                                                  xg
 !
@@ -475,7 +475,7 @@ ELSE
    ! istab > 4 -> stable classes; in this case we may have stacks that emit 
    ! above the mixing layer 
    IF ((istab .GT. 4) .AND. (htot .GT. (xloc + EPS_DELTA))) THEN
-      
+    
       ! A. (flag = 1) htot > xloc, so plume starts above mixing layer
       IF (xl100 .GT. (xloc + EPS_DELTA)) THEN
          xg = (htot - xloc)*100000./(xl100 - xloc) ! in m
@@ -530,7 +530,7 @@ ELSE
 !  1. plume inside area source                                    0 < x < R,     u = uxr
 !  2. plume reaches the ground, but is not yet fully mixed        R < x < xg,    u = ugem
 !  3. plume is fully mixed over the mixing layer                 xg < x,         u = ueff
-!  
+!
 !  1+2+3: x*utr = R*uxr + (xg-R)*ugem + (x-xg)*ueff
 !  1+2  : x*utr = R*uxr + (xg-R)*ugem
 !  1    : utr = uxr = ueff (see ops_brondepl: inside an area source, we have uxr = ueff)
@@ -579,12 +579,12 @@ cq2 = cq2*cq1
 ! p1 = ----------------, p2 = ----------------  (sqrt(2) = 1.414
 !       sqrt(2)*sigz           sqrt(2)*sigz
 !
-!                                 1                              1                           1                            
+!                                 1                              1                           1                          
 ! htot > 0 ->       cq2 = 1 - ----------*EXP( -p1^2)*[------------------------  - -------------------------]
 !                              SQRT(PI)                p1 + SQRT(p1^2 + 4/PI)       p2 + SQRT(p2^2 + 4/PI))
 ! 
 ! 
-!                                 1                              1                           1                            
+!                                 1                              1                           1                          
 ! htot = 0 -> p1 = -p1, cq2 = ----------*EXP( -p1^2)*[------------------------  + -------------------------]
 !                              SQRT(PI)                p1 + SQRT(p1^2 + 4/PI)       p2 + SQRT(p2^2 + 4/PI))
 ! 
@@ -610,7 +610,7 @@ CONTAINS
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : par_nat
 ! DESCRIPTION        : Compute rain intensity and the wet deposition loss rate for primary components vnatpri
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! SYSTEM DEPENDENCIES: NON-ANSI F77
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE par_nat(regenk, rint, buil, zf, isek, iseiz, mb, disx, radius, diameter, ueff, xl, onder, sigz, htot, gasv, dg,      &
@@ -745,7 +745,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
    ENDIF
 !
 !  Determine treis = travel time [h] ("reis"= travel)
-!   
+! 
    treis = a/(ueff*3600.)
 !
 !  twt  = tau_w       = average duration of a rainfall period, dependent on source - receptor distance [h]  (4.23) OPS report
@@ -761,13 +761,13 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !
 !  Compute thickness h over which wet deposition takes place;
 !  (onder = 0 -> plume completely above mixing height)
-!  
+!
    IF (ABS(onder - 0.) .LE. EPS_DELTA) THEN
       h = 2.*sigz
    ELSE
       h = xl
    ENDIF
-   
+ 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !  Distribution factor between washout (below cloud) and rainout (in cloud) pr [-]
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -777,9 +777,9 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !  (4.19), (4.20) ... OPS report; a = factor cw in OPS report 4.19
 !
    IF (radius .GT. (0. + EPS_DELTA)) THEN
-      
+    
       ! Area source; check for inside or outside area source
-      
+    
       IF (disx .LT. (radius - EPS_DELTA)) THEN
          hl = xl - htot + sigz*(radius - disx)/radius 
          a  = 3.
@@ -796,7 +796,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       hl = 0.
    ENDIF
    pr = EXP(-(hl+5)**2/(2*sigz*sigz*a)) 
-   
+ 
    ! Correction near source (travel time < 1 hour); disx/(ueff*3600) is travel time in h:
    pr = pr*AMIN1(1., disx/(ueff*3600.)) ! 950316 
 !
@@ -868,7 +868,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       IF (vnatwash .GT. (vnatrain + EPS_DELTA)) THEN
          vnatwash = vnatrain
       ENDIF
-      
+    
       IF (irev) THEN
 !
 !        Reversible wet deposition
@@ -882,7 +882,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       ELSE
 !
 !        irreversible wet deposition
-!        
+!      
          cratio = 1.
       ENDIF
    ENDIF
@@ -896,7 +896,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 ELSE
 !
 !  precipitation probability = 0
-!  
+!
    vnatpri = 0.
 ENDIF
 

@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Handling of errors occurring in ops.
@@ -657,7 +657,7 @@ IF (error%haserror) THEN
        WRITE(unit,'(/, 3A)') 'Procedure ''', caller%routinename(1:length), ''' was called by:'
      ENDIF
      DEALLOCATE(caller)
-   
+ 
      DO WHILE (ASSOCIATED(nextcaller))
        caller => nextcaller
        nextcaller => caller%nextcall

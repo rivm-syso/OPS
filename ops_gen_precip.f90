@@ -28,7 +28,7 @@
 ! BRANCH -SEQUENCE      : %B% - %S%
 ! DATE - TIME           : %E% - %U%
 ! WHAT                  : %W%:%E%
-! AUTHOR                : OPS-support   
+! AUTHOR                : OPS-support 
 ! FIRM/INSTITUTE        : RIVM/LLO
 ! LANGUAGE              : FORTRAN-77/90
 ! DESCRIPTION           : Generate precipitation for receptors (sum of precipitation over
@@ -53,9 +53,9 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_gen_precip')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: uurtot                      
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
+REAL*4,    INTENT(IN)                            :: uurtot                    
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)             
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: precip                     ! array with precipitation per receptorpoint
@@ -76,7 +76,7 @@ REAL*4                                           :: qww                        !
                                                                                ! setting it to 0 prevents unnecessary computation of plume rise
                                                                                ! in ops_statparexp 
 REAL*4                                           :: V_stack                    ! here a dummy
-REAL*4                                           :: Ts_stack                   ! here a dummy         
+REAL*4                                           :: Ts_stack                   ! here a dummy       
 LOGICAL                                          :: emis_horizontal            ! here a dummy
 REAL*4                                           :: D_stack                    ! here a dummy
 REAL*4                                           :: vw10                       ! here a dummy
@@ -106,9 +106,9 @@ REAL*4                                           :: rad                        !
 REAL*4                                           :: rcso2                      ! here a dummy
 REAL*4                                           :: coef_space_heating         ! here a dummy
 REAL*4                                           :: buil                       ! here a dummy
-REAL*4                                           :: regenk                     
-REAL*4                                           :: rint                       
-REAL*4                                           :: percvk                    
+REAL*4                                           :: regenk                   
+REAL*4                                           :: rint                     
+REAL*4                                           :: percvk                  
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

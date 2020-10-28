@@ -194,7 +194,7 @@ IF (ol_metreg_from_rb_rcp .GT. (0. + EPS_DELTA)) THEN
       ol_metreg_from_rb_rcp = ol_metreg_from_rb_rcp + 5.
    ENDIF
 ELSEIF (ol_metreg_from_rb_rcp .LT. (0. - EPS_DELTA)) THEN                                      ! MdH: EPS_DELTA  overbodig, want deze is continue
-   IF (ol_metreg_from_rb_rcp .GT. -7.) THEN              
+   IF (ol_metreg_from_rb_rcp .GT. -7.) THEN            
       ol_metreg_from_rb_rcp = -7.
    ENDIF
 ENDIF
@@ -255,7 +255,7 @@ IF (dsx .GT. (1. + EPS_DELTA)) THEN
 !  we need dispg and disph and we do not use sz_rcp_stab_src and sz_rcp hereafter. 
    dispg(istab) = (sz_rcp_stab_src + sz_rcp)*0.5/(dsx**DISPH(istab))
    if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C,', ' ircp,istab,dispg(istab):', -999,istab,dispg(istab)
-        
+      
    ! Check limits 0 <= dispg <= 50; if outside limits, generate warning:
    IF ((dispg(istab) .LT. (0. - EPS_DELTA)) .OR. (dispg(istab) .GT. (50. + EPS_DELTA))) THEN
       IF (.NOT. ops_openlog(error)) GOTO 9999
@@ -285,7 +285,7 @@ qruim = .1042*coef_space_heating*qrv
 !
 IF (ibtg .GE. 0) THEN
 
-   ! ibtg > 0 -> pre-defined diurnal variation for industrial sources, space heating and traffic    
+   ! ibtg > 0 -> pre-defined diurnal variation for industrial sources, space heating and traffic  
    ! ibtg = 0 -> homogeneous industrial sources, pre-defined diurnal variation for space heating and traffic
    qrvv = qruim*ecvl(istab, itra, 2)
    qvk  = qtr*ecvl(istab, itra, 3)
@@ -294,7 +294,7 @@ IF (ibtg .GE. 0) THEN
    ELSE
      qobb = qob*ecvl(istab, itra, ibtg)
    ENDIF
-ELSE    
+ELSE  
    ! ibtg < 0 -> user-specified diurnal variation
    qrvv = qruim*ecvl(istab, itra, (dv + 2))
    qvk  = qtr*ecvl(istab, itra, (dv + 3))
@@ -305,32 +305,32 @@ ENDIF
 ! split between correction for emissions from animal housing and other (= application and pasture)
 !
 IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
-        
+      
   IF  (ibtg .EQ. 4) THEN
     ! Emissions from animal housing; TNO: (Bas Nijenhuis, 990207)
     ! temperature correction for NH3 emissions from animal housing systems; OPS report 6.33.
     ! Tavg = 10 C
     ! Temperature correction tcor = 1 + (T - Tavg)/f = 1 + T/f - 10/f = (1-10/f) + T/f = (f-10)/f + T/f = (T + f-10)/f; 
     ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report). FS
-    !
+
     tcor=amax1((temp_C+24)/34, 0.2)
-                                                   
+                                                 
 !   Influence of day/night rithm of animals on emissions; half the industrial emission variation
 
     dncor=1.-(1.-ecvl(istab,itra,1))/2                                        ! day
     qobb=qob*tcor*dncor                                                       ! 990227
-     
+   
   ELSEIF (ibtg .EQ. 5) THEN
     ! application, fertiliser and other; 6.32 OPS report
-    
+  
     ! Corrections are based on DEPASS model
-    !                                                                        
+    !                                                                      
     rcor=(1.069-regenk)**2                                                    ! 980922
     rcor=amax1(rcor,0.5)
     rcor=amin1(rcor,1.5)
-    
+  
     emf=0.0000155*((100./(ra4+rb))**0.8*(temp_C+23)**2.3)**1.25               ! 981209 
-     
+   
     qobb=qob*rcor*emf                                                         ! 980922; corr 990227
   ELSE
     CONTINUE

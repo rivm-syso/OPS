@@ -21,13 +21,13 @@
 !   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
 ! SUBROUTINE
-! NAME           : %M%
+! NAME               : %M%
 ! SCCS(SOURCE)       : %P%
 ! RELEASE - LEVEL    : %R% - %L%
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute concentration of secondary component (SO4,NO3,NH4) 
@@ -160,7 +160,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
 ! (area circle with radius r) = (area square with 1/2 side = radius) <=> pi*r**2 = (2*radius)**2 <=> 
 ! <=> r = 2/sqrt(pi)*radius <=> r = 1.128*radius.
 
-! See ops_virtdist: virty = (radius*12.)/PI*1.128   
+! See ops_virtdist: virty = (radius*12.)/PI*1.128 
 !
    diameter = virty*PI/(6.*1.128)
 ELSE
@@ -197,7 +197,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       hl = 0.
    ENDIF
    pr = EXP(-(hl + 5)**2/(2*sigzsec*sigzsec*a)) 
-   
+ 
 !  Note: in ops_depoparexp/par_nat pr = pr*AMIN1(1., disx/(ueff*3600.)) (correction near source)
 !        but for secondary components, concentrations near source are relatively low
 
@@ -210,9 +210,9 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !
 !  Rain out (in-cloud) coefficient:
 
-!   
+! 
    vnatrainv = regenk*100./twt*(1. - EXP( -routsec*twt*ri/1000./xl))
-   
+ 
 !  Wash out (below-cloud), rain out (in-cloud); in-cloud scavenging is more efficient than below-cloud;
 !  therefore vnatwash must be smaller than vnatrain.
 !
@@ -221,7 +221,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
    ENDIF
 !
 !  Interpolate between wash out and rain out:
-!   
+! 
    vnatsec = vnatwashv*(1. - pr) + vnatrainv*pr
 ELSE
    ! rain probability = 0 for this meteo class:
@@ -309,14 +309,14 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 ! Compute concentration of secondary species 
 !
 ! 1. sigma_z < 1.6*xl -> in Gaussian plume OPS report 3.7, 3.15 FS
-!     
+!   
 !         q           q   NSEK            2                      -h^2            -(2z - h)^2          -(2z + h)^2
 ! csec = --- Dy Dz = --- -------- -------------------- [ exp(------------) + exp(------------) + exp(-------------) ]
 !         u           u   2 pi x   sqrt(2 pi) sigma_z         2 sigmaz^2          2 sigmaz^2          2 sigmaz^2
 !
-!         NSEK      2              12                
+!         NSEK      2              12              
 ! factor ------ ---------- = --------------- = 1.5238
-!         2 pi  sqrt(2 pi)    pi sqrt(2 pi)          
+!         2 pi  sqrt(2 pi)    pi sqrt(2 pi)        
 !
 ! factor 1e6 for conversion g -> ug
 !
@@ -332,10 +332,10 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 !                                                              qpri
 !
 ! 3. sigma_z > 1.6*xl (well mixed plume) AND depleted source strength <= 1e-4*undepleted source strength -> (3.7, 3.9 OPS report)
-!     
-!         q           q    NSEK    1    
+!   
+!         q           q    NSEK    1  
 ! csec = --- Dy Dz = --- -------- --- ; 2 pi = 6.2832
-!         u           u   2 pi x   xl  
+!         u           u   2 pi x   xl
 !
 IF (sigzsec .LT. (1.6*xl - EPS_DELTA)) THEN
    s = 2.*sigzsec*sigzsec
@@ -412,7 +412,7 @@ real                                             :: e1_sec                     !
 REAL*4                                           :: xseg                       ! end point of plume segment [m]
 REAL*4                                           :: dx                         ! travelled distance during one time step = length of plume segment [m]
 logical                                          :: lfound_seg_depos           ! plume segment where deposition starts has been found
-                                                                               
+                                                                             
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
@@ -432,7 +432,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
    ELSE
       a1 = 1.5*sigz
    ENDIF
-   b = EXP( - (diameter/(vw*3.)*(vgpri/a1 + (vchem + vnatpri)/360000.)))  
+   b = EXP( - (diameter/(vw*3.)*(vgpri/a1 + (vchem + vnatpri)/360000.)))
    IF (disx .LE. (radius + EPS_DELTA)) THEN
       a = diameter/2.*b
    ELSE
@@ -519,7 +519,7 @@ DO itim = 1, ntim
     ! Store mass fluxes of previous time step:
     qpri_prev_tim = qpri
     qsec_prev_tim = qsec
-    
+  
     ! Loop over iterations:
     ! NOTE; iteration is only needed if we include both reactions NH3 -> NH4 and
     ! NH4 -> NH3; if we use the net reaction NH3 -> NH4 only, we don't need an iteration.
@@ -528,19 +528,19 @@ DO itim = 1, ntim
     !converged = .false.
     !do while (it .lt. nit .and. .not. converged)
     !    it = it + 1
-    
+  
         ! Store mass fluxes of previous iteration:
         qpri_prev_it = qpri
         qsec_prev_it = qsec
-        
+      
         ! Primary species:
         loss_pri  = qpri_prev_tim*e1_pri
         qpri      = qpri_prev_tim - loss_pri
 
         ! Secondary species:
         prod_sec = 0.5*(qpri_prev_tim + qpri)*e3_pri_sec
-        loss_sec = (qsec_prev_tim + 0.5*prod_sec)*e1_sec   
-        !loss_sec = (qsec_prev_tim - 0.5*prod_sec)*e1_sec   
+        loss_sec = (qsec_prev_tim + 0.5*prod_sec)*e1_sec 
+        !loss_sec = (qsec_prev_tim - 0.5*prod_sec)*e1_sec 
         qsec     = qsec_prev_tim + prod_sec - loss_sec
 
         !! Check for convergence:
@@ -548,7 +548,7 @@ DO itim = 1, ntim
 	!! write(*,*) 'seccd: ',it,qpri,abs(qpri-qpri_prev_it),qsec,abs(qsec-qsec_prev_it)
 
     !enddo ! loop over iterations
-      
+    
 ENDDO ! end loop over time steps
 
 RETURN

@@ -53,13 +53,13 @@ USE m_commonfile
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
+CHARACTER*512                                    :: ROUTINENAAM              
 PARAMETER    (ROUTINENAAM = 'ops_gen_fnames')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: spgrid                     
-INTEGER*4, INTENT(IN)                            :: intpol                     
+LOGICAL,   INTENT(IN)                            :: gasv                     
+INTEGER*4, INTENT(IN)                            :: spgrid                   
+INTEGER*4, INTENT(IN)                            :: intpol                   
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record

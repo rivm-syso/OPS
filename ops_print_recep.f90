@@ -201,7 +201,7 @@ IF (igrid) THEN
       !----------------------------
 
       IF (.NOT.verb) THEN
-!        
+!      
 !       print primary concentration, drydep, wetdep, totdep in tables
 !
         CALL print_conc_names(namco)
@@ -213,7 +213,7 @@ IF (igrid) THEN
                        &  scale_dep)
 
       ELSE
-!        
+!      
 !       print primary concentration, drydep, wetdep, totdep, vdpri, z0, lu, precip in table
 !
         CALL print_conc_names(namco)
@@ -234,9 +234,9 @@ IF (igrid) THEN
       !----------------------------
 
       IF (icm == 2) THEN
-        
+      
         ! NOx
-        
+      
         IF (.NOT.verb) THEN
 !
 !         print primary concentration, drydep, wetdep, totdep, secondary concentration, second secondary concentration in tables
@@ -262,7 +262,7 @@ IF (igrid) THEN
              stop
            ENDIF
         ELSE
-!      
+!    
 !         print primary concentration, drydep, wetdep, totdep, secondary conc, sub-secondary concentrations, vdpri, vdsec, z0, lu and precip in table
 !
           CALL print_conc_names(namco, namsec, nam_subsec)
@@ -294,11 +294,11 @@ IF (igrid) THEN
            ENDIF
         ENDIF
       ELSE
-      
+    
         ! no NOx 
-        
+      
         IF (.NOT.verb) THEN
-!          
+!        
 !         print primary concentration, drydep, wetdep, totdep, secondary concentration in tables
 !
           CALL print_conc_names(namco, namsec)

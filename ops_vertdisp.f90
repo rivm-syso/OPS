@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Calculation of vertical dispersion coefficient as a function of stability parameters and downwind distance
@@ -104,7 +104,7 @@ IF (fm .GT. 0. ) THEN
 !
    ! zi/L < 0 -> combination of convective and near neutral layer
    IF ( zi/ol .LT. 0 - EPS_DELTA ) THEN
-                                           
+                                         
       ! Compute fs = interpolation factor between convective/near neutral layer, fs = -0.05*zi/L          960118
       ! and limit fs such that 0 <= fs <= 1.
       ! 1. zi/L <= -20    -> fs = 1     -> convective mixing layer
@@ -125,7 +125,7 @@ IF (fm .GT. 0. ) THEN
       CALL ops_neutral(z0,zi,ol,uster,h,x, uh, zu, szn)
       sz = fs*szc + (1. - fs)*szn
    ELSE
-    
+  
      ! zi/L > 0 -> near neutral upper layer:
      CALL ops_neutral(z0,zi,ol,uster,h,x, uh, zu, szn)
      sz = szn
@@ -137,7 +137,7 @@ IF (fm .GT. 0. ) THEN
      sz = fm*sz + (1. - fm)*szs
    ENDIF
 ELSE
-  
+
   !  fm = 0 -> stack_height <= 0.2*mixing_height, so stack in surface layer:
   CALL ops_surface(z0,zi,ol,uster,h,x, uh, zu, szs)
   sz = szs

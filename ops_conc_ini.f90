@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Compute initial concentrations due to transport and dispersion; no removal processes yet.
@@ -104,7 +104,7 @@ sccsida = '%W%:%E%'//char(0)
 ! htot   : plume height at receptor, including plume descent due to heavy particles; htot = htt - pldaling [m]
 !
 !  htt \
-!      | \  
+!      | \
 !      |    \
 !      |        \
 !      |            \
@@ -113,14 +113,14 @@ sccsida = '%W%:%E%'//char(0)
 !      |                         \
 ! hbron|                              \
 !     | |                                   \ htot
-!     | |        
-!     | |        
-!     | |        
-!     | |        
-!     | |        
-!     | |        
-!     | |        
-!     | |        
+!     | |      
+!     | |      
+!     | |      
+!     | |      
+!     | |      
+!     | |      
+!     | |      
+!     | |      
 ! -------------------------------------------------
 !   source                                 receptor
 !

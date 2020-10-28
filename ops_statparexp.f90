@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Get parameters as windspeed, mixing height, frequency etc. from the meteo statistics as a function of
@@ -59,19 +59,19 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_statparexp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                       
-REAL*4,    INTENT(IN)                            :: hbron                       
-REAL*4,    INTENT(IN)                            :: qww    
+INTEGER*4, INTENT(IN)                            :: istab                     
+REAL*4,    INTENT(IN)                            :: hbron                     
+REAL*4,    INTENT(IN)                            :: qww  
 REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
 REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                     
+REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                   
 LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
-INTEGER*4, INTENT(IN)                            :: iwd                         
-REAL*4,    INTENT(IN)                            :: radius                      
-REAL*4,    INTENT(IN)                            :: uurtot                      
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
-REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                    
+INTEGER*4, INTENT(IN)                            :: iwd                       
+REAL*4,    INTENT(IN)                            :: radius                    
+REAL*4,    INTENT(IN)                            :: uurtot                    
+REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)             
+REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                  
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -130,13 +130,13 @@ REAL*4                                           :: r4                         !
 REAL*4                                           :: r50                        ! 
 REAL*4                                           :: s                          ! interpolation factor (0-1) for the contribution of wind sector is
                                                                                ! (i.e. the second interpolation sector), to the wind direction 
-                                                                               ! from source to receptor  
-                                                                               
+                                                                               ! from source to receptor
+                                                                             
 REAL*4                                           :: s1(NTRAJ)                  ! interpolation factor for distance class (interpolates data between
                                                                                ! lower and upper class boundary). Note that if ids is the class index
                                                                                ! where the source-receptor distance lies in, then 0 <= s1(ids) <= 1 and
                                                                                ! s1(i) = 0 for i /= ids
-                                                                               
+                                                                             
 REAL*4                                           :: stta(NCOMP)                ! 
 REAL*4                                           :: sttr(NCOMP)                ! 
 REAL*4                                           :: sa                         ! 
@@ -280,8 +280,8 @@ IF (aant > EPS_DELTA) THEN
      rcaer            = (r*stta(27)) + (1. - r)*sttr(27)
      ra4              = r4 - rb
      ra50             = r50 - rb
-     
-     
+   
+   
   ELSE
      ! Not an area source or a special case; 
      ! so = aant = interpolated number of hours of the {{ids-1/ids),istab,(isekt/is)} combination 
@@ -362,7 +362,7 @@ sccsida = '%W%:%E%'//char(0)
 !
 ! Default value for zero dscor values, indicating a non-existent distance/stability/wind-sector class.
 ! Note: ids is a local variable here
-! dscor is in km, trafst is in m       
+! dscor is in km, trafst is in m     
 !
 DO ids = 2, NTRAJ
   IF (ABS(dscor(ids) - 0.) .LE. EPS_DELTA) THEN
@@ -409,9 +409,9 @@ ELSE
 
 !   Extrapolation after trafst(NTRAJ) is more than dscor(NTRAJ) "more meanders in travel path the further you go"
 !
-!                           disx               
+!                           disx             
 !   xl = xl * [1 + 0.3*(------------- - 1)] ,linear growth in mixing height, each 1000 km a growth of 
-!                       trafst(NTRAJ)        0.3 times the original mixing height (assuming trafst(NTRAJ) = 1000 km).    
+!                       trafst(NTRAJ)        0.3 times the original mixing height (assuming trafst(NTRAJ) = 1000 km).  
 !
 !    disxx            dscor(NTRAJ)           disx
 !   -------  = 1 + [ -------------- - 1] * -------------
@@ -503,7 +503,7 @@ IF (ABS(qww) .GT. EPS_DELTA) THEN
       utop = vw10
    ENDIF
    write(*,'(a,2(1x,e12.5))') 'voorlpl a',hbron,utop
-   
+ 
    IF (istab .GE. 5) THEN
 !
 !     plume rise for stable conditions
@@ -658,7 +658,7 @@ IF (radius .GE. (disxx - EPS_DELTA)) THEN
    ! Later on we count only contributions from 6 wind sectors, to keep consistency here we only use half of the hours;
    ! note that the receptor is inside the area source, so strictly speaking we have contributions from all sectors. 
    sa = sa/2
-   
+ 
 ELSE
 !
 !  Receptor outside source: compute number of contributing sectors (3.34, 3.36 new OPS report).
@@ -669,7 +669,7 @@ ELSE
    phi  = (2.*PI) - 2.*(phi + 5.*PI/12.) ! = 2*pi - 2*[atan(sqrt(x^2-R^2)/R) + (5/12)*pi] 
    asek = (phi*6.)/PI
    IF (asek .GT. (6. + EPS_DELTA)) THEN
-      asek = 6.  
+      asek = 6.
    ENDIF
 ENDIF
 
@@ -689,7 +689,7 @@ ENDIF
 ! isek = isekt, i.e. the first of the two interpolating wind sectors.
 !
 DO i = -3, 3
-   
+ 
    ! pa is correction factor to correct for the deviation of the neighbouring sector
    ! w.r.t to the source-receptor direction;
    ! 0 <= pa <= 1 and for i = 0 (central sector): pa = asek/2 - s + 1/2
@@ -697,9 +697,9 @@ DO i = -3, 3
    ! iss: wind sector in which the source-receptor direction lies.
    ! s between 0 and 0.5 -> source-receptor direction lies in isekt, so isekt is the middle of the contributing sectors
    ! s between 0.5 and 1 -> source-receptor direction lies in isekt+1, so isekt+1 is the middle of the contributing sectors
-   !
+
    pa = (asek/2.) - ABS(FLOAT(i) - s) + .5
-   
+ 
    IF (pa .GT. (0. + EPS_DELTA)) THEN
       IF (pa .GT. (1. + EPS_DELTA)) THEN
          pa = 1.
@@ -733,7 +733,7 @@ DO i = -3, 3
    IF (pa .LT. (0. - EPS_DELTA)) THEN
       pa = 0.
    ENDIF
-   
+ 
    aksek(i + 4) = pa 
 ENDDO
 !
@@ -842,25 +842,25 @@ ENDIF
 ! 000   1.00    1    1     2   0.00
 ! 005   1.17    1    1     2   0.17   sector 1: 345 - 15
 ! 010   1.33    1    1     2   0.33
-!                              
+!                            
 ! 015   1.50    2    1     2   0.50
 ! 020   1.67    2    1     2   0.67
 ! 025   1.83    2    1     2   0.83   sector 2: 15 - 45
 ! 030   2.00    2    2     3   0.00
 ! 035   2.17    2    2     3   0.17
 ! 040   2.33    2    2     3   0.33
-!                              
+!                            
 ! 045   2.50    3    2     3   0.50
 ! 050   2.67    3    2     3   0.67   sector 3: 45 - 75
 ! 055   2.83    3    2     3   0.83
-!                              
+!                            
 ! ......................................................
-!                              
+!                            
 ! 325  11.83   12   11    12   0.83
 ! 330  12.00   12   12     1   0.00   sector 12: 315 - 345
 ! 335  12.17   12   12     1   0.17
 ! 340  12.33   12   12     1   0.33
-!                              
+!                            
 ! 345  12.50    1   12     1   0.50
 ! 350  12.67    1   12     1   0.67   sector 1: 345 - 15
 ! 355  12.83    1   12     1   0.83
@@ -949,9 +949,9 @@ IF ((ABS(astat(itra, 1, istab, iss)) .LE. EPS_DELTA) .AND. (radius .GT. (0. + EP
       phi = 60. 
    ENDIF
 
-   ! iwr = wind direction halfway sector isek   
+   ! iwr = wind direction halfway sector isek 
    iwr = (isek - 1)*360/NSEK
-!   
+! 
 !  Criteria for special case:
 !  1. iwr < iwdd < iwr + phi (source-receptor direction lies in second half of isek
 !  2. meteo class isek, which is used as first sector for interpolation, does not occur (astat(itra, 1, istab, isek) = 0)
@@ -1142,7 +1142,7 @@ IF ((ABS(astat(ids-1, 1, istab, iss)) .GT. EPS_DELTA) .AND. (ABS(astat(ids, 1, i
 ! Special cases, one or both meteo classes do not occur -> no interpolation, but get value of meteo 
 ! parameter 2-8 or 19-NCOMP of neighbouring distance class that does exist (astat = 0);
 ! if both do not exist stt is undefined
-!   
+! 
 ELSE
    IF ((itra .EQ. ids-1) .AND. (ABS(astat(ids-1, 1, istab, iss)) .LE. EPS_DELTA)) THEN
       itrx = ids
@@ -1171,7 +1171,7 @@ END SUBROUTINE interp_tra
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE interp_sek(istab, iss, itrx, is, s, isek, stt, astat, xl, vw10, rb, ra4, ra50, xvglbr, xvghbr, uster_metreg_rcp,       &
                    &  temp_C, ol_metreg_rcp, h0, xloc, xl100, sp, rad, rcso2, hum, pcoef, rcnh3, rcno2, rcaer, buil, rint, shear, &
-                   &  dscor, coef_space_heating, regenk)    
+                   &  dscor, coef_space_heating, regenk)  
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 

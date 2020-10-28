@@ -27,7 +27,7 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support 
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Correct friction velocity (uster) and Monin-Obukhov length (ol) at a standard roughness length for a 
@@ -94,9 +94,9 @@ sccsida = '%W%:%E%'//char(0)
 !  T     : absolute temperature [K]
 !  H0    : surface heat flux [W/m2]
 !
-!                          T rho_a cp (u*)^3    T rho_a cp  (u*)^3       (u*)^3                               
+!                          T rho_a cp (u*)^3    T rho_a cp  (u*)^3       (u*)^3                             
 ! From this follows: H0  = ----------------- = ------------ ------ =  C1 ------
-!                           g L kappa            g kappa      L            L                                  
+!                           g L kappa            g kappa      L            L                                
 !
 !           T rho_a cp       K kg J s2       kg m2 s2     kg
 ! [C1] = [ ------------ ] = ------------- = --------- = ------     (J = kg m2/s2) 

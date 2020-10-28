@@ -57,12 +57,12 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_read_emis')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        
-LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: ncatsel                    
-INTEGER*4, INTENT(IN)                            :: catsel(*)                  
-INTEGER*4, INTENT(IN)                            :: nlandsel                   
-INTEGER*4, INTENT(IN)                            :: landsel(*)                 
+INTEGER*4, INTENT(IN)                            :: icm                      
+LOGICAL,   INTENT(IN)                            :: gasv                     
+INTEGER*4, INTENT(IN)                            :: ncatsel                  
+INTEGER*4, INTENT(IN)                            :: catsel(*)                
+INTEGER*4, INTENT(IN)                            :: nlandsel                 
+INTEGER*4, INTENT(IN)                            :: landsel(*)               
 
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -81,7 +81,7 @@ LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR,4)    !
                                                                                ! presentcode(:,2): particle size distributions
                                                                                ! presentcode(:,3): user-defined diurnal variation
                                                                                ! presentcode(:,4): user-defined particle size distributions
-LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file   
+LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file 
 
 
 ! LOCAL VARIABLES
@@ -109,15 +109,15 @@ ELSE
 ENDIF
 
 IF (.NOT.gasv) THEN
-  !
+
   ! Read standard particle size distributions 
-  !
+
   CALL read_variation(psdnam, 'F7.1', NPARTCLASS, 0, 'particle size distributions', .TRUE., pmd, ps, presentcode(:, 2),        &
                    &  error)
   IF (error%haserror) GOTO 9999
-  !
-  ! Read user-defined particle size distributions (optionally)  
-  !
+
+  ! Read user-defined particle size distributions (optionally)
+
   IF (LEN_TRIM(uspsdnam) /= 0) THEN
     CALL read_variation(uspsdnam, 'F7.1', NPARTCLASS, 100, 'user-defined particle size distributions', .TRUE., uspmd, usps,    &
                     &  presentcode(:,4), error)

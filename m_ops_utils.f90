@@ -161,7 +161,7 @@ e1y = v2y - v1y;
 ! e2 = p-v1:
 e2x = px - v1x;
 e2y = py - v1y;
-   
+ 
 ! Dot product of e1, e2:
 dot_prod = e1x*e2x + e1y*e2y;
 
