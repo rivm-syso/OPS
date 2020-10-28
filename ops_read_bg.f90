@@ -1,19 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -28,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO/IS
 ! LANGUAGE           : FORTRAN(HP-UX, HP-F77, HP-F90)
 ! DESCRIPTION        : Handling of background concentrations.
@@ -56,7 +55,7 @@ IMPLICIT NONE
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! substance index
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
+INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
 INTEGER*4, INTENT(IN)                            :: year                       ! year under consideration
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -64,16 +63,16 @@ TYPE (TApsGridReal), INTENT(OUT)                 :: so2bggrid                  !
 TYPE (TApsGridReal), INTENT(OUT)                 :: no2bggrid                  ! grid with NO2 background concentration [ppb]
 TYPE (TApsGridReal), INTENT(OUT)                 :: nh3bggrid                  ! grid with NH3 background concentration [ppb]
 TYPE (TApsGridReal), INTENT(OUT)                 :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
-TYPE (Tvchem),       INTENT(INOUT)               :: vchem2                     ! 
+TYPE (Tvchem),       INTENT(INOUT)               :: vchem2
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! column index in grid
 INTEGER*4                                        :: j                          ! row index in grid
 INTEGER*4                                        :: mapnumber                  ! number of background map
-INTEGER*4                                        :: ji                         ! year index, i.e. the index in the trendfactor 
+INTEGER*4                                        :: ji                         ! year index, i.e. the index in the trendfactor
                                                                                ! arrays tf_... of the current year
-REAL*4                                           :: factor                     ! combined correction factor (calibration with 
+REAL*4                                           :: factor                     ! combined correction factor (calibration with
                                                                                ! measurements and correction for year)
 LOGICAL*1                                        :: future                     ! TRUE if year is closer to FUTUREYEAR than to last
                                                                                ! historic year
@@ -88,21 +87,21 @@ INTEGER                                          :: nfield                     !
 INTEGER                                          :: ifield                     ! field number in f_subsec_grid
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_bg')
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Get number of map that is the basis for the calculation of the background concentration.
-! Maps are, in general, created by previous runs of OPS. 
+! Maps are, in general, created by previous runs of OPS.
 !
-! For each of the components SO2, NOx en NH3, there are 4 maps available; for 3 historic years (1984, 1994, 2005) and for a 
+! For each of the components SO2, NOx en NH3, there are 4 maps available; for 3 historic years (1984, 1994, 2005) and for a
 ! future year (FUTUREYEAR). The maps for the historic years are corrected by OPS for the deviation between model and measurements.
 ! For other years than these three historic years, one of these corrected maps is subsequently scaled to the average Dutch
-! concentration for that year. This scaling factor (trend factor) is purely determined from measurements. 
+! concentration for that year. This scaling factor (trend factor) is purely determined from measurements.
 ! The map with future concentrations is used in case that the simulation year is closer to the future year than to the last year
 ! for which the average Dutch concentration is known (i.e. FIRSTYEAR + NYEARS - 1):
 !
@@ -138,7 +137,7 @@ ELSE IF (ji.GT.NYEARS) THEN
 ENDIF
 !
 ! Of which components the background concentration has to be calculated depends on the substance for which the OPS calculation takes place.
-! 1: SO2 >> {(NH4)2 SO4}            -> SO2, NH3; 
+! 1: SO2 >> {(NH4)2 SO4}            -> SO2, NH3;
 ! 2: NO2 >> {NH4 NO3}               -> NO2, NH3;
 ! 3: NH3 >> {(NH4)2 SO4}, {NH4 NO3} -> SO2, NO2, NH3
 !
@@ -146,7 +145,7 @@ IF (icm /= 2) THEN
 !
 ! Read and allocate the background grids for SO2 [ug/m3].
 ! SO2 background values are not required for icm = 2 (component = NOx).
-! 
+!
   CALL read_bg_file(map_so2(mapnumber), 'SO2', so2bggrid, error)
   IF (error%haserror) GOTO 9999
 !
@@ -154,23 +153,23 @@ IF (icm /= 2) THEN
 ! SetAverage multiplies all grid values with factor and computes a grid average.
 
 ! Molw(SO2) = 64; 24.04 l is the volume of 1 mole of gas at STP (20 deg C, 1013 mbar)
-! concentration_(ppb) = 24.04/ molecular_weight x concentration_(ug/m3) , 
+! concentration_(ppb) = 24.04/ molecular_weight x concentration_(ug/m3) ,
 !
   factor = 24./64. * cf_so2(mapnumber) * tf_so2(ji)
-  CALL SetAverage(factor, so2bggrid) 
+  CALL SetAverage(factor, so2bggrid)
 ENDIF
 
 IF (icm /= 1) THEN
 !
-! Read and allocate the background grids for NOx [ug NO2/m3] to calculate the NO2 background concentration. 
+! Read and allocate the background grids for NOx [ug NO2/m3] to calculate the NO2 background concentration.
 ! NO2 background values are not required for icm = 1 (component = SO2).
 !
   CALL read_bg_file(map_nox(mapnumber), 'NOx', no2bggrid, error)
   IF (error%haserror) GOTO 9999
 !
-! First, the NOx background concentration is corrected for the difference between model and measurements (cf_no2). 
-! Simultaneously the unit is converted from ug NO2 per m3 to ppb. 
-! The latter is done to be able to use the existing empirical relation for NOx --> NO2. 
+! First, the NOx background concentration is corrected for the difference between model and measurements (cf_no2).
+! Simultaneously the unit is converted from ug NO2 per m3 to ppb.
+! The latter is done to be able to use the existing empirical relation for NOx --> NO2.
 ! Molw(NO2) = 46;  24.04 l is the volume of 1 mole of gas at STP (20 deg C, 1013 mbar)
 !
   factor = cf_nox(mapnumber) * 24./46.
@@ -199,15 +198,15 @@ IF (icm /= 1) THEN
     ENDDO
   ENDDO
   ! Now, no2bggrid contains the NO2-concentration
-  
-!  
+
+!
 ! Now the correction for the actual year (factor tf_no2) is done.
 !
   factor = tf_no2(ji)
   CALL SetAverage(factor, no2bggrid)
 ENDIF
 !
-! Read and allocate the background grids for NH3 [ug/m3]. NH3 background values are always required. 
+! Read and allocate the background grids for NH3 [ug/m3]. NH3 background values are always required.
 !
 CALL read_bg_file(map_nh3(mapnumber), 'NH3', nh3bggrid, error)
 IF (error%haserror) GOTO 9999
@@ -227,9 +226,9 @@ if (iopt_vchem .eq. 1) then
    write(fnam(i1:i1+3),'(I4)') year
    CALL read_bg_file(trim(fnam),'mass precursor', vchem2%mass_prec_grid, error)
    if (error%haserror) GOTO 9999
- 
-   call SetAverage(grid = vchem2%mass_prec_grid) 
- 
+
+   call SetAverage(grid = vchem2%mass_prec_grid)
+
    ! Read MASS_CONV_DTFAC for this year:
    fnam = map_mass_conv_dtfac
    write(fnam(1:3),'(A3)') CNAME(icm,1)
@@ -237,13 +236,13 @@ if (iopt_vchem .eq. 1) then
    write(fnam(i1:i1+3),'(I4)') year
    CALL read_bg_file(trim(fnam),'(100/dt) * mass converted chemistry', vchem2%mass_conv_dtfac_grid, error)
    if (error%haserror) GOTO 9999
- 
-   call SetAverage(grid = vchem2%mass_conv_dtfac_grid)  
- 
-   ! write(*,*) 'average of mass_prec_grid: ', vchem2%mass_prec_grid%average            
+
+   call SetAverage(grid = vchem2%mass_conv_dtfac_grid)
+
+   ! write(*,*) 'average of mass_prec_grid: ', vchem2%mass_prec_grid%average
    ! write(*,*) 'average of mass_conv_dtfac_grid: ', vchem2%mass_conv_dtfac_grid%average
-   ! write(*,*) 'average conversion rate [%/h]: ', vchem2%mass_conv_dtfac_grid%average/vchem2%mass_prec_grid%average 
-   
+   ! write(*,*) 'average conversion rate [%/h]: ', vchem2%mass_conv_dtfac_grid%average/vchem2%mass_prec_grid%average
+
    ! Read distribution maps for NO3_total: HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total;
    ! from file 'no3_distr_yyyy.ops'; yyyy = year (e.g. 2019)
    if (icm .eq. 2) then
@@ -256,11 +255,11 @@ if (iopt_vchem .eq. 1) then
       if (error%haserror) goto 9999
 
       ! Read fractions for sub-secondary species:
-      ! write(*,*) 'reading fractions NO3 from file ',trim(apsfile)  
+      ! write(*,*) 'reading fractions NO3 from file ',trim(apsfile)
       CALL read_bg_file(trim(fnam),'fractions of NO3' , f_subsec_grid, error)
       if (error%haserror) GOTO 9999
-      
-      ! Get number of fields in f_subsec_grid; should be equal to nsubsec-1 
+
+      ! Get number of fields in f_subsec_grid; should be equal to nsubsec-1
       ! (3 fields HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total; 4 sub species NO3_aerosol, HNO3, NO3_C, NO3_F)
       nfield = size(f_subsec_grid%value,3)
       ! WdV write(*,'(a,i6)')  '--------------- number of fields read in ops_read_bg ----------------- : ',nfield
@@ -276,7 +275,7 @@ if (iopt_vchem .eq. 1) then
       ! Set average of grid (is used in ops_bgcon for missing (negative) values or values outside grid):
       do ifield = 1,nfield
          call SetAverage(grid = f_subsec_grid, fieldnumber = ifield)
-         ! write(*,*) 'average of grid of secondary component ',ifield,' = ',f_subsec_grid%average(ifield) 
+         ! write(*,*) 'average of grid of secondary component ',ifield,' = ',f_subsec_grid%average(ifield)
       enddo
    endif
 
@@ -291,8 +290,8 @@ if (iopt_vchem .eq. 1) then
    !  qq%value = vchem2%mass_conv_dtfac_grid(1)%value/vchem2%mass_prec_grid(1)%value
    !  write(*,*) 'grid for conversion factor'
    !  open(unit = 34, file = 'cvr_tst1.aps')
-   !  !
-   !  !
+
+
    !  !  character*(*)     coord_sys       ! coordinate system, either 'RDM' or 'lon-lat'
    !  !  integer           lu
    !  !  real              xorg, yorg
@@ -305,7 +304,7 @@ if (iopt_vchem .eq. 1) then
    !  !  character*10      modversie
    !  !  character*12      kname
    !  !  character*(*)     namegr          ! name of grid file (used for error message)
-   !  !
+
    !  !  character*12      quantity
    !  !subroutine saveaps(coord_sys,lu,namegr,xorg,yorg,gridx,gridy,matx,maty,cpri,namco,unit_conc,modversie,kname,quantity,ijg,img,idg,iug)
    !  call saveaps('RDM',34,'qq0',qq%gridheader%xorgl,qq%gridheader%yorgl,qq%gridheader%grixl,qq%gridheader%griyl,qq%gridheader%nrcol,qq%gridheader%nrrow,qq%value(:,:,1),'conv_rate ','%/h     ','OPS_tst   ','qq1         ','qq2         ',10,0,0,0)
@@ -321,11 +320,11 @@ if (iopt_vchem .eq. 1) then
    !  !!    REAL*4                                        :: griyl                      ! vertical size of grid cell [km]
    !  !! END TYPE TGridHeader
    ! ! END TEST write to APS file --------------------------------------------------------------------------------------------
-   
+
    IF (error%haserror) GOTO 9999
 endif
 
-! 
+!
 RETURN
 !
 ! Error section
@@ -355,7 +354,7 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 CHARACTER*512                                    :: apsfile                    ! full file name of APS-file to read
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'read_bg_file')
 !-------------------------------------------------------------------------------------------------------------------------------
 

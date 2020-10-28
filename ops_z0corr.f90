@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,10 +27,10 @@
 ! BRANCH -SEQUENCE   : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
-! DESCRIPTION        : Correct friction velocity (uster) and Monin-Obukhov length (ol) at a standard roughness length for a 
+! DESCRIPTION        : Correct friction velocity (uster) and Monin-Obukhov length (ol) at a standard roughness length for a
 !                      situation with another roughness length. The main assumption here is that the wind speed at 50 m height
 !                      is not influenced by the roughness of the surface. Temperature effects are not taken into account.
 !                      An iterative procedure is used: starting with uster1 compute a new uster2 and ol2 and continue the iteration,
@@ -49,40 +49,40 @@ USE m_commonconst
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_z0corr')
 
 ! CONSTANTS
-REAL*4                                           :: C1                         ! 
-REAL*4                                           :: Z                          ! 
-PARAMETER   (C1  = 93500.) 
+REAL*4                                           :: C1
+REAL*4                                           :: Z
+PARAMETER   (C1  = 93500.)
 PARAMETER   (Z   = 50.)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: z01                        ! standard roughness length [m]
-REAL*4,    INTENT(IN)                            :: uster1                     ! friction velocity at standard roughness length 
+REAL*4,    INTENT(IN)                            :: uster1                     ! friction velocity at standard roughness length
 REAL*4,    INTENT(IN)                            :: ol1                        ! Monin-Obukhov length at standard roughness length [m]
 REAL*4,    INTENT(IN)                            :: z02                        ! new roughness length [m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uster2                     ! friction velocity at new roughness length 
+REAL*4,    INTENT(OUT)                           :: uster2                     ! friction velocity at new roughness length
 REAL*4,    INTENT(OUT)                           :: ol2                        ! Monin-Obukhov length at standard roughness length [m]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: n                          ! iteration index
-REAL*4                                           :: h0                         ! 
+REAL*4                                           :: h0
 REAL*4                                           :: delta                      ! difference between old and new iterand for uster2
-REAL*4                                           :: phim                       ! 
+REAL*4                                           :: phim
 REAL*4                                           :: u50                        ! wind speed at 50 m height
 REAL*4                                           :: uold                       ! uster at previous iteration
 REAL*4                                           :: delta_old                  ! old difference between old and new iterand for uster2
 REAL*4                                           :: ur                         ! ratio uster/uold
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
-! 
+!
 !                        T rho_a cp (u*)^3
 ! (2.1) OPS report: L = -------------------
 !                         g H0 kappa
@@ -90,16 +90,16 @@ sccsida = '%W%:%E%'//char(0)
 !  rho_a : air density  = 1.292 kg/m3 (0 C), 1.247 kg/m3 (20 C), 1.204 kg/m3 (20 C), pressure = 1 atm
 !  cp    : specific heat capacity = 1003.5 J/(kg K), sea level, dry, T=0 C; 1012 J/(kg/K), typical room conditions (T = 23 C)
 !  kappa : von Karman constant = 0.4 [-]
-!  g     : accelaration of gravity = 9.81 m/s2 
+!  g     : accelaration of gravity = 9.81 m/s2
 !  T     : absolute temperature [K]
 !  H0    : surface heat flux [W/m2]
 !
-!                          T rho_a cp (u*)^3    T rho_a cp  (u*)^3       (u*)^3                               
+!                          T rho_a cp (u*)^3    T rho_a cp  (u*)^3       (u*)^3
 ! From this follows: H0  = ----------------- = ------------ ------ =  C1 ------
-!                           g L kappa            g kappa      L            L                                  
+!                           g L kappa            g kappa      L            L
 !
 !           T rho_a cp       K kg J s2       kg m2 s2     kg
-! [C1] = [ ------------ ] = ------------- = --------- = ------     (J = kg m2/s2) 
+! [C1] = [ ------------ ] = ------------- = --------- = ------     (J = kg m2/s2)
 !            g kappa         m3 kg K m       s2 m4        m2
 !
 ! actual values in code: rho = 1.29 kg/m3, cp = 1005 J/(kg K), kappa=0.4, g=9.81 m/s2, T=283 K; c1=rho*cp*T/(kappa*g) = 93467 kg/m2.
@@ -146,13 +146,13 @@ IF (ABS(z01 - z02) .GE. (0.1*z01 - EPS_DELTA)) THEN
       h0 = h0*ur**0.1
    ENDIF
 
-   ! If percentual difference of iterands > 1.5% AND number of iterations < 40 -> continue iteration 
+   ! If percentual difference of iterands > 1.5% AND number of iterations < 40 -> continue iteration
    IF ((delta .GT. (0.015*uster2 + EPS_DELTA)) .AND. (n .LT. 40)) THEN
       GOTO 50
    ENDIF
 
 ! Converged OR number of iterations >= 40;
-! limit L, u* such that 
+! limit L, u* such that
 ! -5 < L < 0 -> L = -5
 !  0 < L < 5 -> L =  5
 !  u* >= 0.06 m/s
@@ -181,7 +181,7 @@ CONTAINS
 SUBROUTINE stabcm(h, ol, phim)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'stabcm')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -195,7 +195,7 @@ REAL*4,    INTENT(OUT)                           :: phim                       !
 REAL*4                                           :: y                          ! hulpvariabele voor berekening
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (ol .GT. (0. + EPS_DELTA)) THEN

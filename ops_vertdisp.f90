@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-77/90
 ! DESCRIPTION        : Calculation of vertical dispersion coefficient as a function of stability parameters and downwind distance
@@ -46,7 +46,7 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'ops_vertdisp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
@@ -59,7 +59,7 @@ REAL*4,    INTENT(IN)                            :: x                          !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface
 REAL*4,    INTENT(OUT)                           :: sz                         ! vertical dispersion coefficient (m)
 
@@ -71,8 +71,8 @@ REAL*4                                           :: h                          !
 REAL*4                                           :: szc                        ! convexe dispersie (m)
 REAL*4                                           :: szn                        ! neutrale dispersie
 REAL*4                                           :: szs                        ! oppervlakte dispersie
-REAL*4                                           :: fm                         ! 
-REAL*4                                           :: fs                         ! 
+REAL*4                                           :: fm
+REAL*4                                           :: fs
 
 ! SUBROUTINE AND FUNCTION CALLS
 EXTERNAL ops_surface
@@ -80,7 +80,7 @@ EXTERNAL ops_convec
 EXTERNAL ops_neutral
 
 ! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
+CHARACTER*81                                     :: sccsida
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ IF (fm .GT. 0. ) THEN
 !
    ! zi/L < 0 -> combination of convective and near neutral layer
    IF ( zi/ol .LT. 0 - EPS_DELTA ) THEN
-                                           
+
       ! Compute fs = interpolation factor between convective/near neutral layer, fs = -0.05*zi/L          960118
       ! and limit fs such that 0 <= fs <= 1.
       ! 1. zi/L <= -20    -> fs = 1     -> convective mixing layer
@@ -119,13 +119,13 @@ IF (fm .GT. 0. ) THEN
         CONTINUE
       ENDIF
 
-      ! Compute vertical dispersion coefficient sigma_z for convective and near neutral layer 
+      ! Compute vertical dispersion coefficient sigma_z for convective and near neutral layer
       ! and interpolate:
       CALL ops_convec(z0,zi,ol,uster,h,x, uh, zu, szc)
       CALL ops_neutral(z0,zi,ol,uster,h,x, uh, zu, szn)
       sz = fs*szc + (1. - fs)*szn
    ELSE
-    
+
      ! zi/L > 0 -> near neutral upper layer:
      CALL ops_neutral(z0,zi,ol,uster,h,x, uh, zu, szn)
      sz = szn
@@ -137,7 +137,7 @@ IF (fm .GT. 0. ) THEN
      sz = fm*sz + (1. - fm)*szs
    ENDIF
 ELSE
-  
+
   !  fm = 0 -> stack_height <= 0.2*mixing_height, so stack in surface layer:
   CALL ops_surface(z0,zi,ol,uster,h,x, uh, zu, szs)
   sz = szs

@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : OPS-support   
+! AUTHOR              : OPS-support
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Subroutines supporting receptor point printing.
@@ -70,12 +70,12 @@ CONTAINS
 SUBROUTINE  print_conc_names(namco, namsec, nam_subsec)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'print_conc_names')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
-CHARACTER*(*), INTENT(IN), OPTIONAL              :: namsec                     ! 
+CHARACTER*(*), INTENT(IN)                        :: namco
+CHARACTER*(*), INTENT(IN), OPTIONAL              :: namsec
 CHARACTER*(*), INTENT(IN), OPTIONAL              :: nam_subsec(:)              ! names of sub-secondary species
 
 ! Local variable
@@ -106,11 +106,11 @@ END SUBROUTINE print_conc_names
 SUBROUTINE  print_depo_names(namdep)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'print_depo_names')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN), OPTIONAL              :: namdep                     ! 
+CHARACTER*(*), INTENT(IN), OPTIONAL              :: namdep
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -137,18 +137,18 @@ SUBROUTINE  print_values    (nrrcp, namrcp, xm, ym, error, par1, spar1, par2, sp
                              &  par6, spar6, par7, spar7, par8, spar8, par9, spar9, par10, spar10, par11, spar11, par12,       &
                              &  spar12, par13, spar13, par14, spar14)
 
-INTEGER                                          :: nrparam                    ! 
+INTEGER                                          :: nrparam
 PARAMETER (nrparam = 14)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'print_values')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
-CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! 
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! 
+INTEGER*4, INTENT(IN)                            :: nrrcp
+CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)
+REAL*4,    INTENT(IN)                            :: xm(nrrcp)
+REAL*4,    INTENT(IN)                            :: ym(nrrcp)
 REAL*4,    INTENT(IN), OPTIONAL                  :: par1(nrrcp)                ! values of parameter
 REAL*4,    INTENT(IN), OPTIONAL                  :: spar1                      ! factor in parameter
 REAL*4,    INTENT(IN), OPTIONAL                  :: par2(nrrcp)                ! values of parameter
@@ -182,14 +182,14 @@ REAL*4,    INTENT(IN), OPTIONAL                  :: spar14                     !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! should not happen as format string is long enough
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
-INTEGER*4                                        :: j                          ! 
-INTEGER*4                                        :: values(nrparam)            ! 
-REAL*4                                           :: factors(nrparam)           ! 
-REAL*4                                           :: factorscopy(nrparam)       ! 
-INTEGER*4                                        :: nrpresent                  ! 
-INTEGER*4                                        :: nrunit                     ! 
-LOGICAL                                          :: dummybool                  ! 
+INTEGER*4                                        :: i
+INTEGER*4                                        :: j
+INTEGER*4                                        :: values(nrparam)
+REAL*4                                           :: factors(nrparam)
+REAL*4                                           :: factorscopy(nrparam)
+INTEGER*4                                        :: nrpresent
+INTEGER*4                                        :: nrunit
+LOGICAL                                          :: dummybool
 
 CHARACTER*180                                    :: formatpar                  ! format in writing parameter names
 CHARACTER*180                                    :: formatval                  ! format in writing parameter values
@@ -295,15 +295,15 @@ END SUBROUTINE print_values
 LOGICAL FUNCTION has_rcp_values(spar, nrpresent, factors)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'has_rcp_values')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN), OPTIONAL                  :: spar                       ! factor in parameter
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: nrpresent                  ! 
-REAL*4,    INTENT(INOUT)                         :: factors(:)                 ! 
+INTEGER*4, INTENT(INOUT)                         :: nrpresent
+REAL*4,    INTENT(INOUT)                         :: factors(:)
 
 has_rcp_values = PRESENT(spar)
 IF (has_rcp_values) THEN
@@ -321,19 +321,19 @@ END FUNCTION has_rcp_values
 LOGICAL FUNCTION set_rcp_values(formatpar, factors, nrpresent, index, values)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'set_rcp_values')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: formatpar                  ! 
-REAL*4,    INTENT(IN)                            :: factors(nrpresent)         ! 
-INTEGER*4, INTENT(IN)                            :: nrpresent                  ! 
+REAL*4,    INTENT(IN)                            :: formatpar
+REAL*4,    INTENT(IN)                            :: factors(nrpresent)
+INTEGER*4, INTENT(IN)                            :: nrpresent
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: index                      ! 
+INTEGER*4, INTENT(INOUT)                         :: index
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: values(nrpresent)          ! 
+INTEGER*4, INTENT(OUT)                           :: values(nrpresent)
 
 set_rcp_values = index /= nrpresent
 IF (set_rcp_values) THEN

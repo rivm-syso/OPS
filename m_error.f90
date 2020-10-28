@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !-------------------------------------------------------------------------------------------------------------------------------
 !                       Copyright by
 !   National Institute of Public Health and Environment
@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE  : %B% - %S%
 ! DATE - TIME        : %E% - %U%
 ! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
+! AUTHOR             : OPS-support
 ! FIRM/INSTITUTE     : RIVM/LLO
 ! LANGUAGE           : FORTRAN-F90
 ! DESCRIPTION        : Handling of errors occurring in ops.
@@ -82,7 +82,7 @@ END TYPE TErrorCall
 !-------------------------------------------------------------------------------------------------------------------------------
 TYPE TError
    LOGICAL                                       :: haserror                   ! error has occurred
-   LOGICAL                                       :: blockparam                 ! 
+   LOGICAL                                       :: blockparam
    CHARACTER*512                                 :: message                    ! string with error message
 
    TYPE (TErrorCall), pointer                    :: callroutines               ! call stack
@@ -253,7 +253,7 @@ FUNCTION set_error(error)
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error object
 
 ! FUNCTION RESULT
-LOGICAL                                          :: set_error                  ! 
+LOGICAL                                          :: set_error
 
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (error%haserror) THEN
@@ -344,14 +344,14 @@ SUBROUTINE error_lparam(paramname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_lparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-LOGICAL,   INTENT(IN)                            :: value                      ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+LOGICAL,   INTENT(IN)                            :: value
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-TYPE (TErrorParam), POINTER                      :: param                      ! 
+TYPE (TErrorParam), POINTER                      :: param
 
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
@@ -371,14 +371,14 @@ SUBROUTINE error_rparam(paramname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_rparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value                      ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+REAL*4,    INTENT(IN)                            :: value
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-TYPE (TErrorParam), POINTER                      :: param                      ! 
+TYPE (TErrorParam), POINTER                      :: param
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
   param => make_parameter(paramname, error)
@@ -397,14 +397,14 @@ SUBROUTINE error_raparam(paramname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_raparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value(:)                   ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+REAL*4,    INTENT(IN)                            :: value(:)
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-TYPE (TErrorParam), POINTER                      :: param                      ! 
+TYPE (TErrorParam), POINTER                      :: param
 INTEGER*4                                        :: i
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
@@ -427,11 +427,11 @@ SUBROUTINE error_sparam(paramname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_sparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-CHARACTER*(*), INTENT(IN)                        :: value                      ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+CHARACTER*(*), INTENT(IN)                        :: value
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 !-------------------------------------------------------------------------------------------------------------------------------
 CALL ErrorParam(paramname, value, .FALSE., error)
@@ -448,18 +448,18 @@ SUBROUTINE error_wparam(paramname, value, wordonly, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_wparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-CHARACTER*(*), INTENT(IN)                        :: value                      ! 
-LOGICAL,   INTENT(IN)                            :: wordonly                   ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+CHARACTER*(*), INTENT(IN)                        :: value
+LOGICAL,   INTENT(IN)                            :: wordonly
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: startpos                   ! 
-INTEGER*4                                        :: endpos                     ! 
-INTEGER*4                                        :: length                     ! 
-TYPE (TErrorParam), POINTER                      :: param                      ! 
+INTEGER*4                                        :: startpos
+INTEGER*4                                        :: endpos
+INTEGER*4                                        :: length
+TYPE (TErrorParam), POINTER                      :: param
 
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
@@ -514,11 +514,11 @@ SUBROUTINE error_saparam(paramname, value, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_saparam
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-CHARACTER*(*), INTENT(IN)                        :: value(:)                   ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
+CHARACTER*(*), INTENT(IN)                        :: value(:)
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL
 integer         :: i    ! index
@@ -546,13 +546,13 @@ SUBROUTINE error_call(routinename, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: error_call
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: routinename                ! 
+CHARACTER*(*), INTENT(IN)                        :: routinename
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! LOCAL VARIABLES
-TYPE (TErrorCall), POINTER                       :: caller                     ! 
+TYPE (TErrorCall), POINTER                       :: caller
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -585,19 +585,19 @@ SUBROUTINE write_error(unit, error)
 !DEC$ ATTRIBUTES DLLEXPORT:: write_error
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: unit                       ! 
-TYPE (TError), INTENT(IN)                        :: error                      ! 
+INTEGER*4, INTENT(IN)                            :: unit
+TYPE (TError), INTENT(IN)                        :: error
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: length                     ! 
-INTEGER*4                                        :: maxlen                     ! 
-LOGICAL                                          :: hascaller                  ! 
+INTEGER*4                                        :: length
+INTEGER*4                                        :: maxlen
+LOGICAL                                          :: hascaller
 
-TYPE (TErrorParam), POINTER                      :: param                      ! 
-TYPE (TErrorParam), POINTER                      :: nextparam                  ! 
+TYPE (TErrorParam), POINTER                      :: param
+TYPE (TErrorParam), POINTER                      :: nextparam
 
-TYPE (TErrorCall), POINTER                       :: caller                     ! 
-TYPE (TErrorCall), POINTER                       :: nextcaller                 ! 
+TYPE (TErrorCall), POINTER                       :: caller
+TYPE (TErrorCall), POINTER                       :: nextcaller
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -657,7 +657,7 @@ IF (error%haserror) THEN
        WRITE(unit,'(/, 3A)') 'Procedure ''', caller%routinename(1:length), ''' was called by:'
      ENDIF
      DEALLOCATE(caller)
-   
+
      DO WHILE (ASSOCIATED(nextcaller))
        caller => nextcaller
        nextcaller => caller%nextcall
@@ -686,13 +686,13 @@ END SUBROUTINE write_error
 FUNCTION make_parameter(paramname, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
+CHARACTER*(*), INTENT(IN)                        :: paramname
 
 ! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! 
+TYPE (TError), INTENT(INOUT)                     :: error
 
 ! FUNCTION RESULT
-TYPE (TErrorParam), pointer                      :: make_parameter             ! 
+TYPE (TErrorParam), pointer                      :: make_parameter
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Allocate memory for new parameter
@@ -760,8 +760,8 @@ CHARACTER*(*), INTENT(IN)                        :: sourcestring               !
 CHARACTER*(*), INTENT(INOUT)                     :: targetstring               ! string where copied to
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: sourcelength               ! 
-INTEGER*4                                        :: maxlength                  ! 
+INTEGER*4                                        :: sourcelength
+INTEGER*4                                        :: maxlength
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -814,7 +814,7 @@ SUBROUTINE simple_sb_append(nrblanks, sourcestring, targetstring)
 !DEC$ ATTRIBUTES DLLEXPORT:: simple_sb_append
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
+INTEGER*4, INTENT(IN)                            :: nrblanks
 CHARACTER*(*), INTENT(IN)                        :: sourcestring               ! string to be appended
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -875,7 +875,7 @@ SUBROUTINE simple_lb_append(nrblanks, value, targetstring)
 !DEC$ ATTRIBUTES DLLEXPORT:: simple_lb_append
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
+INTEGER*4, INTENT(IN)                            :: nrblanks
 LOGICAL,   INTENT(IN)                            :: value                      ! logical whose value is to be appended.
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -919,7 +919,7 @@ SUBROUTINE simple_ib_append(nrblanks, intvalue, targetstring)
 !DEC$ ATTRIBUTES DLLEXPORT:: simple_ib_append
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
+INTEGER*4, INTENT(IN)                            :: nrblanks
 INTEGER*4, INTENT(IN)                            :: intvalue                   ! string to be appended
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -1018,7 +1018,7 @@ SUBROUTINE simple_rb_append(nrblanks, realvalue, significance, targetstring)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
+INTEGER*4, INTENT(IN)                            :: nrblanks
 REAL*4,    INTENT(IN)                            :: realvalue                  ! string to be appended
 INTEGER*4, INTENT(IN)                            :: significance               ! number of significant digits
 
@@ -1034,7 +1034,7 @@ REAL*4                                           :: realcopy                   !
 INTEGER*4                                        :: intcopy                    ! copy of significant realvalue
 INTEGER*4                                        :: intcopy2                   ! copy of significant realvalue
 INTEGER*4                                        :: char0                      ! '0' character
-LOGICAL                                          :: negative                   ! 
+LOGICAL                                          :: negative
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1137,13 +1137,13 @@ END SUBROUTINE simple_rb_append
 FUNCTION appendblanks(nrblanks, targetstring)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
+INTEGER*4, INTENT(IN)                            :: nrblanks
 
 ! SUBROUTINE ARGUMENTS - I/O
 CHARACTER*(*), INTENT(INOUT)                     :: targetstring               ! string waarachter wordt geplakt
 
 ! FUNCTION RESULT
-INTEGER*4                                        :: appendblanks               ! 
+INTEGER*4                                        :: appendblanks
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: position                   ! insertion position in targetstring
