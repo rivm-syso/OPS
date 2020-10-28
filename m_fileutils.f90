@@ -318,10 +318,10 @@ INTEGER*4, INTENT(IN)                            :: iu                         !
 CHARACTER*(*), INTENT(IN)                        :: filename                   ! File path
 CHARACTER*(*), INTENT(IN)                        :: rw                         ! Whether reading or writing (see interface)
 CHARACTER*(*), INTENT(IN)                        :: filetype                   ! Type of the file, written in error messages
+INTEGER,   INTENT(IN), OPTIONAL                  :: LREC                       ! Lenght of a direct access record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
-INTEGER,   INTENT(IN), OPTIONAL                 :: LREC                       ! Lenght of a direct access record
 
 ! FUNCTION RESULT
 LOGICAL                                          :: sys_open_file              ! .FALSE. when error detected

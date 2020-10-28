@@ -517,11 +517,14 @@ CALL ops_rcp_char_all(icm, iopt_vchem, isec, nsubsec, xm, ym, f_z0user, z0_user,
 !
 CALL alloc(nrrcp, precip, error)
 IF (error%haserror) GOTO 3300 ! GOTO deallocate all arrays and do error handling at end of program.
+
+#ifndef GNU
 !
 ! Clear screen
 !
-result = SYSTEM("clear")
-!
+  result = SYSTEM("clear")
+#endif
+
 ! Open the progress file and write 0.0 progression to screen.
 ! Numbs (= # characters to backspace for screen progress indicator) is 11 for this first progress call.
 !
