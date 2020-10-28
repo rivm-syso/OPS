@@ -90,8 +90,8 @@ INTEGER*4                                        :: lu                         !
 INTEGER*4                                        :: lu_dom                     ! landuse
 INTEGER*4                                        :: nwords                     ! number of words in string
 INTEGER*4                                        :: check_nwords               ! number of words in string
-INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)
-INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file)
+real                                             :: ix                         ! x coordinate of receptor point (read from file)
+real                                             :: iy                         ! y coordinate of receptor point (read from file)
 REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file)
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
 INTEGER*4                                        :: ierr                       ! error status

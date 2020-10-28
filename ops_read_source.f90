@@ -103,7 +103,7 @@ type(Tbuilding)                                  :: building                   !
 LOGICAL                                          :: check_psd                  ! check whether particle size distribution has been read
 
 !-------------------------------------------------------------------------------------------------------------------------------
- 50 FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters, possibly -999). Also possible -999 for qw
+ 50 FORMAT (i8, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters, possibly -999). Also possible -999 for qw
 
 ! Initialisation:
 end_of_file = .FALSE.
