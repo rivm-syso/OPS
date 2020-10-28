@@ -100,8 +100,8 @@ INTEGER*4                                        :: btgedr(LSBUF)
 INTEGER*4                                        :: bdegr(LSBUF)                
 INTEGER*4                                        :: bcatnr(LSBUF)               
 INTEGER*4                                        :: blandnr(LSBUF)              
-INTEGER*4                                        :: bx(LSBUF)                   
-INTEGER*4                                        :: by(LSBUF)                   
+real                                        :: bx(LSBUF)
+real                                        :: by(LSBUF)
 INTEGER*4                                        :: bnr(LSBUF)      
 type(TbuildingEffect)                            :: buildingEffect                       ! structure with building effect tables
 INTEGER*4                                        :: jb                          
@@ -318,6 +318,7 @@ REAL*4,    DIMENSION(:,:), POINTER               :: csubsec                    !
 REAL*4,    DIMENSION(:), POINTER                 :: nh3bg_rcp                  
 REAL*4,    DIMENSION(:), POINTER                 :: so2bg_rcp                  
 REAL*4,    DIMENSION(:), POINTER                 :: rno2_nox_sum               ! NO2/NOx ratio, weighed sum over classes
+real:: r1mach
 
 CHARACTER*12, DIMENSION(:), POINTER              :: namrcp                     ! receptor names
 
