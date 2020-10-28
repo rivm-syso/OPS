@@ -21,14 +21,14 @@ endif
 MODULES := binas.f90 m_aps.f90 m_commonconst.f90 m_commonfile.f90 m_depac.f90 m_error.f90 m_fileutils.f90 m_geoutils.f90 \
            m_getkey.f90 m_ops_building.f90 m_ops_emis.f90 m_ops_plumerise.f90 m_ops_utils.f90 \
            m_ops_vchem.f90 m_string.f90 m_utils.f90  \
-           ops_bgcon.f90
+           ops_bgcon.f90 ops_print_table.f90
 
 SOURCES := ops_bgcon_tra.f90 ops_bron_rek.f90 ops_brondepl.f90 ops_calc_stats.f90 ops_conc_ini.f90 \
            ops_conc_rek.f90 ops_conltexp.f90 ops_convec.f90 ops_depoparexp.f90 ops_depos_rc.f90 ops_depu.f90 \
            ops_gen_fnames.f90 ops_gen_precip.f90 ops_gen_rcp.f90 ops_get_arg.f90 ops_get_dim.f90 ops_getlu.f90 \
            ops_getlu_tra.f90 ops_getz0.f90 ops_getz0_tra.f90 ops_init.f90 ops_logfile.f90 ops_main.f90 ops_neutral.f90 \
            ops_outp_prep.f90 ops_par_chem.f90 ops_plot_uitv.f90 ops_plrise71.f90 ops_print_grid.f90 ops_print_info.f90 \
-           ops_print_kop.f90 ops_print_recep.f90 ops_print_table.f90 ops_rcp_char_1.f90 ops_rcp_char_all.f90 \
+           ops_print_kop.f90 ops_print_recep.f90 ops_rcp_char_1.f90 ops_rcp_char_all.f90 \
            ops_read_bg.f90 ops_read_ctr.f90 ops_read_emis.f90 ops_read_meteo.f90 ops_read_source.f90 ops_reken.f90 \
            ops_resist_rek.f90 ops_scalefac.f90 ops_seccmp.f90 ops_src_char.f90 ops_stab_rek.f90 ops_statparexp.f90 \
            ops_surface.f90 ops_tra_char.f90 ops_vertdisp.f90 ops_virtdist.f90 ops_write_progress.f90 ops_wv_powerlaw.f90 \
