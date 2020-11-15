@@ -60,57 +60,57 @@ PARAMETER      (ROUTINENAAM = 'ops_statparexp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: istab                       
-REAL*4,    INTENT(IN)                            :: hbron                       
-REAL*4,    INTENT(IN)                            :: qww    
-REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                     
+real,      INTENT(IN)                            :: hbron
+real,      INTENT(IN)                            :: qww
+real,      INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+real,      INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
 INTEGER*4, INTENT(IN)                            :: iwd                         
-REAL*4,    INTENT(IN)                            :: radius                      
-REAL*4,    INTENT(IN)                            :: uurtot                      
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
-REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                    
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: uurtot
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(IN)                            :: trafst(NTRAJ)
+real,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
+real,      INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 INTEGER*4, INTENT(OUT)                           :: isekt                      ! 
-REAL*4,    INTENT(OUT)                           :: vw10                       ! 
-REAL*4,    INTENT(OUT)                           :: aksek(12)                  ! 
-REAL*4,    INTENT(OUT)                           :: h0                         ! 
-REAL*4,    INTENT(OUT)                           :: hum                        ! 
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: rcaer                      ! 
-REAL*4,    INTENT(OUT)                           :: rcnh3                      ! 
-REAL*4,    INTENT(OUT)                           :: rcno2                      ! 
-REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
-REAL*4,    INTENT(OUT)                           :: htot                       ! 
-REAL*4,    INTENT(OUT)                           :: htt                        ! 
+real,      INTENT(OUT)                           :: vw10
+real,      INTENT(OUT)                           :: aksek(12)
+real,      INTENT(OUT)                           :: h0
+real,      INTENT(OUT)                           :: hum
+real,      INTENT(OUT)                           :: ol_metreg_rcp
+real,      INTENT(OUT)                           :: shear
+real,      INTENT(OUT)                           :: rcaer
+real,      INTENT(OUT)                           :: rcnh3
+real,      INTENT(OUT)                           :: rcno2
+real,      INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+real,      INTENT(OUT)                           :: uster_metreg_rcp
+real,      INTENT(OUT)                           :: pcoef
+real,      INTENT(OUT)                           :: htot
+real,      INTENT(OUT)                           :: htt
 INTEGER*4, INTENT(OUT)                           :: itra                       ! 
-REAL*4,    INTENT(OUT)                           :: aant                       ! 
-REAL*4,    INTENT(OUT)                           :: xl                         ! 
-REAL*4,    INTENT(OUT)                           :: rb                         ! 
-REAL*4,    INTENT(OUT)                           :: ra4                        ! 
-REAL*4,    INTENT(OUT)                           :: ra50                       ! 
-REAL*4,    INTENT(OUT)                           :: xvglbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xvghbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xloc                       ! 
-REAL*4,    INTENT(OUT)                           :: xl100                      ! 
-REAL*4,    INTENT(OUT)                           :: rad                        ! 
-REAL*4,    INTENT(OUT)                           :: rcso2                      ! 
-REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-REAL*4,    INTENT(OUT)                           :: regenk                     ! 
-REAL*4,    INTENT(OUT)                           :: buil                       ! 
-REAL*4,    INTENT(OUT)                           :: rint                       ! 
-REAL*4,    INTENT(OUT)                           :: percvk                     ! 
+real,      INTENT(OUT)                           :: aant
+real,      INTENT(OUT)                           :: xl
+real,      INTENT(OUT)                           :: rb
+real,      INTENT(OUT)                           :: ra4
+real,      INTENT(OUT)                           :: ra50
+real,      INTENT(OUT)                           :: xvglbr
+real,      INTENT(OUT)                           :: xvghbr
+real,      INTENT(OUT)                           :: xloc
+real,      INTENT(OUT)                           :: xl100
+real,      INTENT(OUT)                           :: rad
+real,      INTENT(OUT)                           :: rcso2
+real,      INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
+real,      INTENT(OUT)                           :: regenk
+real,      INTENT(OUT)                           :: buil
+real,      INTENT(OUT)                           :: rint
+real,      INTENT(OUT)                           :: percvk
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: is                         ! 
@@ -120,28 +120,28 @@ INTEGER*4                                        :: iss                        !
 INTEGER*4                                        :: itrx                       ! 
 INTEGER*4                                        :: iwdd                       ! 
 INTEGER*4                                        :: itraj                      ! index of distance class
-REAL*4                                           :: ccor                       ! concentration correction factor for area sources
-REAL*4                                           :: stt(NCOMP)                 ! 
-REAL*4                                           :: tal(NTRAJ)                 ! 
-REAL*4                                           :: dscor(NTRAJ)               ! 
-REAL*4                                           :: phi                        ! 
-REAL*4                                           :: r                          ! 
-REAL*4                                           :: r4                         ! 
-REAL*4                                           :: r50                        ! 
-REAL*4                                           :: s                          ! interpolation factor (0-1) for the contribution of wind sector is
-                                                                               ! (i.e. the second interpolation sector), to the wind direction 
-                                                                               ! from source to receptor  
-                                                                               
-REAL*4                                           :: s1(NTRAJ)                  ! interpolation factor for distance class (interpolates data between
+real                                             :: ccor                       ! concentration correction factor for area sources
+real                                             :: stt(NCOMP)
+real                                             :: tal(NTRAJ)
+real                                             :: dscor(NTRAJ)
+real                                             :: phi
+real                                             :: r
+real                                             :: r4
+real                                             :: r50
+real                                             :: s                          ! interpolation factor (0-1) for the contribution of wind sector is
+                                                                               ! (i.e. the second interpolation sector), to the wind direction
+                                                                               ! from source to receptor
+
+real                                             :: s1(NTRAJ)                  ! interpolation factor for distance class (interpolates data between
                                                                                ! lower and upper class boundary). Note that if ids is the class index
                                                                                ! where the source-receptor distance lies in, then 0 <= s1(ids) <= 1 and
                                                                                ! s1(i) = 0 for i /= ids
-                                                                               
-REAL*4                                           :: stta(NCOMP)                ! 
-REAL*4                                           :: sttr(NCOMP)                ! 
-REAL*4                                           :: sa                         ! 
-REAL*4                                           :: so                         ! 
-REAL*4                                           :: sp                         ! 
+
+real                                             :: stta(NCOMP)
+real                                             :: sttr(NCOMP)
+real                                             :: sa
+real                                             :: so
+real                                             :: sp
 real                                             :: dum                        ! dummy output variable
 
 ! SCCS-ID VARIABLES
@@ -341,16 +341,16 @@ PARAMETER      (ROUTINENAAM = 'bepafst')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
-REAL*4,    INTENT(IN)                            :: s(NTRAJ)                   ! 
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
+real,      INTENT(IN)                            :: s(NTRAJ)
+real,      INTENT(IN)                            :: trafst(NTRAJ)
+real,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: dscor(NTRAJ)               ! Note: dscor is not used anymore after this routine
-REAL*4,    INTENT(INOUT)                         :: xl                         ! 
+real,      INTENT(INOUT)                         :: dscor(NTRAJ)               ! Note: dscor is not used anymore after this routine
+real,      INTENT(INOUT)                         :: xl
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
+real,      INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: ids                        ! 
@@ -446,27 +446,27 @@ END SUBROUTINE bepafst
 SUBROUTINE voorlpl(istab, isek, hbron, qww, astat, vw10, pcoef, htt)
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
+CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER      (ROUTINENAAM = 'voorlpl')
 
 ! CONSTANTS
-REAL*4                                           :: VWREP(NSTAB)               ! 
+real                                             :: VWREP(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(IN)                            :: hbron
+real,      INTENT(IN)                            :: qww
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: vw10                       ! 
-REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
-REAL*4,    INTENT(OUT)                           :: htt                        ! 
+real,      INTENT(OUT)                           :: vw10
+real,      INTENT(OUT)                           :: pcoef
+real,      INTENT(OUT)                           :: htt
 
 ! LOCAL VARIABLES
-REAL*4                                           :: delh                       ! 
-REAL*4                                           :: utop                       ! 
+real                                             :: delh
+real                                             :: utop
 
 ! DATA
 DATA VWREP /2.6, 3.8, 4.0, 6.9, 1.4, 2.5/
@@ -550,24 +550,24 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ronafhpar')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disxx                      ! 
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: disxx
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: s                          ! 
+real,      INTENT(IN)                            :: s
 INTEGER*4, INTENT(IN)                            :: isek                       ! middle of contributing wind sectors; note that ronafhpar
                                                                                ! is called with isek = isekt, i.e. the first of the two 
                                                                                ! interpolating wind sectors
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
-REAL*4,    INTENT(IN)                            :: s1(NTRAJ)                  ! 
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(IN)                            :: s1(NTRAJ)
 INTEGER*4, INTENT(IN)                            :: ids                        ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: aksek(12)                  ! 
-REAL*4,    INTENT(OUT)                           :: sa                         ! 
-REAL*4,    INTENT(OUT)                           :: phi                        ! 
-REAL*4,    INTENT(OUT)                           :: so                         ! 
-REAL*4,    INTENT(OUT)                           :: stta(NCOMP)                ! 
-REAL*4,    INTENT(OUT)                           :: sttr(NCOMP)                ! 
+real,      INTENT(OUT)                           :: aksek(12)
+real,      INTENT(OUT)                           :: sa
+real,      INTENT(OUT)                           :: phi
+real,      INTENT(OUT)                           :: so
+real,      INTENT(OUT)                           :: stta(NCOMP)
+real,      INTENT(OUT)                           :: sttr(NCOMP)
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! 
@@ -575,13 +575,13 @@ INTEGER*4                                        :: icomp                      !
 INTEGER*4                                        :: lpsek                      ! 
 INTEGER*4                                        :: jsek                       ! 
 INTEGER*4                                        :: scomp(14)                  ! 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: asek                       ! 
-REAL*4                                           :: statfactor                 ! 
-REAL*4                                           :: zz                         ! 
-REAL*4                                           :: p1                         ! 
-REAL*4                                           :: p2                         ! 
-REAL*4                                           :: pa                         ! 
+real                                             :: a
+real                                             :: asek
+real                                             :: statfactor
+real                                             :: zz
+real                                             :: p1
+real                                             :: p2
+real                                             :: pa
 
 ! DATA
 !     De arrayelementen uit de meteostatistiek die hier gebruikt worden.
@@ -758,24 +758,24 @@ PARAMETER      (ROUTINENAAM = 'windsek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
+real,      INTENT(IN)                            :: htt
+real,      INTENT(IN)                            :: disx
 INTEGER*4, INTENT(IN)                            :: iwd                        ! 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: isekt                      ! 
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: htot                       ! 
+real,      INTENT(OUT)                           :: shear
+real,      INTENT(OUT)                           :: htot
 INTEGER*4, INTENT(OUT)                           :: iwdd                       ! 
 INTEGER*4, INTENT(OUT)                           :: iss                        ! 
 INTEGER*4, INTENT(OUT)                           :: is                         ! 
-REAL*4,    INTENT(OUT)                           :: s                          ! 
+real,      INTENT(OUT)                           :: s
 
 ! LOCAL VARIABLES
-REAL*4                                           :: alpha                      ! 
-REAL*4                                           :: sek                        ! 
+real                                             :: alpha
+real                                             :: sek
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -904,20 +904,20 @@ PARAMETER      (ROUTINENAAM = 'windcorr')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: disx
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 INTEGER*4, INTENT(IN)                            :: iwdd                       ! 
 INTEGER*4, INTENT(IN)                            :: is                         ! 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: iss                        ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: ispecial                   ! 
-REAL*4,    INTENT(OUT)                           :: phi                        ! is not used as output
-REAL*4,    INTENT(OUT)                           :: s                          ! 
+real,      INTENT(OUT)                           :: phi                        ! is not used as output
+real,      INTENT(OUT)                           :: s
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: iwr                        ! 
@@ -1005,12 +1005,12 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'interp_ctr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! 
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: trafst(NTRAJ)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: itra                       ! 
-REAL*4,    INTENT(OUT)                           :: s(NTRAJ)                   ! 
+real,      INTENT(OUT)                           :: s(NTRAJ)
 INTEGER*4, INTENT(OUT)                           :: ids                        ! 
 
 ! LOCAL VARIABLES
@@ -1099,17 +1099,17 @@ PARAMETER      (ROUTINENAAM = 'interp_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
-REAL*4,    INTENT(IN)                            :: s(NTRAJ)                   ! 
+real,      INTENT(IN)                            :: s(NTRAJ)
 INTEGER*4, INTENT(IN)                            :: ids                        ! index element in s dat niet 0 is.
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
 INTEGER*4, INTENT(IN)                            :: iss                        ! 
-REAL*4,    INTENT(IN)                            :: tal(NTRAJ)                 ! 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(IN)                            :: tal(NTRAJ)
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: itrx                       ! 
-REAL*4,    INTENT(OUT)                           :: aant                       ! 
-REAL*4,    INTENT(OUT)                           :: stt(NCOMP)                 ! 
+real,      INTENT(OUT)                           :: aant
+real,      INTENT(OUT)                           :: stt(NCOMP)
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: icomp                      ! 
@@ -1185,39 +1185,39 @@ INTEGER*4, INTENT(IN)                            :: istab                      !
 INTEGER*4, INTENT(IN)                            :: iss                        ! 
 INTEGER*4, INTENT(IN)                            :: itrx                       ! 
 INTEGER*4, INTENT(IN)                            :: is                         ! 
-REAL*4,    INTENT(IN)                            :: s                          ! 
+real,      INTENT(IN)                            :: s
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
-REAL*4,    INTENT(IN)                            :: stt(NCOMP)                 ! 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+real,      INTENT(IN)                            :: stt(NCOMP)
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: xl                         ! 
-REAL*4,    INTENT(OUT)                           :: vw10                       ! 
-REAL*4,    INTENT(OUT)                           :: rb                         ! 
-REAL*4,    INTENT(OUT)                           :: ra4                        ! 
-REAL*4,    INTENT(OUT)                           :: ra50                       ! 
-REAL*4,    INTENT(OUT)                           :: xvglbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xvghbr                     ! 
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
-REAL*4,    INTENT(OUT)                           :: h0                         ! 
-REAL*4,    INTENT(OUT)                           :: xloc                       ! 
-REAL*4,    INTENT(OUT)                           :: xl100                      ! 
-REAL*4,    INTENT(OUT)                           :: sp                         ! 
-REAL*4,    INTENT(OUT)                           :: rad                        ! 
-REAL*4,    INTENT(OUT)                           :: rcso2                      ! 
-REAL*4,    INTENT(OUT)                           :: hum                        ! 
-REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
-REAL*4,    INTENT(OUT)                           :: rcnh3                      ! 
-REAL*4,    INTENT(OUT)                           :: rcno2                      ! 
-REAL*4,    INTENT(OUT)                           :: rcaer                      ! 
-REAL*4,    INTENT(OUT)                           :: buil                       ! 
-REAL*4,    INTENT(OUT)                           :: rint                       ! 
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: dscor(NTRAJ)               ! 
-REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-REAL*4,    INTENT(OUT)                           :: regenk                     ! 
+real,      INTENT(OUT)                           :: xl
+real,      INTENT(OUT)                           :: vw10
+real,      INTENT(OUT)                           :: rb
+real,      INTENT(OUT)                           :: ra4
+real,      INTENT(OUT)                           :: ra50
+real,      INTENT(OUT)                           :: xvglbr
+real,      INTENT(OUT)                           :: xvghbr
+real,      INTENT(OUT)                           :: uster_metreg_rcp
+real,      INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+real,      INTENT(OUT)                           :: ol_metreg_rcp
+real,      INTENT(OUT)                           :: h0
+real,      INTENT(OUT)                           :: xloc
+real,      INTENT(OUT)                           :: xl100
+real,      INTENT(OUT)                           :: sp
+real,      INTENT(OUT)                           :: rad
+real,      INTENT(OUT)                           :: rcso2
+real,      INTENT(OUT)                           :: hum
+real,      INTENT(OUT)                           :: pcoef
+real,      INTENT(OUT)                           :: rcnh3
+real,      INTENT(OUT)                           :: rcno2
+real,      INTENT(OUT)                           :: rcaer
+real,      INTENT(OUT)                           :: buil
+real,      INTENT(OUT)                           :: rint
+real,      INTENT(OUT)                           :: shear
+real,      INTENT(OUT)                           :: dscor(NTRAJ)
+real,      INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
+real,      INTENT(OUT)                           :: regenk
 
 ! DATA
 ! MENGH is default value for mixing height for 6 stability classes

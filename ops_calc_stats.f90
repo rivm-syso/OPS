@@ -53,12 +53,12 @@ PARAMETER    (ROUTINENAAM = 'ops_calc_stats')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
-REAL*4,    INTENT(IN)                            :: frac(nrrcp)                ! fraction per cell inside NL
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration [ug/m3]
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration [ug/m3]
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
-REAL*4,    INTENT(IN)                            :: gemre                      ! yearly mean precipitation from meteo statistics [mm/h]
+real,      INTENT(IN)                            :: frac(nrrcp)                ! fraction per cell inside NL
+real,      INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration [ug/m3]
+real,      INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration [ug/m3]
+real,      INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
+real,      INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
+real,      INTENT(IN)                            :: gemre                      ! yearly mean precipitation from meteo statistics [mm/h]
 DOUBLE PRECISION, INTENT(IN)                     :: sdrypri                    ! 
 DOUBLE PRECISION, INTENT(IN)                     :: sdrysec                    ! 
 DOUBLE PRECISION, INTENT(IN)                     :: somvnpri                   ! 
@@ -67,47 +67,47 @@ DOUBLE PRECISION, INTENT(IN)                     :: vvchem                     !
 DOUBLE PRECISION, INTENT(IN)                     :: vtel                       ! 
 DOUBLE PRECISION, INTENT(IN)                     :: telvnpri                   ! 
 DOUBLE PRECISION, INTENT(IN)                     :: telvnsec                   ! 
-REAL*4,    INTENT(IN)                            :: grid                       ! 
-REAL*4,    INTENT(IN)                            :: conc_cf                    ! 
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+real,      INTENT(IN)                            :: grid
+real,      INTENT(IN)                            :: conc_cf
+real,      INTENT(IN)                            :: amol21
+real,      INTENT(IN)                            :: ugmoldep
+real,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 
 ! SUBROUTINE ARGUMENTS - I/O
 DOUBLE PRECISION, INTENT(INOUT)                  :: snatpri                    ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec                    ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: gemcpri                    ! grid mean for primary concentration [ug/m3]
-REAL*4,    INTENT(OUT)                           :: gemcsec                    ! grid mean for secondary concentration [ug/m3]
-REAL*4,    INTENT(OUT)                           :: totddep                    ! grid total dry deposition (g/s)
-REAL*4,    INTENT(OUT)                           :: gemddep                    ! grid mean for dry deposition ["depeh"]
-REAL*4,    INTENT(OUT)                           :: gemddpri                   ! grid mean for dry deposition of primary component ["depeh"]
-REAL*4,    INTENT(OUT)                           :: gemddsec                   ! grid mean for dry deposition of secondary component ["depeh"]
-REAL*4,    INTENT(OUT)                           :: ddrpri                     ! effective dry deposition velocity (primary component) [cm/s]
-REAL*4,    INTENT(OUT)                           :: ddrsec                     ! effective dry deposition velocity (secondary component) [cm/s]
-REAL*4,    INTENT(OUT)                           :: totwdep                    ! grid total wet deposition (g/s)
-REAL*4,    INTENT(OUT)                           :: gemwdep                    ! grid mean for wet deposition ["depeh"]
-REAL*4,    INTENT(OUT)                           :: gemwdpri                   ! grid mean for wet deposition of primary component ["depeh"]
-REAL*4,    INTENT(OUT)                           :: gemwdsec                   ! grid mean for wet deposition of secondary component ["depeh"]
-REAL*4,    INTENT(OUT)                           :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
-REAL*4,    INTENT(OUT)                           :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
-REAL*4,    INTENT(OUT)                           :: gemprec                    ! grid mean yearly precipitation [mm]
-REAL*4,    INTENT(OUT)                           :: tottdep                    ! grid total of total deposition (g/s)
-REAL*4,    INTENT(OUT)                           :: gemtdep                    ! grid mean of total deposition ["depeh"]
-REAL*4,    INTENT(OUT)                           :: ccr                        ! effective chemical conversion rate [%/h]
-REAL*4,    INTENT(OUT)                           :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+real,      INTENT(OUT)                           :: gemcpri                    ! grid mean for primary concentration [ug/m3]
+real,      INTENT(OUT)                           :: gemcsec                    ! grid mean for secondary concentration [ug/m3]
+real,      INTENT(OUT)                           :: totddep                    ! grid total dry deposition (g/s)
+real,      INTENT(OUT)                           :: gemddep                    ! grid mean for dry deposition ["depeh"]
+real,      INTENT(OUT)                           :: gemddpri                   ! grid mean for dry deposition of primary component ["depeh"]
+real,      INTENT(OUT)                           :: gemddsec                   ! grid mean for dry deposition of secondary component ["depeh"]
+real,      INTENT(OUT)                           :: ddrpri                     ! effective dry deposition velocity (primary component) [cm/s]
+real,      INTENT(OUT)                           :: ddrsec                     ! effective dry deposition velocity (secondary component) [cm/s]
+real,      INTENT(OUT)                           :: totwdep                    ! grid total wet deposition (g/s)
+real,      INTENT(OUT)                           :: gemwdep                    ! grid mean for wet deposition ["depeh"]
+real,      INTENT(OUT)                           :: gemwdpri                   ! grid mean for wet deposition of primary component ["depeh"]
+real,      INTENT(OUT)                           :: gemwdsec                   ! grid mean for wet deposition of secondary component ["depeh"]
+real,      INTENT(OUT)                           :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
+real,      INTENT(OUT)                           :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
+real,      INTENT(OUT)                           :: gemprec                    ! grid mean yearly precipitation [mm]
+real,      INTENT(OUT)                           :: tottdep                    ! grid total of total deposition (g/s)
+real,      INTENT(OUT)                           :: gemtdep                    ! grid mean of total deposition ["depeh"]
+real,      INTENT(OUT)                           :: ccr                        ! effective chemical conversion rate [%/h]
+real,      INTENT(OUT)                           :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: somcsec                    ! sum of secondary concentrations [ug/m3]
-REAL*4                                           :: somddep                    ! sum of dry depositions ["depeh"]
-REAL*4                                           :: somwdep                    ! sum of wet depositions ["depeh"]
+real                                             :: somcsec                    ! sum of secondary concentrations [ug/m3]
+real                                             :: somddep                    ! sum of dry depositions ["depeh"]
+real                                             :: somwdep                    ! sum of wet depositions ["depeh"]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: cf                         ! conversion factor
-REAL*4                                           :: somcpri                    ! sum of primary concentrations [ug/m3]
-REAL*4                                           :: som_subsec(nsubsec)        ! sum of concentrations of sub-secondary species [ug/m3]
-REAL*4                                           :: somfrac                    ! sum of frac
+real                                             :: cf                         ! conversion factor
+real                                             :: somcpri                    ! sum of primary concentrations [ug/m3]
+real                                             :: som_subsec(nsubsec)        ! sum of concentrations of sub-secondary species [ug/m3]
+real                                             :: somfrac                    ! sum of frac
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
 
 ! SCCS-ID VARIABLES

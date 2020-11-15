@@ -54,14 +54,14 @@ PARAMETER    (ROUTINENAAM = 'ops_src_char')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
-REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
+real,      INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
 INTEGER*4, INTENT(IN)                            :: xb                         ! x-coordinaat van huidige bron in buffer
 INTEGER*4, INTENT(IN)                            :: yb                         ! y-coordinaat van huidige bron in buffer
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_src                     ! roughness length at source; from z0-map [m]
+real,      INTENT(OUT)                           :: z0_src                     ! roughness length at source; from z0-map [m]
 TYPE (TError)                                    :: error  
 
 ! SCCS-ID VARIABLES

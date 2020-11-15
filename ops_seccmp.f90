@@ -52,72 +52,72 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_seccmp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
-REAL*4,    INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
-REAL*4,    INTENT(IN)                            :: rcsec                      ! opp. weerstand sec. component
-REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
-                                                                               ! (rout << rain-out = in-cloud) [-] 
-REAL*4,    INTENT(IN)                            :: ccc                        ! undepleted concentration including part above mixing layer; 
+real,      INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
+real,      INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
+real,      INTENT(IN)                            :: rcsec                      ! opp. weerstand sec. component
+real,      INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
+                                                                               ! (rout << rain-out = in-cloud) [-]
+real,      INTENT(IN)                            :: ccc                        ! undepleted concentration including part above mixing layer;
                                                                                ! is needed for e.g. wet deposition.
-REAL*4,    INTENT(IN)                            :: vv                         ! total source depletion factor for primary component
-REAL*4,    INTENT(IN)                            :: amol1                      ! molgewicht primaire component
-REAL*4,    INTENT(IN)                            :: amol2                      ! molgewicht secundaire component
-REAL*4,    INTENT(IN)                            :: xvg                        ! factor not used; xvg = 1
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: grad                       ! 
-REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: virty                      ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: twt                        ! 
-REAL*4,    INTENT(IN)                            :: ri                         ! 
-REAL*4,    INTENT(IN)                            :: rb                         ! 
-REAL*4,    INTENT(IN)                            :: ra50                       ! 
-REAL*4,    INTENT(IN)                            :: cgt                        ! 
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    ! 
-REAL*4,    INTENT(IN)                            :: ra50_rcp                   ! 
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! 
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 ! 
-REAL*4,    INTENT(IN)                            :: ra50tra                    ! 
-REAL*4,    INTENT(IN)                            :: rb_tra                     ! 
+real,      INTENT(IN)                            :: vv                         ! total source depletion factor for primary component
+real,      INTENT(IN)                            :: amol1                      ! molgewicht primaire component
+real,      INTENT(IN)                            :: amol2                      ! molgewicht secundaire component
+real,      INTENT(IN)                            :: xvg                        ! factor not used; xvg = 1
+real,      INTENT(IN)                            :: sigz
+real,      INTENT(IN)                            :: grad
+real,      INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: xloc
+real,      INTENT(IN)                            :: vw10
+real,      INTENT(IN)                            :: pcoef
+real,      INTENT(IN)                            :: virty
+real,      INTENT(IN)                            :: regenk
+real,      INTENT(IN)                            :: htot
+real,      INTENT(IN)                            :: onder
+real,      INTENT(IN)                            :: twt
+real,      INTENT(IN)                            :: ri
+real,      INTENT(IN)                            :: rb
+real,      INTENT(IN)                            :: ra50
+real,      INTENT(IN)                            :: cgt
+real,      INTENT(IN)                            :: xvghbr
+real,      INTENT(IN)                            :: xvglbr
+real,      INTENT(IN)                            :: vnatpri
+real,      INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
+real,      INTENT(IN)                            :: ra4_rcp
+real,      INTENT(IN)                            :: ra50_rcp
+real,      INTENT(IN)                            :: rb_rcp
+real,      INTENT(IN)                            :: rc_sec_rcp
+real,      INTENT(IN)                            :: ra50tra
+real,      INTENT(IN)                            :: rb_tra
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: vnatsec                    ! 
-REAL*4,    INTENT(OUT)                           :: cgtsec                     ! 
-REAL*4,    INTENT(OUT)                           :: vgsec                      ! deposition velocity secondary component [m/s[
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
-REAL*4,    INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
-REAL*4,    INTENT(OUT)                           :: vg50trans                  ! 
+real,      INTENT(OUT)                           :: pr
+real,      INTENT(OUT)                           :: vnatsec
+real,      INTENT(OUT)                           :: cgtsec
+real,      INTENT(OUT)                           :: vgsec                      ! deposition velocity secondary component [m/s[
+real,      INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
+real,      INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
+real,      INTENT(OUT)                           :: vg50trans
 
 ! LOCAL VARIABLES
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: h                          ! 
-REAL*4                                           :: hl                         ! 
-REAL*4                                           :: gradsec                    ! 
-REAL*4                                           :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
+real                                             :: a
+real                                             :: diameter
+real                                             :: h
+real                                             :: hl
+real                                             :: gradsec
+real                                             :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
 
-REAL*4                                           :: rcrs                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: sigzsec                    ! 
-REAL*4                                           :: vgsect                     ! 
-REAL*4                                           :: vnatrainv                  ! uitregensnelheid
-REAL*4                                           :: vnatwashv                  ! uitwassnelheid
-REAL*4                                           :: vw                         ! 
-REAL*4                                           :: qsec_uncorr                ! uncorrected qsec (from seccd)
-REAL*4                                           :: xg
+real                                             :: rcrs
+real                                             :: s
+real                                             :: sigzsec
+real                                             :: vgsect
+real                                             :: vnatrainv                  ! uitregensnelheid
+real                                             :: vnatwashv                  ! uitwassnelheid
+real                                             :: vw
+real                                             :: qsec_uncorr                ! uncorrected qsec (from seccd)
+real                                             :: xg
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -368,32 +368,32 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'seccd')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: vgpri                      ! 
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! loss rate due to wet deposition of primary component [%/h]
-REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: vgsec                      ! 
-REAL*4,    INTENT(IN)                            :: vnatsec                    ! loss rate due to wet deposition of secondary component [%/h]
-REAL*4,    INTENT(IN)                            :: amol1                      ! molecular weight primary component
-REAL*4,    INTENT(IN)                            :: amol2                      ! molecular weight secondary component
-REAL*4,    INTENT(IN)                            :: diameter                   ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
+real,      INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: vgpri
+real,      INTENT(IN)                            :: vnatpri                    ! loss rate due to wet deposition of primary component [%/h]
+real,      INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
+real,      INTENT(IN)                            :: vgsec
+real,      INTENT(IN)                            :: vnatsec                    ! loss rate due to wet deposition of secondary component [%/h]
+real,      INTENT(IN)                            :: amol1                      ! molecular weight primary component
+real,      INTENT(IN)                            :: amol2                      ! molecular weight secondary component
+real,      INTENT(IN)                            :: diameter
+real,      INTENT(IN)                            :: sigz
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species at receptor [g/s]
+real,      INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
+real,      INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species at receptor [g/s]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: itim                       ! time step index
 INTEGER*4                                        :: ntim                       ! number of time steps
-REAL*4                                           :: a                          ! effective transport distance over which conversion takes place
-REAL*4                                           :: a1                         ! 
-REAL*4                                           :: b                          ! 
-REAL*4                                           :: dt                         ! length of time step [s]
+real                                             :: a                          ! effective transport distance over which conversion takes place
+real                                             :: a1
+real                                             :: b
+real                                             :: dt                         ! length of time step [s]
 integer                                          :: it                         ! iteration count
 integer, parameter                               :: nit = 10                   ! maximal number of iterations
 logical                                          :: converged                  ! iteration procedure for Q(it) has converged : abs(Q(it-1) = Q(it)) < epsa + epsr * Q(it)
@@ -409,8 +409,8 @@ real                                             :: loss_sec                   !
 real                                             :: e3_pri_sec                 ! factor in production term of secondary species = (Msec/Mpri) * delta_t * k_chem
 real                                             :: e1_pri                     ! source depletion factor for primary species, due to dry deposition, wet deposition and chemical conversion
 real                                             :: e1_sec                     ! source depletion factor for secondary species, due to dry deposition, wet deposition and chemical conversion
-REAL*4                                           :: xseg                       ! end point of plume segment [m]
-REAL*4                                           :: dx                         ! travelled distance during one time step = length of plume segment [m]
+real                                             :: xseg                       ! end point of plume segment [m]
+real                                             :: dx                         ! travelled distance during one time step = length of plume segment [m]
 logical                                          :: lfound_seg_depos           ! plume segment where deposition starts has been found
                                                                                
 ! SCCS-ID VARIABLES

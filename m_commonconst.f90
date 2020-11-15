@@ -65,38 +65,38 @@ INTEGER*4, PARAMETER                             :: NLU         = 9             
 INTEGER*4, PARAMETER                             :: ncolBuildingEffectTable = 5        ! 1st column corresponds to distance from building. 2-5 correspond to different building types
 
 ! CONSTANTS - overige
-REAL*4                                           :: z0_FACT_NL  = 10000.               ! default factor for conversion of z0_nl gridvalue to meters
-REAL*4                                           :: z0_FACT_EUR = 10000.               ! default factor for conversion of z0_eur gridvalue to meters
-                                                                                       
-REAL*4, PARAMETER                                :: zmet_T      = 1.5                  ! reference height for temperature measurements [m]
+real                                             :: z0_FACT_NL  = 10000.               ! default factor for conversion of z0_nl gridvalue to meters
+real                                             :: z0_FACT_EUR = 10000.               ! default factor for conversion of z0_eur gridvalue to meters
 
-INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]  
+real,   PARAMETER                                :: zmet_T      = 1.5                  ! reference height for temperature measurements [m]
+
+INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]
 INTEGER*4, PARAMETER                             :: MISVALNUM   = -9999                ! missing value
 INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
 INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2020                 ! future year, used for interpolating background maps
-REAL*4                                           :: r4_for_tiny                        ! help variable to define EPS_DELTA
-REAL*8                                           :: r8_for_tiny                        ! help variable to define DEPS_DELTA
-REAL*4,    PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
-REAL*8,    PARAMETER                             :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
-REAL*4,    PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]      
+real                                             :: r4_for_tiny                        ! help variable to define EPS_DELTA
+double precision                                 :: r8_for_tiny                        ! help variable to define DEPS_DELTA
+real,      PARAMETER                             :: EPS_DELTA   = tiny(r4_for_tiny)    ! tiny number (real)
+double precision,    PARAMETER                   :: DPEPS_DELTA = tiny(r8_for_tiny)    ! tiny number (double precision)
+real,      PARAMETER                             :: HUMAX       = 500.                 ! maximal plume height [m]
 CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.0.0.0'            ! model version OPS-LT
 CHARACTER*20, PARAMETER                          :: RELEASEDATE = '26 dec 2019'        ! release date
 
-!
+
 ! CONSTANTS - Data
-!
+
 INTEGER*4                                        :: NACHTZOMER(NSTAB, NTRAJ)           ! relative occurrences (%) of nighttime hours in summer (for each stability class and distance class) ("NACHT" = night, "ZOMER" = summer)
 INTEGER*4                                        :: NACHTWINTER(NSTAB, NTRAJ)          ! relative occurrences (%) of nighttime hours in winter (for each stability class and distance class) ("NACHT" = night)
-REAL*4                                           :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph  
-REAL*4                                           :: STOKES(NPARTCLASS)                 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class
-REAL*4                                           :: SCWINTER(NSTAB)                    ! variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter)
-REAL*4                                           :: cf_so2(NBGMAPS)                    ! correction factors for the difference between model output and measurements for SO2
-REAL*4                                           :: cf_nox(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NOx
-REAL*4                                           :: cf_nh3(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NH3
-REAL*4                                           :: tf_so2(NYEARS + 1)                 ! trendfactors for SO2: concentration in year T, relative to the concentration in reference year
-REAL*4                                           :: tf_no2(NYEARS + 1)                 ! trendfactors for NO2: concentration in year T, relative to the concentration in reference year
-REAL*4                                           :: tf_nh3(NYEARS + 1)                 ! trendfactors for NH3: concentration in year T, relative to the concentration in reference year
-REAL*4                                           :: nox_no2_beta(2)                    ! coefficient in conversion NO2 = beta(1)*log(NOx) + beta(2)
+real                                             :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph
+real                                             :: STOKES(NPARTCLASS)                 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class
+real                                             :: SCWINTER(NSTAB)                    ! variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter)
+real                                             :: cf_so2(NBGMAPS)                    ! correction factors for the difference between model output and measurements for SO2
+real                                             :: cf_nox(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NOx
+real                                             :: cf_nh3(NBGMAPS)                    ! correction factors for the difference between model output and measurements for NH3
+real                                             :: tf_so2(NYEARS + 1)                 ! trendfactors for SO2: concentration in year T, relative to the concentration in reference year
+real                                             :: tf_no2(NYEARS + 1)                 ! trendfactors for NO2: concentration in year T, relative to the concentration in reference year
+real                                             :: tf_nh3(NYEARS + 1)                 ! trendfactors for NH3: concentration in year T, relative to the concentration in reference year
+real                                             :: nox_no2_beta(2)                    ! coefficient in conversion NO2 = beta(1)*log(NOx) + beta(2)
 CHARACTER*10                                     :: CNAME(3,5)                         ! names of substances (primary, secondary, second secondary, deposited, name in DEPAC)
 CHARACTER*10                                     :: CNAME_SUBSEC(4)                    ! names of sub-secondary species (HNO3, NO3_C, NO3_F)
 CHARACTER*10                                     :: UNITS(2)                           ! units for concentration

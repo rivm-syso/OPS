@@ -75,9 +75,9 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_depu')
 
 ! CONSTANTS
-REAL*4                                           :: P                          ! exponent (experimenteel bepaald)
-REAL*4                                           :: PR                         ! Prandtl number
-REAL*4                                           :: VONK                       ! Von Karman constante
+real                                             :: P                          ! exponent (experimenteel bepaald)
+real                                             :: PR                         ! Prandtl number
+real                                             :: VONK                       ! Von Karman constante
 
 PARAMETER   (VONK = 0.4  )
 PARAMETER   (P    = 2./3.)
@@ -85,21 +85,21 @@ PARAMETER   (PR   = 0.72 )
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icnr                       ! component number for calculation of rb
-REAL*4,    INTENT(IN)                            :: z0                         ! surface roughness length in meters.
-REAL*4,    INTENT(IN)                            :: zra                        ! height for which deposition velocity is calculated (m)
-REAL*4,    INTENT(IN)                            :: d                          ! displacement height (usually 0.7 * vegetation height) (m)
-REAL*4,    INTENT(IN)                            :: rc                         ! canopy resistance in (s/m)
-REAL*4,    INTENT(IN)                            :: ol                         ! monin-obukhov length (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
+real,      INTENT(IN)                            :: z0                         ! surface roughness length in meters.
+real,      INTENT(IN)                            :: zra                        ! height for which deposition velocity is calculated (m)
+real,      INTENT(IN)                            :: d                          ! displacement height (usually 0.7 * vegetation height) (m)
+real,      INTENT(IN)                            :: rc                         ! canopy resistance in (s/m)
+real,      INTENT(IN)                            :: ol                         ! monin-obukhov length (m)
+real,      INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: vg                         ! depositin velocity at zra (m/s)
-REAL*4,    INTENT(OUT)                           :: ra                         ! aerodynamic resistance at zra (s/m)
-REAL*4,    INTENT(OUT)                           :: rb                         ! laminar layer resistance for component incr (s/m)
+real,      INTENT(OUT)                           :: vg                         ! depositin velocity at zra (m/s)
+real,      INTENT(OUT)                           :: ra                         ! aerodynamic resistance at zra (s/m)
+real,      INTENT(OUT)                           :: rb                         ! laminar layer resistance for component incr (s/m)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: sc                         ! Schmidt number
-REAL*4                                           :: zru                        ! correction for displacement height
+real                                             :: sc                         ! Schmidt number
+real                                             :: zru                        ! correction for displacement height
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -161,13 +161,13 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'fpsih')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: eta                        ! stabiliteitsparameter z/l
+real,      INTENT(IN)                            :: eta                        ! stabiliteitsparameter z/l
 
 ! OUTPUT
 !     Return value
 !
 ! LOCAL VARIABLES
-REAL*4                                           :: y                          ! hulpvariabele bij de berekening
+real                                             :: y                          ! hulpvariabele bij de berekening
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

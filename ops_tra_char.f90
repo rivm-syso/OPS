@@ -60,10 +60,10 @@ PARAMETER    (ROUTINENAAM = 'ops_tra_char')
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
-REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
+real,      INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! aantal receptorpunten
-REAL*4,    INTENT(IN)                            :: x_rcp                      ! array met x-coordinaat van receptorpunten (RDM)
-REAL*4,    INTENT(IN)                            :: y_rcp                      ! array met y-coordinaat van receptorpunten (RDM)
+real,      INTENT(IN)                            :: x_rcp                      ! array met x-coordinaat van receptorpunten (RDM)
+real,      INTENT(IN)                            :: y_rcp                      ! array met y-coordinaat van receptorpunten (RDM)
 INTEGER*4, INTENT(IN)                            :: x_src                      ! array met x-coordinaat van bronnen in buffer
 INTEGER*4, INTENT(IN)                            :: y_src                      ! array met y-coordinaat van bronnen in buffer
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! land use grid
@@ -76,11 +76,11 @@ TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2                     !
 LOGICAL,   INTENT(IN)                            :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m] 
-REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie (summed over intermediate points)
-REAL*4,    INTENT(OUT)                           :: so2bgtra                   ! 
-REAL*4,    INTENT(OUT)                           :: no2bgtra                   ! 
-REAL*4,    INTENT(OUT)                           :: nh3bgtra                   ! 
+real,      INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m]
+real,      INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of landuse classes over trajectorie (summed over intermediate points)
+real,      INTENT(OUT)                           :: so2bgtra
+real,      INTENT(OUT)                           :: no2bgtra
+real,      INTENT(OUT)                           :: nh3bgtra
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES:

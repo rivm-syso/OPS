@@ -50,28 +50,28 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_convec')
 
 ! CONSTANTS
-REAL*4                                           :: K                          ! von Karmanconstante
+real                                             :: K                          ! von Karmanconstante
 PARAMETER   (K = 0.4)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source height (including plume rise) (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+real,      INTENT(IN)                            :: z0                         ! roughness length (m)
+real,      INTENT(IN)                            :: zi                         ! mixing height (m)
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+real,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+real,      INTENT(IN)                            :: h                          ! source height (including plume rise) (m)
+real,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at representative plume height (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+real,      INTENT(OUT)                           :: uh                         ! windspeed at representative plume height (m/s)
+real,      INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: szc                        ! convective vertical dispersion coefficient (m)
+real,      INTENT(OUT)                           :: szc                        ! convective vertical dispersion coefficient (m)
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: wster                      ! 
-REAL*4                                           :: xs                         ! 
+real                                             :: s
+real                                             :: wster
+real                                             :: xs
 LOGICAL                                          :: finished                   ! 
 
 ! SCCS-ID VARIABLES

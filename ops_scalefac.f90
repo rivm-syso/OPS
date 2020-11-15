@@ -53,34 +53,34 @@ PARAMETER        (ROUTINENAAM = 'ops_scalefac')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number sub-secondary species
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! array van primaire concentraties
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! array van secundaire concentraties
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! array van droge depositie
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! array van natte depositie
-REAL*4,    INTENT(IN), OPTIONAL                  :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
+real,      INTENT(IN)                            :: cpri(nrrcp)                ! array van primaire concentraties
+real,      INTENT(IN)                            :: csec(nrrcp)                ! array van secundaire concentraties
+real,      INTENT(IN)                            :: drydep(nrrcp)              ! array van droge depositie
+real,      INTENT(IN)                            :: wetdep(nrrcp)              ! array van natte depositie
+real,      INTENT(IN), OPTIONAL                  :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: scale_con                  ! schaal vergr. concentratie
-REAL*4,    INTENT(OUT)                           :: scale_sec                  ! schaal vergr. secundaire concentratie
-REAL*4,    INTENT(OUT)                           :: scale_dep                  ! schaal vergr. droge depositie
-REAL*4,    INTENT(OUT), OPTIONAL                 :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
+real,      INTENT(OUT)                           :: scale_con                  ! schaal vergr. concentratie
+real,      INTENT(OUT)                           :: scale_sec                  ! schaal vergr. secundaire concentratie
+real,      INTENT(OUT)                           :: scale_dep                  ! schaal vergr. droge depositie
+real,      INTENT(OUT), OPTIONAL                 :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! teller over schaalfactoren
 INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: cmax                       ! grootst voorkomende primaire concentratie
-REAL*4                                           :: csmax                      ! grootst voorkomende secundaire concentratie
-REAL*4                                           :: csubsecmax(nsubsec)        ! maximal value csubsec
-REAL*4                                           :: ddepmax                    ! grootst voorkomende droge depositie
-REAL*4                                           :: depntmax                   ! grootst voorkomende natte depositie
-REAL*4                                           :: s                          ! schaalfactor
-REAL*4                                           :: tc                         ! teller aantal te grote prim. conc.
-REAL*4                                           :: td                         ! teller aantal te grote droge dep.
-REAL*4                                           :: tn                         ! teller aantal te grote natte dep.
-REAL*4                                           :: ts                         ! teller aantal te grote sec. conc.
-REAL*4                                           :: tsubsec(nsubsec)                ! number of sub-secondary species with too large concentrations
-REAL*4                                           :: scale_dry                  ! schaal vergr. concentratie
-REAL*4                                           :: scale_wet                  ! schaal vergr. concentratie
+real                                             :: cmax                       ! grootst voorkomende primaire concentratie
+real                                             :: csmax                      ! grootst voorkomende secundaire concentratie
+real                                             :: csubsecmax(nsubsec)        ! maximal value csubsec
+real                                             :: ddepmax                    ! grootst voorkomende droge depositie
+real                                             :: depntmax                   ! grootst voorkomende natte depositie
+real                                             :: s                          ! schaalfactor
+real                                             :: tc                         ! teller aantal te grote prim. conc.
+real                                             :: td                         ! teller aantal te grote droge dep.
+real                                             :: tn                         ! teller aantal te grote natte dep.
+real                                             :: ts                         ! teller aantal te grote sec. conc.
+real                                             :: tsubsec(nsubsec)                ! number of sub-secondary species with too large concentrations
+real                                             :: scale_dry                  ! schaal vergr. concentratie
+real                                             :: scale_wet                  ! schaal vergr. concentratie
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

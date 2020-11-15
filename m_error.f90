@@ -59,7 +59,7 @@ TYPE TErrorParam
    CHARACTER                                     :: paramtype                  ! type of parameter
    CHARACTER*512                                 :: stringvalue                ! string value
    INTEGER*4                                     :: intvalue                   ! integer value
-   REAL*4                                        :: realvalue                  ! real value
+   real                                          :: realvalue                  ! real value
    TYPE (TErrorParam), pointer                   :: nextparam                  ! pointer to next parameter
 END TYPE TErrorParam
 
@@ -119,8 +119,8 @@ INTERFACE ErrorParam
    MODULE PROCEDURE error_iparam                                               ! integer*4 parameter
    MODULE PROCEDURE error_iaparam                                              ! integer*4 parameter array
    MODULE PROCEDURE error_lparam                                               ! logical parameter
-   MODULE PROCEDURE error_rparam                                               ! real*4 parameter
-   MODULE PROCEDURE error_raparam                                              ! real*4 parameter array
+   MODULE PROCEDURE error_rparam                                               ! real parameter
+   MODULE PROCEDURE error_raparam                                              ! real parameter array
    MODULE PROCEDURE error_sparam                                               ! character*(*) string parameter
    MODULE PROCEDURE error_wparam                                               ! character*(*) string parameter, but only first word is written
    MODULE PROCEDURE error_saparam                                              ! character*(*) string parameter array
@@ -372,7 +372,7 @@ SUBROUTINE error_rparam(paramname, value, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value                      ! 
+real,      INTENT(IN)                            :: value
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! 
@@ -398,7 +398,7 @@ SUBROUTINE error_raparam(paramname, value, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value(:)                   ! 
+real,      INTENT(IN)                            :: value(:)
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! 
@@ -995,7 +995,7 @@ SUBROUTINE simple_r_append(realvalue, significance, targetstring)
 !DEC$ ATTRIBUTES DLLEXPORT:: simple_r_append
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: realvalue                  ! string to be appended
+real,      INTENT(IN)                            :: realvalue                  ! string to be appended
 INTEGER*4, INTENT(IN)                            :: significance               ! number of significant digits
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -1018,8 +1018,8 @@ SUBROUTINE simple_rb_append(nrblanks, realvalue, significance, targetstring)
 USE m_commonconst                                                              ! EPS_DELTA only
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 
-REAL*4,    INTENT(IN)                            :: realvalue                  ! string to be appended
+INTEGER*4, INTENT(IN)                            :: nrblanks
+real,      INTENT(IN)                            :: realvalue                  ! string to be appended
 INTEGER*4, INTENT(IN)                            :: significance               ! number of significant digits
 
 ! SUBROUTINE ARGUMENTS - I/O
@@ -1030,7 +1030,7 @@ INTEGER*4                                        :: targetlength               !
 INTEGER*4                                        :: position                   ! position counter in writing to string
 INTEGER*4                                        :: power                      ! the e-value in the number
 INTEGER*4                                        :: counter                    ! simple loop counter
-REAL*4                                           :: realcopy                   ! copy of realvalue
+real                                             :: realcopy                   ! copy of realvalue
 INTEGER*4                                        :: intcopy                    ! copy of significant realvalue
 INTEGER*4                                        :: intcopy2                   ! copy of significant realvalue
 INTEGER*4                                        :: char0                      ! '0' character

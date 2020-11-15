@@ -55,13 +55,13 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bgcon')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! x coordinate of specific location
-REAL*4,    INTENT(IN)                            :: y                          ! y coordinate of specific location
+real,      INTENT(IN)                            :: x                          ! x coordinate of specific location
+real,      INTENT(IN)                            :: y                          ! y coordinate of specific location
 TYPE (TApsGridReal), INTENT(IN)                  :: bgdata                     ! APS-grid with background concentrations
 INTEGER, OPTIONAL                                :: fieldnumber                ! field number in APS-grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: bgcon                      ! background concentration at (x,y)
+real,      INTENT(OUT)                           :: bgcon                      ! background concentration at (x,y)
 
 ! LOCAL VARIABLES
 LOGICAL                                          :: iscell                     ! whether (x,y) is inside APS-grid bgdata

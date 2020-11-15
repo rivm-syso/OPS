@@ -57,12 +57,12 @@ PARAMETER    (ROUTINENAAM = 'ops_gen_rcp')
 INTEGER*4, INTENT(IN)                            :: spgrid                      
 LOGICAL,   INTENT(IN)                            :: igrens                      
 TYPE (TApsGridReal), INTENT(IN)                  :: masker                      
-REAL*4,    INTENT(IN)                            :: grid                        
+real,      INTENT(IN)                            :: grid
 INTEGER*4, INTENT(IN)                            :: nrcol                       
 INTEGER*4, INTENT(IN)                            :: nrrow                       
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(IN)                            :: xorg                        
-REAL*4,    INTENT(IN)                            :: yorg                        
+real,      INTENT(IN)                            :: xorg
+real,      INTENT(IN)                            :: yorg
 LOGICAL,   INTENT(IN)                            :: varz                      
 LOGICAL,   INTENT(IN)                            :: perc
 LOGICAL,   INTENT(IN)                            :: domlu                      
@@ -70,11 +70,11 @@ LOGICAL,   INTENT(IN)                            :: domlu
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)              
 INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)               ! 
-REAL*4,    INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates
-REAL*4,    INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates
-REAL*4,    INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates
-REAL*4,    INTENT(OUT)                           :: frac(nrrcp)                ! fraction of output cell on land surface
-REAL*4,    INTENT(OUT)                           :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+real,      INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates
+real,      INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates
+real,      INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates
+real,      INTENT(OUT)                           :: frac(nrrcp)                ! fraction of output cell on land surface
+real,      INTENT(OUT)                           :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
 INTEGER,   INTENT(OUT)                           :: lu_rcp_per_user_all(nrrcp,NLU) ! percentage of landuse for all receptors, used defined in receptor file
 CHARACTER*(*), INTENT(OUT)                       :: namrcp(nrrcp)              ! receptor names
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
@@ -92,13 +92,13 @@ INTEGER*4                                        :: nwords                     !
 INTEGER*4                                        :: check_nwords               ! number of words in string
 INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file)                          
 INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) 
-REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file) 
+real                                             :: zrcp                       ! z coordinate of receptor point (read from file)
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
 INTEGER*4                                        :: ierr                       ! error status
-REAL*4                                           :: x_rcp                      ! x coordinate receptor point 
-REAL*4                                           :: y_rcp                      ! y coordinate receptor point 
-REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
-REAL*4                                           :: z0                         ! 
+real                                             :: x_rcp                      ! x coordinate receptor point
+real                                             :: y_rcp                      ! y coordinate receptor point
+real                                             :: cellvalue                  ! value of masker grid cell at receptor point
+real                                             :: z0
 INTEGER                                          :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point

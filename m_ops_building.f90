@@ -576,14 +576,14 @@ PARAMETER    (ROUTINENAAM = 'ops_building_get_factor')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER, INTENT(IN)         :: buildingType                                    ! = 0 -> no building effect (factor = 1) 
-REAL*4, INTENT(IN)          :: angle_SR_xaxis                                  ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
-REAL*4, INTENT(IN)          :: dist                                            ! distance between source and receptor
-REAL*4, INTENT(IN)          :: buildingFactDistances(:)                        ! distances for which building effect function has been computed
-REAL*4, INTENT(IN)          :: buildingFactAngleSRxaxis(:)                     ! source receptor angles (w.r.t. x-axis) for which building effect function has been computed
-REAL*4, INTENT(IN)          :: buildingFactFunction(:,:)                       ! 2D building effect function (function of angle, distance)
+real,   INTENT(IN)          :: angle_SR_xaxis                                  ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
+real,   INTENT(IN)          :: dist                                            ! distance between source and receptor
+real,   INTENT(IN)          :: buildingFactDistances(:)                        ! distances for which building effect function has been computed
+real,   INTENT(IN)          :: buildingFactAngleSRxaxis(:)                     ! source receptor angles (w.r.t. x-axis) for which building effect function has been computed
+real,   INTENT(IN)          :: buildingFactFunction(:,:)                       ! 2D building effect function (function of angle, distance)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4, INTENT(OUT) :: buildingFact                                            ! building effect factor interpolated between (angle, distance) values in buildingFactFunction
+real,   INTENT(OUT) :: buildingFact                                            ! building effect factor interpolated between (angle, distance) values in buildingFactFunction
 
 ! LOCAL VARIABLES
 REAL    :: distcor                                                             ! corrected distance for distances below cut-off distance; for these distances take the effect at the cut-off distance

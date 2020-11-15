@@ -56,26 +56,26 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_plrise71')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhovlengte
-REAL*4,    INTENT(IN)                            :: uster                      ! frictiesnelheid
-REAL*4,    INTENT(IN)                            :: hbron                      ! 
-REAL*4,    INTENT(IN)                            :: qw                         ! warmte inhoud van het rookgas (MW)
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
+real,      INTENT(IN)                            :: z0
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhovlengte
+real,      INTENT(IN)                            :: uster                      ! frictiesnelheid
+real,      INTENT(IN)                            :: hbron
+real,      INTENT(IN)                            :: qw                         ! warmte inhoud van het rookgas (MW)
+real,      INTENT(IN)                            :: xloc
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: htt                        ! 
-REAL*4,    INTENT(OUT)                           :: onder                      ! 
+real,      INTENT(OUT)                           :: htt
+real,      INTENT(OUT)                           :: onder
 
 ! LOCAL VARIABLES
-REAL*4                                           :: delh                       ! 
-REAL*4                                           :: f                          ! 
-REAL*4                                           :: us                        ! wind speed at effective plume height
+real                                             :: delh
+real                                             :: f
+real                                             :: us                        ! wind speed at effective plume height
                                                                                ! representative for the whole plume rise length
-REAL*4                                           :: dtdz                       ! 
-REAL*4                                           :: hs                          ! 
-REAL*4                                           :: s                          ! 
+real                                             :: dtdz
+real                                             :: hs
+real                                             :: s
 
 ! Iteration variables
 ! iteration converges if |delh - delh_prev| < epsa + epsr*delh

@@ -70,10 +70,10 @@ TYPE (TError), INTENT(INOUT)                     :: error                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: numbron                    ! number of selected sources
-REAL*4,    INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDISTR)  ! standard diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDISTR)! user-defined diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
-REAL*4,    INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
+real,      INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDISTR)  ! standard diurnal emission variations distributions
+real,      INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDISTR)! user-defined diurnal emission variations distributions
+real,      INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
+real,      INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
 INTEGER*4, INTENT(OUT)                           :: dv                         ! maximum code diurnal emission variation dverl
 INTEGER*4, INTENT(OUT)                           :: usdv                       ! maximum code user specified diurnal emission variation usdverl
 LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR,4)    ! which distribution codes are present
@@ -185,13 +185,13 @@ CHARACTER*(*), INTENT(IN)                        :: compdesc                   !
 LOGICAL,   INTENT(IN)                            :: fraction                   ! whether conversion to fractions is required (instead of %)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions 
+real,      INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions
 INTEGER*4, INTENT(OUT)                           :: maxcode                    ! maximum code used for distribution
 LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR)       ! which distribution codes are present
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: distcode                   ! code used for distribution; 
+INTEGER*4                                        :: distcode                   ! code used for distribution;
                                                                                ! read from the first column of the distributions file.
                                                                                ! (|distcode| = index into 2nd dimension of distrib(nclass, MAXDISTR))
 
@@ -199,9 +199,9 @@ INTEGER*4                                        :: distcode                   !
 INTEGER*4                                        :: i                          ! DO LOOP counter
 INTEGER*4                                        :: numdist                    ! Number of distributions read
 INTEGER*4                                        :: ierr                       ! value of IOSTAT
-REAL*4                                           :: buffer(nrclass)            ! array with the last distrib values read
-REAL*4                                           :: som                        ! sum of row values
-REAL*4                                           :: normalfactor               ! normalisation factor
+real                                             :: buffer(nrclass)            ! array with the last distrib values read
+real                                             :: som                        ! sum of row values
+real                                             :: normalfactor               ! normalisation factor
 CHARACTER*80                                     :: readformat                 ! format used for reading
 LOGICAL                                          :: ops_openlog                ! function for opening log file
 

@@ -79,123 +79,123 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_depoparexp')
 
 ! CONSTANTS
-REAL*4                                           :: RCDEEL(NPARTCLASS)         ! waarden van rc per deeltjesklasse
-REAL*4                                           :: RDS(NSTAB)                 ! grenslaagweerstand per stab. klasse
-REAL*4                                           :: RORATIO(NPARTCLASS)        ! (geschatte) waarden scavenging ratio per deeltjesklasse
-REAL*4                                           :: VGDEEL(NPARTCLASS)         ! 
-REAL*4                                           :: RA4S(NSTAB)                ! 
+real                                             :: RCDEEL(NPARTCLASS)         ! waarden van rc per deeltjesklasse
+real                                             :: RDS(NSTAB)                 ! grenslaagweerstand per stab. klasse
+real                                             :: RORATIO(NPARTCLASS)        ! (geschatte) waarden scavenging ratio per deeltjesklasse
+real                                             :: VGDEEL(NPARTCLASS)
+real                                             :: RA4S(NSTAB)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
-REAL*4,    INTENT(IN)                            :: c                          ! 
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov lengte
-REAL*4,    INTENT(IN)                            :: qbstf                      ! source strength current source (for current particle class)
-REAL*4,    INTENT(IN)                            :: ra4_rcp                    ! ra at receptor (4m)
-REAL*4,    INTENT(IN)                            :: ra50_rcp                   ! ra at receptor (50m)
-REAL*4,    INTENT(IN)                            :: raz_rcp                    ! height dependent ra on receptor
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
+real,      INTENT(IN)                            :: c
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov lengte
+real,      INTENT(IN)                            :: qbstf                      ! source strength current source (for current particle class)
+real,      INTENT(IN)                            :: ra4_rcp                    ! ra at receptor (4m)
+real,      INTENT(IN)                            :: ra50_rcp                   ! ra at receptor (50m)
+real,      INTENT(IN)                            :: raz_rcp                    ! height dependent ra on receptor
+real,      INTENT(IN)                            :: rb_rcp
+real,      INTENT(IN)                            :: sigz
+real,      INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(IN)                            :: uster
-REAL*4,    INTENT(IN)                            :: z0
-REAL*4,    INTENT(IN)                            :: virty                      ! 
+real,      INTENT(IN)                            :: uster
+real,      INTENT(IN)                            :: z0
+real,      INTENT(IN)                            :: virty
 LOGICAL,   INTENT(IN)                            :: gasv                       ! 
 INTEGER*4, INTENT(IN)                            :: itra                       ! 
-REAL*4,    INTENT(IN)                            :: rb                         ! 
-REAL*4,    INTENT(IN)                            :: ra4                        ! 
+real,      INTENT(IN)                            :: rb
+real,      INTENT(IN)                            :: ra4
 INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-REAL*4,    INTENT(IN)                            :: ra50                       ! 
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! 
-REAL*4,    INTENT(IN)                            :: rint                       ! 
-REAL*4,    INTENT(IN)                            :: buil                       ! 
-REAL*4,    INTENT(IN)                            :: zf                         ! 
+real,      INTENT(IN)                            :: grof
+real,      INTENT(IN)                            :: ra50
+real,      INTENT(IN)                            :: xvghbr
+real,      INTENT(IN)                            :: xvglbr
+real,      INTENT(IN)                            :: regenk
+real,      INTENT(IN)                            :: rint
+real,      INTENT(IN)                            :: buil
+real,      INTENT(IN)                            :: zf
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 INTEGER*4, INTENT(IN)                            :: iseiz                      ! 
 INTEGER*4, INTENT(IN)                            :: mb                         ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: dg                         ! 
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: onder
+real,      INTENT(IN)                            :: dg
 INTEGER*4, INTENT(IN)                            :: knatdeppar                 ! 
-REAL*4,    INTENT(IN)                            :: scavcoef                   ! 
+real,      INTENT(IN)                            :: scavcoef
 LOGICAL,   INTENT(IN)                            :: irev                       ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: xl100                      ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! 
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: ra4src                     !
-REAL*4,    INTENT(IN)                            :: rb_src                     !
-REAL*4,    INTENT(IN)                            :: ra50src                    !
-REAL*4,    INTENT(IN)                            :: ra4tra                     !
-REAL*4,    INTENT(IN)                            :: rb_tra                     !
-REAL*4,    INTENT(IN)                            :: ra50tra                    !
-REAL*4,    INTENT(IN)                            :: xm
-REAL*4,    INTENT(IN)                            :: ym
-REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
+real,      INTENT(IN)                            :: htt
+real,      INTENT(IN)                            :: xloc
+real,      INTENT(IN)                            :: xl100
+real,      INTENT(IN)                            :: vw10
+real,      INTENT(IN)                            :: pcoef
+real,      INTENT(IN)                            :: vchem
+real,      INTENT(IN)                            :: dispg(NSTAB)
+real,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+real,      INTENT(IN)                            :: ol_src
+real,      INTENT(IN)                            :: uster_src
+real,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+real,      INTENT(IN)                            :: ra4src
+real,      INTENT(IN)                            :: rb_src
+real,      INTENT(IN)                            :: ra50src
+real,      INTENT(IN)                            :: ra4tra
+real,      INTENT(IN)                            :: rb_tra
+real,      INTENT(IN)                            :: ra50tra
+real,      INTENT(IN)                            :: xm
+real,      INTENT(IN)                            :: ym
+real,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
 INTEGER*4, INTENT(IN)                            :: bx 
 INTEGER*4, INTENT(IN)                            :: by
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: rctra_0                    !
-REAL*4,    INTENT(INOUT)                         :: htot                       ! 
-REAL*4,    INTENT(INOUT)                         :: rcsrc                      !
+real,      INTENT(INOUT)                         :: rctra_0
+real,      INTENT(INOUT)                         :: htot
+real,      INTENT(INOUT)                         :: rcsrc
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: twt                        ! 
-REAL*4,    INTENT(OUT)                           :: cratio                     ! 
-REAL*4,    INTENT(OUT)                           :: rc_rcp                     ! 
-REAL*4,    INTENT(OUT)                           :: grad                       ! 
-REAL*4,    INTENT(OUT)                           :: rc                         
-REAL*4,    INTENT(OUT)                           :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(OUT)                           :: vg50_rcp                   ! 
-REAL*4,    INTENT(OUT)                           :: vgpart                     ! 
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
+real,      INTENT(OUT)                           :: pr
+real,      INTENT(OUT)                           :: twt
+real,      INTENT(OUT)                           :: cratio
+real,      INTENT(OUT)                           :: rc_rcp
+real,      INTENT(OUT)                           :: grad
+real,      INTENT(OUT)                           :: rc
+real,      INTENT(OUT)                           :: utr                        ! average wind speed over the trajectory (m/s)
+real,      INTENT(OUT)                           :: vg50_rcp
+real,      INTENT(OUT)                           :: vgpart
+real,      INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4,    INTENT(OUT)                           :: vg50trans                  ! 
-REAL*4,    INTENT(OUT)                           :: rkc                        ! 
-REAL*4,    INTENT(OUT)                           :: ri                         ! 
-REAL*4,    INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
-REAL*4,    INTENT(OUT)                           :: cgt                        ! 
-REAL*4,    INTENT(OUT)                           :: cgt_z                      ! height dependent cgt
-REAL*4,    INTENT(OUT)                           :: cq2                        ! 
-REAL*4,    INTENT(OUT)                           :: cdn                        ! 
-REAL*4,    INTENT(OUT)                           :: cch                        ! 
+real,      INTENT(OUT)                           :: vg50trans
+real,      INTENT(OUT)                           :: rkc
+real,      INTENT(OUT)                           :: ri
+real,      INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+real,      INTENT(OUT)                           :: cgt
+real,      INTENT(OUT)                           :: cgt_z                      ! height dependent cgt
+real,      INTENT(OUT)                           :: cq2
+real,      INTENT(OUT)                           :: cdn
+real,      INTENT(OUT)                           :: cch
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: flag                       ! stable meteo class and stack emitting above mixing layer 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: cq1                        ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: dxeff                      ! effective distance over which deposition takes place within an area source
-REAL*4                                           :: grad_z                     ! height dependent grad
-REAL*4                                           :: hf                         ! 
-REAL*4                                           :: p1                         ! 
-REAL*4                                           :: p2                         ! 
-REAL*4                                           :: pldaling                   ! 
-REAL*4                                           :: sigzr                      ! 
-REAL*4                                           :: ux0                        ! wind speed near source at plume height (m/s)
-REAL*4                                           :: uxr                        ! wind speed representative for plume over area source (m/s)
-REAL*4                                           :: ugem                       ! average wind speed depending on phase of plume development (m/s)
-REAL*4                                           :: vg0tra                     ! 
-REAL*4                                           :: vg50tra                    ! 
-REAL*4                                           :: xg                         ! 
-REAL*4                                           :: zu                         ! 
+real                                             :: a
+real                                             :: cq1
+real                                             :: diameter
+real                                             :: dxeff                      ! effective distance over which deposition takes place within an area source
+real                                             :: grad_z                     ! height dependent grad
+real                                             :: hf
+real                                             :: p1
+real                                             :: p2
+real                                             :: pldaling
+real                                             :: sigzr
+real                                             :: ux0                        ! wind speed near source at plume height (m/s)
+real                                             :: uxr                        ! wind speed representative for plume over area source (m/s)
+real                                             :: ugem                       ! average wind speed depending on phase of plume development (m/s)
+real                                             :: vg0tra
+real                                             :: vg50tra
+real                                             :: xg
+real                                             :: zu
 LOGICAL                                          :: ops_openlog                ! function for opening log file
 
 !
@@ -617,64 +617,64 @@ SUBROUTINE par_nat(regenk, rint, buil, zf, isek, iseiz, mb, disx, radius, diamet
                 &  knatdeppar, scavcoef, routpri, kdeel, irev, c, qbstf, virty, twt, pr, cratio, ri, a, vnatpri)
 
 ! CONSTANTS
-REAL*4                                           :: PS                         ! 
+real                                             :: PS
 PARAMETER   (PS    = 1.e6/(2.*PI))
-REAL*4                                           :: TWETZ(NSEK)                ! duration of rain shower in summer
-REAL*4                                           :: TWETW(NSEK)                ! duration of rain shower in winter
-REAL*4                                           :: RIW(NSEK)                  ! rain intensity winter
-REAL*4                                           :: RIZ(NSEK)                  ! rain intensity summer
-REAL*4                                           :: CMND(NMONTH)               ! monthly correction shower duration
-REAL*4                                           :: EPSILON(NPARTCLASS)        ! 
+real                                             :: TWETZ(NSEK)                ! duration of rain shower in summer
+real                                             :: TWETW(NSEK)                ! duration of rain shower in winter
+real                                             :: RIW(NSEK)                  ! rain intensity winter
+real                                             :: RIZ(NSEK)                  ! rain intensity summer
+real                                             :: CMND(NMONTH)               ! monthly correction shower duration
+real                                             :: EPSILON(NPARTCLASS)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: regenk                     ! 
-REAL*4,    INTENT(IN)                            :: rint                       ! 
-REAL*4,    INTENT(IN)                            :: buil                       ! 
-REAL*4,    INTENT(IN)                            :: zf                         ! 
+real,      INTENT(IN)                            :: regenk
+real,      INTENT(IN)                            :: rint
+real,      INTENT(IN)                            :: buil
+real,      INTENT(IN)                            :: zf
 INTEGER*4, INTENT(IN)                            :: isek                       ! 
 INTEGER*4, INTENT(IN)                            :: iseiz                      ! 
 INTEGER*4, INTENT(IN)                            :: mb                         ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: diameter                   ! 
-REAL*4,    INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: radius
+real,      INTENT(IN)                            :: diameter
+real,      INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! 
+real,      INTENT(IN)                            :: xl
+real,      INTENT(IN)                            :: onder
+real,      INTENT(IN)                            :: sigz
+real,      INTENT(IN)                            :: htot
 LOGICAL,   INTENT(IN)                            :: gasv                       ! 
-REAL*4,    INTENT(IN)                            :: dg                         ! 
+real,      INTENT(IN)                            :: dg
 INTEGER*4, INTENT(IN)                            :: knatdeppar                 ! 
-REAL*4,    INTENT(IN)                            :: scavcoef                   ! 
-REAL*4,    INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component
+real,      INTENT(IN)                            :: scavcoef
+real,      INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
 INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
 LOGICAL,   INTENT(IN)                            :: irev                       ! 
-REAL*4,    INTENT(IN)                            :: c                          ! 
-REAL*4,    INTENT(IN)                            :: qbstf                      ! 
-REAL*4,    INTENT(IN)                            :: virty                      ! 
+real,      INTENT(IN)                            :: c
+real,      INTENT(IN)                            :: qbstf
+real,      INTENT(IN)                            :: virty
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: twt                        ! 
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: cratio                     ! 
-REAL*4,    INTENT(OUT)                           :: ri                         ! 
-REAL*4,    INTENT(OUT)                           :: a                          ! 
-REAL*4,    INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+real,      INTENT(OUT)                           :: twt
+real,      INTENT(OUT)                           :: pr
+real,      INTENT(OUT)                           :: cratio
+real,      INTENT(OUT)                           :: ri
+real,      INTENT(OUT)                           :: a
+real,      INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: twet                       ! 
-REAL*4                                           :: treis                      ! 
-REAL*4                                           :: h                          ! thickness over which wet deposition takes place [m]
-REAL*4                                           :: hl                         ! 
-REAL*4                                           :: vnatrain                   ! wet deposition loss rate for rainout (in-cloud) [%/h]
-REAL*4                                           :: epsi                       ! 
-REAL*4                                           :: beta                       ! 
-REAL*4                                           :: lambda0                    ! 
-REAL*4                                           :: vnatwash                   ! wet deposition loss rate for washout (below-cloud) [%/h]
+real                                             :: twet
+real                                             :: treis
+real                                             :: h                          ! thickness over which wet deposition takes place [m]
+real                                             :: hl
+real                                             :: vnatrain                   ! wet deposition loss rate for rainout (in-cloud) [%/h]
+real                                             :: epsi
+real                                             :: beta
+real                                             :: lambda0
+real                                             :: vnatwash                   ! wet deposition loss rate for washout (below-cloud) [%/h]
 
 ! DATA figure 4.1 OPS-report (depends on particle class) and
 ! Slinn W.G.N (1983) Predictions for particle deposition to vegetative surfaces. Atmospheric Environment 16, 1785-1794.

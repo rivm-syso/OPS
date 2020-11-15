@@ -59,54 +59,53 @@ LOGICAL,   INTENT(IN)                            :: gasv
 LOGICAL,   INTENT(IN)                            :: idep   
 LOGICAL,   INTENT(IN)                            :: building_present1           ! at least one building is present in the source file   
 INTEGER*4, INTENT(IN)                            :: kdeppar                     
-REAL*4,    INTENT(IN)                            :: ddeppar                     
-REAL*4,    INTENT(IN)                            :: wdeppar                     
+real,      INTENT(IN)                            :: ddeppar
+real,      INTENT(IN)                            :: wdeppar
 INTEGER*4, INTENT(IN)                            :: ideh                        
 INTEGER*4, INTENT(IN)                            :: icm                         
 LOGICAL,   INTENT(IN)                            :: isec 
 INTEGER*4, INTENT(IN)                            :: nsubsec                      ! number of sub-secondary species                       
 INTEGER*4, INTENT(IN)                            :: iseiz                       
 INTEGER*4, INTENT(IN)                            :: mb                          
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
-REAL*4,    INTENT(IN)                            :: dverl(NHRBLOCKS,MAXDISTR)    
-REAL*4,    INTENT(IN)                            :: usdverl(NHRBLOCKS,MAXDISTR)  
+real,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(IN)                            :: dverl(NHRBLOCKS,MAXDISTR)
+real,      INTENT(IN)                            :: usdverl(NHRBLOCKS,MAXDISTR)
 INTEGER*4, INTENT(IN)                            :: dv                          
 INTEGER*4, INTENT(IN)                            :: usdv                        
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: knatdeppar                  
-REAL*4,    INTENT(INOUT)                         :: amol2                       
+real,      INTENT(INOUT)                         :: amol2
 CHARACTER*(*), INTENT(INOUT)                     :: namco                       
-REAL*4,    INTENT(INOUT)                         :: amol1                       
-REAL*4,    INTENT(INOUT)                         :: dg                          
+real,      INTENT(INOUT)                         :: amol1
+real,      INTENT(INOUT)                         :: dg
 LOGICAL,   INTENT(INOUT)                         :: irev                        
-REAL*4,    INTENT(INOUT)                         :: vchemc                      
-REAL*4,    INTENT(INOUT)                         :: vchemv                      
-REAL*4,    INTENT(INOUT)                         :: emtrend                     
+real,      INTENT(INOUT)                         :: vchemc
+real,      INTENT(INOUT)                         :: vchemv
+real,      INTENT(INOUT)                         :: emtrend
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rc                          
+real,      INTENT(OUT)                           :: rc
 CHARACTER*(*), INTENT(OUT)                       :: coneh                       
-REAL*4,    INTENT(OUT)                           :: amol21                      
+real,      INTENT(OUT)                           :: amol21
 CHARACTER*(*), INTENT(OUT)                       :: depeh                       
 CHARACTER*(*), INTENT(OUT)                       :: namsec                      
 CHARACTER*(*), INTENT(OUT)                       :: namse3                      
-REAL*4,    INTENT(OUT)                           :: ugmoldep                    
-REAL*4,    INTENT(OUT)                           :: scavcoef                    
-REAL*4,    INTENT(OUT)                           :: rcno                       
-REAL*4,    INTENT(OUT)                           :: rhno2                      
-REAL*4,    INTENT(OUT)                           :: rchno3                      
-REAL*4,    INTENT(OUT)                           :: routsec                    ! in-cloud scavenging ratio for secondary component
+real,      INTENT(OUT)                           :: ugmoldep
+real,      INTENT(OUT)                           :: scavcoef
+real,      INTENT(OUT)                           :: rcno
+real,      INTENT(OUT)                           :: rhno2
+real,      INTENT(OUT)                           :: rchno3
+real,      INTENT(OUT)                           :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-] 
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4,    INTENT(OUT)                           :: conc_cf
-REAL*4,    INTENT(OUT)                           :: koh                         
-REAL*4,    INTENT(OUT)                           :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                   
-REAL*4,    INTENT(OUT)                           :: somcsec                     
-REAL*4,    INTENT(OUT)                           :: ar                          
-REAL*4,    INTENT(OUT)                           :: rno2nox                     
-REAL*4,    INTENT(OUT)                           :: ecvl(NSTAB, NTRAJ, *)       
+real,      INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
+                                                                               ! (rout << rain-out = in-cloud) [-]
+real,      INTENT(OUT)                           :: conc_cf
+real,      INTENT(OUT)                           :: koh
+real,      INTENT(OUT)                           :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component
+real,      INTENT(OUT)                           :: somcsec
+real,      INTENT(OUT)                           :: ar
 CHARACTER*(*), INTENT(OUT)                       :: nam_subsec(nsubsec) 
 type(TbuildingEffect), INTENT(OUT)               :: buildingEffect             ! structure with building effect tables
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
@@ -119,8 +118,8 @@ INTEGER*4                                        :: ndv
 INTEGER*4                                        :: itraj                       
 INTEGER*4                                        :: istab                       
 INTEGER*4                                        :: iu                          
-REAL*4                                           :: vgmax                       
-REAL*4                                           :: som   
+real                                             :: vgmax
+real                                             :: som
 CHARACTER*512                                    :: line                      
 
 ! SCCS-ID VARIABLES

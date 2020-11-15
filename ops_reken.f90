@@ -82,60 +82,60 @@ INTEGER*4, INTENT(IN)                            :: intpol                     !
                                                                                ! 0 interpolate between all meteo regions at specified location
                                                                                ! 1 use meteo parameters from user specified meteo region
                                                                                ! 2? use meteo parameters from user specified meteo file
-REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate, independent of light [%/h]
+real,      INTENT(IN)                            :: vchemc                     ! chemical conversion rate, independent of light [%/h]
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                                                                                                                                           
-REAL*4,    INTENT(IN)                            :: vchemv                     ! chemical conversion rate, dependent on light [%/h]
+real,      INTENT(IN)                            :: vchemv                     ! chemical conversion rate, dependent on light [%/h]
 INTEGER*4, INTENT(IN)                            :: dv                         ! maximum code diurnal emission variation dverl
-REAL*4,    INTENT(IN)                            :: amol1                      ! molar mass primary component [g/mol]
-REAL*4,    INTENT(IN)                            :: amol2                      ! molar mass secondary component [g/mol]
-REAL*4,    INTENT(IN)                            :: amol21                     ! (molar mass secondary component)/(molar mass primary component) [-] 
-REAL*4,    INTENT(IN)                            :: ar                         ! proportionality constant in relation [OH] = ar Qr, with Qr = global radiation in W/m2 [(cm3 m2)/(molec W2)], see Egmond en Kesseboom (1983)
-REAL*4,    INTENT(IN)                            :: rno2nox                    ! season dependent component of [NO2]/[NOx] ratio [-]
-REAL*4,    INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! average diurnal emission variation for each stability/distance class
+real,      INTENT(IN)                            :: amol1                      ! molar mass primary component [g/mol]
+real,      INTENT(IN)                            :: amol2                      ! molar mass secondary component [g/mol]
+real,      INTENT(IN)                            :: amol21                     ! (molar mass secondary component)/(molar mass primary component) [-]
+real,      INTENT(IN)                            :: ar                         ! proportionality constant in relation [OH] = ar Qr, with Qr = global radiation in W/m2 [(cm3 m2)/(molec W2)], see Egmond en Kesseboom (1983)
+real,      INTENT(IN)                            :: rno2nox                    ! season dependent component of [NO2]/[NOx] ratio [-]
+real,      INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! average diurnal emission variation for each stability/distance class
 INTEGER*4, INTENT(IN)                            :: iseiz                      ! season index (0=long term; 1=year; 2=winter; 3=summer; 4=month in winter; 5=month in summer)
-REAL*4,    INTENT(IN)                            :: zf                         ! interpolation factor between summer and winter (zf << "zomer fractie" = summer fraction)
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]
+real,      INTENT(IN)                            :: zf                         ! interpolation factor between summer and winter (zf << "zomer fractie" = summer fraction)
+real,      INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]
 INTEGER*4, INTENT(IN)                            :: knatdeppar                 ! choice for parameterisation wet deposition
                                                                                ! knatdeppar = 1: read wdeppar = scavenging coefficient [%/h]
                                                                                ! knatdeppar = 2: read wdeppar =  scavenging ratio, i.e. average ratio if rainwater concentrations and air concentration [-]
                                                                                ! knatdeppar = 3: if secondary components are present [SO2, NO2, NH3]. Wash-out and rain-out parameters are fixed in the OPS code (ops_init) [-]
 INTEGER*4, INTENT(IN)                            :: mb                         ! start month of meteo statistics period ("b" << begin = start) 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! conversion factor from ug/m2/h to each of the deposition units in DEPUNITS 
-REAL*4,    INTENT(IN)                            :: dg                         ! diffusion coefficient in air [cm^2/s] 
+real,      INTENT(IN)                            :: ugmoldep                   ! conversion factor from ug/m2/h to each of the deposition units in DEPUNITS
+real,      INTENT(IN)                            :: dg                         ! diffusion coefficient in air [cm^2/s]
 LOGICAL,   INTENT(IN)                            :: irev                       ! TRUE for reversible wash-out 
-REAL*4,    INTENT(IN)                            :: scavcoef                   ! scavenging rate [%/h] 
-REAL*4,    INTENT(IN)                            :: koh                        ! second order reaction rate constant of reaction NO2 + OH -> HNO3 [cm3/(molec s)]
-REAL*4,    INTENT(IN)                            :: croutpri                   ! (wash-out + rain-out) ratio primary component, default value without correction for background concentration, season, stability class [-]
+real,      INTENT(IN)                            :: scavcoef                   ! scavenging rate [%/h]
+real,      INTENT(IN)                            :: koh                        ! second order reaction rate constant of reaction NO2 + OH -> HNO3 [cm3/(molec s)]
+real,      INTENT(IN)                            :: croutpri                   ! (wash-out + rain-out) ratio primary component, default value without correction for background concentration, season, stability class [-]
                                                                                ! icm = 1 (SO2): croutpri = wash out ratio at an N/S ratio of 1
                                                                                ! icm = 2 (NOx): croutpri = wash out ratio at an NO2/NOx ratio of 1
                                                                                ! icm = 3 (NH3): croutpri = wash out ratio (no correction)
-REAL*4,    INTENT(IN)                            :: rcno                       ! surface resistance Rc for NO [s/m]
-REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio [HNO2]/[NOx] 
-REAL*4,    INTENT(IN)                            :: rchno3                     ! surface resistance Rc for HNO3 [s/m] 
+real,      INTENT(IN)                            :: rcno                       ! surface resistance Rc for NO [s/m]
+real,      INTENT(IN)                            :: rhno2                      ! ratio [HNO2]/[NOx]
+real,      INTENT(IN)                            :: rchno3                     ! surface resistance Rc for HNO3 [s/m]
 INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points  
 INTEGER*4, INTENT(IN)                            :: ircp                       ! index of receptorpoint
-REAL*4,    INTENT(IN)                            :: gxm                        ! x-coordinate of receptors (lon-lat) [degrees]
-REAL*4,    INTENT(IN)                            :: gym                        ! y-coordinate of receptors (lon-lat) [degrees]
-REAL*4,    INTENT(IN)                            :: xm                         ! x-coordinate of receptor points (RDM)
-REAL*4,    INTENT(IN)                            :: ym                         ! y-coordinate of receptor points (RDM)
-REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
-REAL*4,    INTENT(IN)                            :: frac                       ! fraction of grid cell inside NL 
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]  
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]  																																	   
-REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3]_total at receptor points, [NO3]_total = [HNO3] + [NO3_aerosol] 
-REAL*4,    INTENT(IN)                            :: bqrv                       ! source strength of space heating source (rv << "ruimteverwarming" = space heating) [g/s]
-REAL*4,    INTENT(IN)                            :: bqtr                       ! source strength of traffic source [g/s]
+real,      INTENT(IN)                            :: gxm                        ! x-coordinate of receptors (lon-lat) [degrees]
+real,      INTENT(IN)                            :: gym                        ! y-coordinate of receptors (lon-lat) [degrees]
+real,      INTENT(IN)                            :: xm                         ! x-coordinate of receptor points (RDM)
+real,      INTENT(IN)                            :: ym                         ! y-coordinate of receptor points (RDM)
+real,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (RDM)
+real,      INTENT(IN)                            :: frac                       ! fraction of grid cell inside NL
+real,      INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]
+real,      INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]
+real,      INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3]_total at receptor points, [NO3]_total = [HNO3] + [NO3_aerosol]
+real,      INTENT(IN)                            :: bqrv                       ! source strength of space heating source (rv << "ruimteverwarming" = space heating) [g/s]
+real,      INTENT(IN)                            :: bqtr                       ! source strength of traffic source [g/s]
 INTEGER*4, INTENT(IN)                            :: bx                         ! x-coordinate of source 
 INTEGER*4, INTENT(IN)                            :: by                         ! y-coordinate of source 
-REAL*4,    INTENT(IN)                            :: bdiam                      ! source diameter [m]; if bdiam < 0 -> circular source, bdiam > 0 -> square sourc 
-REAL*4,    INTENT(IN)                            :: bsterkte                   ! source strength [g/s] 
-REAL*4,    INTENT(IN)                            :: bwarmte                    ! heat content of source [MW] 
-REAL*4,    INTENT(IN)                            :: bhoogte                    ! source height [m] 
-REAL*4,    INTENT(IN)                            :: bsigmaz                    ! spread in source height to represent different sources in a area source; 
+real,      INTENT(IN)                            :: bdiam                      ! source diameter [m]; if bdiam < 0 -> circular source, bdiam > 0 -> square sourc
+real,      INTENT(IN)                            :: bsterkte                   ! source strength [g/s]
+real,      INTENT(IN)                            :: bwarmte                    ! heat content of source [MW]
+real,      INTENT(IN)                            :: bhoogte                    ! source height [m]
+real,      INTENT(IN)                            :: bsigmaz                    ! spread in source height to represent different sources in a area source;
                                                                                ! also used for initial sigma_z (vertical dispersion) of emission (e.g. traffic, building influence) [m] 
-REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+real,      INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
+real,      INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 type(TbuildingEffect), INTENT(IN)                :: buildingEffect             ! structure containing building effect tables
@@ -143,49 +143,49 @@ INTEGER*4, INTENT(IN)                            :: btgedr                     !
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! option for particle size distribution
                                                                                ! bdegr >= 0 -> standard particle size distribution pmd
                                                                                ! bdegr  < 0 -> user-defined particle size distribution uspmd 
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! landuse (percentages) for all classes over trajectory
-REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! landuse (percentages) for all classes for receptor
-REAL*4,    INTENT(IN)                            :: so2sek(NSEK)               ! coefficient in correction factor for SO2 background concentration for each wind direction sector; derived from 24 regional LML stations over 2003
-REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               ! coefficient in correction factor for NO2 background concentration for each wind direction sector; derived from 15 regional LML stations over 2004
-REAL*4,    INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
-REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
-REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
+real,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+real,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+real,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+real,      INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+real,      INTENT(IN)                            :: lu_tra_per(NLU)            ! landuse (percentages) for all classes over trajectory
+real,      INTENT(IN)                            :: lu_rcp_per(NLU)            ! landuse (percentages) for all classes for receptor
+real,      INTENT(IN)                            :: so2sek(NSEK)               ! coefficient in correction factor for SO2 background concentration for each wind direction sector; derived from 24 regional LML stations over 2003
+real,      INTENT(IN)                            :: no2sek(NSEK)               ! coefficient in correction factor for NO2 background concentration for each wind direction sector; derived from 15 regional LML stations over 2004
+real,      INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
+real,      INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
+real,      INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
 type(Tvchem), INTENT(INOUT)                      :: vchem2                     !                                                                                  
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
-REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions 
-REAL*4,    INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions 
+real,      INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
+real,      INTENT(IN)                            :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
 INTEGER*4, INTENT(IN)                            :: spgrid                     ! indicator for type of receptor points 
                                                                                ! spgrid = 0: regular grid of receptors, NL
                                                                                ! spgrid = 1: rectangular regular grid of receptors, user defined 
                                                                                ! spgrid = 2: receptors at specific locations, read from file
                                                                                ! spgrid = 3: receptors at user specific regular grid, not necessarily rectangular
-REAL*4,    INTENT(IN)                            :: grid                       ! grid resolution [m] 
+real,      INTENT(IN)                            :: grid                       ! grid resolution [m]
 LOGICAL,   INTENT(IN)                            :: subbron                    ! whether to create "subbrons" (sub-sources inside a area source) and "subareas" (sub receptors inside a grid cell) or not  
-REAL*4,    INTENT(IN)                            :: uurtot                     ! total number of hours in meteo statistics period ("uur"= hour) [hours]
-REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud (rain-out) scavenging ratio for secondary component
+real,      INTENT(IN)                            :: uurtot                     ! total number of hours in meteo statistics period ("uur"= hour) [hours]
+real,      INTENT(IN)                            :: routsec                    ! in-cloud (rain-out) scavenging ratio for secondary component
 
 ! SUBROUTINE ARGUMENTS - I/O       (INOUT)
-REAL*4,    INTENT(INOUT)                         :: rc                         ! surface resistance Rc [s/m] 
-REAL*8,    INTENT(INOUT)                         :: somvnsec(NPARTCLASS)       ! summed wet deposition flux secondary component [ug/m2/h] 
-REAL*8,    INTENT(INOUT)                         :: telvnsec(NPARTCLASS)       ! summed deposited mass per area for wet deposition of secondary component [ug/m2]
-REAL*8,    INTENT(INOUT)                         :: vvchem(NPARTCLASS)         ! summed chemical conversion rate [%/h] 
-REAL*8,    INTENT(INOUT)                         :: vtel(NPARTCLASS)           ! weighing factors for averaging vvchem (i.e. deposited mass)
-REAL*8,    INTENT(INOUT)                         :: somvnpri(NPARTCLASS)       ! summed wet deposition flux primary component [ug/m2/h] 
-REAL*8,    INTENT(INOUT)                         :: telvnpri(NPARTCLASS)       ! summed deposited mass per area for wet deposition of primary component [ug/m2]
+real,      INTENT(INOUT)                         :: rc                         ! surface resistance Rc [s/m]
+double precision,    INTENT(INOUT)               :: somvnsec(NPARTCLASS)       ! summed wet deposition flux secondary component [ug/m2/h]
+double precision,    INTENT(INOUT)               :: telvnsec(NPARTCLASS)       ! summed deposited mass per area for wet deposition of secondary component [ug/m2]
+double precision,    INTENT(INOUT)               :: vvchem(NPARTCLASS)         ! summed chemical conversion rate [%/h]
+double precision,    INTENT(INOUT)               :: vtel(NPARTCLASS)           ! weighing factors for averaging vvchem (i.e. deposited mass)
+double precision,    INTENT(INOUT)               :: somvnpri(NPARTCLASS)       ! summed wet deposition flux primary component [ug/m2/h]
+double precision,    INTENT(INOUT)               :: telvnpri(NPARTCLASS)       ! summed deposited mass per area for wet deposition of primary component [ug/m2]
 DOUBLE PRECISION,    INTENT(INOUT)               :: ddepri(nrrcp,NPARTCLASS)   ! dry deposition of primary component at receptor points [mol/ha/y] 
-REAL*8,    INTENT(INOUT)                         :: sdrypri(NPARTCLASS)        ! summed dry deposition of primary component [ug/m2/h]
-REAL*8,    INTENT(INOUT)                         :: snatpri(NPARTCLASS)        ! summed wet deposition of primary component [ug/m2/h]  (<< "nat" = wet)
-REAL*8,    INTENT(INOUT)                         :: sdrysec(NPARTCLASS)        ! summed dry deposition of secondary component [ug/m2/h]
-REAL*8,    INTENT(INOUT)                         :: snatsec(NPARTCLASS)        ! summed wet deposition of secondary component [ug/m2/h]  (<< "nat" = wet)
+double precision,    INTENT(INOUT)               :: sdrypri(NPARTCLASS)        ! summed dry deposition of primary component [ug/m2/h]
+double precision,    INTENT(INOUT)               :: snatpri(NPARTCLASS)        ! summed wet deposition of primary component [ug/m2/h]  (<< "nat" = wet)
+double precision,    INTENT(INOUT)               :: sdrysec(NPARTCLASS)        ! summed dry deposition of secondary component [ug/m2/h]
+double precision,    INTENT(INOUT)               :: snatsec(NPARTCLASS)        ! summed wet deposition of secondary component [ug/m2/h]  (<< "nat" = wet)
 DOUBLE PRECISION,    INTENT(INOUT)               :: cpri(nrrcp,NPARTCLASS)     ! concentration of primary component at receptor points [ug/m3] 
 DOUBLE PRECISION,    INTENT(INOUT)               :: csec(nrrcp,NPARTCLASS)     ! concentration of secondary component ar receptor points [ug/m3] 
 DOUBLE PRECISION,    INTENT(INOUT)               :: drydep(nrrcp,NPARTCLASS)   ! dry deposition at receptor points [mol/ha/y] 
 DOUBLE PRECISION,    INTENT(INOUT)               :: wetdep(nrrcp,NPARTCLASS)   ! wet deposition at receptor points ["depeh"] 
-REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK) ! meteo statistics for each distance class, stability/mixing height class, wind direction sector
+real,      INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK) ! meteo statistics for each distance class, stability/mixing height class, wind direction sector
                                                                                !        1. number of hours for which a certain combination of classes has occurred [hours]
                                                                                !        2. maximal mixing height over transport distance [m]
                                                                                !        3. wind speed (at 10 m height) [m/s]
@@ -217,13 +217,13 @@ REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK
                                                                                !        25. surface resistance Rc of NO2 [s/m]
                                                                                !        26. surface resistance Rc of NH3 [s/m]
                                                                                !        27. surface resistance Rc of NO3 aerosol [s/m]
-REAL*4,    INTENT(INOUT)                         :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
+real,      INTENT(INOUT)                         :: rno2_nox_sum(nrrcp)        ! NO2/NOx ratio, weighed sum over classes
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
        
 ! SUBROUTINE ARGUMENTS - OUTPUT       (OUT)
-REAL*4,    INTENT(OUT)                           :: precip                     ! precipitation amount [mm]
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud (rain-out) scavenging ratio for primary component [-]  
-REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               ! dispersion coefficients for vertical dispersion; sigma_z = dispg*x^disph [-]
+real,      INTENT(OUT)                           :: precip                     ! precipitation amount [mm]
+real,      INTENT(OUT)                           :: routpri                    ! in-cloud (rain-out) scavenging ratio for primary component [-]
+real,      INTENT(OUT)                           :: dispg(NSTAB)               ! dispersion coefficients for vertical dispersion; sigma_z = dispg*x^disph [-]
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: istab                      ! teller over stabiliteitsklassen
@@ -244,132 +244,132 @@ INTEGER*4                                        :: kk                         !
 INTEGER*4                                        :: nb                         ! 
 INTEGER*4                                        :: karea                      ! 
 INTEGER*4                                        :: larea                      ! 
-REAL*4                                           :: aind                       ! voortgangsindicator
-REAL*4                                           :: htot                       ! 
-REAL*4                                           :: c                          ! 
-REAL*4                                           :: ueff                       ! wind speed at effective transport height heff; 
+real                                             :: aind                       ! voortgangsindicator
+real                                             :: htot
+real                                             :: c
+real                                             :: ueff                       ! wind speed at effective transport height heff;
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4                                           :: rations                    ! trajectory verhouding N/S
-REAL*4                                           :: qbron                      ! 
-REAL*4                                           :: qtr                        ! 
-REAL*4                                           :: qruim                      ! 
-REAL*4                                           :: grad                       ! 
-REAL*4                                           :: qob                        ! 
-REAL*4                                           :: qww                        ! 
-REAL*4                                           :: hbron                      ! 
-REAL*4                                           :: percvk                     ! 
-REAL*4                                           :: grof                       ! 
-REAL*4                                           :: cgt                        ! 
-REAL*4                                           :: cgt_z                      ! hoogte afhankelijkelijke cgt
-REAL*4                                           :: x                          ! 
-REAL*4                                           :: y                          ! 
-REAL*4                                           :: diam                       ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: szopp                      ! 
-REAL*4                                           :: D_stack                    ! diameter of the stack [m]
-REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]
+real                                             :: rations                    ! trajectory verhouding N/S
+real                                             :: qbron
+real                                             :: qtr
+real                                             :: qruim
+real                                             :: grad
+real                                             :: qob
+real                                             :: qww
+real                                             :: hbron
+real                                             :: percvk
+real                                             :: grof
+real                                             :: cgt
+real                                             :: cgt_z                      ! hoogte afhankelijkelijke cgt
+real                                             :: x
+real                                             :: y
+real                                             :: diam
+real                                             :: diameter
+real                                             :: szopp
+real                                             :: D_stack                    ! diameter of the stack [m]
+real                                             :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real                                             :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission  
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
-REAL*4                                           :: buildingFact               ! The interpolated building effect from the buildingTable
-REAL*4                                           :: qrv                        ! 
-REAL*4                                           :: virty                      ! 
-REAL*4                                           :: consec                     ! 
-REAL*4                                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
-REAL*4                                           :: disx                       ! linear distance between source and receptor [m]
-REAL*4                                           :: disxx                      ! effective travel distance between source and receptor [m]
-REAL*4                                           :: radius                     ! 
-REAL*4                                           :: uster_metreg_rcp           ! 
-REAL*4                                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4                                           :: shear                      ! 
-REAL*4                                           :: ol_metreg_rcp              ! 
-REAL*4                                           :: h0                         ! 
-REAL*4                                           :: hum                        ! 
-REAL*4                                           :: rcno2d                     ! 
-REAL*4                                           :: rcnh3d                     ! 
-REAL*4                                           :: rcaerd                     ! 
-REAL*4                                           :: vw10                       ! 
-REAL*4                                           :: pcoef                      ! 
-REAL*4                                           :: htt                        ! 
-REAL*4                                           :: aant                       ! 
-REAL*4                                           :: xl                         ! 
-REAL*4                                           :: rb                         ! 
-REAL*4                                           :: rbm                        ! 
-REAL*4                                           :: ra4                        ! 
-REAL*4                                           :: ra4m                       ! 
-REAL*4                                           :: ra50                       ! 
-REAL*4                                           :: ra50m                      ! 
-REAL*4                                           :: xvglbr                     ! 
-REAL*4                                           :: xvghbr                     ! 
-REAL*4                                           :: xloc                       ! 
-REAL*4                                           :: xl100                      ! 
-REAL*4                                           :: rad                        ! 
-REAL*4                                           :: rcso2                      ! 
-REAL*4                                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-REAL*4                                           :: regenk                     ! 
-REAL*4                                           :: buil                       ! 
-REAL*4                                           :: rint                       ! 
-REAL*4                                           :: aksek(NSEK)                ! .... (dummy output van ops_statparexp)
-REAL*4                                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4                                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s] 
-REAL*4                                           :: uster_src                  ! 
-REAL*4                                           :: ol_src                     ! 
-REAL*4                                           :: uster_tra                  ! 
-REAL*4                                           :: ol_tra                     ! 
-REAL*4                                           :: uh                         ! 
-REAL*4                                           :: zu                         ! 
-REAL*4                                           :: onder                      ! 
-REAL*4                                           :: xlm                        ! 
-REAL*4                                           :: onderm                     ! 
-REAL*4                                           :: qbpri                      ! 
-REAL*4                                           :: qsec                       ! 
-REAL*4                                           :: sigz                       ! 
-REAL*4                                           :: ccc                        ! undepleted concentration including part above mixing layer; 
+real                                             :: buildingFact               ! The interpolated building effect from the buildingTable
+real                                             :: qrv
+real                                             :: virty
+real                                             :: consec
+real                                             :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
+real                                             :: disx                       ! linear distance between source and receptor [m]
+real                                             :: disxx                      ! effective travel distance between source and receptor [m]
+real                                             :: radius
+real                                             :: uster_metreg_rcp
+real                                             :: temp_C                     ! temperature at height zmet_T [C]
+real                                             :: shear
+real                                             :: ol_metreg_rcp
+real                                             :: h0
+real                                             :: hum
+real                                             :: rcno2d
+real                                             :: rcnh3d
+real                                             :: rcaerd
+real                                             :: vw10
+real                                             :: pcoef
+real                                             :: htt
+real                                             :: aant
+real                                             :: xl
+real                                             :: rb
+real                                             :: rbm
+real                                             :: ra4
+real                                             :: ra4m
+real                                             :: ra50
+real                                             :: ra50m
+real                                             :: xvglbr
+real                                             :: xvghbr
+real                                             :: xloc
+real                                             :: xl100
+real                                             :: rad
+real                                             :: rcso2
+real                                             :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2]
+real                                             :: regenk
+real                                             :: buil
+real                                             :: rint
+real                                             :: aksek(NSEK)                ! .... (dummy output van ops_statparexp)
+real                                             :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+real                                             :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
+real                                             :: uster_src
+real                                             :: ol_src
+real                                             :: uster_tra
+real                                             :: ol_tra
+real                                             :: uh
+real                                             :: zu
+real                                             :: onder
+real                                             :: xlm
+real                                             :: onderm
+real                                             :: qbpri
+real                                             :: qsec
+real                                             :: sigz
+real                                             :: ccc                        ! undepleted concentration including part above mixing layer;
                                                                                ! is needed for e.g. wet deposition.
-REAL*4                                           :: rcsec                      ! 
-REAL*4                                           :: rc_sec_rcp                 ! 
-REAL*4                                           :: rb_rcp                     ! 
-REAL*4                                           :: ra50_rcp                   ! 
-REAL*4                                           :: raz_rcp                    ! 
-REAL*4                                           :: rc_rcp                     ! 
-REAL*4                                           :: ra4_rcp                    ! 
-REAL*4                                           :: vg50_rcp                   ! 
-REAL*4                                           :: pr                         ! 
-REAL*4                                           :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4                                           :: vchem                      ! 
-REAL*4                                           :: vg50trans                  ! 
-REAL*4                                           :: vgpart                     ! 
-REAL*4                                           :: rkc                        ! 
-REAL*4                                           :: ri                         ! 
-REAL*4                                           :: twt                        ! 
-REAL*4                                           :: vnatpri                    ! 
-REAL*4                                           :: cq2                        ! 
-REAL*4                                           :: cdn                        ! 
-REAL*4                                           :: cch                        ! 
-REAL*4                                           :: cratio                     ! 
-REAL*4                                           :: rhno3                      ! 
-REAL*4                                           :: rrno2nox                   ! 
-REAL*4                                           :: vchemnh3                   ! 
-REAL*4                                           :: dx                         ! 
-REAL*4                                           :: dy                         ! 
-REAL*4                                           :: dxsub                      ! 
-REAL*4                                           :: dysub                      ! 
-REAL*4                                           :: gbx                        ! 
-REAL*4                                           :: gby                        ! 
-REAL*4                                           :: rctra_0
-REAL*4                                           :: rctra_50
-REAL*4                                           :: rclocal
-REAL*4                                           :: rcsrc
-REAL*4                                           :: ra4src
-REAL*4                                           :: rb_src
-REAL*4                                           :: ra50src
-REAL*4                                           :: ra4tra
-REAL*4                                           :: ra50tra
-REAL*4                                           :: rb_tra
-REAL*4                                           :: rnox                       ! NO2/NOx ratio
-REAL*4                                           :: xg
+real                                             :: rcsec
+real                                             :: rc_sec_rcp
+real                                             :: rb_rcp
+real                                             :: ra50_rcp
+real                                             :: raz_rcp
+real                                             :: rc_rcp
+real                                             :: ra4_rcp
+real                                             :: vg50_rcp
+real                                             :: pr
+real                                             :: utr                        ! average wind speed over the trajectory (m/s)
+real                                             :: vchem
+real                                             :: vg50trans
+real                                             :: vgpart
+real                                             :: rkc
+real                                             :: ri
+real                                             :: twt
+real                                             :: vnatpri
+real                                             :: cq2
+real                                             :: cdn
+real                                             :: cch
+real                                             :: cratio
+real                                             :: rhno3
+real                                             :: rrno2nox
+real                                             :: vchemnh3
+real                                             :: dx
+real                                             :: dy
+real                                             :: dxsub
+real                                             :: dysub
+real                                             :: gbx
+real                                             :: gby
+real                                             :: rctra_0
+real                                             :: rctra_50
+real                                             :: rclocal
+real                                             :: rcsrc
+real                                             :: ra4src
+real                                             :: rb_src
+real                                             :: ra50src
+real                                             :: ra4tra
+real                                             :: ra50tra
+real                                             :: rb_tra
+real                                             :: rnox                       ! NO2/NOx ratio
+real                                             :: xg
 
 LOGICAL                                          :: inc_rcp                    ! increase receptorpoints
 LOGICAL                                          :: z0found                    ! Wel of geen z0 gevonden
@@ -747,25 +747,25 @@ PARAMETER      (ROUTINENAAM = 'wind_rek')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: bx                         ! 
 INTEGER*4, INTENT(IN)                            :: by                         ! 
-REAL*4,    INTENT(IN)                            :: bdiam                      ! 
-REAL*4,    INTENT(IN)                            :: bsterkte                   ! 
-REAL*4,    INTENT(IN)                            :: bwarmte                    ! 
-REAL*4,    INTENT(IN)                            :: bhoogte                    ! 
-REAL*4,    INTENT(IN)                            :: bsigmaz                    ! 
-REAL*4,    INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]            
+real,      INTENT(IN)                            :: bdiam
+real,      INTENT(IN)                            :: bsterkte
+real,      INTENT(IN)                            :: bwarmte
+real,      INTENT(IN)                            :: bhoogte
+real,      INTENT(IN)                            :: bsigmaz
+real,      INTENT(IN)                            :: bD_stack                   ! diameter of the stack [m]
+real,      INTENT(IN)                            :: bV_stack                   ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(IN)                            :: bTs_stack                  ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: bemis_horizontal           ! horizontal outflow of emission
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 INTEGER*4, INTENT(IN)                            :: btgedr                     ! 
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! 
-REAL*4,    INTENT(IN)                            :: bqrv                       ! 
-REAL*4,    INTENT(IN)                            :: bqtr                       ! 
-REAL*4,    INTENT(IN)                            :: gxm                        ! 
-REAL*4,    INTENT(IN)                            :: gym                        ! 
-REAL*4,    INTENT(IN)                            :: xm                         ! 
-REAL*4,    INTENT(IN)                            :: ym                         ! 
-REAL*4,    INTENT(IN)                            :: grid                       ! 
+real,      INTENT(IN)                            :: bqrv
+real,      INTENT(IN)                            :: bqtr
+real,      INTENT(IN)                            :: gxm
+real,      INTENT(IN)                            :: gym
+real,      INTENT(IN)                            :: xm
+real,      INTENT(IN)                            :: ym
+real,      INTENT(IN)                            :: grid
 INTEGER*4, INTENT(IN)                            :: nk                         ! 
 INTEGER*4, INTENT(IN)                            :: nr                         ! 
 INTEGER*4, INTENT(IN)                            :: mrcp                       ! 
@@ -776,31 +776,31 @@ INTEGER*4, INTENT(IN)                            :: karea                      !
 INTEGER*4, INTENT(IN)                            :: larea                      ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
-REAL*4,    INTENT(OUT)                           :: disx                       ! linear distance between source and receptor [m] 
-REAL*4,    INTENT(OUT)                           :: x                          ! 
-REAL*4,    INTENT(OUT)                           :: y                          ! 
-REAL*4,    INTENT(OUT)                           :: qob                        ! 
-REAL*4,    INTENT(OUT)                           :: qww                        ! 
-REAL*4,    INTENT(OUT)                           :: hbron                      ! 
-REAL*4,    INTENT(OUT)                           :: szopp                      ! 
-REAL*4,    INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
-REAL*4,    INTENT(OUT)                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+real,      INTENT(OUT)                           :: angle_SR_xaxis             ! angle between source-receptor vector and x-axis (needed for building effect) [degrees]
+real,      INTENT(OUT)                           :: disx                       ! linear distance between source and receptor [m]
+real,      INTENT(OUT)                           :: x
+real,      INTENT(OUT)                           :: y
+real,      INTENT(OUT)                           :: qob
+real,      INTENT(OUT)                           :: qww
+real,      INTENT(OUT)                           :: hbron
+real,      INTENT(OUT)                           :: szopp
+real,      INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
+real,      INTENT(OUT)                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(OUT)                           :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(OUT)                           :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: building                   ! strucure with building parameters
 INTEGER*4, INTENT(OUT)                           :: ibtg                       ! 
 INTEGER*4, INTENT(OUT)                           :: idgr                       ! 
-REAL*4,    INTENT(OUT)                           :: qrv                        ! 
-REAL*4,    INTENT(OUT)                           :: qtr                        ! 
+real,      INTENT(OUT)                           :: qrv
+real,      INTENT(OUT)                           :: qtr
 INTEGER*4, INTENT(OUT)                           :: rond                       ! 
-REAL*4,    INTENT(OUT)                           :: diameter                   ! 
+real,      INTENT(OUT)                           :: diameter
 INTEGER*4, INTENT(OUT)                           :: iwd                        ! 
 INTEGER*4, INTENT(OUT)                           :: isek                       ! 
 
 ! LOCAL VARIABLES
-REAL*4                                           :: dx                         ! 
-REAL*4                                           :: dy                         ! 
+real                                             :: dx
+real                                             :: dy
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

@@ -55,20 +55,20 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bgcon_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x coordinate receptor
-REAL*4,    INTENT(IN)                            :: yr                         ! y coordinate receptor
-REAL*4,    INTENT(IN)                            :: xb                         ! x coordinate source (b << "bron" = source)
-REAL*4,    INTENT(IN)                            :: yb                         ! y coordinate source 
+real,      INTENT(IN)                            :: xr                         ! x coordinate receptor
+real,      INTENT(IN)                            :: yr                         ! y coordinate receptor
+real,      INTENT(IN)                            :: xb                         ! x coordinate source (b << "bron" = source)
+real,      INTENT(IN)                            :: yb                         ! y coordinate source
 TYPE (TApsGridReal), INTENT(IN)                  :: bgdata                     ! grid with background concentrations
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: bgcon                      ! background concentration averaged over trajecory 
+real,      INTENT(OUT)                           :: bgcon                      ! background concentration averaged over trajecory
                                                                                ! between source and receptor
 
 ! LOCAL VARIABLES
-REAL*4                                           :: x                          ! x coordinate of intermediate point between source and receptor
-REAL*4                                           :: y                          ! y coordinate of intermediate point between source and receptor
-REAL*4                                           :: total                      ! summed total of background concentration in intermediate points
+real                                             :: x                          ! x coordinate of intermediate point between source and receptor
+real                                             :: y                          ! y coordinate of intermediate point between source and receptor
+real                                             :: total                      ! summed total of background concentration in intermediate points
 INTEGER*4                                        :: ns                         ! number of trajectory sectors between intermediate points
 INTEGER*4                                        :: i                          ! index of intermediate point
 !-------------------------------------------------------------------------------------------------------------------------------

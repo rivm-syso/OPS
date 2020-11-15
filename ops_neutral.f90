@@ -50,31 +50,31 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_neutral')
 
 ! CONSTANTS
-REAL*4                                           :: A                          ! correctiefactor to obtain equal limit values |L| > $ 
-REAL*4                                           :: K                          ! von Karmanconstante
+real                                             :: A                          ! correctiefactor to obtain equal limit values |L| > $
+real                                             :: K                          ! von Karmanconstante
 PARAMETER   (A = 1. )
 PARAMETER   (K = 0.4)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source heigth (including plume rise) (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+real,      INTENT(IN)                            :: z0                         ! roughness length (m)
+real,      INTENT(IN)                            :: zi                         ! mixing height (m)
+real,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+real,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+real,      INTENT(IN)                            :: h                          ! source heigth (including plume rise) (m)
+real,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+real,      INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
+real,      INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: szn                        ! vertical dispersion coefficient for near neutral upper layer (m)
+real,      INTENT(OUT)                           :: szn                        ! vertical dispersion coefficient for near neutral upper layer (m)
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: fz                         ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: sw                         ! 
-REAL*4                                           :: tl                         ! 
+real                                             :: fz
+real                                             :: s
+real                                             :: sw
+real                                             :: tl
 LOGICAL                                          :: finished                   ! 
 
 ! SCCS-ID VARIABLES

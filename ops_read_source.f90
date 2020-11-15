@@ -85,13 +85,13 @@ INTEGER*4                                        :: ibroncat                   !
 INTEGER*4                                        :: ierr                       ! error value
 LOGICAL*4                                        :: end_of_file                ! end of file has been reached
 INTEGER*4                                        :: brn_version                ! version of emission file
-REAL*4                                           :: qob                        ! emission strength read from emission record [g/s] 
-REAL*4                                           :: qww                        ! heat content read from emission record [MW] 
-REAL*4                                           :: hbron                      ! emission height read from emission record [m] 
-REAL*4                                           :: diameter                   ! diameter area source read from emission record (NOT stack diameter) [m] 
-REAL*4                                           :: szopp                      ! deviation emission height for area source = initial sigma_z [m] 
-REAL*4                                           :: x                          ! x coordinate of source location (RDM [m])                 
-REAL*4                                           :: y                          ! y coordinate of source location (RDM [m])
+real                                             :: qob                        ! emission strength read from emission record [g/s]
+real                                             :: qww                        ! heat content read from emission record [MW]
+real                                             :: hbron                      ! emission height read from emission record [m]
+real                                             :: diameter                   ! diameter area source read from emission record (NOT stack diameter) [m]
+real                                             :: szopp                      ! deviation emission height for area source = initial sigma_z [m]
+real                                             :: x                          ! x coordinate of source location (RDM [m])
+real                                             :: y                          ! y coordinate of source location (RDM [m])
 LOGICAL                                          :: country_selected           ! emission country has been selected
 LOGICAL                                          :: category_selected          ! emission category has been selected
 LOGICAL                                          :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file

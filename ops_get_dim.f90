@@ -55,9 +55,9 @@ PARAMETER    (ROUTINENAAM = 'ops_get_dim')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: spgrid                      
 LOGICAL,   INTENT(IN)                            :: igrens                      
-REAL*4,    INTENT(IN)                            :: xc                          
-REAL*4,    INTENT(IN)                            :: yc                          
-REAL*4,    INTENT(IN)                            :: grid                        
+real,      INTENT(IN)                            :: xc
+real,      INTENT(IN)                            :: yc
+real,      INTENT(IN)                            :: grid
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: nrcol                      ! number of colums in grid
@@ -65,18 +65,18 @@ INTEGER*4, INTENT(INOUT)                         :: nrrow                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(OUT)                           :: xorg                       
-REAL*4,    INTENT(OUT)                           :: yorg                       
+real,      INTENT(OUT)                           :: xorg
+real,      INTENT(OUT)                           :: yorg
 TYPE (TApsGridReal), INTENT(OUT)                 :: masker                      
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-REAL*4,    PARAMETER                             :: GRID_XSTART = 0.000        ! x-coordinate of left upper corner point of NL grid
-REAL*4,    PARAMETER                             :: GRID_YSTART = 620000.000   ! y-coordinate of left upper corner point of NL grid
-REAL*4,    PARAMETER                             :: NL_XLEFT    = 13562.623    !  
-REAL*4,    PARAMETER                             :: NL_XRIGHT   = 278018.313   ! 
-REAL*4,    PARAMETER                             :: NL_YUPPER   = 619122.750   ! 
-REAL*4,    PARAMETER                             :: NL_YLOWER   = 306838.813   ! 
+real,      PARAMETER                             :: GRID_XSTART = 0.000        ! x-coordinate of left upper corner point of NL grid
+real,      PARAMETER                             :: GRID_YSTART = 620000.000   ! y-coordinate of left upper corner point of NL grid
+real,      PARAMETER                             :: NL_XLEFT    = 13562.623
+real,      PARAMETER                             :: NL_XRIGHT   = 278018.313
+real,      PARAMETER                             :: NL_YUPPER   = 619122.750
+real,      PARAMETER                             :: NL_YLOWER   = 306838.813
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: i                          ! grid index                           
@@ -86,16 +86,16 @@ INTEGER*4                                        :: ix                         !
 INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) 
 INTEGER*4                                        :: p                          ! receptor point number (dummy)
 INTEGER*4                                        :: ierr                       ! error status
-REAL*4                                           :: lower                      
-REAL*4                                           :: xmax                       ! maximum x coordinate of receptor points
-REAL*4                                           :: xmax2                      
-REAL*4                                           :: xmin                       ! minimum x coordinate of receptor points
-REAL*4                                           :: ymax                       ! maximum y coordinate of receptor points
-REAL*4                                           :: ymax2                      
-REAL*4                                           :: ymin                       ! minimum y coordinate of receptor points
-REAL*4                                           :: x_rcp                      ! x coordinate receptor point 
-REAL*4                                           :: y_rcp                      ! y coordinate receptor point 
-REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
+real                                             :: lower
+real                                             :: xmax                       ! maximum x coordinate of receptor points
+real                                             :: xmax2
+real                                             :: xmin                       ! minimum x coordinate of receptor points
+real                                             :: ymax                       ! maximum y coordinate of receptor points
+real                                             :: ymax2
+real                                             :: ymin                       ! minimum y coordinate of receptor points
+real                                             :: x_rcp                      ! x coordinate receptor point
+real                                             :: y_rcp                      ! y coordinate receptor point
+real                                             :: cellvalue                  ! value of masker grid cell at receptor point
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point
 
@@ -277,7 +277,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'gen_mask')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: grid                       
+real,      INTENT(IN)                            :: grid
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TApsGridReal), INTENT(OUT)                 :: maskergrid                 ! APS-grid with fraction of area inside NL for each grid cell
@@ -294,7 +294,7 @@ INTEGER*4                                        :: factor                     !
 INTEGER*4                                        :: land                       ! sum of 1's of base grid that lie inside a certain output mask grid cell
 INTEGER*4                                        :: nrcol                      ! number of columns in output mask grid
 INTEGER*4                                        :: nrrow                      ! number of rows in output mask grid
-REAL*4                                           :: outputres                  ! resolution of output mask grid [km]
+real                                             :: outputres                  ! resolution of output mask grid [km]
 CHARACTER*1                                      :: gridname                   ! denotes direction 'x' or 'y' where error occurred when checking
                                                                                ! for grid resolution conformity 
 

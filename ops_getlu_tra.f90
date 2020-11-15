@@ -51,19 +51,19 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_getlu_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x-coordinate receptor (RDM)
-REAL*4,    INTENT(IN)                            :: yr                         ! y-coordinate receptor (RDM)
-REAL*4,    INTENT(IN)                            :: xb                         ! x-coordinate source (RDM) (b << "bron" = source)
-REAL*4,    INTENT(IN)                            :: yb                         ! y-coordinate source (RDM)
+real,      INTENT(IN)                            :: xr                         ! x-coordinate receptor (RDM)
+real,      INTENT(IN)                            :: yr                         ! y-coordinate receptor (RDM)
+real,      INTENT(IN)                            :: xb                         ! x-coordinate source (RDM) (b << "bron" = source)
+real,      INTENT(IN)                            :: yb                         ! y-coordinate source (RDM)
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
 LOGICAL, INTENT(IN)                              :: domlu
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of land use classes over trajectorie (over intermediate points)
+real,      INTENT(OUT)                           :: lu_tra_per(NLU)            ! percentages of land use classes over trajectorie (over intermediate points)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: x                          ! x-coordinate intermediate point 
-REAL*4                                           :: y                          ! y-coordinate intermediate point
+real                                             :: x                          ! x-coordinate intermediate point
+real                                             :: y                          ! y-coordinate intermediate point
 INTEGER*4                                        :: lu_tra_per_sum(NLU)        ! sum of percentages of land use classes over trajectorie (over intermediate points)
 INTEGER*4                                        :: lu_tra_dom                 ! dominant land use class over trajectory source-receptor
 INTEGER*4                                        :: is                         ! index of intermediate point

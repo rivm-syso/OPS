@@ -58,32 +58,32 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bron_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: emtrend  
+real,      INTENT(IN)                            :: emtrend
 type(TbuildingEffect)                            :: buildingEffect            ! structure with building effect tables                   
 
 ! SUBROUTINE ARGUMENTS - I/O
 INTEGER*4, INTENT(INOUT)                         :: landmax                     
-REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)           
+real,      INTENT(INOUT)                         :: emis(6,NLANDMAX)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: nsbuf                       
 INTEGER*4, INTENT(OUT)                           :: bnr(LSBUF)                  
 INTEGER*4, INTENT(OUT)                           :: bx(LSBUF)                   
 INTEGER*4, INTENT(OUT)                           :: by(LSBUF)                   
-REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)             
-REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bhoogte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)  
-REAL*4,    INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
-REAL*4,    INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+real,      INTENT(OUT)                           :: bdiam(LSBUF)
+real,      INTENT(OUT)                           :: bsterkte(LSBUF)
+real,      INTENT(OUT)                           :: bwarmte(LSBUF)
+real,      INTENT(OUT)                           :: bhoogte(LSBUF)
+real,      INTENT(OUT)                           :: bsigmaz(LSBUF)
+real,      INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
+real,      INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
+real,      INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(OUT)                           :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: bbuilding(LSBUF)          ! array with structures with building parameters
 INTEGER*4, INTENT(OUT)                           :: btgedr(LSBUF)
 INTEGER*4, INTENT(OUT)                           :: bdegr(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bqrv(LSBUF)                 
-REAL*4,    INTENT(OUT)                           :: bqtr(LSBUF)                 
+real,      INTENT(OUT)                           :: bqrv(LSBUF)
+real,      INTENT(OUT)                           :: bqtr(LSBUF)
 INTEGER*4, INTENT(OUT)                           :: bcatnr(LSBUF)               
 INTEGER*4, INTENT(OUT)                           :: blandnr(LSBUF)              
 LOGICAL,   INTENT(OUT)                           :: eof                        ! end of file has been reached 
@@ -96,22 +96,22 @@ INTEGER*4                                        :: ibroncat                   !
 INTEGER*4                                        :: idgr                       ! 
 INTEGER*4                                        :: iland                      ! country code
 INTEGER*4                                        :: index                      ! index of country code iland, in list of country codes
-REAL*4                                           :: gl                         ! 
-REAL*4                                           :: gb                         ! 
-REAL*4                                           :: qtr                        ! 
-REAL*4                                           :: qob                        ! 
-REAL*4                                           :: x                          ! 
-REAL*4                                           :: y                          ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: qww                        ! 
-REAL*4                                           :: hbron                      ! 
-REAL*4                                           :: szopp                      ! 
-REAL*4                                           :: D_stack                    ! diameter of the stack [m]
-REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+real                                             :: gl
+real                                             :: gb
+real                                             :: qtr
+real                                             :: qob
+real                                             :: x
+real                                             :: y
+real                                             :: diameter
+real                                             :: qww
+real                                             :: hbron
+real                                             :: szopp
+real                                             :: D_stack                    ! diameter of the stack [m]
+real                                             :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real                                             :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
-REAL*4                                           :: qrv                        ! 
+real                                             :: qrv
 CHARACTER*512                                    :: cbuf                       ! character buffer
 REAL                                             :: valueArray(buildingEffect%nParam)  ! array with parameters needed to compute building effect
 INTEGER                                          :: iParam                     ! index of building parameter

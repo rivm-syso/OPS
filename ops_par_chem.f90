@@ -55,35 +55,35 @@ PARAMETER    (ROUTINENAAM = 'ops_par_chem')
 INTEGER*4, INTENT(IN)                            :: icm  
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)                      
 INTEGER*4, INTENT(IN)                            :: isek                        
-REAL*4,    INTENT(IN)                            :: so2sek(NSEK)               
-REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               
-REAL*4,    INTENT(IN)                            :: so2bgtra                    
-REAL*4,    INTENT(IN)                            :: no2bgtra                    
-REAL*4,    INTENT(IN)                            :: nh3bgtra                    
+real,      INTENT(IN)                            :: so2sek(NSEK)
+real,      INTENT(IN)                            :: no2sek(NSEK)
+real,      INTENT(IN)                            :: so2bgtra
+real,      INTENT(IN)                            :: no2bgtra
+real,      INTENT(IN)                            :: nh3bgtra
 type(Tvchem),    INTENT(INOUT)                   :: vchem2
-REAL*4,    INTENT(IN)                            :: disx                       
-REAL*4,    INTENT(IN)                            :: diameter              
+real,      INTENT(IN)                            :: disx
+real,      INTENT(IN)                            :: diameter
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: vchemnh3
-REAL*4,    INTENT(OUT)                           :: rhno3                       
-REAL*4,    INTENT(OUT)                           :: rrno2nox                   
-REAL*4,    INTENT(OUT)                           :: rations                    
+real,      INTENT(OUT)                           :: vchemnh3
+real,      INTENT(OUT)                           :: rhno3
+real,      INTENT(OUT)                           :: rrno2nox
+real,      INTENT(OUT)                           :: rations
 
 ! LOCAL VARIABLES
-REAL*4                                           :: C1                         ! 
-REAL*4                                           :: C2                         ! 
-REAL*4                                           :: ch                         ! 
-REAL*4                                           :: cr                         ! 
-REAL*4                                           :: wdc_so2                    ! 
-REAL*4                                           :: wdc_no2                    ! 
-REAL*4                                           :: so2bgtra_corr              ! 
-REAL*4                                           :: no2bgtra_corr              ! 
-REAL*4                                           :: nh3bgtra_corr              ! 
-REAL*4                                           :: nox_threshold              ! threshold value for NOx in log-function in NOx -> NO2 conversion
-REAL*4                                           :: no2_threshold              ! threshold value for NO2 in exp-function in NO2 -> NOx conversion
-REAL*4                                           :: alpha                      ! slope of linear function NOx -> NO2 conversion
-REAL*4                                           :: noxbgtra_corr              ! conversion of no2bgtra_corr to NOx
+real                                             :: C1
+real                                             :: C2
+real                                             :: ch
+real                                             :: cr
+real                                             :: wdc_so2
+real                                             :: wdc_no2
+real                                             :: so2bgtra_corr
+real                                             :: no2bgtra_corr
+real                                             :: nh3bgtra_corr
+real                                             :: nox_threshold              ! threshold value for NOx in log-function in NOx -> NO2 conversion
+real                                             :: no2_threshold              ! threshold value for NO2 in exp-function in NO2 -> NOx conversion
+real                                             :: alpha                      ! slope of linear function NOx -> NO2 conversion
+real                                             :: noxbgtra_corr              ! conversion of no2bgtra_corr to NOx
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 

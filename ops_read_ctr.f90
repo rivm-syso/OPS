@@ -58,31 +58,31 @@ CHARACTER*(*), INTENT(OUT)                       :: runid                      !
 INTEGER*4, INTENT(OUT)                           :: year                       ! year under consideration
 INTEGER*4, INTENT(OUT)                           :: icm                        
 CHARACTER*(*), INTENT(OUT)                       :: namco                      
-REAL*4,    INTENT(OUT)                           :: amol1                      
+real,      INTENT(OUT)                           :: amol1
 LOGICAL,   INTENT(OUT)                           :: gasv                       ! type of component (0: particle; 1: gas)
 LOGICAL,   INTENT(OUT)                           :: idep                       
 INTEGER*4, INTENT(OUT)                           :: kdeppar                    
-REAL*4,    INTENT(OUT)                           :: ddeppar                    
+real,      INTENT(OUT)                           :: ddeppar
 INTEGER*4, INTENT(OUT)                           :: knatdeppar                 
-REAL*4,    INTENT(OUT)                           :: wdeppar                    
-REAL*4,    INTENT(OUT)                           :: dg                         
+real,      INTENT(OUT)                           :: wdeppar
+real,      INTENT(OUT)                           :: dg
 LOGICAL,   INTENT(OUT)                           :: irev                       
-REAL*4,    INTENT(OUT)                           :: vchemc                     ! chemical conversion rate [%/h]
+real,      INTENT(OUT)                           :: vchemc                     ! chemical conversion rate [%/h]
 INTEGER*4, INTENT(OUT)                           :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-REAL*4,    INTENT(OUT)                           :: vchemv                     
-REAL*4,    INTENT(OUT)                           :: emtrend                    
+real,      INTENT(OUT)                           :: vchemv
+real,      INTENT(OUT)                           :: emtrend
 INTEGER*4, INTENT(OUT)                           :: ncatsel                    
 INTEGER*4, INTENT(OUT)                           :: catsel(*)                  
 INTEGER*4, INTENT(OUT)                           :: nlandsel                   
 INTEGER*4, INTENT(OUT)                           :: landsel(*)                 
 INTEGER*4, INTENT(OUT)                           :: spgrid                     
-REAL*4,    INTENT(OUT)                           :: xc                         ! x-coordinate grid centre of user specified grid (spgrid = 1)
-REAL*4,    INTENT(OUT)                           :: yc                         ! y-coordinate grid centre of user specified grid (spgrid = 1)
+real,      INTENT(OUT)                           :: xc                         ! x-coordinate grid centre of user specified grid (spgrid = 1)
+real,      INTENT(OUT)                           :: yc                         ! y-coordinate grid centre of user specified grid (spgrid = 1)
 INTEGER*4, INTENT(OUT)                           :: nrcol                      
 INTEGER*4, INTENT(OUT)                           :: nrrow                      
-REAL*4,    INTENT(OUT)                           :: grid                       ! grid resolution [m]
+real,      INTENT(OUT)                           :: grid                       ! grid resolution [m]
 LOGICAL,   INTENT(OUT)                           :: igrens                     
-REAL*4,    INTENT(OUT)                           :: z0_user                    ! roughness length specified by user [m]
+real,      INTENT(OUT)                           :: z0_user                    ! roughness length specified by user [m]
 INTEGER*4, INTENT(OUT)                           :: intpol                     
 INTEGER*4, INTENT(OUT)                           :: ideh                       
 LOGICAL,   INTENT(OUT)                           :: igrid                      
@@ -93,8 +93,8 @@ INTEGER*4, INTENT(OUT)                           :: nsubsec                    !
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-REAL*4                                           :: lower                      ! lower limit (is used for checking variables read) 
-REAL*4                                           :: upper                      ! upper limit (is used for checking variables read) 
+real                                             :: lower                      ! lower limit (is used for checking variables read)
+real                                             :: upper                      ! upper limit (is used for checking variables read)
 CHARACTER*(512)                                  :: str1                       ! string value read from control file
 
 ! SCCS-ID VARIABLES

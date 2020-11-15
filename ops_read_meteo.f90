@@ -64,28 +64,28 @@ INTEGER*4, INTENT(OUT)                           :: idb
 INTEGER*4, INTENT(OUT)                           :: jt                          
 INTEGER*4, INTENT(OUT)                           :: mt                          
 INTEGER*4, INTENT(OUT)                           :: idt                         
-REAL*4,    INTENT(OUT)                           :: uurtot                      
+real,      INTENT(OUT)                           :: uurtot
 INTEGER*4, INTENT(OUT)                           :: iseiz                       
-REAL*4,    INTENT(OUT)                           :: zf                          
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)               
-REAL*4,    INTENT(OUT)                           :: gemre                       
-REAL*4,    INTENT(OUT)                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]
-REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)  
-REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)            
-REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]     
-REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)               
-REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)               
-REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)            
+real,      INTENT(OUT)                           :: zf
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(OUT)                           :: trafst(NTRAJ)
+real,      INTENT(OUT)                           :: gemre
+real,      INTENT(OUT)                           :: z0_metreg_user             ! roughness length of user specified meteo region [m]
+real,      INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+real,      INTENT(OUT)                           :: rainreg(NMETREG)
+real,      INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+real,      INTENT(OUT)                           :: xreg(NMETREG)
+real,      INTENT(OUT)                           :: yreg(NMETREG)
+real,      INTENT(OUT)                           :: hourreg(NMETREG)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
 INTEGER*4                                        :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER*4                                        :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4                                        :: iday                       ! day of time stamp of meteo file; currently not used
-REAL*4                                           :: xpos                        
-REAL*4                                           :: ypos                        
-REAL*4                                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]                        
+real                                             :: xpos
+real                                             :: ypos
+real                                             :: z0_metreg1                 ! rougness length of 1 meteo region [m]
 
 ! SCCS-ID VARIABLES
 CHARACTER*81                                     :: sccsida                    ! 
@@ -131,8 +131,8 @@ USE m_error
 IMPLICIT NONE
 
 ! CONSTANTS
-REAL*4                                           :: XP(NMETREG)                ! x-coordinate meteo regions in NL
-REAL*4                                           :: YP(NMETREG)                ! y-coordinate meteo regions in NL
+real                                             :: XP(NMETREG)                ! x-coordinate meteo regions in NL
+real                                             :: YP(NMETREG)                ! y-coordinate meteo regions in NL
                                                                                ! (XP,YP)~ centre of circle that encompasses a meteo region.
                                                                                ! (XP,YP) are used for interpolation of meteo parameters in a 
                                                                                ! specific location
@@ -146,17 +146,17 @@ INTEGER*4, INTENT(OUT)                           :: idb
 INTEGER*4, INTENT(OUT)                           :: jt                          
 INTEGER*4, INTENT(OUT)                           :: mt                          
 INTEGER*4, INTENT(OUT)                           :: idt                         
-REAL*4,    INTENT(OUT)                           :: uurtot                      
+real,      INTENT(OUT)                           :: uurtot
 INTEGER*4, INTENT(OUT)                           :: iseiz                       
-REAL*4,    INTENT(OUT)                           :: zf                          
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)               
-REAL*4,    INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) 
-REAL*4,    INTENT(OUT)                           :: rainreg(NMETREG)            
-REAL*4,    INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]     
-REAL*4,    INTENT(OUT)                           :: xreg(NMETREG)               
-REAL*4,    INTENT(OUT)                           :: yreg(NMETREG)               
-REAL*4,    INTENT(OUT)                           :: hourreg(NMETREG)            
+real,      INTENT(OUT)                           :: zf
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(OUT)                           :: trafst(NTRAJ)
+real,      INTENT(OUT)                           :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+real,      INTENT(OUT)                           :: rainreg(NMETREG)
+real,      INTENT(OUT)                           :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+real,      INTENT(OUT)                           :: xreg(NMETREG)
+real,      INTENT(OUT)                           :: yreg(NMETREG)
+real,      INTENT(OUT)                           :: hourreg(NMETREG)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -165,10 +165,10 @@ INTEGER*4                                        :: iday                       !
 INTEGER*4                                        :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4                                        :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER                                          :: idx                        ! index of '.' in name of meteo statistics file
-REAL*4                                           :: gemre                      ! average amount of precipitation (mm/h)
-REAL*4                                           :: xpos                       
-REAL*4                                           :: ypos                       
-REAL*4                                           :: z0_metreg1                 ! roughness length of 1 meteo region [m]                      
+real                                             :: gemre                      ! average amount of precipitation (mm/h)
+real                                             :: xpos
+real                                             :: ypos
+real                                             :: z0_metreg1                 ! roughness length of 1 meteo region [m]
 CHARACTER*512                                    :: nfile                      ! filename for meteo statistics file
 
 ! DATA 
@@ -259,21 +259,21 @@ CHARACTER*(*), INTENT(IN)                        :: nfile                      !
 INTEGER*4, INTENT(OUT)                           :: jb                         ! start year (meteo statistics period) ("b" << begin = start)
 INTEGER*4, INTENT(OUT)                           :: mb                         ! start month (meteo statistics period) ("b" << begin = start)
 INTEGER*4, INTENT(OUT)                           :: idb                        ! start day (meteo statistics period) ("b" << begin = start)
-REAL*4,    INTENT(OUT)                           :: gemre                      ! average precipitation amount [mm/h]
+real,      INTENT(OUT)                           :: gemre                      ! average precipitation amount [mm/h]
 INTEGER*4, INTENT(OUT)                           :: iyr                        ! year of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: imon                       ! month of time stamp of meteo file; currently not used
 INTEGER*4, INTENT(OUT)                           :: iday                       ! day of time stamp of meteo file; currently not used
-REAL*4,    INTENT(OUT)                           :: xpos                       
-REAL*4,    INTENT(OUT)                           :: ypos                       
-REAL*4,    INTENT(OUT)                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]                        
+real,      INTENT(OUT)                           :: xpos
+real,      INTENT(OUT)                           :: ypos
+real,      INTENT(OUT)                           :: z0_metreg1                 ! rougness length of 1 meteo region [m]
 INTEGER*4, INTENT(OUT)                           :: jt                         ! end year (meteo statistics period) ("t" << tot = until)
 INTEGER*4, INTENT(OUT)                           :: mt                         ! end month (meteo statistics period) ("t" << tot = until)
 INTEGER*4, INTENT(OUT)                           :: idt                        ! end day (meteo statistics period) ("t" << tot = until)
-REAL*4,    INTENT(OUT)                           :: uurtot                     ! total number of hours ("uur" = hour)
+real,      INTENT(OUT)                           :: uurtot                     ! total number of hours ("uur" = hour)
 INTEGER*4, INTENT(OUT)                           :: iseiz                      
-REAL*4,    INTENT(OUT)                           :: zf                          
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
-REAL*4,    INTENT(OUT)                           :: trafst(NTRAJ)               
+real,      INTENT(OUT)                           :: zf
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
+real,      INTENT(OUT)                           :: trafst(NTRAJ)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
@@ -438,7 +438,7 @@ CHARACTER*(*), INTENT(IN)                        :: nfile                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*2, INTENT(OUT)                           :: ishort(NSTAB*NSEK)         ! meta data of meteo statistics file
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES
