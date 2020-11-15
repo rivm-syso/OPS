@@ -149,7 +149,7 @@ sccsida = '%W%:%E%'//char(0)
 8704 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc     conc     conc    vdpri    vdsec       z0   lu_dom ' '    precip')
 
 !WdV704 FORMAT (33x,5(6x,a3:),9(6x,a4:))                                           ! component names (for isec=1)
-704 FORMAT (a3,a8,3x,2(a8),3x,14(1x,a8:))                                           ! component names (for isec=1)
+704 FORMAT (a3,a8,3x,2(a10),3x,14(1x,a8:))                                           ! component names (for isec=1)
 705 FORMAT (a3,a8,4x,'      m       m   ',19(a9:))                                         ! units
 !
 ! Definition of units for deposition velocity vd, roughness length z0, land use
