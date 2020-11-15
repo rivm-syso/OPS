@@ -515,7 +515,7 @@ INTEGER*4, INTENT(INOUT)                         :: varwaarde                  !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-REAL*4                                           :: var                        ! help variable (= float(varwaarde)) 
+real                                             :: var                        ! help variable (= float(varwaarde))
 
 var = FLOAT(varwaarde)
 CALL check_source(nr, varnaam, FLOAT(onder), FLOAT(boven), var, error)
