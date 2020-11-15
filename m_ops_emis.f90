@@ -321,7 +321,11 @@ IF (.NOT. end_of_file) THEN
          if (.not. is_missing(qww)) CALL check_source(nrec, '<heat content [MW]>', 0., 999., qww, error) 
          CALL check_source (nrec, '<emission height [m]>', 0., 5000.0, hbron, error)
          CALL check_source (nrec, '<diameter area source [m]>',-999999., 999999., diameter, error)
-         CALL check_source (nrec, '<deviatie>', 0., hbron, szopp, error)
+         if ( diameter /= 0 ) then
+            CALL check_source2 ('<deviatie>', 0., hbron, szopp, error)
+         else
+            CALL check_source2 ('<sigma_z_0>', 0., 20., szopp, error)    ! an initial sigma_z for traffic etc
+         endif
          CALL check_isource(nrec, '<variatie>', -999, 999, ibtg, error)
          CALL check_isource(nrec, '<categorie>', 1, 9999, ibroncat, error)
          CALL check_isource(nrec, '<land>', 1, 9999, iland, error)
@@ -334,7 +338,11 @@ IF (.NOT. end_of_file) THEN
          ! CALL check_source2('<emission height [m]>', 0., HUMAX, hbron, error)
          CALL check_source2('<emission height [m]>', 0., 5000.0, hbron, error)
          CALL check_source2('<diameter area source [m]>',-999999., 999999., diameter, error)
-         CALL check_source2 ('<deviatie>', 0., hbron, szopp, error)
+         if ( diameter /= 0 ) then
+            CALL check_source2 ('<deviatie>', 0., hbron, szopp, error)
+         else
+            CALL check_source2 ('<sigma_z_0>', 0., 20., szopp, error)    ! an initial sigma_z for traffic etc
+         endif
          CALL check_isource2('<variatie>', -999, 999, ibtg, error)
          CALL check_isource2('<categorie>', 1, 9999, ibroncat, error)
          CALL check_isource2('<land>', 1, 9999, iland, error)
