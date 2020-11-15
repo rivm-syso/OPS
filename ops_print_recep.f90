@@ -128,6 +128,7 @@ REAL*4                                           :: tmp(nrrcp)                 !
 CHARACTER*4                                      :: vdeh                       ! 
 CHARACTER*4                                      :: z0eh                       ! 
 CHARACTER*4                                      :: lueh                       ! 
+CHARACTER*4                                      :: ppeh
 INTEGER*4                                        :: ircp
 
 ! SCCS-ID VARIABLES
