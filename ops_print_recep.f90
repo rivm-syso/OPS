@@ -149,7 +149,7 @@ sccsida = '%W%:%E%'//char(0)
 8704 FORMAT (/,'  nr    name      x-coord y-coord     conc', '  dry_dep  wet_dep  tot_dep     conc     conc     conc     conc     conc    vdpri    vdsec       z0   lu_dom ' '    precip')
 
 !WdV704 FORMAT (33x,5(6x,a3:),9(6x,a4:))                                           ! component names (for isec=1)
-704 FORMAT (a3,a8,3x,2(a8),3x,14(1x,a8:))                                           ! component names (for isec=1)
+704 FORMAT (a3,a8,3x,2(a10),3x,14(1x,a8:))                                           ! component names (for isec=1)
 705 FORMAT (a3,a8,4x,'      m       m   ',19(a9:))                                         ! units
 !
 ! Definition of units for deposition velocity vd, roughness length z0, land use
@@ -188,7 +188,7 @@ IF (igrid) THEN
       CALL print_conc_names(namco)
       CALL print_depo_names()
       WRITE (fu_prt,2703)
-      WRITE (fu_prt,705) '-', '-', coneh, z0eh, lueh
+      WRITE (fu_prt,705) '-', '-', coneh, z0eh, lueh, ppeh
       CALL print_values(nrrcp, namrcp, xm, ym, error, cpri, scale_con, z0_rcp_all, 1.E3, REAL(lu_rcp_dom_all), 1., precip, 1.)
     ENDIF
 
@@ -219,7 +219,7 @@ IF (igrid) THEN
         CALL print_conc_names(namco)
         CALL print_depo_names()
         WRITE (fu_prt,4703)
-        WRITE (fu_prt,705) '-', '-', coneh,depeh,depeh,depeh,z0eh,lueh
+        WRITE (fu_prt,705) '-', '-', coneh,depeh,depeh,depeh,z0eh,lueh,ppeh
 
         DO j = 1, nrrcp
            vdpri(j) = ddepri(j)/ugmoldep*1.0e2/(cpri(j)/ conc_cf*3600.)/amol21
@@ -318,7 +318,7 @@ IF (igrid) THEN
           CALL print_depo_names(namsec)
           WRITE (fu_prt,6703)
           WRITE (fu_prt,704) '-', '-', '-', '-', namco(:3),(namse3(:3),i=1,3),namsec(:3)
-          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3', vdeh, vdeh, z0eh, lueh
+          WRITE (fu_prt,705) '-', '-', coneh, depeh, depeh, depeh, 'ug/m3', vdeh, vdeh, z0eh, lueh, ppeh
 
           DO j = 1, nrrcp
              vdpri(j) = ddepri(j)/ugmoldep*1.0e2/(cpri(j)/ conc_cf*3600.)/amol21
