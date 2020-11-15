@@ -120,7 +120,7 @@ INTEGER                                          :: iParam                     !
 CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
- 50  FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw
+
 !
 ! Initialise nsbuf = 0 (no sources in buffer arrays).
 !
@@ -129,20 +129,23 @@ nsbuf = 0
 ! Read source data from scratch file in block of length LSBUF (or till end-of-file) and put data into buffer arrays of size LSBUF.
 !
 
+
 DO WHILE (nsbuf /= LSBUF)
-!
-! Read source record cbuf from scratch file
-!
-  CALL sysread(fu_scratch, cbuf, eof, error)
-  IF (error%haserror) GOTO 9998
-!
-! If end of file has been reached, nothing is left to do here
-!
-  IF (eof) RETURN
-!
+
 ! Read source record with RDM coordinates
-!
-  READ (cbuf, 50) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+
+  READ (fu_scratch, iostat = io_status) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+
+  IF (io_status < 0) THEN
+    eof = .true.
+    return   ! If end of file has been reached, nothing is left to do here
+  ELSE IF (io_status > 0) THEN
+   CALL SetError('Error reading file', error)
+   CALL ErrorParam('io-status', io_status, error)
+   CALL ErrorCall(ROUTINENAAM, error)
+   IF (error%haserror) GOTO 9998
+  ENDIF
+
   nsbuf = nsbuf + 1
 
   !write(*,'(a,i6,10(1x,e12.5),1x,l2,4(1x,i4),4(1x,e12.5))') 'ops_bron_rek a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, & 

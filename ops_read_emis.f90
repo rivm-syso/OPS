@@ -132,7 +132,8 @@ IF (.NOT.sysopen(fu_bron, brnam, 'r', 'emission file', error)) GOTO 9999
 !
 ! Open scratch file
 !
-OPEN(fu_scratch, STATUS = 'SCRATCH')
+
+OPEN(fu_scratch, STATUS = 'SCRATCH', FORM = 'UNFORMATTED')
 
 !
 ! Read, select and check sources 
