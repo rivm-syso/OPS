@@ -310,7 +310,7 @@ IF (.NOT. end_of_file) THEN
       ! 
     
       ! Check range for 
-      !    deviation                     : 0 <= szopp <= hbron
+      !    deviation                     : 0 <= szopp <= hbron for area, <= 20 for point sources
       !    diurnal variation             : -999 <= ibtg <= 999
       !    emission category             : 1 <= ibroncat <= 9999
       !    country (= 'land')            : 1 <= iland <= 9999
