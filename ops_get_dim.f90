@@ -187,9 +187,9 @@ ELSE
 !
 ! Initialise maximum and minimum of x and y coordinates of receptor points
 !
-  xmax = tiny(xmax)
+  xmax = -huge(xmax)
   xmin = huge(xmin)
-  ymax = tiny(ymax)
+  ymax = -huge(ymax)
   ymin = huge(xmin)
 !
 ! --- Skip header if present ---
