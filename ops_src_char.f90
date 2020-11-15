@@ -55,8 +55,8 @@ PARAMETER    (ROUTINENAAM = 'ops_src_char')
 ! SUBROUTINE ARGUMENTS - INPUT
 LOGICAL,   INTENT(IN)                            :: f_z0user                   ! user overwrites z0 values from meteo input
 REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by the user [m]
-INTEGER*4, INTENT(IN)                            :: xb                         ! x-coordinaat van huidige bron in buffer
-INTEGER*4, INTENT(IN)                            :: yb                         ! y-coordinaat van huidige bron in buffer
+real,      INTENT(IN)                            :: xb                         ! x-coordinaat van huidige bron in buffer
+real,      INTENT(IN)                            :: yb                         ! y-coordinaat van huidige bron in buffer
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 
@@ -77,7 +77,7 @@ ELSE
 !
 ! If not user specified z0 then get z0_src from grid
 !
-  CALL ops_getz0(float(xb), float(yb), z0nlgrid, z0eurgrid, z0_src)
+  CALL ops_getz0(xb, yb, z0nlgrid, z0eurgrid, z0_src)
 ENDIF
 
 RETURN

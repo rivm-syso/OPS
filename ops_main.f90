@@ -98,8 +98,8 @@ INTEGER*4                                        :: btgedr(LSBUF)
 INTEGER*4                                        :: bdegr(LSBUF)                
 INTEGER*4                                        :: bcatnr(LSBUF)               
 INTEGER*4                                        :: blandnr(LSBUF)              
-INTEGER*4                                        :: bx(LSBUF)                   
-INTEGER*4                                        :: by(LSBUF)                   
+real                                             :: bx(LSBUF)
+real                                             :: by(LSBUF)
 INTEGER*4                                        :: bnr(LSBUF)      
 type(TbuildingEffect)                            :: buildingEffect                       ! structure with building effect tables
 INTEGER*4                                        :: jb                          

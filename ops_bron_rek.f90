@@ -68,8 +68,8 @@ REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*4, INTENT(OUT)                           :: nsbuf                       
 INTEGER*4, INTENT(OUT)                           :: bnr(LSBUF)                  
-INTEGER*4, INTENT(OUT)                           :: bx(LSBUF)                   
-INTEGER*4, INTENT(OUT)                           :: by(LSBUF)                   
+real,      INTENT(OUT)                           :: bx(LSBUF)
+real,      INTENT(OUT)                           :: by(LSBUF)
 REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)                
 REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)             
 REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)              
@@ -120,7 +120,7 @@ INTEGER                                          :: iParam                     !
 CHARACTER*81                                     :: sccsida                    ! 
 sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
- 50  FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw
+ 50 FORMAT (i8, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 4i4, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw
 !
 ! Initialise nsbuf = 0 (no sources in buffer arrays).
 !
@@ -243,8 +243,8 @@ DO WHILE (nsbuf /= LSBUF)
 !
     IF (IGEO /= 1) THEN
       bnr(nsbuf) = mm
-      bx(nsbuf)  = NINT(x)
-      by(nsbuf)  = NINT(y)
+      bx(nsbuf)  = x
+      by(nsbuf)  = y
     ELSE  
        write(*,*) 'IGEO in ops_bron_rek = ',IGEO  
        stop 
