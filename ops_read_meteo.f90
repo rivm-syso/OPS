@@ -438,7 +438,7 @@ CHARACTER*(*), INTENT(IN)                        :: nfile                      !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 INTEGER*2, INTENT(OUT)                           :: ishort(NSTAB*NSEK)         ! meta data of meteo statistics file
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) 
+real,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK)
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES

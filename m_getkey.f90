@@ -230,7 +230,7 @@ FUNCTION get_key_real(parname, value, error)
 CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: value                      ! 
+real,      INTENT(OUT)                           :: value
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! RESULT

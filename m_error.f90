@@ -372,7 +372,7 @@ SUBROUTINE error_rparam(paramname, value, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value                      ! 
+real,      INTENT(IN)                            :: value
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! 
@@ -398,7 +398,7 @@ SUBROUTINE error_raparam(paramname, value, error)
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: paramname                  ! 
-REAL*4,    INTENT(IN)                            :: value(:)                   ! 
+real,      INTENT(IN)                            :: value(:)
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! 
