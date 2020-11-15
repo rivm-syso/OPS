@@ -745,8 +745,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'wind_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: bx                         ! 
-INTEGER*4, INTENT(IN)                            :: by                         ! 
+real,      INTENT(IN)                            :: bx
+real,      INTENT(IN)                            :: by
 REAL*4,    INTENT(IN)                            :: bdiam                      ! 
 REAL*4,    INTENT(IN)                            :: bsterkte                   ! 
 REAL*4,    INTENT(IN)                            :: bwarmte                    ! 
