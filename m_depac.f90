@@ -30,7 +30,7 @@
 !
 !  MODULE             : m_depac
 !  INTERFACE          : depac
-!  AUTHOR             :  
+!  AUTHOR             : OPS-support
 !  FIRM/INSTITUTE     : RIVM
 !  LANGUAGE           : FORTRAN-90
 !  DESCRIPTION        : In this subroutine the canopy or surface resistance Rc

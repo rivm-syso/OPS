@@ -185,7 +185,7 @@ IF (gasv) THEN                                                              ! if
       ! routsec : in-cloud scavenging ratio for secondary component
       !           (rout << rain-out = in-cloud) [-])
       ! conc_cf : concentration correction factor for output.
-      ! Section 6.3 OPS report FS
+      ! Section 6.3 OPS report
  
       knatdeppar = 3
       scavcoef = 0
@@ -204,7 +204,7 @@ IF (gasv) THEN                                                              ! if
          routsec  = 1.4e7
 
          ! Set parameters specific for NOx 
-         ! rhno2  : ratio [HNO2]/[NOx] based on measurements Speuld, Slanina et al 1990, but they report 4% (p. 66 OPS report) FS
+         ! rhno2  : ratio [HNO2]/[NOx] based on measurements Speuld, Slanina et al 1990, but they report 4% (p. 66 OPS report)
          ! koh    : second order reaction rate constant of reaction NO2 + OH -> HNO3 [cm3/(molec s)] 
          !          Baulch et al 1982 (OPS report Table 6.2 FS): kOH = 1.035e-11 cm3/(molec s) = 1000.9 ppb-1 h-1, at T = 0 C
          !                                                                                     =  932.6 ppb-1 h-1, at T = 20 C

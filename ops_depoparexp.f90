@@ -724,7 +724,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !     Correction of twet [h] and ri [mm/h] for one month;
 !     iseiz = 4 -> one month in winter -> correction needed
 !
-      IF (iseiz .EQ. 4) THEN       ! IF (iseiz .EQ. 4 .OR. iseiz .EQ. 5) THEN    FS
+      IF (iseiz .EQ. 4) THEN       ! IF (iseiz .EQ. 4 .OR. iseiz .EQ. 5) THEN   
          twet = twet/CMND(mb)
          ri   = ri*CMND(mb)
       ENDIF

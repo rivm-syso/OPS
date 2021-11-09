@@ -27,7 +27,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : OPS-support  Chris Twenh"ofel (Cap Gemini)
+! AUTHOR              : OPS-support
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Print output for non-gridded receptors
