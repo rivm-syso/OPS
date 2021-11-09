@@ -311,7 +311,7 @@ IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
     ! temperature correction for NH3 emissions from animal housing systems; OPS report 6.33.
     ! Tavg = 10 C
     ! Temperature correction tcor = 1 + (T - Tavg)/f = 1 + T/f - 10/f = (1-10/f) + T/f = (f-10)/f + T/f = (T + f-10)/f; 
-    ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report). FS
+    ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report).
     !
     tcor=amax1((temp_C+24)/34, 0.2)
                                                    

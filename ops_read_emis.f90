@@ -164,7 +164,7 @@ CONTAINS
 ! +002    33    33    35    80   150   155   120   116   122   135   145    77 Average heating behaviour
 ! +003    24    16    23   150   175   121   127   154   190   112    60    48 Average traffic intensity
 
-! Example of particle size distribution file: FS
+! Example of particle size distribution file:
 ! 
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE read_variation(distnam, fmt, nrclass, normalvalue, compdesc, fraction, distrib, maxcode, presentcode, error)

@@ -28,7 +28,7 @@
 ! BRANCH - SEQUENCE   : %B% - %S%
 ! DATE - TIME         : %E% - %U%
 ! WHAT                : %W%:%E%
-! AUTHOR              : OPS-support  Chris Twenh"ofel (Cap Gemini)
+! AUTHOR              : OPS-support
 ! FIRM/INSTITUTE      : RIVM/LLO
 ! LANGUAGE            : FORTRAN (HP-UX, HP-F77)
 ! DESCRIPTION         : Print concentration, deposition and other gridded data.

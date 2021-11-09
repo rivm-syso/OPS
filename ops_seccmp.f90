@@ -308,7 +308,7 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 !
 ! Compute concentration of secondary species 
 !
-! 1. sigma_z < 1.6*xl -> in Gaussian plume OPS report 3.7, 3.15 FS
+! 1. sigma_z < 1.6*xl -> in Gaussian plume OPS report 3.7, 3.15
 !     
 !         q           q   NSEK            2                      -h^2            -(2z - h)^2          -(2z + h)^2
 ! csec = --- Dy Dz = --- -------- -------------------- [ exp(------------) + exp(------------) + exp(-------------) ]

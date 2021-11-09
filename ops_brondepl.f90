@@ -371,7 +371,7 @@ ENDIF
 ! ugem: average wind speed depending on phase of plume development
 !
 ! source code:
-!                 2.*al*1.e-6*vg0tra*(xx - radius)     (xx + virty)*cxx*ueff*(1.-cgt)   2 pi    FS
+!                 2.*al*1.e-6*vg0tra*(xx - radius)     (xx + virty)*cxx*ueff*(1.-cgt)   2 pi   
 !    cq2 = EXP( - ----------------------------------  -------------------------------- ------) 
 !                              ugem                         onder*qbstf                  12    
 
