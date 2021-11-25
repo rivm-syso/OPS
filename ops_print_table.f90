@@ -213,8 +213,8 @@ dummybool = has_rcp_values(spar1, nrpresent, factors) .AND. has_rcp_values(spar2
 !
 CALL startformat(formatpar, error)
 CALL startformat(formatunit, error)
-CALL appendformat('33x,1p', formatpar, error)
-CALL appendformat('33x', formatunit, error)
+CALL appendformat('37x,1p', formatpar, error)
+CALL appendformat('37x', formatunit, error)
 
 nrunit = 0
 DO j = 1, nrpresent
@@ -241,7 +241,7 @@ WRITE (fu_prt, '(/)')
 ! Create the values format string.
 !
 CALL startformat(formatval, error)
-CALL appendformat('I4,1X,A12,2I8', formatval, error)
+CALL appendformat('I4,1X,A12,2F10.2', formatval, error)
 CALL appendformat(nrpresent,'I9', formatval, error)
 IF (error%haserror) GOTO 9000
 !
@@ -278,7 +278,7 @@ DO i = 1, nrrcp
     ENDIF
   ENDIF
 
-  WRITE(fu_prt, formatval) i, namrcp(i), NINT(xm(i)), NINT(ym(i)), (values(j), j=1, nrpresent)
+  WRITE(fu_prt, formatval) i, namrcp(i), xm(i), ym(i), (values(j), j=1, nrpresent)
 ENDDO
 
 RETURN

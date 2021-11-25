@@ -112,20 +112,20 @@ IF (spgrid .EQ. 2) THEN
 !
 !   Acidifying components
 !
-      WRITE (fu_plt, '(a4,8x,a8,a8,9a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',       &
+      WRITE (fu_plt, '(a4,8x,a10,a10,9a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',       &
           &  'tot_dep.', ('conc.', isubsec = 1,nsubsec+1)
       IF (ierr .GT. 0) GOTO 4200
 
       ls = LEN_TRIM(namse3)
-      WRITE (fu_plt, '(a4,8x,a8,a8,9a12:)', IOSTAT = ierr) '-', '-', '-', namco(:LEN_TRIM(namco)), namse3(:ls), namse3(:ls), namse3(:ls),              &
+      WRITE (fu_plt, '(a4,8x,a10,a10,9a12:)', IOSTAT = ierr) '-', '-', '-', namco(:LEN_TRIM(namco)), namse3(:ls), namse3(:ls), namse3(:ls),              &
             &  namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,nsubsec)
       IF (ierr .GT. 0) GOTO 4200
 
-      WRITE (fu_plt, '(a4,8x,a8,a8,9a12:)', IOSTAT = ierr) '-','m', 'm', coneh, depeh, depeh, depeh, ('ug/m3', isubsec = 1,nsubsec+1)
+      WRITE (fu_plt, '(a4,8x,a10,a10,9a12:)', IOSTAT = ierr) '-','m', 'm', coneh, depeh, depeh, depeh, ('ug/m3', isubsec = 1,nsubsec+1)
       IF (ierr .GT. 0) GOTO 4200
 
       DO j = 1, nrrcp
-        WRITE (fu_plt, '(a12,2i8,9e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),             &
+        WRITE (fu_plt, '(a12,2F10.2,9e12.4)', IOSTAT = ierr) namrcp(j), xm(j), ym(j), cpri(j), drydep(j),             &
                   &  wetdep(j), drydep(j) + wetdep(j), csec(j), (csubsec(j,isubsec), isubsec = 1,nsubsec)
         IF (ierr .GT. 0) GOTO 4200
       ENDDO
@@ -133,19 +133,19 @@ IF (spgrid .EQ. 2) THEN
   ELSE IF (idep) THEN
 !
 !   Depositions
-!  
-    WRITE (fu_plt, '(a4,8x,a8,a8,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',         &
+!
+    WRITE (fu_plt, '(a4,8x,a10,a10,5a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',         &
           &  'tot_dep.'
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(a4,8x,a8,a8,5a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5), namse3(:5), namse3(:5), namse3(:5)
+    WRITE (fu_plt, '(a4,8x,a10,a10,5a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5), namse3(:5), namse3(:5), namse3(:5)
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(a4,8x,a8,a8,5a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh, depeh, depeh, depeh
+    WRITE (fu_plt, '(a4,8x,a10,a10,5a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh, depeh, depeh, depeh
     IF (ierr .GT. 0) GOTO 4200
 
     DO j = 1, nrrcp
-      WRITE (fu_plt, '(a12,2i8,5e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j), wetdep(j),    &
+      WRITE (fu_plt, '(a12,2F10.2,5e12.4)', IOSTAT = ierr) namrcp(j), xm(j), ym(j), cpri(j), drydep(j), wetdep(j),    &
                   &  drydep(j) + wetdep(j)
       IF (ierr .GT. 0) GOTO 4200
     ENDDO
@@ -154,17 +154,17 @@ IF (spgrid .EQ. 2) THEN
 !
 !   Non-acidifying substances AND no depositions (.not.idep .and. .not. isec)
 !
-    WRITE (fu_plt, '(a4,8x,a8,a8,a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.'
+    WRITE (fu_plt, '(a4,8x,a10,a10,a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.'
     IF (ierr .GT. 0) GOTO 4200
 
-    WRITE (fu_plt, '(a4,8x,a8,a8,a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5)
+    WRITE (fu_plt, '(a4,8x,a10,a10,a12:)', IOSTAT = ierr) '-', '-', '-', namco(:5)
     IF (ierr .GT. 0) GOTO 4200
 
-     WRITE (fu_plt, '(a4,8x,a8,a8,a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh
+     WRITE (fu_plt, '(a4,8x,a10,a10,a12:)', IOSTAT = ierr) '-', 'm', 'm', coneh
     IF (ierr .GT. 0) GOTO 4200
 
      DO j = 1, nrrcp
-       WRITE (fu_plt, '(a12,2i8,e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j)
+       WRITE (fu_plt, '(a12,2F10.2,e12.4)', IOSTAT = ierr) namrcp(j), xm(j), ym(j), cpri(j)
        IF (ierr .GT. 0) GOTO 4200
     ENDDO
   ENDIF
