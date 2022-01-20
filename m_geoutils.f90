@@ -1,52 +1,27 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE             : geoutils
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
+! DESCRIPTION        : This module contains geographical utilities.
 ! IMPLEMENTS         : - amc2geo: conversion of RDM to geographical lon-lat coordinates
 !                    : - geo2amc: conversion of geographical lon-lat coordinates to RDM coordinates
-! NAME               : %M%
-! SCCS(SOURCE)       : %P%
-! RELEASE - LEVEL    : %R% - %L%
-! BRANCH -SEQUENCE   : %B% - %S%
-! DATE - TIME        : %E% - %U%
-! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support 
-! FIRM/INSTITUTE     : RIVM LLO
-! LANGUAGE           : FORTRAN-90
-! DESCRIPTION        : This module contains geographical utilities.
-!                    : - amcgeo: conversion of RDM to geographical lon-lat coordinates
 !                    : - flrs: conversion of geographical lon-lat coordinates to RDM coordinates
 !                      RDM coordinates are based on a km grid over the Netherlands, centred at Amersfoort; 
 !                      RDM coordinates are also called "Amersfoortse coordinaten". RDM stands for RijksDriehoeksMeting,
 !                      since this grid is determined by triangulation (driehoek = triangle) measurements (meting = meeasurements)
 !                      of the Netherlands government (Rijk ~ government).
-! USAGE              :
-! EXIT CODES         :
-! REFERENCE          :
-! FILES AND OTHER    :
-!    I/O DEVICES
-! SYSTEM DEPENDENCIES: HP-Fortran
-! CONTAINS           : amc2geo, geo2amc, amc2lam, geo2lam
-! UPDATE HISTORY     :
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_geoutils
 
@@ -55,7 +30,7 @@ IMPLICIT NONE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : amc2geo
 ! PURPOSE     : conversion of RDM to geographical lon-lat coordinates
-! DESCRIPTION : Given input RDM coordinates (x,y), amcgeo uses an iterative method to compute the geographical coordinates (gl,gb).
+! DESCRIPTION : Given input RDM coordinates (x,y), amc2geo uses an iterative method to compute the geographical coordinates (gl,gb).
 !               Given an initial guess for (geol,geob), the corresponding RDM coordinates (x0,y0) are computed and compared with the 
 !               input coordinates (amcx,amcy). In a next step, (geol,geob) are adjusted as function of the difference (dx,dy) = (xi-x,yi-y).
 !               This iterative procedure continues until (dx,dy) is samller than a specified threshold (difx,dify).
@@ -124,7 +99,7 @@ SUBROUTINE amc2geo(amcx, amcy, geol, geob)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: amc2geo
 
-USE m_commonconst                                                              ! EPS_DELTA only
+USE m_commonconst_lib                                                         ! EPS_DELTA only
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -147,9 +122,6 @@ REAL*4                                           :: dy                         !
 REAL*4                                           :: amcx0                      ! RDM x-coordinate that corresponds with (gb,gl)
 REAL*4                                           :: amcy0                      ! RDM y-coordinate that corresponds with (gb,gl)
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! Initialise lon-lat coordinates (location near Utrecht, centre of NL) and iteration index
@@ -204,12 +176,13 @@ ENDIF
          GOTO 50
       ENDIF
       
-   !   WRITE (*, '( '' x and/or y coord. in subr. amcgeo beyond limits'')')
+   !   WRITE (*, '( '' x and/or y coord. in subr. amc2geo beyond limits'')')
    !   WRITE (*, '( '' x ='', f6.0, '' y ='', f6.0, '' km'')') x, y
    
    ENDIF
    
 ! Iteration has converged or tel >= 300
+! write(*,*) 'tel in amc2geo = ',tel 
 
 RETURN
 END SUBROUTINE amc2geo
@@ -247,9 +220,6 @@ REAL*4,    INTENT(OUT)                           :: amcy                       !
 REAL*4                                           :: f1                         ! 
 REAL*4                                           :: l1                         ! 
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 
 f1 = (.36*geob) - AMFI
@@ -289,9 +259,6 @@ REAL*4,    INTENT(OUT)                           :: lamy                       !
 REAL*4                                           :: geol                       ! hulpvariabele voor phi
 REAL*4                                           :: geob                       ! hulpvariabele voor lambda
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Converteer amerfoortse naar geografische coordinaten.
@@ -328,12 +295,12 @@ REAL*8                                           :: degtorad                   !
 REAL*8                                           :: cen_med                    ! central median or central longitude
 REAL*8                                           :: lat_ori                    ! latitude of origen or standard parallel
 
-PARAMETER (false_east  = 4321000)
-PARAMETER (false_north = 3210000)
-PARAMETER (R           = 6378137)
-PARAMETER (degtorad    =.017453293)
-PARAMETER (cen_med     = 10)
-PARAMETER (lat_ori     = 52)
+PARAMETER (false_east  = 4321000)    ! false easting [m]; a linear value added to the x-coordinate values, usually to ensure that all map coordinates are positive
+PARAMETER (false_north = 3210000)    ! false northing [m]; a linear value added to the y-coordinate values, usually to ensure that all map coordinates are positive
+PARAMETER (R           = 6378137)    ! semi-major axis [m]; radius of the equatorial axis of the ellipsoid
+PARAMETER (degtorad    =.017453293)  ! conversion factor degrees to radians = pi/180
+PARAMETER (cen_med     = 10)         ! central median [degrees]; line of longitude at the centre of a map projection generally used as the basis for constructing the projection
+PARAMETER (lat_ori     = 52)         ! latitude of origin [degrees]; latitude chosen as the origin of rectangular coordinates for a map projection
 
 ! SUBROUTINE ARGUMENTS - INPUT
 REAL*4,    INTENT(IN)                            :: geob                         ! breedtegraad (lambda)     (dec.) (lat)
@@ -358,9 +325,6 @@ real*8                                           :: cos_lon_delta
 real*8                                           :: x
 real*8                                           :: y
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Documentation: http://mathworld.wolfram.com/LambertAzimuthalEqual-AreaProjection.html 

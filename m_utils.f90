@@ -1,35 +1,19 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! SUBROUTINE
-! FILENAME             : %M%
-! SCCS(SOURCE)         : %P%
-! RELEASE - LEVEL      : %R% - %L%
-! BRANCH - SEQUENCE    : %B% - %S%
-! DATE - TIME          : %E% - %U%
-! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support   
-! FIRM/INSTITUTE       : RIVM/LLO/IS
-! LANGUAGE             : FORTRAN-77/90
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION          : General utilities
 ! IMPLEMENTS           : - Alloc: allocation of memory
 !                        - DeAlloc: deallocation of memory
@@ -44,12 +28,6 @@
 !                        - PrependFormat: Put format at start of format string.
 !                        - GetIndex: Determines index for a numerically coded identity.
 !                        - SortMatrix: Sorts rows of a matrix
-! EXIT CODES           :
-! FILES AND OTHER      :
-!    I/O DEVICES       :
-! SYSTEM DEPENDENCIES  : HP-Fortran
-! CALLED FUNCTIONS     :
-! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_utils
 
@@ -70,7 +48,9 @@ IMPLICIT NONE
 ! OUTPUTS     : array      (generic, array of integer or real type, which could have one or more dimensions). The array that is
 !                          allocated / initialised.
 !               error      (type TError) Whether error (no memory) occurred during allocation.
-! REMARK      : Before allocating the dimensions are checked. If any dimension is equal to 0 there is no allocation.
+! REMARK      : Before allocating the dimensions are checked. If any dimension is equal to 0 there is no allocation. RV: removed
+!               this, otherwise it results in a runtime error with the new ifort version: "forrtl: severe (408): fort: (8): 
+!               Attempt to fetch from allocatable variable X when it is not allocated". Instead, allocate to zero size array.
 ! REMARK      : The string allocation (allocstring) has problems under UNIX because the UNIX compiler will not accept
 !               character*(*).
 !               Creation of generic functions with different string lengths is also not possible. Therefore this string
@@ -79,9 +59,10 @@ IMPLICIT NONE
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE Alloc
   MODULE PROCEDURE allocreal0                                                  ! allocation of real array (def=0.0)
-  MODULE PROCEDURE allocreal                                                   ! allocation of real array
+  MODULE PROCEDURE allocreal                                                   ! allocation of real array (pointer)
+  MODULE PROCEDURE allocreala                                                  ! allocation of real array (allocatable)
   MODULE PROCEDURE allocreal2                                                  ! allocation of 2-dimensional real array (pointer)
-  MODULE PROCEDURE allocreal2a                                                  ! allocation of 2-dimensional real array (allocatable)
+  MODULE PROCEDURE allocreal2a                                                 ! allocation of 2-dimensional real array (allocatable)
   MODULE PROCEDURE allocreal3                                                  ! allocation of 3-dimensional real array
   MODULE PROCEDURE allocdouble0                                                ! allocation of double array (def = 0.0)
   MODULE PROCEDURE allocdouble                                                 ! allocation of double array
@@ -171,7 +152,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : WisselBytes
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa
-! AUTHOR      : OPS-support   
+! AUTHOR      : HvJ/Franka Loeve (Cap Volmac)
 ! INPUTS      : string     (character*(*)) The string which should represent the number to be extracted.
 ! OUTPUTS     : default    (logical) Returns .TRUE. if no value was read because no value was defined following the = sign.
 !               error      (type TError). Is assigned when an error occurred in the number defined in the string.
@@ -187,7 +168,7 @@ END INTERFACE
 ! PURPOSE     : Initial assignment to a format string.
 ! DESCRIPTION : To be called when starting the creation of a format string. The format string is then extended through
 !               AppendFormat and PrependFormat.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : Martien de Haan (ARIS).
 ! OUTPUTS     : formatstring (character*(*)) The formnat string to be created.
 !               error      (type TError). Is assigned when an error occurred in the assignment FormatString.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -204,7 +185,7 @@ END INTERFACE
 ! REMARK      : AppendFormat checks first whether an error has occurred. If so nothing happens. This is handy, because the
 !               calling procedure only has to check the error status once after all append and prepend procedures have been
 !               called.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : Martien de Haan (ARIS).
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -222,7 +203,7 @@ END INTERFACE
 ! PURPOSE     : Puts format descriptor at beginning of a format string.
 ! DESCRIPTION : See AppendFormat.
 ! REMARK      : See AppendFormat.
-! AUTHOR      : OPS-support   .
+! AUTHOR      : Martien de Haan (ARIS).
 ! INPUTS      : nrelts     (integer*4, optional) Assigns how many descriptor fields are present (that is number of integers,
 !                          floats or whatever in the format string).
 !               descriptor (character*(*)) The descriptor appended, such as 'I6', or 'F7.3' or 'X, I3'. This descriptor is
@@ -279,9 +260,6 @@ PARAMETER     (ROUTINENAAM = 'get_version_utils')
 CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
 CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 dll_version="1.0.0"
@@ -339,7 +317,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim), stat=ierr)
 
   IF (ierr == 0) THEN
@@ -350,6 +328,39 @@ IF (.NOT. error%haserror .AND. dim > 0) THEN
 ENDIF
 
 END SUBROUTINE allocreal
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE           : allocreala
+! INTERFACE            : Alloc
+! PURPOSE              : Allocation of 1-dimensional real allocatable array.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE allocreala(dim, arr, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: allocreal2a
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4, INTENT(IN)                             :: dim                       ! 
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4,    INTENT(OUT), DIMENSION(:), ALLOCATABLE :: arr                        ! 
+TYPE (TError), INTENT(OUT)                        :: error                      ! Error handling record
+
+! LOCAL VARIABLES
+INTEGER*4                                         :: ierr                       ! 
+
+! CONSTANTS
+CHARACTER*512                                     :: ROUTINENAAM                ! 
+PARAMETER     (ROUTINENAAM = 'allocreala')
+
+!-------------------------------------------------------------------------------------------------------------------------------
+IF (.NOT. error%haserror) THEN
+  ALLOCATE(arr(dim), stat=ierr)
+
+  IF (ierr /= 0) THEN
+    CALL AllocError(ierr, ROUTINENAAM, dim, '1-dimensional real allocatable', error)
+  ENDIF
+ENDIF
+
+END SUBROUTINE allocreala
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : allocdouble0
@@ -401,7 +412,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocdouble')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim), stat=ierr)
 
   IF (ierr == 0) THEN
@@ -438,7 +449,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim1, dim2), stat=ierr)
 
   IF (ierr /= 0) THEN
@@ -473,7 +484,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim1, dim2), stat=ierr)
 
   IF (ierr /= 0) THEN
@@ -509,7 +520,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocdouble2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim1, dim2), stat=ierr)
 
   IF (ierr /= 0) THEN
@@ -546,7 +557,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocreal3')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0 .AND. dim3 > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim1, dim2, dim3), stat=ierr)
 
   IF (ierr /= 0) THEN
@@ -645,7 +656,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER     (ROUTINENAAM = 'allocinteger2')
 
 !-------------------------------------------------------------------------------------------------------------------------------
-IF (.NOT. error%haserror .AND. dim1 > 0 .AND. dim2 > 0) THEN
+IF (.NOT. error%haserror) THEN
   ALLOCATE(arr(dim1, dim2), stat=ierr)
 
   IF (ierr /= 0) THEN
@@ -886,9 +897,6 @@ INTEGER*4                                        :: Jaartal                    !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER     (ROUTINENAAM = 'Jaartal')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (number < 50) THEN
   Jaartal = number+2000
@@ -933,9 +941,6 @@ CHARACTER                                        :: testchar                   !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER     (ROUTINENAAM = 'getreal')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Retrieve the intpart from the string. Check whether this part is correct and whether it contains any more relevant characters.
@@ -1024,7 +1029,7 @@ END SUBROUTINE getreal
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE           : getint
-! AUTHOR               : OPS-support   
+! AUTHOR               : Martien de Haan, okt 2001
 ! PURPOSE              : Extraheren van integer waarde uit een string. Geeft terug of er een waarde was, welke positie, etc.
 ! CALLED FUNCTIONS     : extractint
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -1104,9 +1109,6 @@ INTEGER*4                                        :: i                          !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER     (ROUTINENAAM = 'byteswap1')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 DO i = 1, shortdim
   CALL byteswap(ishort(i))
@@ -1137,9 +1139,6 @@ INTEGER*4                                        :: i, j                       !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER     (ROUTINENAAM = 'byteswap2')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 DO i = 1, dim1
   DO j = 1, dim2
@@ -1153,7 +1152,7 @@ END SUBROUTINE byteswap2
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : byteswap
 ! DESCRIPTION : Converts integer*2 internal notation from HP fortran to Microsoft Fortran and visa versa.
-! AUTHOR      : OPS-support   
+! AUTHOR      : HvJ/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE byteswap(ishort)
 
@@ -1171,9 +1170,6 @@ INTEGER*2                                        :: maxint2                    !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER     (ROUTINENAAM = 'byteswap')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 maxint2 = 256
 
@@ -1406,9 +1402,6 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'startformat')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Start the format string with the standard (
@@ -1471,9 +1464,6 @@ INTEGER*4                                        :: lastpos                    !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'append_format_string')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Nothing happens when we have 0 elements.
@@ -1578,9 +1568,6 @@ INTEGER*4                                        :: lastpos                    !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'prepend_format_string')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Nothing happens when we have 0 elements.

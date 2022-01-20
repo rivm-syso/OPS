@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 !************************************************************************
 ! 2013-09-17: this version has been derived from the 'hybrid' version 
 !             depac_GCN2010, which consisted of a shell around version 
@@ -22,21 +22,10 @@
 !************************************************************************
 
 !************************************************************************
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed 
-!           without permission of RIVM (2010)
-!
-!  MODULE             : m_depac
-!  INTERFACE          : depac
-!  AUTHOR             : OPS-support
-!  FIRM/INSTITUTE     : RIVM
-!  LANGUAGE           : FORTRAN-90
 !  DESCRIPTION        : In this subroutine the canopy or surface resistance Rc
 !                       is parameterised.
 !
-! Documentation by  , Mar 2009.
+! Documentation by Ferd Sauter, Mar 2009.
 ! Deposition fluxes are computed using one of the following resistance approaches;
 ! Note that, with the appopriate definitions (see below), B and C are totally equivalent.
 !
@@ -228,10 +217,10 @@
 !  UPDATE HISTORY : 
 !    1994    , article Erisman & van Pul, Atm. Env.
 !    ?       , Franka Loeve (Cap Volmac)
-!    Jan 2003,  : made single depac module.
+!    Jan 2003, Martien de Haan (ARIS): made single depac module.
 !    ?       ,               ? (TNO) : added rc for O3
 !    ?       ,               ? (TNO) : separate routines for each species.
-!    Nov 2008,       (RIVM): v3.0 synthesis of OPS and LOTOS-EUROS versions of DEPAC
+!    Nov 2008, Ferd Sauter     (RIVM): v3.0 synthesis of OPS and LOTOS-EUROS versions of DEPAC
 !    v3.0      model structure improved; common tasks in separate routines; documentation added
 !              names have been changed for readability:
 !              
@@ -251,28 +240,28 @@
 !              gs       -> gstom        : stomatal conductance (m/s)
 !              gstot    -> gc_tot       : total canopy conductance (m/s)
 ! 
-!    10 Dec 2008,       (RIVM): v3.1 try-out version with new model structure;
+!    10 Dec 2008, Ferd Sauter     (RIVM): v3.1 try-out version with new model structure;
 !    v3.1         no calls to separate routines in subroutine depac, but all components
 !                 are dealt with in subroutine depac.
 !                 This version is NOT developed any further; depacv3.2 is developed from v3.0
 !
-!    11 Dec 2008,       (RIVM): v3.2 new model structure;
+!    11 Dec 2008, Ferd Sauter     (RIVM): v3.2 new model structure;
 !    v3.2         in subroutine depac, calls are made to routines for separate conductances, e.g.
 !                 for external, stomatal, soil conductance; the dependence on the components is 
 !                 placed inside these conductance-routines.
 !
-!    22 Jan 2009,       (RIVM): v3.3 bug fix in season dependency leaf area index;
+!    22 Jan 2009, Ferd Sauter     (RIVM): v3.3 bug fix in season dependency leaf area index;
 !    v3.3         see function rc_lai. Older versions of this routine use a wrong numbering of
 !                 land use types (no conversion to Olson land use types).  
 !                 rc_gstom_wes (Wesely) readability improved; routine gives the same results.
 !    
-!    03 Feb 2009,       (RIVM): v3.4 Rsoil(NH3,urban) = 100 (was 1000).
+!    03 Feb 2009, Ferd Sauter     (RIVM): v3.4 Rsoil(NH3,urban) = 100 (was 1000).
 !    v3.4
 !
-!    03 Feb 2009,       (RIVM): v3.5 Rinc(grass) = Inf (was 0).
+!    03 Feb 2009, Ferd Sauter     (RIVM): v3.5 Rinc(grass) = Inf (was 0).
 !    v3.5
 !
-!    03 Feb 2009,       (RIVM): v3.6 stomatal compensation point and 
+!    03 Feb 2009, Ferd Sauter     (RIVM): v3.6 stomatal compensation point and 
 !    v3.6         new parameterisation Rw.
 !                 New routines:
 !                     rc_comp_point (called from depac)
@@ -281,7 +270,7 @@
 !                 New option ipar_rw_nh3.    (obsolete in final version MCvZ Nov 2009)
 !                 New (optional) arguments of depac: see header of depac.
 !
-!    02 Mar 2009,       (RIVM): v3.7 
+!    02 Mar 2009, Ferd Sauter     (RIVM): v3.7 
 !    v3.7         - added compensation point for external leaf; 
 !                   new parameterisation for Rw (routine rw_nh3_sutton replaces rw_nh3_rwk);
 !                 - added compensation point for soil; value of compensation point
@@ -291,17 +280,17 @@
 !                   parameterisation of Rstom; it was decided to change not everything in this version
 !                   but to do it stepwise. See v3.8 for Baldocchi
 !
-!    10 Mar 2009,       (RIVM): v3.8
+!    10 Mar 2009, Ferd Sauter     (RIVM): v3.8
 !    v3.8         - the same as v3.7, but Baldocchi for Rstom
 !    
-!    24 Mar 2009,       (RIVM): v3.8.1 LAI in external leaf resistance
+!    24 Mar 2009, Ferd Sauter     (RIVM): v3.8.1 LAI in external leaf resistance
 !    v3.8.1       gw = (lai/lai(grass)) * gw   (adjusted Oct 2009; lai -> sai and 
 !                 sai_grass scaling inside rw_nh3_sutton routine)
 !
-!    9 Apr 2009,       (RIVM): v3.8.2 bug fix in temperature
+!    9 Apr 2009, Ferd Sauter     (RIVM): v3.8.2 bug fix in temperature
 !    v3.8.2      correction factor Baldocchi BT 
 !
-!    6 July 2009,      (RIVM): v3.9 call added to calculate Rstom with Emberson
+!    6 July 2009, Ferd Sauter    (RIVM): v3.9 call added to calculate Rstom with Emberson
 !    v3.9
 !
 !    13 Aug 2009, Margreet van Zanten (RIVM): Emberson update, PARshade and PARsun added 
@@ -313,13 +302,13 @@
 !    9  Sep 2009, Margreet van Zanten (RIVM): calc of PARdir and PARdiff in Emberson
 !                 according to Weiss and Norman 1985
 !
-!    22 Sep 2009,   (RIVM): gstom of Emberson scaled with diffc/dO3 (instead of
+!    22 Sep 2009, Ferd Sauter (RIVM): gstom of Emberson scaled with diffc/dO3 (instead of
 !    v3.10        erroneously with dwat)
 !
 !    24 Sep 2009, Margreet van Zanten (RIVM): choices made on lu classes, F_phen set to 1 
 !                  since described effect is negligible for chosen lu's
 !    
-!    29 Sep 2009,   (RIVM): Emberson parameterisation of leaf area index (rc_lai);
+!    29 Sep 2009, Ferd Sauter (RIVM): Emberson parameterisation of leaf area index (rc_lai);
 !                  new subroutine arguments for DEPAC: day_of_year and lat (latitude).
 !
 !    2 Oct  2009, Margreet van Zanten (RIVM): v3.10 Merged version of earlier version of 3.10 and 3.9.2 
@@ -366,14 +355,14 @@
 !                calling depac routine for several components in a row (esp. NO after NH3), 
 !                ccomp_tot added as optional argument to rc_special routine
 !
-!   04 Jan 2010,   (RIVM): v3.16 is shell around versions 3.11 ('new' DEPAC for NH3 only) 
+!   04 Jan 2010, Ferd Sauter (RIVM): v3.16 is shell around versions 3.11 ('new' DEPAC for NH3 only) 
 !   v3.16        and 3.3 (old DEPAC for other species).       
 !                This file is constructed as follows:
 !                module m_depac311
 !                module m_depac33
 !                module m_depac316
 !
-!   04 Jan 2010,   (RIVM): iopt_debug -> optional writing of debug output
+!   04 Jan 2010, Ferd Sauter (RIVM): iopt_debug -> optional writing of debug output
 !   v3.16        added to m_depac311 and m_depac33 in this file 
 !
 !   04 Jan 2010, Margreet van Zanten(RIVM): frozen version of depac v3.16, renamed in depac_GCN2010
@@ -391,18 +380,17 @@
 ! module m_depac318, DEPAC version 3.18
 !
 !************************************************************************************
-!************************************************************************************
-module m_depac318
+
+module m_depac_private
+! This module contains all the helper variables/subroutines/functions
+! that should be kept private. Only 'use' m_depac318, never this module
+! directly, except in m_depac318 itself and in its unit tests.
+
+use m_commonconst_lib, only: nlu
 
 implicit none
-      
-! Make all variables and procedures private, except depac
-PRIVATE
-PUBLIC depac318
-PUBLIC get_version_depac
 
-! number of landuse types
-integer, parameter :: nlu = 9
+PUBLIC
 
 ! diffusion coefficients:
 real, parameter    :: dwat = 0.21e-4 ! diffusion coefficient of water vapour (m2/s)
@@ -416,152 +404,6 @@ logical            :: SAI_present ! vegetation is present for current land use t
 integer            :: iopt_debug = 0 ! write output (1) or not (0) for debugging purposes
 
 contains
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE: get_version_depac
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE get_version_depac(dll_version, dll_date)
-
-!DEC$ ATTRIBUTES DLLEXPORT:: get_version_depac
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
-PARAMETER     (ROUTINENAAM = 'get_version_depac')
-
-! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
-
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
-!-------------------------------------------------------------------------------------------------------------------------------
-!
-dll_version="1.0.0"
-dll_date="28 jun 2012"
-
-END SUBROUTINE get_version_depac
-
-
-!**********************************************************************************
-!
-! main routine depac
-!
-!**********************************************************************************
-
-!-------------------------------------------------------------------
-! depac: compute total canopy (or surface) resistance Rc for gases
-!-------------------------------------------------------------------
-subroutine depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-                   c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-                   ra, rb, rc_eff)
-
-!DEC$ ATTRIBUTES DLLEXPORT:: depac318
-
-! The last two rows of depac arguments are optional:
-!
-! A. compute Rc without compensation points:
-!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
-!
-! B. compute Rc (incl. new parameterisation Rw) and compensation points (used for LOTOS-EUROS): 
-!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!                  c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot)
-!
-! C. compute effective Rc based on compensation points, incl. new parameterisation Rw (used for OPS):
-!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!                 c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-!                 ra, rb, rc_eff)
-
-implicit none
-
-character(len=*), intent(in)  :: compnam      ! component name
-                                              ! 'HNO3','NO','NO2','O3','SO2','NH3'
-integer         , intent(in)  :: day_of_year  ! day of year, 1 ... 365 (366)
-real            , intent(in)  :: lat          ! latitude Northern hemisphere (degrees) (DEPAC cannot be used for S. hemisphere)
-real            , intent(in)  :: t            ! temperature (C) 
-                                              ! NB discussion issue is temp T_2m or T_surf of T_leaf? 
-real            , intent(in)  :: ust          ! friction velocity (m/s)
-real            , intent(in)  :: glrad        ! global radiation (W/m2)
-real            , intent(in)  :: sinphi       ! sin of solar elevation angle
-real            , intent(in)  :: rh           ! relative humidity (%)
-integer         , intent(in)  :: nwet         ! wetness indicator; nwet=0 -> dry; nwet=1 -> wet; nwet=9 -> snow
-integer         , intent(in)  :: lu           ! land use type, lu = 1,...,nlu
-integer         , intent(in)  :: iratns       ! index for NH3/SO2 ratio;
-                                              ! iratns = 1: low NH3/SO2
-                                              ! iratns = 2: high NH3/SO2
-                                              ! iratns = 3: very low NH3/SO2
-real            , intent(out) :: rc_tot       ! total canopy resistance Rc (s/m)
-
-! optional arguments needed only if compensation points are computed
-real, optional  , intent(in)  :: c_ave_prev_nh3   ! air concentration averaged over a previous
-                                                  ! period (e.g. previous year or month) (ug/m3) 
-real, optional   , intent(in) :: c_ave_prev_so2   ! air concentration averaged over a previous
-                                                  ! period (e.g. previous year or month) (ug/m3)
-real, optional  , intent(in)  :: catm         ! actual atmospheric concentration (ug/m3)
-real, optional  , intent(out) :: ccomp_tot    ! total compensation point (ug/m3)
-
-! optional arguments needed only if an effective Rc (based on compensation points) is computed;
-! in this case, also the previous three optional arguments are needed
-real, optional  , intent(in)  :: ra           ! aerodynamic resistance (s/m)
-real, optional  , intent(in)  :: rb           ! boundary layer resistance (s/m)
-real, optional  , intent(out) :: rc_eff       ! effective total canopy resistance (s/m)
-
-! Local variables:
-real                          :: lai          ! one-sided leaf area index (-)
-real                          :: sai          ! surface area index (-) (lai + branches and stems)
-logical                       :: ready        ! Rc has been set
-real                          :: diffc        ! diffusion coefficient of the gas involved          
-integer                       :: ipar_snow    ! parameterisation in case of snow:
-                                              ! = 1 -> constant Rc
-                                              ! = 2 -> temperature dependent Rc
-real                          :: rsoil_wet    ! soil resistance for wet soil
-real                          :: rsoil_frozen ! soil resistance for frozen soil
-real   , dimension(nlu)       :: rsoil        ! soil resistance
-real                          :: gw           ! external leaf conductance (m/s) 
-real                          :: gstom        ! stomatal conductance (m/s)
-real                          :: gsoil_eff    ! effective soil conductance (m/s)
-real                          :: gc_tot       ! total canopy conductance (m/s)
-
-! Compute one-sided leaf area index:
-call rc_lai(day_of_year,lat,lu,lai,sai) 
-
-! Check whether vegetation is present (in that case the leaf or surface area index > 0):
-LAI_present = (lai .gt. 0.0)
-SAI_present = (sai .gt. 0.0)
-
-! Get component specific parameters:
-call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
-
-! Set Rc (i.e. rc_tot) in special cases:
-call rc_special(compnam,lu,t,ipar_snow,nwet,rc_tot,ready,ccomp_tot)
-
-! If Rc is not set:
-if (.not. ready) then
-
-   ! External conductance:
-   call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
-
-   ! Stomatal conductance:
-   call rc_gstom(compnam,lu,lai,glrad,sinphi,t,rh,diffc,gstom) 
-
-   ! Effective soil conductance:
-   call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
-
-   ! Total canopy conductance (gc_tot) and resistance Rc (rc_tot):
-   call rc_rctot(gstom,gsoil_eff,gw,gc_tot,rc_tot)
-   
-   ! Compensation points:
-   if (present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. present(catm) .and. present(ccomp_tot)) then
-      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
-
-      ! Effective Rc based on compensation points:
-      if (present(rc_eff)) then
-         call rc_comp_point_rc_eff(ccomp_tot,catm,ra,rb,rc_tot,rc_eff)
-      endif
-   endif
-endif
-
-end subroutine depac318
 
 !************************************************************************************
 ! help routines
@@ -596,7 +438,7 @@ case('NO')
    rsoil_frozen = -999
    
    !          grass arable  perm. conif. decid.  water  urban  other desert
-   !                  land  crops forest frest
+   !                  land  crops forest forest
    !              1      2      3      4      5      6      7      8      9    
       rsoil = (/ -999,  -999,  -999,  -999,  -999,  2000,  1000,  -999 , 2000 /)
 
@@ -745,7 +587,7 @@ case('NO2')
     call rw_constant(2000.,gw)
 
 case('NO')
-   call rw_constant(-9999.,gw)  ! see Erisman et al, 1994 section 3.2.3
+   call rw_constant(-999.,gw)  ! see Erisman et al, 1994 section 3.2.3
        
 case('O3')
    call rw_constant(1000.,gw)
@@ -757,7 +599,9 @@ case('NH3')
    call rw_nh3_sutton(t,rh,gw)
 
    ! conversion from leaf resistance to canopy resistance by multiplying with SAI:
-   Gw = sai*gw
+   if (.not. missing(gw)) then
+       gw = sai*gw
+   endif
    
 case default
    print *, 'error in subroutine rc_gw '
@@ -886,10 +730,14 @@ real   , intent(out) :: gw     ! wernal leaf conductance (m/s)
 ! SAI_present: vegetation is present
 
 ! Compute conductance:
-if (SAI_present) then
-   gw = 1./rw_val
+if (.not. missing(rw_val)) then
+    if (SAI_present) then
+       gw = 1./rw_val
+    else
+       gw = 0.
+    endif
 else
-   gw = 0.
+   gw = -999.
 endif
 
 end subroutine rw_constant
@@ -943,18 +791,18 @@ type(laitype),dimension(nlu), parameter :: lai_par = (/ &                       
 ! variables from module
 !       LAI
 !        |
-!  laimax|               ---------
-!        |              /         \
-!        |             /           \
-!        |            /             \
-!        |           /               \
-!        |          /                 \
-!  laimin|         /                   \      
-!        |        |                     |
-!        |        |                     |   
-!        ---------|------|--------|-----|-----------
-!                sgs    sgs+     egs-   egs
-!                     s_lai_len  e_lai_len
+!  laimax|               -------------
+!        |              /             \
+!        |             /               \
+!        |            /                 \
+!        |           /                   \
+!        |          /                     \
+!  laimin|_________/                       \___________
+!        |                            
+!        |        
+!        ----------|-----|------------|----|-----------
+!                sgs    sgs+       egs-    egs
+!                     s_lai_len    e_lai_len
 !
 ! contents of lai_par:
 ! sgs50     ! start growing season at 50 degrees latitude (days)
@@ -1246,12 +1094,12 @@ SUBROUTINE par_dir_diff(glrad,sinphi,pres,pres_0,par_dir,par_diff)
 !     Leiming uses solar irradiance. This should be equal to global radiation and
 !     Willem Asman set it to global radiation
 
-      real,    intent(in)  :: glrad			! global radiation (W m-2)
-      real,    intent(in)  :: sinphi		! sine of the solar elevation
-      real,    intent(in)  :: pres			! actual pressure (to correct for height) (Pa)
-      real,    intent(in)  :: pres_0		! pressure at sea level (Pa)
-      real,    intent(out) :: par_dir		! PAR direct : visible (photoactive) direct beam radiation (W m-2)
-      real,    intent(out) :: par_diff		! PAR diffuse: visible (photoactive) diffuse radiation (W m-2)
+      real,    intent(in)  :: glrad         ! global radiation (W m-2)
+      real,    intent(in)  :: sinphi        ! sine of the solar elevation
+      real,    intent(in)  :: pres          ! actual pressure (to correct for height) (Pa)
+      real,    intent(in)  :: pres_0        ! pressure at sea level (Pa)
+      real,    intent(out) :: par_dir       ! PAR direct : visible (photoactive) direct beam radiation (W m-2)
+      real,    intent(out) :: par_diff      ! PAR diffuse: visible (photoactive) diffuse radiation (W m-2)
             
 !     fn              = near-infrared direct beam fraction (dimensionless)
 !     fv              = PAR direct beam fraction (dimensionless)
@@ -1592,12 +1440,8 @@ case('NO','NO2','O3','SO2')
 case('NH3')
 
    ! Temperature factor:
-   
-   ! parametrized temperature of surface water including yearly cycle
-   ! parametrization based on NL Waterbase data for 2003-2008, for ~25 locations 
-   ! for which NH4+, PH and temperature measurements are present
    if (lu .eq. 6) then ! water 
-      tk = 286.2 + 8.3*sin(day_of_year -113.5)
+      call rc_temp_water(day_of_year,tk)
    else
       tk = t + 273.15
    endif
@@ -1676,7 +1520,7 @@ end subroutine rc_comp_point
 ! old name: NH3rc (see depac v3.6 is based on Avero workshop Marc Sutton. p. 173. 
 ! Sutton 1998 AE 473-480)
 !
-! Documentation by  , 2008; see also documentation block in header of this module.
+! Documentation by Ferd Sauter, 2008; see also documentation block in header of this module.
 
 
 !
@@ -1757,7 +1601,7 @@ real, intent(in)  :: rc_tot     ! total canopy resistance (s/m)
 real, intent(out) :: rc_eff     ! effective total canopy resistance (s/m)
 
 ! Compute effective resistance:
-if (catm .ne. ccomp_tot)then
+if (catm .ne. ccomp_tot) then
    rc_eff = ((ra + rb)*ccomp_tot + rc_tot*catm)/(catm-ccomp_tot) 
 else
 !  rc_eff = -999. ! no flux, resistance undefined
@@ -1766,6 +1610,34 @@ endif
 
 return
 end subroutine rc_comp_point_rc_eff
+
+!-------------------------------------------------------------------
+! rc_temp_water: compute temperature for land use water
+!-------------------------------------------------------------------
+subroutine rc_temp_water(day_of_year,tk)
+
+USE binas, only: pi
+
+! Input
+integer         , intent(in)  :: day_of_year  ! day of year, 1 ... 365 (366)
+
+! Output:
+real            , intent(out) :: tk           ! water temperature (K) 
+
+
+! parametrized temperature of surface water including yearly cycle
+! parametrization based on NL Waterbase data for 2003-2008, for ~25 locations 
+! for which NH4+, PH and temperature measurements are present
+! T_para = 286.1842 + 8.3445*sind(day_of_year/365*360 - 113.5116)                [degrees]
+!        = 286.1842 + 8.3445*sin((2*pi/360)*(day_of_year/365*360 - 113.5116))=   [radians]
+!        = 286.1842 + 8.3445*sin(2*pi*(day_of_year/365 - 113.5116/360))=
+!        = 286.1842 + 8.3445*sin(2*pi*(day_of_year - 113.5116*365/360)/365) =
+!        = 286.1842 + 8.3445*sin(2*pi*(day_of_year - 115.1)/365)
+
+tk = 286.2 + 8.3*sin(day_of_year -113.5)  
+! tk = 286.2 + 8.34*sin(2*pi*(day_of_year - 115.1)/365)
+
+end subroutine rc_temp_water
 
 !-------------------------------------------------------------------
 ! missing: check for data that correspond with a missing deposition path
@@ -1782,5 +1654,166 @@ real, parameter :: EPS = 1.0e-5
 missing = (abs(x + 999.) .le. EPS)
 
 end function missing
+
+end module m_depac_private
+
+!************************************************************************************
+module m_depac318
+
+use m_depac_private
+
+implicit none
+      
+! Make all variables and procedures private, except depac
+PRIVATE
+PUBLIC depac318
+PUBLIC get_version_depac
+
+contains
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE: get_version_depac
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE get_version_depac(dll_version, dll_date)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: get_version_depac
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                ! 
+PARAMETER     (ROUTINENAAM = 'get_version_depac')
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
+CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
+
+!-------------------------------------------------------------------------------------------------------------------------------
+
+! get_version_depac is not used anymore, version not updated
+
+dll_version="1.0.0"
+dll_date="28 jun 2012"
+
+END SUBROUTINE get_version_depac
+
+
+!**********************************************************************************
+!
+! main routine depac
+!
+!**********************************************************************************
+
+!-------------------------------------------------------------------
+! depac: compute total canopy (or surface) resistance Rc for gases
+!-------------------------------------------------------------------
+subroutine depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
+                   c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
+                   ra, rb, rc_eff)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: depac318
+
+! The last two rows of depac arguments are optional:
+!
+! A. compute Rc without compensation points:
+!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+!
+! B. compute Rc (incl. new parameterisation Rw) and compensation points (used for LOTOS-EUROS): 
+!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
+!                  c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot)
+!
+! C. compute effective Rc based on compensation points, incl. new parameterisation Rw (used for OPS):
+!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
+!                 c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
+!                 ra, rb, rc_eff)
+
+implicit none
+
+character(len=*), intent(in)  :: compnam      ! component name
+                                              ! 'HNO3','NO','NO2','O3','SO2','NH3'
+integer         , intent(in)  :: day_of_year  ! day of year, 1 ... 365 (366)
+real            , intent(in)  :: lat          ! latitude Northern hemisphere (degrees) (DEPAC cannot be used for S. hemisphere)
+real            , intent(in)  :: t            ! temperature (C) 
+                                              ! NB discussion issue is temp T_2m or T_surf of T_leaf? 
+real            , intent(in)  :: ust          ! friction velocity (m/s)
+real            , intent(in)  :: glrad        ! global radiation (W/m2)
+real            , intent(in)  :: sinphi       ! sin of solar elevation angle
+real            , intent(in)  :: rh           ! relative humidity (%)
+integer         , intent(in)  :: nwet         ! wetness indicator; nwet=0 -> dry; nwet=1 -> wet; nwet=9 -> snow
+integer         , intent(in)  :: lu           ! land use type, lu = 1,...,nlu
+integer         , intent(in)  :: iratns       ! index for NH3/SO2 ratio;
+                                              ! iratns = 1: low NH3/SO2
+                                              ! iratns = 2: high NH3/SO2
+                                              ! iratns = 3: very low NH3/SO2
+real            , intent(out) :: rc_tot       ! total canopy resistance Rc (s/m)
+
+! optional arguments needed only if compensation points are computed
+real, optional  , intent(in)  :: c_ave_prev_nh3   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3) 
+real, optional   , intent(in) :: c_ave_prev_so2   ! air concentration averaged over a previous
+                                                  ! period (e.g. previous year or month) (ug/m3)
+real, optional  , intent(in)  :: catm         ! actual atmospheric concentration (ug/m3)
+real, optional  , intent(out) :: ccomp_tot    ! total compensation point (ug/m3)
+
+! optional arguments needed only if an effective Rc (based on compensation points) is computed;
+! in this case, also the previous three optional arguments are needed
+real, optional  , intent(in)  :: ra           ! aerodynamic resistance (s/m)
+real, optional  , intent(in)  :: rb           ! boundary layer resistance (s/m)
+real, optional  , intent(out) :: rc_eff       ! effective total canopy resistance (s/m)
+
+! Local variables:
+real                          :: lai          ! one-sided leaf area index (-)
+real                          :: sai          ! surface area index (-) (lai + branches and stems)
+logical                       :: ready        ! Rc has been set
+real                          :: diffc        ! diffusion coefficient of the gas involved          
+integer                       :: ipar_snow    ! parameterisation in case of snow:
+                                              ! = 1 -> constant Rc
+                                              ! = 2 -> temperature dependent Rc
+real                          :: rsoil_wet    ! soil resistance for wet soil
+real                          :: rsoil_frozen ! soil resistance for frozen soil
+real   , dimension(nlu)       :: rsoil        ! soil resistance
+real                          :: gw           ! external leaf conductance (m/s) 
+real                          :: gstom        ! stomatal conductance (m/s)
+real                          :: gsoil_eff    ! effective soil conductance (m/s)
+real                          :: gc_tot       ! total canopy conductance (m/s)
+
+! Compute one-sided leaf area index:
+call rc_lai(day_of_year,lat,lu,lai,sai) 
+
+! Check whether vegetation is present (in that case the leaf or surface area index > 0):
+LAI_present = (lai .gt. 0.0)
+SAI_present = (sai .gt. 0.0)
+
+! Get component specific parameters:
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+
+! Set Rc (i.e. rc_tot) in special cases:
+call rc_special(compnam,lu,t,ipar_snow,nwet,rc_tot,ready,ccomp_tot)
+
+! If Rc is not set:
+if (.not. ready) then
+
+   ! External conductance:
+   call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+
+   ! Stomatal conductance:
+   call rc_gstom(compnam,lu,lai,glrad,sinphi,t,rh,diffc,gstom) 
+
+   ! Effective soil conductance:
+   call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+
+   ! Total canopy conductance (gc_tot) and resistance Rc (rc_tot):
+   call rc_rctot(gstom,gsoil_eff,gw,gc_tot,rc_tot)
+   
+   ! Compensation points:
+   if (present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. present(catm) .and. present(ccomp_tot)) then
+      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+
+      ! Effective Rc based on compensation points:
+      if (present(rc_eff)) then
+         call rc_comp_point_rc_eff(ccomp_tot,catm,ra,rb,rc_tot,rc_eff)
+      endif
+   endif
+endif
+
+end subroutine depac318
 
 end module m_depac318

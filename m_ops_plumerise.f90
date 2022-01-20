@@ -1,24 +1,26 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 module m_ops_plumerise
 
 ! module m_ops_plumerise with plume rise due to either buoyancy or momentum
-! Marina Sterk and   2018-02-20
+! Marina Sterk and Ferd Sauter 2018-02-20
 
-! ops_plumerise             : main routine containing the calls to different parts of the final plume rise, and the calculation of the final plume rise
+! ops_plumerise_prelim      : compute preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... yet unknown)
+! ops_plumerise             : main routine containing the calls to different types of plume rise and the calculation of the final plume rise
+! ops_plumerise_qw_Ts       : compute effluent temperature Ts_stack or heat content Qw depending on input specified
 ! ops_plumerise_buoyancy    : determine plume rise due to buoyancy
 ! ops_plumerise_momentum    : determine plume rise due to momentum
 ! ops_plume_penetration     : determine plume penetration (fraction of plume that penetrates the mixing height)
@@ -33,17 +35,17 @@ real, parameter :: Cp0  = 1005  ! reference specific heat of air at pressure P0,
 contains
 
 !------------------------------------------------------------
-subroutine ops_plumerise_prelim(istab, isek, astat, hemis0, qw, D_stack, V_stack, Ts_stack, emis_horizontal, hemis1, error)
+subroutine ops_plumerise_prelim(istab, isec_prelim, astat, hemis0, qw, D_stack, V_stack, Ts_stack, emis_horizontal, hemis1, error)
 
-! Compute preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
+! Compute preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... yet unknown)
  
-use m_commonconst, only: NTRAJ, NCOMP, NSTAB, NSEK
+use m_commonconst_lib, only: NTRAJ, NCOMP, NSTAB, NSEK
 use m_ops_utils, only: is_missing
 use m_error
  
 ! Input:
 integer, intent(in) :: istab             ! index of stability class and preliminary wind sector
-integer, intent(in) :: isek              ! index of preliminary wind sector (wind shear not yet taken into account)
+integer, intent(in) :: isec_prelim       ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 real   , intent(in) :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
 real,    intent(in) :: hemis0            ! initial emission height = stack height [m]
 real,    intent(in) :: qw                ! heat content [MW]
@@ -61,17 +63,15 @@ logical :: prelim              ! preliminary plume rise, based on stability clas
                                ! if prelim = true  -> ol = -999, uster = -999, z0 = -999, zmix = zmix_loc = -999 
                                !                      these parameters are still unknown; 
                                !                      wind profile is based on power law with coefficient based on stability class
-logical :: VsDs_opt            ! include exit velocity (Vs = V_stack), stack diameter (Ds = D_stack) and effluent temperature (Ts_stack) in the emission file
 real    :: dum                 ! dummy output of ops_plumerise
 real    :: temp_C              ! ambient temperature at height zmet_T [C], default value
 
 character(len = 80), parameter :: ROUTINENAAM = 'ops_plumerise_prelim'
 
 prelim   = .true.
-VsDs_opt = .not. is_missing(V_stack)
 temp_C   = 12.0  ! default average value (is not a sensitive parameter for preliminary estimate)
-call ops_plumerise(-999., hemis0, -999., -999., qw, VsDs_opt, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, -999., -999., &  
-                   hemis1, dum, error, prelim, istab, isek, astat)
+call ops_plumerise(-999., hemis0, -999., -999., qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, -999., -999., &  
+                   hemis1, dum, error, prelim, istab, isec_prelim, astat)
 ! write(*,'(a,4(1x,e12.5))') 'in routine ops_plumerise_prelim a: ',hemis0,hemis1,hemis1-hemis0,-999.0
 
 if (error%haserror) call ErrorCall(ROUTINENAAM, error) 
@@ -79,13 +79,15 @@ if (error%haserror) call ErrorCall(ROUTINENAAM, error)
 end subroutine ops_plumerise_prelim
 
 !------------------------------------------------------------
-subroutine ops_plumerise(z0, hemis0, uster, ol, qw, VsDs_opt, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, & 
-                         hemis1, onder, error, prelim, istab, isek, astat)
+subroutine ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, & 
+                         hemis1, onder, error, prelim, istab, isec_prelim, astat)
 
-! Main routine for the different plume rise calculations
+! Main routine for the different plume rise calculations; also computes onder = the fraction of mass within the mixing layer.
 
 use Binas, only: T0                      ! melting point of ice [K]
-use m_commonconst, only: zmet_T, NTRAJ, NCOMP, NSTAB, NSEK, EPS_DELTA
+use m_commonconst_lib, only: zmet_T, NTRAJ, NCOMP, NSTAB, NSEK, EPS_DELTA
+use m_ops_utils, only: is_missing
+use m_ops_meteo, only: ops_wv_log_profile, ops_wv_powerlaw_metstat
 use m_error
 
 ! Input
@@ -94,7 +96,6 @@ real,    intent(in) :: hemis0            ! initial emission height = stack heigh
 real,    intent(in) :: uster             ! friction velocity [m/s]
 real,    intent(in) :: ol                ! Monin-Obukhov length [m]
 real,    intent(in) :: qw                ! heat content [MW]
-logical, intent(in) :: VsDs_opt          ! include exit velocity (Vs = V_stack), stack diameter (Ds = D_stack) and effluent temperature (Ts_stack) in the emission file
 real,    intent(in) :: D_stack           ! diameter of the stack [m]
 real,    intent(in) :: V_stack           ! exit velocity of plume at stack tip [m/s]
 real,    intent(in) :: Ts_stack          ! temperature of effluent from stack [K]
@@ -109,14 +110,14 @@ real, intent(out)   :: onder             ! part of plume below mixing height
 type (TError), intent(out) :: error      ! error handling record 
 
 ! Input, optional:
-logical, intent(in), optional :: prelim  ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
-                                         ! if prelim = true  -> ol = -999, uster = -999, z0 = -999, zmix = zmix_loc = -999 
-                                         !                      these parameters are still unknown; 
-                                         !                      wind profile is based on power law with coefficient based on stability class
-                                         ! if prelim = false or not present -> istab, isek are not used
-                                         !                      wind profile is computed with ops_wvprofile (logarithmic profile) using z0, ol, uster 
-integer, intent(in), optional :: istab   ! index of stability class and preliminary wind sector
-integer, intent(in), optional :: isek    ! index of preliminary wind sector (wind shear not yet taken into account)
+logical, intent(in), optional :: prelim      ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
+                                             ! if prelim = true  -> ol = -999, uster = -999, z0 = -999, zmix = zmix_loc = -999 
+                                             !                      these parameters are still unknown; 
+                                             !                      wind profile is based on power law with coefficient based on stability class
+                                             ! if prelim = false or not present -> istab, isec_prelim are not used
+                                             !                      wind profile is based on logarithmic wind profile, using z0, ol, uster 
+integer, intent(in), optional :: istab       ! index of stability class and preliminary wind sector
+integer, intent(in), optional :: isec_prelim ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 real   , intent(in), optional :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
                                         
 ! Local                                 
@@ -127,10 +128,9 @@ real                :: dh_momentum       ! plume rise due to momentum [m]
 real                :: dh                ! plume rise due to either buoyancy or momentum [m]
 real                :: dthetadz_stable   ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
 real                :: Ta_stack          ! ambient temperature at stack height [K]
-real, parameter     :: z_u_threshold = 10.0 ! threshold height below which the wind speed is cut-off [m]
+real, parameter     :: z_u_threshold = 10.0 ! threshold height below which the wind speed is cut-off [m]; in compliance with NNM
 real                :: Ts_stack2         ! effluent temperature at stack height, but missing value replaced by computation from Qw [K]
 real                :: qw2               ! heat content emission, but missing value replaced by computation from Ts [MW]
-real                :: V0                ! normal volume flux [m0^3/s]
 logical             :: prelim1           ! = prelim if present, otherwise false
 real                :: vw10              ! wind velocity at 10 m heigth [m/s]
 real                :: pcoef             ! coefficient in wind speed power law
@@ -176,19 +176,19 @@ endif
 
 ! 1. Compute effluent temperature Ts_stack or heat content Qw depending on input specified;
 !    Ts missing -> compute Qw, Qw missing -> compute Ts:
-call ops_plumerise_qw_Ts(VsDs_opt, qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
 if (error%haserror) goto 9999 
 
 ! 2. Compute wind speed at stack height:
 if (prelim1) then
-   call ops_wv_powerlaw(istab,isek,astat,hemis0,u_stack,vw10,pcoef)
+   call ops_wv_powerlaw_metstat(istab,isec_prelim,astat,hemis0,u_stack,vw10,pcoef)
 else
-   call ops_wvprofile(z0,hemis0,uster,ol,u_stack)
+   call ops_wv_log_profile(z0,hemis0,uster,ol,u_stack)
 endif
 
 ! 3. Determine plume rise due to buoyancy. This is including iterations to resolve the interdependency between plume rise and wind speed
 if (present(prelim)) then
-   call ops_plumerise_buoyancy(z0,ol,uster,non_stable,qw2,Ta_stack,dthetadz_stable,u_stack,hemis0,dh_buoyancy,prelim,istab,isek,astat) 
+   call ops_plumerise_buoyancy(z0,ol,uster,non_stable,qw2,Ta_stack,dthetadz_stable,u_stack,hemis0,dh_buoyancy,prelim,istab,isec_prelim,astat) 
 else
    call ops_plumerise_buoyancy(z0,ol,uster,non_stable,qw2,Ta_stack,dthetadz_stable,u_stack,hemis0,dh_buoyancy) 
 endif
@@ -196,15 +196,15 @@ endif
 ! write(*,'(a,4(1x,e12.5))') 'in routine ops_plumerise b: ',hemis0,hemis1,hemis1-hemis0,-999.0
 
 ! 4. Determine plume rise due to momentum (no momentum plume rise in case of horizontal emission):
-if (VsDs_opt .and. .not. emis_horizontal) then
+if (.not. is_missing(V_stack) .and. .not. emis_horizontal) then
       
     ! Low stack with low wind velocity may lead to large oversestimation of plume rise -> 
     ! 10 m is used as threshold for wind speed calculation (personal communication Hans Erbrink):
     if (hemis0 .lt. z_u_threshold) then
        if (prelim1) then
-          call ops_wv_powerlaw(istab,isek,astat,z_u_threshold,u_threshold,vw10,pcoef)
+          call ops_wv_powerlaw_metstat(istab,isec_prelim,astat,z_u_threshold,u_threshold,vw10,pcoef)
        else
-          call ops_wvprofile(z0,z_u_threshold,uster,ol,u_threshold)
+          call ops_wv_log_profile(z0,z_u_threshold,uster,ol,u_threshold)
        endif
        call ops_plumerise_momentum(u_threshold,D_stack,V_stack,Ts_stack2,Ta_stack,dthetadz_stable,non_stable,dh_momentum)
     else
@@ -237,7 +237,7 @@ return
 end subroutine ops_plumerise
 
 !-------------------------------------------------------------------------------------------------------------------------------
-subroutine ops_plumerise_qw_Ts(VsDs_opt, qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+subroutine ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
 
 ! Compute effluent temperature Ts_stack or heat content Qw depending on input specified;
 ! Ts_stack missing -> compute Qw, Qw missing -> compute Ts_stack. Note that is has been checked already that either one of them is missing. 
@@ -248,7 +248,6 @@ use m_ops_utils, only: is_missing
 use m_error
 
 ! Input
-logical, intent(in) :: VsDs_opt           ! include exit velocity (Vs = V_stack), stack diameter (Ds = D_stack) and effluent temperature (Ts_stack) in the emission file
 real,    intent(in) :: qw                 ! heat content [MW]
 real,    intent(in) :: D_stack            ! diameter of the stack [m]
 real,    intent(in) :: V_stack            ! exit velocity of plume at stack tip [m/s]
@@ -276,8 +275,8 @@ character(len = 80), parameter :: ROUTINENAAM = 'ops_plumerise_qw_Ts'
 ! Ts   = effluent temperature (K) 
 ! Ta   = ambient temperature at stack height (K) 
 
-! write(*,*) 'ops_plumerise_qw_Ts a:',VsDs_opt,qw,Ts_stack
-if (VsDs_opt) then
+! write(*,*) 'ops_plumerise_qw_Ts a:',qw,Ts_stack
+if (.not. is_missing(V_stack)) then
    if (is_missing(Ts_stack)) then
    
       !----------------------------------------------------------------
@@ -285,33 +284,37 @@ if (VsDs_opt) then
       !----------------------------------------------------------------
       
       if (emis_horizontal) then
+         ! Horizontal emission -> no plume rise due to momentum -> Ts_stack2 not needed for momentum plume rise 
+         ! and because heat content is given Ts_stack2 also not needed for buoyancy plume rise:
          Ts_stack2 = -999.0
       else
          if (qw .eq. 0.0) then
             Ts_stack2 = Ta_stack   
          else
-         ! Compute effluent temperature (not needed in case of horizontal outflow):
+            ! Compute effluent temperature (not needed in case of horizontal outflow):
+            ! qw = rho0*Cp0*V0*(Ts - Ta)*1e-6 <=>
             ! Ts = Ta + 1e6*qw/(rho0*Cp0*V0)                 (1)
             ! V0 = (pi*(0.5*D_stack)**2)*V_stack*T0/Ts_stack (2)
-            ! Substitute (2) in (1) gives Ts = Ta + f Ts <=> Ts = Ta/(1-f), with f = 1e6*qw/(rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0):
+            ! Substitute (2) in (1) gives Ts = Ta + f Ts <=> Ts = Ta/(1-f), with f = 1e6*qw/(rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0) =
+            ! = qw/C1, with C1 = rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0*(1.0e-6) = (rho0*Cp0*V0*Ts_stack)*1.0e-6
             C1 = rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0*(1.0e-6)
             Ts_stack2 = Ta_stack/(1.0 - qw/C1)
             
             ! Check:
-            ! This check is not needed; next check is more stringent:
-            ! if (qw .ge. C1) then
-            !     CALL SetError('Computing negative effluent gas temperature Ts_stack [K] from given heat content.', &
-            !                   'Probably, the given exit velocity and/or stack diameter are not in agreement with the given heat content.', error)
-            ! endif
-            ! Check temperature range (degrees C) (see also check in ops_read_source - check_stack_param):
-            if (Ts_stack2-T0 .lt. 0.0 .or. Ts_stack2-T0 .gt. 2000.0) then  ! See also check in ops_read_source - check_stack_param
-               call SetError('Computing effluent gas temperature Ts_stack from given heat content -> Ts_stack outside permitted range.',error)
+            if (qw .ge. C1 .or. Ts_stack2-T0 .lt. 0.0 .or. Ts_stack2-T0 .gt. 2000.0) then  ! See also check in ops_emis_read_annual1 - check_stack_param
+               call SetError('Error when computing effluent gas temperature Ts_stack from given heat content.', &
+                             'The heat content specified cannot be reached within the given volume flux specified by velocity and stack diameter.', error)
                call ErrorParam('heat content [MW]',qw,error)
                call ErrorParam('diameter of the stack [m]',D_stack,error)
                call ErrorParam('exit velocity of plume at stack tip [m/s]',V_stack,error)
                call ErrorParam('ambient temperature at stack height [C]',Ta_stack-T0,error)
                call ErrorParam('lower limit effluent gas temperature [C]',0.0,error)
-               call ErrorParam('<effluent gas temperature [C]>',Ts_stack2-T0,error)
+               write(*,*) 'check error message in ops_plumerise_qw_Ts'
+               if (Ts_stack2 .lt. 0.0) then
+                  call ErrorParam('<effluent gas temperature [C]>','Inf',error)
+               else
+                  call ErrorParam('<effluent gas temperature [C]>',Ts_stack2-T0,error)
+               endif
                call ErrorParam('upper limit effluent gas temperature [C]',2000.0,error)
                call ErrorCall(ROUTINENAAM, error) 
             endif
@@ -332,28 +335,29 @@ if (VsDs_opt) then
       qw2 = rho0*Cp0*V0*(Ts_stack - Ta_stack)*1e-6
    endif
 else
-   ! VsDs_opt = FALSE:
+   ! Missing value for V_stack, qw is given:
    Ts_stack2 = Ts_stack ! is missing, but not used hereafter
    qw2 = qw
 endif
-! write(*,*) 'ops_plumerise_qw_Ts b:',VsDs_opt,qw2,Ts_stack2
+! write(*,*) 'ops_plumerise_qw_Ts b:',qw2,Ts_stack2
 
 end subroutine ops_plumerise_qw_Ts
 
 !------------------------------------------------------------
-subroutine ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isek, astat)
+subroutine ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isec_prelim, astat)
 !-------------------------------------------------------------------------------------------------------------------------------
 ! 
 ! DESCRIPTION: This routine calculates the plume rise due to buoyancy. 
 !    This routine includes plume rise formulations given by Briggs(1969) and Briggs(1971).
 !    This method is equal to the method used in the (old) Dutch National Model (TNO, 1976).
-!                                                  960121
+!                                                HvJ 960121
 !    Extra iteration, because wind speed depends on plume height and vice versa.
 !
 !-------------------------------------------------------------------------------------------------------------------------------
 
-use m_commonconst, only: pi, NTRAJ, NCOMP, NSTAB, NSEK, EPS_DELTA
+use m_commonconst_lib, only: pi, NTRAJ, NCOMP, NSTAB, NSEK, EPS_DELTA
 use Binas, only: grav, T0              ! acceleration of gravity [m/s2], melting point of ice [K]
+use m_ops_meteo, only: ops_wv_log_profile, ops_wv_powerlaw_metstat
 
 ! Input
 real, intent(in)   :: z0               ! roughness length [m] 
@@ -370,25 +374,24 @@ real, intent(in)   :: hemis0           ! initial emission height = stack height 
 real, intent(out)  :: dh_buoyancy      ! plume rise due to buoyancy [m]
 
 ! Input, optional:
-logical, intent(in), optional :: prelim  ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
-                                         ! if prelim = true  -> ol = -999, uster = -999, z0 = -999, zmix = zmix_loc = -999 
-                                         !                      these parameters are still unknown; 
-                                         !                      wind profile is based on power law with coefficient based on stability class
-                                         ! if prelim = false or not present -> istab, isek are not used
-                                         !                      wind profile is computed with ops_wvprofile (logarithmic profile) using z0, ol, uster 
-integer, intent(in), optional :: istab   ! index of stability class and preliminary wind sector
-integer, intent(in), optional :: isek    ! index of preliminary wind sector (wind shear not yet taken into account)
+logical, intent(in), optional :: prelim      ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
+                                             ! if prelim = true  -> ol = -999, uster = -999, z0 = -999, zmix = zmix_loc = -999 
+                                             !                      these parameters are still unknown; 
+                                             !                      wind profile is based on power law with coefficient based on stability class
+                                             ! if prelim = false or not present -> istab, isec_prelim are not used
+                                             !                      wind profile is based on logarithmic wind profile, using z0, ol, uster 
+integer, intent(in), optional :: istab       ! index of stability class and preliminary wind sector
+integer, intent(in), optional :: isec_prelim ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 real   , intent(in), optional :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
                                        
 ! Local                            
 real               :: f                ! stack buoyancy flux [m^4/s^3]
 real               :: u_plume          ! wind speed at effective plume height, representative for the whole plume rise length [m/s]
-real               :: dtdz             ! potential temperature gradient [K/m]
 real               :: s                ! stability parameter [s^-2]
 logical            :: prelim1          ! = prelim if present, otherwise false
 real               :: vw10             ! wind velocity at 10 m heigth [m/s]
 real               :: pcoef            ! coefficient in wind speed power law
-character(len=1)   :: char_debug1      ! debug character (test only) 
+! character(len=1)   :: char_debug1      ! debug character (test only) 
 
 ! Iteration variables
 ! iteration converges if |dh_buoyancy - dh_buoyancy_prev| < epsa + epsr*dh_buoyancy
@@ -465,9 +468,9 @@ if ( qw .gt. (0. + EPS_DELTA)) then
       if (.not. converged .and. it .lt. maxit) then
          ! Compute wind speed at z = h_stack + 1/2 plume_rise:
          if (prelim1) then
-            call ops_wv_powerlaw(istab,isek,astat,hemis0+dh_buoyancy/2,u_plume,vw10,pcoef)
+            call ops_wv_powerlaw_metstat(istab,isec_prelim,astat,hemis0+dh_buoyancy/2,u_plume,vw10,pcoef)
          else
-            call ops_wvprofile(z0,hemis0+dh_buoyancy/2,uster,ol,u_plume)
+            call ops_wv_log_profile(z0,hemis0+dh_buoyancy/2,uster,ol,u_plume)
          endif
          dh_buoyancy_prev = dh_buoyancy
       endif
@@ -516,7 +519,7 @@ subroutine ops_plumerise_momentum(u_stack,D_stack,V_stack,Ts_stack,Ta_stack,dthe
 !       Gaussian Plume Air Dispersion Model
 !       https://www.weblakes.com/guides/iscst3/section6/6_1_4.html  (14-2-2018)
 
-use m_commonconst, only: EPS_DELTA                      
+use m_commonconst_lib, only: EPS_DELTA                      
 use m_ops_utils, only: is_missing
 
 ! Input:
@@ -546,7 +549,7 @@ else
    ! Plume rise due to momentum for stable conditions:
    !                      2        2
    !                    Vs  D_stack    1/3     1/2        -1/6
-   !     dh = 0.646 [ --------------- ]    (Ta)     (dTdz)      
+   !     dh = 0.646 [ --------------- ]    (Ta)     (dT/dz)  ,    dT/dz = potential temperature gradient [K/m]    
    !                      Ts  Us
    ! This originates from (Briggs 1969: Eq. 4.28, 4.19b, 4.16), see also Turner et al. (1986):
    !              Fm     1/3     -1/6              rhos       2     2     Ps*Ta       2               2              g   dtheta  
@@ -589,7 +592,7 @@ subroutine ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
 !
 ! Subroutine to determine whether there is plume penetration. 
 !
-use m_commonconst, only: EPS_DELTA                      
+use m_commonconst_lib, only: EPS_DELTA                      
 
 ! Input                          
 real, intent(in)    :: hemis0     ! initial emission height = stack height [m]
@@ -639,7 +642,7 @@ else
    continue
 endif 
 
-! Plume centre is maximal equal to mixing haight:
+! Emission above mixing layer and fraction of mass in the mixing layer > 0 -> set emssion height of that fraction to zmix:
 if ((hemis1 .gt. (zmix + EPS_DELTA)) .and. (onder .gt. (0. + EPS_DELTA))) then
    hemis1 = zmix
 endif

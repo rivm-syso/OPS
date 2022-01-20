@@ -1,42 +1,20 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE             : m_commonfile
-! FILENAME           : %M%
-! SCCS(SOURCE)       : %P%
-! RELEASE - LEVEL    : %R% - %L%
-! BRANCH - SEQUENCE  : %B% - %S%
-! DATE - TIME        : %E% - %U%
-! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
-! FIRM/INSTITUTE     : RIVM/LLO
-! LANGUAGE           : FORTRAN-F90
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION        : Define file unit numbers and file names. Subroutine to make full file name.
-! EXIT CODES         :
-! FILES AND OTHER    :
-!    I/O DEVICES
-! SYSTEM DEPENDENCIES: HP Fortran
-! CALLED FUNCTIONS   :
-! UPDATE HISTORY :
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_commonfile
 
@@ -152,10 +130,6 @@ PARAMETER     (ROUTINENAAM = 'get_version_core')
 ! SUBROUTINE ARGUMENTS - OUTPUT
 CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
 CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
-
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 dll_version="1.0.0"

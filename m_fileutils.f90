@@ -1,46 +1,27 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE               : fileutils
-! NAME                 : %M%
-! SCCS(SOURCE)         : %P%
-! RELEASE - LEVEL      : %R% - %L%
-! BRANCH -SEQUENCE     : %B% - %S%
-! DATE - TIME          : %E% - %U%
-! WHAT                 : %W%:%E%
-! AUTHOR               : OPS-support 
-! FIRM/INSTITUTE       : RIVM/LLO/IS
-! LANGUAGE             : FORTRAN-90
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION          : This module contains all utilities handling files.
 ! IMPLEMENTS           : - getdirectory: extracts directory from filepath.
 !                      : - getfilename: extracts filename from filepath.
+!                      : - getbasename: extracts basename from filepath.
 !                      : - chkexist: checks existence of a file.
 !                      : - sysopen: opens a file for reading or writing.
 !                      : - sysclose: closes a file.
 !                      : - sysread: reads a string from an input device.
-! FILES AND OTHER      :
-!   I/O DEVICES
-! SYSTEM DEPENDENCIES  : HP-Fortran
-! UPDATE HISTORY       :
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_fileutils
 
@@ -68,10 +49,20 @@ END INTERFACE
 ! INPUTS      : fullpath (character*(*)). The full path of the file.
 ! OUTPUTS     : filename (character*(*)). The filename extracted from the full file path.
 !               error  (type TError). Is assigned when string function fails.
-! RESULT      : .TRUE. when the file exists, .FALSE. if not.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE getfilename
   MODULE PROCEDURE get_filename
+END INTERFACE
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE  : getbasename
+! PURPOSE     : Extracts basename from a complete filepath.
+! INPUTS      : fullpath (character*(*)). The full path of the file.
+! OUTPUTS     : basename (character*(*)). The basename extracted from the full file path (path and extension stripped).
+!               error  (type TError). Is assigned when string function fails.
+!-------------------------------------------------------------------------------------------------------------------------------
+INTERFACE getbasename
+  MODULE PROCEDURE get_basename
 END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -79,7 +70,7 @@ END INTERFACE
 ! PURPOSE     : Checking the existence of a file. If the file does not exist the error message is assigned. The callback of the
 !               error is not assigned, so that it appears the non-existing error is detected in the calling procedure (which is
 !               what the user wants to know).
-! AUTHOR      : OPS-support   .
+! AUTHOR      : Martien de Haan (ARIS).
 ! INPUTS      : fname  (character*(*)). The full path of the file.
 ! OUTPUTS     : error  (type TError). Is assigned when the file does not exist.
 ! RESULT      : .TRUE. when the file exists, .FALSE. if not.
@@ -91,7 +82,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION    : sysopen
 ! PURPOSE     : Opens a file for reading or writing.
-! AUTHOR      : OPS-support   
+! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 ! INPUTS      : iu     (integer*4). Unit number of file.
 !               filename (character*(*)). Path of file to be opened.
 !               rw     (character*(*)). Whether reading or writing. Options:
@@ -112,7 +103,7 @@ END INTERFACE
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : sysclose
 ! PURPOSE     : Closes a file. Low level.
-! AUTHOR      : OPS-support   
+! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 ! ADAPTATIONS : 2002 - Error handling through error object (Martien de Haan, ARIS).
 ! INPUTS      : iu     (integer*4). Unit number of file.
 !               filename (character*(*)). Name of file. Only relevant when error is written.
@@ -126,7 +117,7 @@ END INTERFACE
 ! SUBROUTINE  : sysread
 ! PURPOSE     : Reads a string from an input device.
 ! PRECONDITION: Input file: Ascii, recordlength <= 512
-! AUTHOR      : OPS-support   
+! AUTHOR      : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 ! ADAPTATIONS : 2002 - Error handling through error object (Martien de Haan, ARIS).
 ! INPUTS      : iu     (integer*4). Unit number of file.
 ! OUTPUTS     : end_of_file (logical) Whether end-of-file was reached, so that nothing was read.
@@ -177,9 +168,6 @@ LOGICAL                                          :: found                      !
 INTEGER*4                                        :: os                         ! current operating system
 CHARACTER*1                                      :: slash                      ! directory separator (\ or /)
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Determine directory separator slash
@@ -213,7 +201,7 @@ ENDIF
 END SUBROUTINE get_directory
 
 !-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE: getfilename
+! SUBROUTINE: get_filename
 ! PURPOSE:    See interface definition.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE get_filename(fullpath, filename, error)
@@ -238,7 +226,7 @@ INTEGER*4                                        :: os                         !
 CHARACTER                                        :: slash                      ! directory separator (\ or /)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! Determine directory separator slash
+! First get filename
 !
 CALL GetOS(os, slash)
 !
@@ -270,6 +258,44 @@ RETURN
 END SUBROUTINE get_filename
 
 !-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE: get_basename
+! PURPOSE:    See interface definition.
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE get_basename(fullpath, basename, error)
+
+!DEC$ ATTRIBUTES DLLEXPORT:: get_basename
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                ! 
+PARAMETER     (ROUTINENAAM = 'get_basename')
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER(LEN=*), INTENT(IN)                     :: fullpath                   ! full path and name of file
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+CHARACTER(LEN=*), INTENT(OUT)                    :: basename                   ! base name of file (path and extension (if present) stripped)
+TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+!
+! LOCAL VARIABLES
+INTEGER*4                                        :: indx1                      ! index of last . in filename
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! Get filename (path stipped, but extension still included)
+!
+call get_filename(fullpath, basename, error)
+
+IF (.not. error%haserror) THEN 
+   ! Get position of last dot (dot indicates start of extension): 
+   indx1    = index(basename, '.' , .true.)
+   IF (indx1 .gt. 1) basename = basename(1:indx1-1) ! if no (proper) extension, then just use the filename
+ELSE
+   CALL ErrorCall(ROUTINENAAM, error)
+ENDIF
+
+RETURN
+END SUBROUTINE get_basename
+
+!-------------------------------------------------------------------------------------------------------------------------------
 ! FUNCTION: chkexist
 ! PURPOSE:  See interface definition.
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -290,9 +316,6 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 ! FUNCTION RESULT
 LOGICAL                                          :: chk_file_exist             ! 
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 INQUIRE (FILE = fname, EXIST = chk_file_exist)
 
@@ -321,7 +344,7 @@ CHARACTER*(*), INTENT(IN)                        :: filetype                   !
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
-INTEGER,   INTENT(OUT), OPTIONAL                 :: LREC                       ! Lenght of a direct access record
+INTEGER,   INTENT(IN), OPTIONAL                  :: LREC                       ! Lenght of a direct access record
 
 ! FUNCTION RESULT
 LOGICAL                                          :: sys_open_file              ! .FALSE. when error detected
@@ -335,7 +358,6 @@ LOGICAL                                          :: isbinary                   !
 LOGICAL                                          :: isdirect                   ! Whether reading/writing binary file
 
 ! CONSTANTS
-CHARACTER*512                                    :: tmp_ROUTINENAAM                ! 
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'sysopen')
 
@@ -450,9 +472,6 @@ INTEGER*4                                        :: io_status                  !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'sysclose')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 CLOSE (iu, IOSTAT = io_status)
 
@@ -470,7 +489,7 @@ END SUBROUTINE sys_close_file
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_read
 ! PURPOSE   : Opening of text file for reading. See interface definition
-! AUTHOR    : OPS-support   
+! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_read(iu, fnam, io_status)
 
@@ -484,9 +503,6 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: flen                       ! Length of filename
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
 
@@ -502,7 +518,7 @@ END SUBROUTINE sysopen_read
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_read_bin
 ! PURPOSE   : Opening of binary file for reading.
-! AUTHOR    : OPS-support   
+! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_read_bin(iu, fnam, io_status)
 
@@ -531,7 +547,7 @@ END SUBROUTINE sysopen_read_bin
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_write
 ! PURPOSE   : Opening of text file for writing.
-! AUTHOR    : OPS-support   
+! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_write(iu, fnam, io_status)
 
@@ -549,9 +565,6 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: flen                       ! Length of filename
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
 
@@ -567,7 +580,7 @@ END SUBROUTINE sysopen_write
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysopen_direct
 ! PURPOSE   : Opening of direct-access file for reading.
-! AUTHOR    : OPS-support   
+! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sysopen_direct(iu, fnam, LREC, io_status)
 
@@ -586,9 +599,6 @@ INTEGER*4, INTENT(OUT)                           :: io_status                  !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: flen                       ! Length of filename
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 flen = LEN_TRIM(fnam)
 
@@ -604,7 +614,7 @@ END SUBROUTINE sysopen_direct
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE: sysread
 ! PURPOSE   : Reading a string from a file
-! AUTHOR    : OPS-support   
+! AUTHOR    : Erik Bobeldijk/Franka Loeve (Cap Volmac)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE sys_read_string(fdin, in_str, end_of_file, error)
 
@@ -625,9 +635,6 @@ TYPE (TError), INTENT(OUT)                       :: error                      !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: io_status                  ! Status of IO-actions
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 end_of_file = .FALSE.
 in_str      = ' '

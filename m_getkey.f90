@@ -1,52 +1,30 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE             : getkey
-! IMPLEMENTS         : Generic functions GetKeyValue and GetCheckedKey.
-! NAME               : %M%
-! SCCS(SOURCE)       : %P%
-! RELEASE - LEVEL    : %R% - %L%
-! BRANCH - SEQUENCE  : %B% - %S%
-! DATE - TIME        : %E% - %U%
-! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
-! FIRM/INSTITUTE     : RIVM/LLO
-! LANGUAGE           : FORTRAN-90
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION        : Checks name of parameter and extracts a value for that parameter, or sets a default.
-! IMPLEMENTS         : - GetKeyValue: checks and extract parameter value.
+!                    : Generic functions GetKeyValue and GetCheckedKey.
+!                    : - GetKeyValue: checks and extract parameter value.
 !                      - GetCheckedKey: also checks whether value is inside a range.
-! EXIT CODES         :
-! FILES AND OTHER    :
-!   I/O DEVICES
-! SYSTEM DEPENDENCIES: HP-Fortran
-! CALLED FUNCTIONS   :
-! UPDATE HISTORY
 !-------------------------------------------------------------------------------------------------------------------------------
 
 MODULE m_getkey
 
 USE m_error
 USE m_utils
-USE m_commonconst                                                              ! EPS_DELTA, MISVALNUM
+USE m_commonconst_lib                                                          ! EPS_DELTA, MISVALNUM
 
 IMPLICIT NONE
 
@@ -671,7 +649,7 @@ INTEGER                                          :: beginpos                   !
 INTEGER                                          :: endpos                     ! end-position of a single word
 INTEGER                                          :: endlpos                    ! end-position of a line
 INTEGER                                          :: i                          ! loop-teller
-INTEGER                                          :: first                      ! TRUE is character is blank
+LOGICAL                                          :: first                      ! TRUE if character is blank
 CHARACTER*512                                    :: string                     ! Help-string
 
 ! RESULT
