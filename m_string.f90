@@ -1,46 +1,24 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE             : string
-! IMPLEMENTS         : Collection of useful string routines.
-! INTERFACE ROUTINES : StringCopy
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
+! DESCRIPTION        : Collection of useful string routines.
+!                      StringCopy
 !                      StringAppend
 !                      StringInsert
 !                      StringMerge
-! NAME               : %M%
-! SCCS(SOURCE)       : %P%
-! RELEASE - LEVEL    : %R% - %L%
-! BRANCH -SEQUENCE   : %B% - %S%
-! DATE - TIME        : %E% - %U%
-! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
-! FIRM/INSTITUTE     : RIVM/LLO
-! LANGUAGE           : FORTRAN-77/90
-! EXIT CODES         :
-! FILES AND OTHER    :
-!   I/O DEVICES
-! SYSTEM DEPENDENCIES: HP Fortran
-! CALLED FUNCTIONS   :
-! UPDATE HISTORY
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_string
 
@@ -161,9 +139,6 @@ LOGICAL                                          :: changeany                  !
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'copystrpart')
 
-! SCCS-ID VARIABLES
-CHARACTER*81                                     :: sccsida                    ! 
-sccsida = '%W%:%E%'// char (0)
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (stringsetlimits(ROUTINENAAM, sourcestring, startpos, endpos, 0, targetstring, eindsourcepos, eindtargetpos, changeany,     &
                    & error)) THEN
@@ -660,4 +635,54 @@ ENDIF
 
 END FUNCTION stringsetlimits
 
+FUNCTION string_count_words(string)
+
+! Count the number of words in a string; delimiters are char(32) = space, char(9) = TAB.
+
+implicit none
+
+! Arguments
+character(len=*), intent(in)    :: string                ! input string
+
+! RESULT
+integer                         :: string_count_words    ! number of words in string 
+
+! Local variables
+integer :: nwords   ! number of words in string
+integer :: ipos     ! position in string
+integer :: i        ! index of next word in substring
+
+! Initialisation:
+ipos = 1
+nwords = 0
+
+! Loop over words in string:
+loop: do
+
+  ! Find first non-blank of remaining string:
+  ! i = verify(string(ipos:), ' ')  
+  i = verify(string(ipos:), char(32)//char(9))  
+  
+  ! If non-blank not found -> exit loop:
+  if (i == 0) exit loop
+  
+  ! Non-blank (indicates new word) has been found -> set position to start of new word:
+  nwords = nwords + 1
+  ipos = ipos + i - 1
+
+  ! Find next blank; if not found -> exit loop:
+  ! i = scan(string(ipos:), ' ')
+  i = scan(string(ipos:), char(32)//char(9))
+  if (i == 0) exit loop
+  
+  ! Blank has been found -> set position to blank:
+  ipos = ipos + i - 1
+
+end do loop
+
+! Result:
+string_count_words = nwords
+
+END FUNCTION string_count_words
+ 
 END MODULE m_string

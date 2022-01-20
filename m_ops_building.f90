@@ -1,18 +1,18 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
 module m_ops_building
 
 implicit none
@@ -52,10 +52,25 @@ implicit none
 !
 !  Note that class i of a parameter corresponds to column i+1 for this parameter in the class definition file.
 
+! Subroutines:
+!  subroutine ops_building_file_names            : Set standard file names for building effect tables
+!  subroutine ops_building_read_tables           : Read class definition of building parameters and factors for building effect
+!  subroutine ops_building_read_classes          : Read class definition table
+!  subroutine ops_building_read_building_factors : Read factors for building effects table from file  
+!  subroutine ops_building_get_function          : Get 2D building effect function (function of source-receptor angle and distance to source) for a 
+!                                                  specific set of building parameter values in valueArray; interpolate this factor from factors in 
+!                                                  buildingFactArray, based on the location of valueArray within the table classdefinitionArray.
+!  subroutine ops_building_get_factor            : Get building effect factor for a specified distance from source, given a building effect function 
+!                                                  (function of distance). Note the cut-off value of 50 m from the source.
+!  subroutine split1                             : help routine to split input line
+!  subroutine split2                             : help routine to split input line
+!  function interpol_2d                          : 2D (bilinear) interpolation
+
 private
 public mParam, mClass
 public Tbuilding, TbuildingEffect
 public ops_building_file_names, ops_building_read_tables, ops_building_read_classes, ops_building_read_building_factors, ops_building_get_function, ops_building_get_factor
+public ops_building_alloc_zero, ops_building_effect_alloc_zero
 
 integer, parameter         :: mParam = 9                       ! maximal number of parameters
 integer, parameter         :: mClass = 100                     ! maximal number of classes for any parameter
@@ -70,7 +85,7 @@ Type Tbuilding
    real      :: length                                    ! building length [m]
    real      :: width                                     ! building width [m]
    real      :: height                                    ! building height [m]
-   real      :: orientation                               ! building orientation (degrees w.r.t. North)
+   real      :: orientation                               ! building orientation (degrees w.r.t. x-axis and long side, positive for counter clockwise)
    real, allocatable :: buildingFactFunction(:,:)         ! building effect function (function of source receptor angle, source receptor distance)  
    integer   :: type                                      ! building type for determining distance function for building effect [-]; type = 0 -> no building effect
 End Type Tbuilding 
@@ -135,7 +150,7 @@ call ops_building_read_classes(mParam, mClass, buildingEffect%classdefinitionArr
 if (error%haserror) goto 9999
            
 ! Read building factors:           
-call ops_building_read_building_factors(mClass, buildingEffect%nParam, nClassProd, buildingEffect%nClass, buildingEffect%buildingFactArray, error)
+call ops_building_read_building_factors(buildingEffect%nParam, nClassProd, buildingEffect%nClass, buildingEffect%buildingFactArray, error)
 if (error%haserror) goto 9999
 
 RETURN
@@ -145,8 +160,71 @@ RETURN
 end subroutine ops_building_read_tables
 
 !-----------------------------------------------------------------------------------
+subroutine ops_building_alloc_zero(building, error)
+
+! Read class definition of building parameters and factors for building effect
+
+use m_error
+use m_utils
+
+implicit none
+
+CHARACTER*512, PARAMETER   :: ROUTINENAAM = 'ops_building_alloc_zero'
+
+! Output:
+type(tbuilding),       intent(out)       :: building                 ! structure containing data for building
+type(Terror),          intent(out)       :: error                    ! error handling record
+
+call alloc(0, 0, building%buildingFactFunction, error)
+if (error%haserror) goto 9999
+
+RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+
+end subroutine ops_building_alloc_zero
+
+!-----------------------------------------------------------------------------------
+subroutine ops_building_effect_alloc_zero(buildingEffect, error)
+
+! Read class definition of building parameters and factors for building effect
+
+use m_error
+use m_utils
+
+implicit none
+
+CHARACTER*512, PARAMETER   :: ROUTINENAAM = 'ops_building_effect_alloc_zero'
+
+! Output:
+type(tbuildingEffect), intent(out) :: buildingEffect           ! structure containing data for building effect
+type(Terror),          intent(out) :: error                    ! error handling record
+
+buildingEffect%nParam = 0
+    
+call alloc(0, buildingEffect%classdefinitionArray, error)
+if (error%haserror) goto 9999
+
+call alloc(0, buildingEffect%buildingFactArray, error)
+if (error%haserror) goto 9999
+
+call alloc(0, buildingEffect%buildingFactAngleSRxaxis, error)
+if (error%haserror) goto 9999
+
+call alloc(0, buildingEffect%buildingFactDistances, error)
+if (error%haserror) goto 9999
+
+RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+
+end subroutine ops_building_effect_alloc_zero
+
+!-----------------------------------------------------------------------------------
 subroutine ops_building_read_classes(mParam, mClass, & 
            classdefinitionArray, buildingFactAngleSRxaxis, buildingFactDistances, nParam, nClass, minClass, maxClass, nClassProd, error)
+
+! Read class definition table
            
 use m_commonfile, only: buildingClassFilename, fu_tmp
 use m_error
@@ -267,7 +345,7 @@ CALL ErrorCall(ROUTINENAAM, error)
 end subroutine ops_building_read_classes
 
 !-----------------------------------------------------------------------------------------
-subroutine ops_building_read_building_factors(mClass, nParam, nClassProd, nClass, buildingFactArray, error)
+subroutine ops_building_read_building_factors(nParam, nClassProd, nClass, buildingFactArray, error)
 
 use m_commonfile, only: buildingFactFilename, fu_tmp
 use m_error
@@ -278,7 +356,6 @@ use m_fileutils
     CHARACTER*512, PARAMETER   :: ROUTINENAAM = 'ops_building_read_building_factors'   
 
     ! Input:
-    integer,  intent(in)       :: mClass                           ! maximal number of classes for any parameter
     integer,  intent(in)       :: nParam                           ! actual number of parameters (read from file)
     integer,  intent(in)       :: nClassProd                       ! product of number of classes for each parameter
     integer,  intent(in)       :: nClass(:)                        ! number of classes for each parameter 
@@ -432,6 +509,8 @@ subroutine ops_building_get_function(nParam, valueArray, nClass, classdefinition
   ! interpolate this factor from factors in buildingFactArray, based on the location of valueArray within the table classdefinitionArray.
   
   use m_error
+
+  implicit none
   
   CHARACTER*512, PARAMETER   :: ROUTINENAAM = 'ops_building_get_function'
   
@@ -459,7 +538,6 @@ subroutine ops_building_get_function(nParam, valueArray, nClass, classdefinition
   real                    :: EOPT(6*nParam)     ! error estimate  
    
   ! Local:   
-  integer                 :: iParam             ! parameter index    
   integer                 :: ix, iy             ! loop indices
   
    ! print *, "Building effects table from within subroutine getbuildingEffect"    
@@ -539,29 +617,8 @@ subroutine ops_building_get_function(nParam, valueArray, nClass, classdefinition
 end subroutine ops_building_get_function
 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
-!
-! SUBROUTINE
-! NAME                : %M%
-! SCCS (SOURCE)       : %P%
-! RELEASE - LEVEL     : %R% - %L%
-! BRANCH - SEQUENCE   : %B% - %S%
-! DATE - TIME         : %E% - %U%
-! WHAT                : %W%:%E%
-! AUTHOR              : OPS-support   
-! FIRM/INSTITUTE      : RIVM/LLO
-! LANGUAGE            : FORTRAN-77/90
 ! DESCRIPTION         : Returns closest and interpolated building effect based on "buildingEffectTable", 
 ! DESCRIPTION         : given a source catergory and a distance from source to receptor. 
-! EXIT CODES          :
-! FILES I/O DEVICES   :
-! SYSTEM DEPENDENCIES : HP Fortran
-! CALLED FUNCTIONS    :
-! UPDATE HISTORY      :
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_building_get_factor(buildingType, angle_SR_xaxis, dist, buildingFactAngleSRxaxis, buildingFactDistances, buildingFactFunction, buildingFact)
 
@@ -718,7 +775,6 @@ subroutine split2( line, nParam, iClassRead, buildingFactInput)
     real,    intent(out)     :: buildingFactInput   ! buiding effect factor, read from input
     
     ! Local variables:
-    character*8              :: cbuf( nParam+1 )
     integer                  :: iParam
 
     ! Read data from line:    

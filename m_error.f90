@@ -1,35 +1,19 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!                       Copyright by
-!   National Institute of Public Health and Environment
-!           Laboratory for Air Research (RIVM/LLO)
-!                      The Netherlands
-!   No part of this software may be used, copied or distributed without permission of RIVM/LLO (2002)
 !
-! MODULE             : m_error
-! FILENAME           : %M%
-! SCCS(SOURCE)       : %P%
-! RELEASE - LEVEL    : %R% - %L%
-! BRANCH - SEQUENCE  : %B% - %S%
-! DATE - TIME        : %E% - %U%
-! WHAT               : %W%:%E%
-! AUTHOR             : OPS-support   
-! FIRM/INSTITUTE     : RIVM/LLO
-! LANGUAGE           : FORTRAN-F90
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION        : Handling of errors occurring in ops.
 ! IMPLEMENTS         : Functions SetError, ErrorCall, WriteError and generic function ErrorParam.
 !                      Also implements simple string functions, mainly for m_error itself and also used by string module.
@@ -38,12 +22,69 @@
 !                      ErrorParam
 !                      ErrorCall
 !                      WriteError
-! EXIT CODES         :
-! FILES AND OTHER    :
-!    I/O DEVICES
-! SYSTEM DEPENDENCIES: HP Fortran
-! CALLED FUNCTIONS   :
-! UPDATE HISTORY :
+! 
+!------------------------------------
+! Manual for Error handling
+!------------------------------------
+! When implementing error handling with m_error the following steps have to be taken. Here a simple example:
+!
+! == Subroutine header ==
+! subroutine ops_st_emis_read_annual(...,error)
+!  
+! use m_error
+! 
+! == Declarations ==
+! ! Input/output:
+! type(TError), intent(inout) :: error   ! structure with error messages
+! 
+! ! Local
+! ...
+! character(len=100), parameter :: ROUTINENAAM = 'ops_st_emis_read_annual'
+! 
+! == When an error occurs ==
+! if (nsrc .gt. LSBUF) then
+!    call SetError('insufficient memory allocated for emission arrays',error)
+!    call ErrorParam('array length allocated',LSBUF,error)
+!    call ErrorParam('number of emission sources',nsrc,error)  <- multiple error messages possible, also with reals, arrays, strings, ...
+!    goto 9999		
+!   endif
+!
+! == At end of subroutine ==
+! return
+!     
+! 9999 call ErrorCall(ROUTINENAAM, error)
+! call ErrorParam('Emission file',brnam,error) <- messages that are useful for all errors in this routine
+!
+! end subroutine ops_st_emis_read_annual   
+! 
+! == Where routine is called ==
+! call ops_st_emis_read_annual(...,error)
+! if (error%haserror) goto 9999
+! 
+! -> In the calling routine we must add error, ROUTINENAAM and 9999 call ErrorCall, if not already present.
+!    If these are already there, then we need only add calls to SetError and ErrorParam and goto 9999 for each new check.
+!
+! == At the end of the main program ==
+! ! Error handling:
+! if (error%haserror) then
+!    call ErrorCall(ROUTINENAAM, error)
+!    call ops_st_done_error(fu_err, errnam, error)
+!    call exit(1)
+! else
+!    call exit(0)
+! endif
+! 
+! end program ops_st_main
+!
+! == ops_st_done_error takes care of writing error messages ==
+! SUBROUTINE ops_st_done_error(fu_err, errnam, error)
+! ...
+! ! Open file, write error messages and call tree, close error file:
+! IF (sysopen(fu_err, errnam, 'w', 'error file', error) ) THEN 
+!     CALL WriteError(fu_err, error)
+!     CALL sysclose(fu_err, errnam, error)
+! ENDIF
+! END SUBROUTINE ops_st_done_error
 !-------------------------------------------------------------------------------------------------------------------------------
 MODULE m_error
 
@@ -139,13 +180,12 @@ END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE  : WriteError
-! DESCRIPTION : Single function for writing out the error details.
-! INPUTS      : errorunit  (integer*4) Unit of the error file. This function does not open or close that unit, that is up to the
-!                           caller.
+! DESCRIPTION : Function for writing out the error details.
+! INPUTS      : errorunit  (integer*4) Unit of the error file. Error file should be opened before.
 ! INPUT/OUTPUT: error      (type TError). The error object, of which the information is written out.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE WriteError
-   MODULE PROCEDURE write_error
+   MODULE PROCEDURE write_error                  
 END INTERFACE
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -382,7 +422,7 @@ TYPE (TErrorParam), POINTER                      :: param                      !
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
   param => make_parameter(paramname, error)
-  CALL SimpleAppend(value, 4, param%stringvalue)
+  CALL SimpleAppend(value, 5, param%stringvalue)
 ENDIF
 
 RETURN
@@ -409,9 +449,9 @@ INTEGER*4                                        :: i
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (.NOT.error%blockparam) THEN
   param => make_parameter(paramname, error)
-  CALL SimpleAppend(value(1), 4, param%stringvalue)
+  CALL SimpleAppend(value(1), 5, param%stringvalue)
   do i = 2,size(value)
-     CALL SimpleAppend(2, value(i), 4, param%stringvalue)   ! prepend 2 spaces
+     CALL SimpleAppend(2, value(i), 5, param%stringvalue)   ! prepend 2 spaces
   enddo
 ENDIF
 
@@ -642,7 +682,12 @@ param => error%firstparam
 DO WHILE (ASSOCIATED(param))
   nextparam => param%nextparam
   length = LEN_TRIM(param%stringvalue)
-  WRITE(unit,'(2X, 3A)') param%paramname(:maxlen), ' = ', param%stringvalue(:length)
+
+  IF (length > 0) THEN 
+     WRITE(unit,'(2X, 3A)') param%paramname(:maxlen), ' = ', param%stringvalue(:length)
+  ELSE
+     WRITE(unit,'(2X, A)')  param%paramname(:maxlen)
+  ENDIF
   DEALLOCATE(param)
   param => nextparam
 ENDDO
@@ -1015,7 +1060,7 @@ SUBROUTINE simple_rb_append(nrblanks, realvalue, significance, targetstring)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: simple_rb_append
 
-USE m_commonconst                                                              ! EPS_DELTA only
+USE m_commonconst_lib                                                              ! EPS_DELTA only
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: nrblanks                   ! 

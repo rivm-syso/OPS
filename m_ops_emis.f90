@@ -1,19 +1,488 @@
-!------------------------------------------------------------------------------------------------------------------------------- 
-! 
-! This program is free software: you can redistribute it and/or modify 
-! it under the terms of the GNU General Public License as published by 
-! the Free Software Foundation, either version 3 of the License, or 
-! (at your option) any later version. 
-! 
-! This program is distributed in the hope that it will be useful, 
-! but WITHOUT ANY WARRANTY; without even the implied warranty of 
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-! GNU General Public License for more details. 
-! 
-! You should have received a copy of the GNU General Public License 
-! along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-! 
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!==============================================
+module m_ops_emis_private
+!==============================================
+
+! This module contains all the helper variables/subroutines/functions
+! that should be kept private. Only 'use' m_ops_emis, never this module
+! directly, except in m_ops_emis itself and in its unit tests.
+implicit none
+
+PUBLIC
+
+contains
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_source
+! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, the paramater is fixed at either
+!                      the lower or upper limit of the range. In this case, a warning is written to the log file;
+!                      this warning includes the record number of the source. 
+!                      Included for backward compatibility of old source files; better use check_source2.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_source(nr, varnaam, onder, boven, varwaarde, error)
+
+USE m_error
+USE m_commonfile, only: fu_log
+USE m_commonconst_lib, only: EPS_DELTA
+USE m_ops_logfile
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM               
+PARAMETER    (ROUTINENAAM = 'check_source')
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4, INTENT(IN)                            :: nr                         ! record number of source file
+CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
+REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
+REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
+
+! SUBROUTINE ARGUMENTS - I/O
+REAL*4,    INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+INTEGER*4                                        :: mlen                       ! length of variable name
+LOGICAL*1                                        :: switch                     ! indicates weather WARNING has already been printed
+
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! Check and possibly open log file. From here there is always going to be something written to it, so the opening is allowed.
+!
+IF (error%haserror) GOTO 9999
+
+switch = .FALSE.
+
+!
+! Check upper limit; if needed, write warning and fix variable at upper limit.
+!
+IF (varwaarde .GT. (boven + EPS_DELTA)) THEN                                   ! varwaarde too large
+
+   IF (.NOT. switch) THEN
+     IF (.NOT. ops_openlog(error)) GOTO 9000
+     WRITE(fu_log,'("WARNING: OPS has detected a value outside", " its limits in routine ", A)')                               &
+        &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
+   ENDIF
+
+   switch=.TRUE.
+
+   mlen = LEN_TRIM(varnaam)
+   WRITE(fu_log,'(''   Record number '',I6,'': Value of '', ''emission variable '', a, '' ('', G10.3,                          &
+  &  '') is outside range '', ''('', G10.3, '' - '', G10.3, '')'')') nr, varnaam(:mlen), varwaarde, onder , boven
+   WRITE(fu_log,'(25x,''and has been set to maximum value'')')
+
+   varwaarde = boven
+
+!
+! Check lower limit; if needed, write warning and fix variable at lower limit.
+!
+ELSEIF (varwaarde .LT. (onder - EPS_DELTA)) THEN                               ! varwaarde too small
+
+   IF (.NOT. switch) THEN
+     IF (.NOT. ops_openlog(error)) GOTO 9000
+     WRITE(fu_log,'("WARNING: OPS has detected a value outside", " its limits in routine ", A)')                               &
+        &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
+   ENDIF
+
+   switch=.TRUE.
+
+   mlen = LEN_TRIM(varnaam)
+   WRITE(fu_log,'(''   Record number '',I6,'': Value of '', ''emission variable '', a, '' ('', G10.3,                          &
+  &  '') is outside range '', ''('', G10.3, '' - '', G10.3, '')'')') nr, varnaam(:mlen), varwaarde, onder , boven
+
+   IF (varnaam .EQ. '<sterkte>') THEN
+     WRITE(fu_log,'(25x,''Record will be skipped'')')                          ! Zero emissions are meaningless
+   ELSE
+     WRITE(fu_log,'(25x,''and has been set to minimum value'')')
+   ENDIF
+
+   varwaarde = onder
+
+ELSE
+   CONTINUE
+ENDIF
+RETURN
+
+9000 CALL ErrorCall(ROUTINENAAM, error)
+9999 RETURN
+
+END SUBROUTINE check_source
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_isource
+! DESCRIPTION        : check whether an integer source parameter lies within a specified range. If not, the paramater is fixed at either
+!                      the lower or upper limit of the range. In this case, a warning is written to the log file;
+!                      this warning includes the record number of the source. 
+!                      Included for backward compatibility of old source files; better use check_isource2.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_isource(nr, varnaam, onder, boven, varwaarde, error)
+
+USE m_error
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER    (ROUTINENAAM = 'check_source')
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4, INTENT(IN)                            :: nr                         ! record number of source file
+CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
+INTEGER*4, INTENT(IN)                            :: onder                      ! lower limit
+INTEGER*4, INTENT(IN)                            :: boven                      ! upper limit
+
+! SUBROUTINE ARGUMENTS - I/O
+INTEGER*4, INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+REAL*4                                           :: var                        ! help variable (= float(varwaarde)) 
+
+var = FLOAT(varwaarde)
+CALL check_source(nr, varnaam, FLOAT(onder), FLOAT(boven), var, error)
+varwaarde = NINT(var)
+
+END SUBROUTINE check_isource
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_source2
+! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, an error message is generated
+!                      and returned back to the calling routine. The error has to be handled in the calling routine.
+!                      Note: check_source adjusts the value and generates a warning.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_source2(varnaam, onder, boven, varwaarde, error)
+
+USE m_error
+USE m_commonconst_lib, only: EPS_DELTA
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM               
+PARAMETER    (ROUTINENAAM = 'check_source2')
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
+REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
+REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
+REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! If an error has already occurred, this check is skipped
+IF (.NOT. error%haserror) THEN
+
+   ! Check range:
+   IF (varwaarde .LT. (onder - EPS_DELTA) .OR. varwaarde .GT. (boven + EPS_DELTA)) THEN
+
+   CALL SetError(trim(varnaam),' outside permitted range', error)
+       CALL ErrorParam('lower limit', onder, error)
+       CALL ErrorParam(trim(varnaam), varwaarde, error)
+       CALL ErrorParam('upper limit', boven, error)
+       CALL ErrorCall(ROUTINENAAM, error)
+   ENDIF
+ENDIF
+
+RETURN
+
+END SUBROUTINE check_source2
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_source3
+! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, a warning message is generated
+!                      and returned back to the calling routine. The warning has to be handled in the calling routine.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_source3(warning1, varnaam, onder, boven, varwaarde, error)
+
+USE m_error
+USE m_commonconst_lib, only: EPS_DELTA
+USE m_commonfile, only: fu_log
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM               
+PARAMETER    (ROUTINENAAM = 'check_source3')
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: warning1                   ! first part of warning
+CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
+REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
+REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
+REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+
+! Check range:
+IF (varwaarde .LT. (onder - EPS_DELTA) .OR. varwaarde .GT. (boven + EPS_DELTA)) THEN
+    CALL SetError(trim(warning1) // '; ' // trim(varnaam) ,' outside permitted range', error)
+    CALL ErrorParam('lower limit', onder, error)
+    CALL ErrorParam(trim(varnaam), varwaarde, error)
+    CALL ErrorParam('upper limit', boven, error)
+    CALL ErrorCall(ROUTINENAAM, error)
+    
+   ! Reset error message (only warning):
+   error%haserror = .FALSE.
+   
+   ! Write warning to log file:
+   CALL WriteError(fu_log, error)
+
+ENDIF
+
+RETURN
+
+END SUBROUTINE check_source3
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_isource2
+! DESCRIPTION        : check whether an integer source parameter lies within a specified range. If not, an error message is generated
+!                      and returned back to the calling routine. The error has to be handled in the calling routine.
+!                      Note: check_isource adjusts the value and generates a warning.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_isource2(varnaam, onder, boven, varwaarde, error)
+
+USE m_error
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER    (ROUTINENAAM = 'check_source2')
+
+! SUBROUTINE ARGUMENTS - INPUT
+CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
+INTEGER*4, INTENT(IN)                            :: onder                      ! lower limit
+INTEGER*4, INTENT(IN)                            :: boven                      ! upper limit
+INTEGER*4, INTENT(IN)                            :: varwaarde                  ! value of variable
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+
+CALL check_source2(varnaam, FLOAT(onder), FLOAT(boven), FLOAT(varwaarde), error)
+
+END SUBROUTINE check_isource2
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_verdeling
+! DESCRIPTION        : Check whether distribution (=verdeling) has been read.
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_verdeling(icode, presentcode, stdclass, usdclass, parname, error)
+
+USE m_error
+USE m_commonconst_lib, only: MAXDISTR
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER    (ROUTINENAAM = 'check_verdeling')
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4, INTENT(IN)                            :: icode                      ! code that has to be checked; 
+                                                                               ! if icode < 0 -> check whether a user defined distribution is present
+                                                                               ! if icode > 0 -> check whether a standard distribution is present
+                                                                               ! if icode = 0 -> do not check anything
+LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)     
+INTEGER*4, INTENT(IN)                            :: stdclass                   ! index of standard distributions in 2nd dimension of presentcode
+INTEGER*4, INTENT(IN)                            :: usdclass                   ! index of user defined distributions in 2nd dimension of presentcode
+CHARACTER*(*), INTENT(IN)                        :: parname                    ! parameter name in error messages
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+INTEGER*4                                        :: klasse                     ! 2nd index into presentcode
+
+!
+! Check for user defined distributions, in case icode < 0,
+! check for standard distributions, in case icode > 0
+!
+IF (.NOT.error%haserror .and. icode /= 0) THEN
+  IF (icode < 0) THEN
+    klasse = usdclass
+  ELSE
+    klasse = stdclass
+  ENDIF
+  IF (.NOT. presentcode(ABS(icode), klasse)) THEN
+    CALL SetError('No distribution available for this code of', parname, error)
+    CALL ErrorParam(parname, icode, error)
+    CALL ErrorCall(ROUTINENAAM, error)
+  ENDIF
+ELSE
+  IF (icode == 0 .and. parname == "idgr") THEN
+    CALL SetError('It is not permitted to use code 0 for', parname, error)
+    CALL ErrorParam(parname, icode, error)
+    CALL ErrorCall(ROUTINENAAM, error)
+  ENDIF
+ENDIF
+
+END SUBROUTINE check_verdeling
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_stack_param
+! DESCRIPTION        : Check stack parameters qww, D_stack, V_stack, Ts_stack_C
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_stack_param(qww, VsDs_opt, D_stack, V_stack, Ts_stack_C, error)
+
+USE m_error
+USE m_ops_utils, only: is_missing
+USE m_commonconst_lib, only: EPS_DELTA
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER    (ROUTINENAAM = 'check_stack_param')
+
+! SUBROUTINE ARGUMENTS - INPUT
+real   , intent(in)                              :: qww                        ! heat content[ MW]
+logical, intent(in)                              :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file
+real   , intent(in)                              :: D_stack                    ! diameter of the stack [m]
+real   , intent(in)                              :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+real   , intent(in)                              :: Ts_stack_C                 ! temperature of effluent from stack [C]
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+
+! Check that either Qw or Ts_stack_C is defined (and not both):
+if (VsDs_opt) then
+   if ((is_missing(Ts_stack_C) .and. is_missing(qww)) .or. (.not. is_missing(Ts_stack_C) .and. .not. is_missing(qww))) then
+      CALL SetError('One of heat content (Qw) or temperature effluent gas (Ts_stack_C) must be specified, other must be -999.', error)
+      CALL ErrorParam('Ts_stack_C', Ts_stack_C, error)
+      CALL ErrorParam('Qw', qww, error)
+      CALL ErrorCall(ROUTINENAAM, error)
+   endif
+else
+  if (is_missing(qww)) then
+      CALL SetError('Heat content (Qw) must be specified', error)
+      CALL ErrorParam('Qw', qww, error)
+      CALL ErrorCall(ROUTINENAAM, error)  
+   endif
+endif
+
+! Check ranges:
+! (for the check on Ts_stack_C -> see also check in m_ops_plume_rise - ops_plumerise_qw_Ts)
+if (.not. is_missing(D_stack))    CALL check_source2('<inner diameter stack [m]>'      , 0.01 ,   30.0 , D_stack, error)       ! Infomil NNM 2.1.2 - Modelinvoer
+if (.not. is_missing(V_stack))    CALL check_source2('<exit velocity [m/s]>'           , 0.0  ,   50.0 , V_stack, error)       ! V_stack = 0 is ok; in this case Qw = 0. Upper limit V_stack? 
+if (.not. is_missing(Ts_stack_C)) CALL check_source2('<temperature effluent gas [C]>'  , 0.0  , 2000.0 , Ts_stack_C, error)    ! temperature waste burning ~ 1300 C
+
+! Check whether V_stack = 0 and Qw > 0 -> error
+if (.not. is_missing(V_stack)) then
+   if (V_stack .lt. EPS_DELTA .and. qww .gt. EPS_DELTA) then
+      CALL SetError('If exit velocity (V_stack) is zero, then heat content (Qw) must be zero also.','Use V_stack = -999. if you only want to specify Qw.', error)
+      CALL ErrorParam('V_stack', V_stack, error)
+      CALL ErrorParam('Qw', qww, error)
+      CALL ErrorCall(ROUTINENAAM, error)  
+   endif
+endif
+
+END SUBROUTINE check_stack_param
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! SUBROUTINE NAME    : check_building_param
+! DESCRIPTION        : Check building parameters 
+! CALLED FUNCTIONS   :
+!-------------------------------------------------------------------------------------------------------------------------------
+SUBROUTINE check_building_param(building, hbron, qww, D_stack, V_stack, error)
+
+USE m_error
+USE m_ops_utils, only: is_missing
+USE m_commonconst_lib, only: EPS_DELTA
+use m_ops_building
+USE m_commonfile, only: fu_log
+USE m_ops_logfile
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                
+PARAMETER    (ROUTINENAAM = 'check_building_param')
+
+! Input:
+type(Tbuilding),  intent(in)  :: building         ! structure with building parameters
+real,    intent(in)  :: hbron                     ! emission height at source (stack height), without plume rise [m]
+real,    intent(in)  :: qww                       ! heat content [MW]
+real,    intent(in)  :: D_stack                   ! stack diameter [m]
+real,    intent(in)  :: V_stack                   ! exit velocity [m/s]
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! Local:
+real :: wlratio ! ratio width/length building
+
+! Check only needed if all building dimensions have been specified:
+if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation))) then
+
+   ! Set width/length ratio:
+   if (building%length > 0.0) then
+      wlRatio = building%width/building%length  
+   else
+      ! if length = 0 -> buildingType = 0 (see below)
+      wlRatio = HUGE(1.0)
+   endif
+   
+   ! If values outside limits -> write warning to log-file   
+   ! limits based on data for 2500 animal houses in 2018  
+   ! Note that it is already checked that all building dimensions (length, width, height) have been specified
+
+   ! Error if Qw must be specified (= 0) and cannot be missing:
+   if (is_missing(qww)) then
+      CALL SetError('If building is present, then heat content (Qw) must be zero (cannot be missing).', error)
+      CALL ErrorParam('Qw', qww, error)
+      goto 9999  
+   endif
+
+   ! Open log file if not already open:
+   IF (.NOT. ops_openlog(error)) GOTO 9999
+     
+   ! Warnings if value is outside table boundaries:
+                                             CALL check_source3('check table building effect ','<building height [m]>'             ,  0.0  ,  20.0  , building%height, error)
+   if (.not. is_missing(hbron))              CALL check_source3('check table building effect ','<emission height [m]>'             ,  0.0  ,  20.0  , hbron, error)
+                                             CALL check_source3('check table building effect ','<heat content [MW]>'               ,  0.0  ,   0.0  , qww, error)   ! Table only for qww = 0
+   if (.not. is_missing(V_stack))            CALL check_source3('check table building effect ','<exit velocity [m/s]>'             ,  0.0  ,   8.4  , V_stack, error)
+   if (.not. is_missing(D_stack))            CALL check_source3('check table building effect ','<stack diameter [m]>'              ,  0.01 ,   5.0  , D_stack, error)
+                                             CALL check_source3('check table building effect ','<width/length ratio building [-]>' ,  0.15 ,   1.0 , wlRatio, error)
+                                             CALL check_source3('check table building effect ','<building length [m]>'             , 10.0  , 105.0  , building%length, error)
+                                             CALL check_source3('check table building effect ','<building orientation [degrees w.r.t. x-axis]>' , 0.0  , 180.0  , building%orientation, error)
+   
+endif
+   
+RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+
+END SUBROUTINE check_building_param
+
+
+end module m_ops_emis_private
+
+!==============================================
 module m_ops_emis
+!==============================================
+
+use m_ops_emis_private
 
 ! Emission module, contains subroutines to read emissions. 
  
@@ -139,7 +608,7 @@ SUBROUTINE ops_emis_read_annual1(fu_bron, icm, check_psd, presentcode, brn_versi
 USE m_error
 USE m_fileutils
 USE m_geoutils
-USE m_commonconst, only: EPS_DELTA, HUMAX, MAXDISTR, ncolBuildingEffectTable
+USE m_commonconst_lib, only: EPS_DELTA, HUMAX, MAXDISTR, ncolBuildingEffectTable
 USE Binas, only: T0
 use m_ops_utils, only: is_missing
 use m_ops_building
@@ -173,7 +642,7 @@ REAL   , INTENT(OUT)                           :: x                          ! x
 REAL   , INTENT(OUT)                           :: y                          ! y coordinate of source location (RDM [m])
 REAL   , INTENT(OUT)                           :: qob                        ! emission strength [g/s]
 REAL   , INTENT(OUT)                           :: qww                        ! heat content [MW]
-REAL   , INTENT(OUT)                           :: hbron                      ! emission height [m]
+REAL   , INTENT(OUT)                           :: hbron                      ! emission height at source (stack height), without plume rise [m]
 REAL   , INTENT(OUT)                           :: diameter                   ! diameter area source (NOT stack diameter) [m]
 REAL   , INTENT(OUT)                           :: szopp                      ! deviation emission height for area source = initial sigma_z [m]
 real   , INTENT(OUT)                           :: D_stack                    ! diameter of the stack [m]
@@ -391,454 +860,5 @@ CALL ErrorParam('selected source number', numbron, error)
 CALL ErrorCall(ROUTINENAAM, error)
 
 END SUBROUTINE ops_emis_read_annual1
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_source
-! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, the paramater is fixed at either
-!                      the lower or upper limit of the range. In this case, a warning is written to the log file;
-!                      this warning includes the record number of the source. 
-!                      Included for backward compatibility of old source files; better use check_source2.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_source(nr, varnaam, onder, boven, varwaarde, error)
-
-USE m_error
-USE m_commonfile, only: fu_log
-USE m_commonconst, only: EPS_DELTA
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
-PARAMETER    (ROUTINENAAM = 'check_source')
-
-! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nr                         ! record number of source file
-CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
-
-! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-INTEGER*4                                        :: mlen                       ! length of variable name
-LOGICAL*1                                        :: switch                     ! indicates weather WARNING has already been printed
-LOGICAL                                          :: ops_openlog                ! function for opening log file
-
-!-------------------------------------------------------------------------------------------------------------------------------
-!
-! Check and possibly open log file. From here there is always going to be something written to it, so the opening is allowed.
-!
-IF (error%haserror) GOTO 9999
-
-switch = .FALSE.
-
-!
-! Check upper limit; if needed, write warning and fix variable at upper limit.
-!
-IF (varwaarde .GT. (boven + EPS_DELTA)) THEN                                   ! varwaarde too large
-
-   IF (.NOT. switch) THEN
-     IF (.NOT. ops_openlog(error)) GOTO 9000
-     WRITE(fu_log,'("WARNING: OPS has detected a value outside", " its limits in routine ", A)')                               &
-        &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
-   ENDIF
-
-   switch=.TRUE.
-
-   mlen = LEN_TRIM(varnaam)
-   WRITE(fu_log,'(''   Record number '',I6,'': Value of '', ''emission variable '', a, '' ('', G10.3,                          &
-  &  '') is outside range '', ''('', G10.3, '' - '', G10.3, '')'')') nr, varnaam(:mlen), varwaarde, onder , boven
-   WRITE(fu_log,'(25x,''and has been set to maximum value'')')
-
-   varwaarde = boven
-
-!
-! Check lower limit; if needed, write warning and fix variable at lower limit.
-!
-ELSEIF (varwaarde .LT. (onder - EPS_DELTA)) THEN                               ! varwaarde too small
-
-   IF (.NOT. switch) THEN
-     IF (.NOT. ops_openlog(error)) GOTO 9000
-     WRITE(fu_log,'("WARNING: OPS has detected a value outside", " its limits in routine ", A)')                               &
-        &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
-   ENDIF
-
-   switch=.TRUE.
-
-   mlen = LEN_TRIM(varnaam)
-   WRITE(fu_log,'(''   Record number '',I6,'': Value of '', ''emission variable '', a, '' ('', G10.3,                          &
-  &  '') is outside range '', ''('', G10.3, '' - '', G10.3, '')'')') nr, varnaam(:mlen), varwaarde, onder , boven
-
-   IF (varnaam .EQ. '<sterkte>') THEN
-     WRITE(fu_log,'(25x,''Record will be skipped'')')                          ! Zero emissions are meaningless
-   ELSE
-     WRITE(fu_log,'(25x,''and has been set to minimum value'')')
-   ENDIF
-
-   varwaarde = onder
-
-ELSE
-   CONTINUE
-ENDIF
-RETURN
-
-9000 CALL ErrorCall(ROUTINENAAM, error)
-9999 RETURN
-
-END SUBROUTINE check_source
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_isource
-! DESCRIPTION        : check whether an integer source parameter lies within a specified range. If not, the paramater is fixed at either
-!                      the lower or upper limit of the range. In this case, a warning is written to the log file;
-!                      this warning includes the record number of the source. 
-!                      Included for backward compatibility of old source files; better use check_isource2.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_isource(nr, varnaam, onder, boven, varwaarde, error)
-
-USE m_error
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
-PARAMETER    (ROUTINENAAM = 'check_source')
-
-! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nr                         ! record number of source file
-CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-INTEGER*4, INTENT(IN)                            :: onder                      ! lower limit
-INTEGER*4, INTENT(IN)                            :: boven                      ! upper limit
-
-! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: varwaarde                  ! (adapted) value of variable
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-REAL*4                                           :: var                        ! help variable (= float(varwaarde)) 
-
-var = FLOAT(varwaarde)
-CALL check_source(nr, varnaam, FLOAT(onder), FLOAT(boven), var, error)
-varwaarde = NINT(var)
-
-END SUBROUTINE check_isource
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_source2
-! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, an error message is generated
-!                      and returned back to the calling routine. The error has to be handled in the calling routine.
-!                      Note: check_source adjusts the value and generates a warning.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_source2(varnaam, onder, boven, varwaarde, error)
-
-USE m_error
-USE m_commonconst, only: EPS_DELTA
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
-PARAMETER    (ROUTINENAAM = 'check_source2')
-
-! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
-REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-
-!-------------------------------------------------------------------------------------------------------------------------------
-!
-! If an error has already occurred, this check is skipped
-IF (.NOT. error%haserror) THEN
-
-   ! Check range:
-   IF (varwaarde .LT. (onder - EPS_DELTA) .OR. varwaarde .GT. (boven + EPS_DELTA)) THEN
-
-   CALL SetError(trim(varnaam),' outside permitted range', error)
-       CALL ErrorParam('lower limit', onder, error)
-       CALL ErrorParam(trim(varnaam), varwaarde, error)
-       CALL ErrorParam('upper limit', boven, error)
-       CALL ErrorCall(ROUTINENAAM, error)
-   ENDIF
-ENDIF
-
-RETURN
-
-END SUBROUTINE check_source2
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_source3
-! DESCRIPTION        : check whether a source parameter lies within a specified range. If not, a warning message is generated
-!                      and returned back to the calling routine. The warning has to be handled in the calling routine.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_source3(warning1, varnaam, onder, boven, varwaarde, error)
-
-USE m_error
-USE m_commonconst, only: EPS_DELTA
-USE m_commonfile, only: fu_log
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM               
-PARAMETER    (ROUTINENAAM = 'check_source3')
-
-! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: warning1                   ! first part of warning
-CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-REAL*4,    INTENT(IN)                            :: onder                      ! lower limit
-REAL*4,    INTENT(IN)                            :: boven                      ! upper limit
-REAL*4,    INTENT(IN)                            :: varwaarde                  ! value of variable
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-
-!-------------------------------------------------------------------------------------------------------------------------------
-!
-
-! Check range:
-IF (varwaarde .LT. (onder - EPS_DELTA) .OR. varwaarde .GT. (boven + EPS_DELTA)) THEN
-    CALL SetError(trim(warning1) // '; ' // trim(varnaam) ,' outside permitted range', error)
-    CALL ErrorParam('lower limit', onder, error)
-    CALL ErrorParam(trim(varnaam), varwaarde, error)
-    CALL ErrorParam('upper limit', boven, error)
-    CALL ErrorCall(ROUTINENAAM, error)
-    
-   ! Reset error message (only warning):
-   error%haserror = .FALSE.
-   
-   ! Write warning to log file:
-   CALL WriteError(fu_log, error)
-
-ENDIF
-
-RETURN
-
-END SUBROUTINE check_source3
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_isource2
-! DESCRIPTION        : check whether an integer source parameter lies within a specified range. If not, an error message is generated
-!                      and returned back to the calling routine. The error has to be handled in the calling routine.
-!                      Note: check_isource adjusts the value and generates a warning.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_isource2(varnaam, onder, boven, varwaarde, error)
-
-USE m_error
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
-PARAMETER    (ROUTINENAAM = 'check_source2')
-
-! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: varnaam                    ! variable to be checked
-INTEGER*4, INTENT(IN)                            :: onder                      ! lower limit
-INTEGER*4, INTENT(IN)                            :: boven                      ! upper limit
-INTEGER*4, INTENT(IN)                            :: varwaarde                  ! value of variable
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-
-CALL check_source2(varnaam, FLOAT(onder), FLOAT(boven), FLOAT(varwaarde), error)
-
-END SUBROUTINE check_isource2
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_verdeling
-! DESCRIPTION        : Check whether distribution (=verdeling) has been read.
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_verdeling(icode, presentcode, stdclass, usdclass, parname, error)
-
-USE m_error
-USE m_commonconst, only: MAXDISTR
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
-PARAMETER    (ROUTINENAAM = 'check_verdeling')
-
-! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icode                      ! code that has to be checked; 
-                                                                               ! if icode < 0 -> check whether a user defined distribution is present
-                                                                               ! if icode > 0 -> check whether a standard distribution is present
-                                                                               ! if icode = 0 -> do not check anything
-LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)     
-INTEGER*4, INTENT(IN)                            :: stdclass                   ! index of standard distributions in 2nd dimension of presentcode
-INTEGER*4, INTENT(IN)                            :: usdclass                   ! index of user defined distributions in 2nd dimension of presentcode
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! parameter name in error messages
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-INTEGER*4                                        :: klasse                     ! 2nd index into presentcode
-
-!
-! Check for user defined distributions, in case icode < 0,
-! check for standard distributions, in case icode > 0
-!
-IF (.NOT.error%haserror .and. icode /= 0) THEN
-  IF (icode < 0) THEN
-    klasse = usdclass
-  ELSE
-    klasse = stdclass
-  ENDIF
-  IF (.NOT. presentcode(ABS(icode), klasse)) THEN
-    CALL SetError('No distribution available for this code of', parname, error)
-    CALL ErrorParam(parname, icode, error)
-    CALL ErrorCall(ROUTINENAAM, error)
-  ENDIF
-ELSE
-  IF (icode == 0 .and. parname == "idgr") THEN
-    CALL SetError('It is not permitted to use code 0 for', parname, error)
-    CALL ErrorParam(parname, icode, error)
-    CALL ErrorCall(ROUTINENAAM, error)
-  ENDIF
-ENDIF
-
-END SUBROUTINE check_verdeling
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_stack_param
-! DESCRIPTION        : Check stack parameters qww, D_stack, V_stack, Ts_stack_C
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_stack_param(qww, VsDs_opt, D_stack, V_stack, Ts_stack_C, error)
-
-USE m_error
-USE m_ops_utils, only: is_missing
-USE m_commonconst, only: EPS_DELTA
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
-PARAMETER    (ROUTINENAAM = 'check_stack_param')
-
-! SUBROUTINE ARGUMENTS - INPUT
-real   , intent(in)                              :: qww                        ! heat content[ MW]
-logical, intent(in)                              :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file
-real   , intent(in)                              :: D_stack                    ! diameter of the stack [m]
-real   , intent(in)                              :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-real   , intent(in)                              :: Ts_stack_C                 ! temperature of effluent from stack [C]
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! LOCAL VARIABLES
-
-! Check that either Qw or Ts_stack_C is defined (and not both):
-if (VsDs_opt) then
-   if ((is_missing(Ts_stack_C) .and. is_missing(qww)) .or. (.not. is_missing(Ts_stack_C) .and. .not. is_missing(qww))) then
-      CALL SetError('One of heat content (Qw) or temperature effluent gas (Ts_stack_C) must be specified, other must be -999.', error)
-      CALL ErrorParam('Ts_stack_C', Ts_stack_C, error)
-      CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)
-   endif
-else
-  if (is_missing(qww)) then
-      CALL SetError('Heat content (Qw) must be specified', error)
-      CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
-   endif
-endif
-
-! Check ranges:
-! (for the check on Ts_stack_C -> see also check in m_ops_plume_rise - ops_plumerise_qw_Ts)
-if (.not. is_missing(D_stack))    CALL check_source2('<inner diameter stack [m]>'      , 0.01 ,   30.0 , D_stack, error)       ! Infomil NNM 2.1.2 - Modelinvoer
-if (.not. is_missing(V_stack))    CALL check_source2('<exit velocity [m/s]>'           , 0.0  ,   50.0 , V_stack, error)       ! V_stack = 0 is ok; in this case Qw = 0. Upper limit V_stack? 
-if (.not. is_missing(Ts_stack_C)) CALL check_source2('<temperature effluent gas [C]>'  , 0.0  , 2000.0 , Ts_stack_C, error)    ! temperature waste burning ~ 1300 C
-
-! Check whether V_stack = 0 and Qw > 0 -> error
-if (.not. is_missing(V_stack)) then
-   if (V_stack .lt. EPS_DELTA .and. qww .gt. EPS_DELTA) then
-      CALL SetError('If exit velocity (V_stack) is zero, then heat content (Qw) must be zero also.','Use V_stack = -999. if you only want to specify Qw.', error)
-      CALL ErrorParam('V_stack', V_stack, error)
-      CALL ErrorParam('Qw', qww, error)
-      CALL ErrorCall(ROUTINENAAM, error)  
-   endif
-endif
-
-END SUBROUTINE check_stack_param
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE NAME    : check_building_param
-! DESCRIPTION        : Check building parameters 
-! CALLED FUNCTIONS   :
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE check_building_param(building, hbron, qww, D_stack, V_stack, error)
-
-USE m_error
-USE m_ops_utils, only: is_missing
-USE m_commonconst, only: EPS_DELTA
-use m_ops_building
-USE m_commonfile, only: fu_log
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                
-PARAMETER    (ROUTINENAAM = 'check_building_param')
-
-! Input:
-type(Tbuilding),  intent(in)  :: building         ! structure with building parameters
-real,    intent(in)  :: hbron                     ! emission height [m]
-real,    intent(in)  :: qww                       ! heat content [MW]
-real,    intent(in)  :: D_stack                   ! stack diameter [m]
-real,    intent(in)  :: V_stack                   ! exit velocity [m/s]
-
-! SUBROUTINE ARGUMENTS - I/O
-TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
-
-! Local:
-real :: wlratio ! ratio width/length building
-
-! Check only needed if all building dimensions have been specified:
-if (.not. (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation))) then
-
-   ! Set width/length ratio:
-   if (building%length > 0.0) then
-      wlRatio = building%width/building%length  
-   else
-      ! if length = 0 -> buildingType = 0 (see below)
-      wlRatio = HUGE(1.0)
-   endif
-   
-   ! If values outside limits -> warning   
-   ! limits based on data for 2500 animal houses in 2018  
-   ! Note that it is already checked that all building dimensions (length, width, height) have been specified
-
-   ! Open log file if not already open:   
-   call ops_openlog(error)
-   if (error%haserror) goto 9999
-   
-   ! Error if Qw must be specified (= 0) and cannot be missing:
-   if (is_missing(qww)) then
-      CALL SetError('If building is present, then heat content (Qw) must be zero (cannot be missing).', error)
-      CALL ErrorParam('Qw', qww, error)
-      goto 9999  
-   endif
-   
-   ! Warnings if value is outside table boundaries:
-                                             CALL check_source3('check table building effect ','<building height [m]>'             ,  0.0  ,  20.0  , building%height, error)
-   if (.not. is_missing(hbron))              CALL check_source3('check table building effect ','<emission height [m]>'             ,  0.0  ,  20.0  , hbron, error)
-                                             CALL check_source3('check table building effect ','<heat content [MW]>'               ,  0.0  ,   0.0  , qww, error)   ! Table only for qww = 0
-   if (.not. is_missing(V_stack))            CALL check_source3('check table building effect ','<exit velocity [m/s]>'             ,  0.0  ,   8.4  , V_stack, error)
-   if (.not. is_missing(D_stack))            CALL check_source3('check table building effect ','<stack diameter [m]>'              ,  0.01 ,   5.0  , D_stack, error)
-                                             CALL check_source3('check table building effect ','<width/length ratio building [-]>' ,  0.15 ,   1.0 , wlRatio, error)
-                                             CALL check_source3('check table building effect ','<building length [m]>'             , 10.0  , 105.0  , building%length, error)
-                                             CALL check_source3('check table building effect ','<building orientation [degrees w.r.t. x-axis]>' , 0.0  , 180.0  , building%orientation, error)
-   
-endif
-   
-RETURN
-
-9999 CALL ErrorCall(ROUTINENAAM, error)
-
-END SUBROUTINE check_building_param
 
 END MODULE m_ops_emis
