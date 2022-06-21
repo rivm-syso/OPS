@@ -3,7 +3,7 @@ de verspreiding van verontreinigende stoffen in de lucht te simuleren.
 Daarnaast berekent het model hoeveel van die stoffen per hectare op bodem of
 gewas terechtkomt (depositie). Het model wordt sinds 1989 gebruikt om de
 relatie tussen de uitstoot van stoffen in Europa enerzijds, en de concentratie
-of depositie van die stoffen anderzijds, in Nederland te bepalen.
+of depositie van die stoffen anderzijds, in Nederland te bepalen. Het model wordt onder andere ingezet in de rekentool [AERIUS](https://www.aerius.nl/) en bij het maken van [GCN/GDN kaarten](https://www.rivm.nl/gcn-gdn-kaarten).
 
 Het OPS model is eigendom van het Rijksinstituut voor Volksgezondheid en Milieu
 (RIVM). Het model en bijbehorende documentatie kunnen via
