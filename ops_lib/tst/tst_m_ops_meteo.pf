@@ -1,0 +1,194 @@
+!-------------------------------------------------------------
+! Test routines in module m_ops_meteo
+!-------------------------------------------------------------
+@test
+subroutine tst_ops_wv_log_profile
+
+use funit
+use m_ops_meteo
+use Binas, only: pi
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+REAL*4                            :: z0                         ! roughness length (m)
+REAL*4                            :: zu                         ! height at which the wind velocity has to be compute
+REAL*4                            :: uster                      ! friction velocity (m)
+REAL*4                            :: ol                         ! Monin-Obukhov length  (m)
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4                            :: uz                         ! wind velocity (m/s)
+
+real :: hi, oli ! loop indices
+character(len=255) :: message ! assertion message
+
+real, dimension(9, 7) :: data_holtslag ! 9 stability classes a-i, 7 heights 10-200m
+real, dimension(7) :: h_holtslag ! heights
+real, dimension(9) :: ol_holtslag ! average Obukhov lengths, L_m in the paper
+real, dimension(9) :: klasse_tol ! tolerance per Obukhov lengths
+real :: psim, x ! helper variables
+real :: z0_holtslag = 0.2 ! average z0, approximation
+
+real                              :: tol = 1.0e-5               ! tolerance for equality of reals
+
+! Taken from Table IV Holtslag, see below
+data h_holtslag / 10., 20., 40., 80., 120., 160., 200. /
+! ol from paper Holtslag, from fig 2-4, not same data as table
+! data ol_holtslag / -28., -95., -365., 10000., 350., 130., 60., 20., 5. /
+! data klasse_tol / 0.1, 0.06, 0.03, 0.1, 0.05, 0.04, 0.16, 0.15, 0.62 /
+! ol from paper Van Ulden/Holtslag 1985, Table 2
+data ol_holtslag / -30., -100., -370., 10000., 350., 130., 60., 20., 9. /
+data klasse_tol / 0.11, 0.06, 0.03, 0.1, 0.05, 0.04, 0.16, 0.15, 0.62 /
+data data_holtslag / 2.1, 3.9, 5.4, 6.3, 5.2, 3.9, 3.3, 2.6, 1.9, &
+                     2.4, 4.5, 6.2, 6.8, 6.1, 4.8, 4.2, 3.6, 2.9, &
+                     2.4, 4.8, 6.9, 7.7, 7.2, 6.1, 5.6, 5.0, 4.2, &
+                     2.6, 5.1, 7.6, 8.9, 9.0, 8.3, 7.8, 6.8, 5.6, &
+                     2.7, 5.4, 8.1, 9.7, 10.6, 9.4, 9.3, 7.8, 6.1, &
+                     2.7, 5.6, 8.4, 10.3, 11.7, 11.0, 10.0, 8.1, 6.3, &
+                     2.7, 5.8, 8.8, 10.9, 12.7, 11.6, 10.4, 8.3, 6.5 /
+
+! Define inputs, call routine and check;
+! reference values are from a run at 2020-09-30: 
+z0 = 0.03; zu = 4.0; uster = 0.5; ol = -1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(6.097657,uz,tol,'error in computed wind speed')
+
+z0 = 0.03; zu = 4.0; uster = 0.5; ol = 1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(6.140516,uz,tol,'error in computed wind speed')
+
+z0 = 0.03; zu = 4.0; uster = 0.5; ol = -1; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(3.765900,uz,tol,'error in computed wind speed')
+
+z0 = 0.03; zu = 4.0; uster = 0.5; ol = 1; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(20.52041,uz,tol,'error in computed wind speed')
+
+z0 = 0.03; zu = 4.0; uster = 0.1; ol = -1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(1.219531,uz,tol,'error in computed wind speed')
+
+! incorrect inputs:
+z0 = -0.03; zu = 4.0; uster = 0.1; ol = -1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertIsNaN(uz,'wind speed should be NaN')
+
+z0 = 0.03; zu = -4.0; uster = 0.1; ol = -1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertIsNaN(uz,'wind speed should be NaN')
+
+
+z0 = 0.03; zu = 4.0; uster = -0.1; ol = -1000; 
+call ops_wv_log_profile(z0, zu, uster, ol, uz)
+@assertEqual(0.75,uz,tol,'wind speed not set at lower limit value; ')  
+
+! Comparison to Table IV of:
+! Holtslag A.A.M. (1984) Estimates of diabatic wind speed profiles from near surface weather observations. Boundary-Layer Meteorol. 29, 225-250
+
+! Loop over combinations of Obukhov lengths oli and reference heights hi
+! For CSV: write(*,*) 'z , L , uster , uz , type'
+do oli = 1, size(ol_holtslag,1)
+    do hi = 1, size(h_holtslag,1)
+        ! Calculate windspeed for hi
+        z0 = z0_holtslag; zu = h_holtslag(hi); ol = ol_holtslag(oli)
+        IF (ol .GT. 0.0) THEN  
+           !---------------------------
+           ! L > 0, stable atmosphere, Van Ulden & Holtslag (1985), eq. 54
+           !---------------------------
+           psim = -17.*(1. - EXP( -0.29*h_holtslag(1)/ol)) + 17.*(1. - EXP( -0.29*z0/ol))
+        ELSE
+           !--------------------------------------
+           ! L <= 0, unstable/neutral atmosphere, eq. 8a
+           !--------------------------------------
+           x    = (1. - 16.*h_holtslag(1) / ol)**0.25
+           psim = 2.*LOG((1. + x)/2.) + LOG((1. + x*x)/2.) - 2.*ATAN(x) + pi/2.
+        ENDIF
+
+        ! Equation 9 Holtslag paper @ reference height of 10m = h_holtslag(1)
+        uster = 0.4*data_holtslag(oli, 1)/(log(h_holtslag(1)/z0)-psim)
+        call ops_wv_log_profile(z0, zu, uster, ol, uz)
+
+        ! Format assertion error message, compare
+        ! for CSV: write(*, *) h_holtslag(hi), ',', ol_holtslag(oli), ',', uster, ',', data_holtslag(oli, hi), ', Holtslag'
+        ! for CSV: write(*, *) h_holtslag(hi), ',', ol_holtslag(oli), ',', uster, ',', uz, ', OPS'
+        write(message, *) "Wind speed mismatch: h = ", h_holtslag(hi), ', L = ', ol_holtslag(oli), ', u* = ', uster, ', Holtslag = ', data_holtslag(oli, hi), ', OPS = ', uz, ', diff = ', (uz-data_holtslag(oli, hi))/uz
+        @assertRelativelyEqual(uz,data_holtslag(oli, hi),klasse_tol(oli),message)
+    end do
+end do
+
+end subroutine tst_ops_wv_log_profile
+
+!-------------------------------------------------------------------------
+@test
+subroutine tst_ops_wv_powerlaw_metstat
+
+use funit
+use m_ops_meteo
+USE m_commonconst_lib, only: NTRAJ, NCOMP, NSTAB, NSEK
+
+implicit none
+
+! Input:
+integer  :: istab    ! index of stability class
+integer  :: isek     ! index of wind sector
+real     :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
+real     :: z        ! heigth where to compute wind velocity [m]
+
+! Output:
+real     :: uz       ! wind velocity at height z [m/s]
+real     :: vw10     ! wind velocity at reference height 10 m [m/s]
+real     :: pcoef    ! coefficient in wind speed power law
+
+
+real     :: tol = 1.0e-5  ! tolerance for equality of reals
+
+! Fill astat array:
+astat(:, :, :, :) = -999. ! first fill with "missing data"
+! now fill with some 'plausible data', only for NTRAJ=1 and NCOMP=3,15
+! wind speed [m/s] @ 10 m
+call random_number(astat(1, 3, :, :))
+astat(1, 3, :, :) = (7.0-0.5) * astat(1, 3, :, :) + 0.5
+
+! wind speed power law coefficient
+call random_number(astat(1, 15, :, :))
+astat(1, 15, :, :) = (0.45-0.13) * astat(1, 15, :, :) + 0.13 ! OPS manual
+
+! Define inputs, call routine and check;
+! reference values are from a run at 2020-09-30:
+istab = 1; isek = 1; z = 4.0;
+call ops_wv_powerlaw_metstat(istab,isek,astat,z,uz,vw10,pcoef)
+@assertEqual(astat(1, 3, istab, isek),vw10,tol)
+@assertEqual(astat(1, 15, istab, isek),pcoef,tol)
+@assertEqual(vw10,uz,tol)
+
+istab = 1; isek = 1; z = 14.0;
+call ops_wv_powerlaw_metstat(istab,isek,astat,z,uz,vw10,pcoef)
+@assertEqual(astat(1, 3, istab, isek),vw10,tol)
+@assertEqual(astat(1, 15, istab, isek),pcoef,tol)
+@assertEqual(vw10*(z/10.)**pcoef,uz,tol)
+
+istab = 5; isek = 6; z = 4.0;
+call ops_wv_powerlaw_metstat(istab,isek,astat,z,uz,vw10,pcoef)
+@assertEqual(astat(1, 3, istab, isek),vw10,tol)
+@assertEqual(astat(1, 15, istab, isek),pcoef,tol)
+@assertEqual(vw10,uz,tol)
+
+! use VWREP
+istab = 1; isek = 1; z = 4.0
+astat(1, 3, istab, isek) = 0.
+call ops_wv_powerlaw_metstat(istab,isek,astat,z,uz,vw10,pcoef)
+@assertEqual(2.6,vw10,tol)
+@assertEqual(astat(1, 15, istab, isek),pcoef,tol)
+@assertEqual(vw10,uz,tol)
+
+! Incorrect inputs:
+! istab = 50 -> Fortran error subscript out of bounds
+! all values below zmet_u = 10 m give the same value as for 10 m, also for z = -4 
+istab = 5; isek = 6; z = -4.0;
+call ops_wv_powerlaw_metstat(istab,isek,astat,z,uz,vw10,pcoef)
+@assertEqual(astat(1, 3, istab, isek),vw10,tol)
+@assertEqual(astat(1, 15, istab, isek),pcoef,tol)
+@assertEqual(vw10,uz,tol)
+
+end subroutine tst_ops_wv_powerlaw_metstat

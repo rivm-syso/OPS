@@ -1,0 +1,78 @@
+@test
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+
+subroutine tst_read_ctr_year
+
+use funit
+use m_ops_read_ctr
+use m_error
+use m_commonfile, only: IOB_STDOUT, fu_input
+
+implicit none
+
+integer                     :: year                   ! year for chemical maps 
+logical                     :: chem_meteo_prognosis   ! use meteo prognosis in chemistry maps
+type(Terror)                :: error                  ! error structure
+
+integer                     :: i                      ! index of record in input file
+integer                     :: i_end                  ! index of last record in input file
+integer                     :: year_ref(100)          ! reference values for year
+logical                     :: cmp_ref(100)           ! reference values for chem_meteo_prognosis
+character(len = 40)         :: msg                    ! message for assertEqual
+
+! Open fu_input:
+open(fu_input,file='./tst/resources/tst_m_ops_read_ctr.in')
+rewind(fu_input)
+
+! Write test records and fill reference data:
+i = 0
+write(fu_input,'(a)') 'YEAR';                             i = i + 1; year_ref(i) = -9999; cmp_ref(i) = .false.
+write(fu_input,'(a)') 'YEAR 2018';                        i = i + 1; year_ref(i) = 2018; cmp_ref(i) = .false.
+write(fu_input,'(a)') 'YEAR 2018 prognosis';              i = i + 1; year_ref(i) = 2018; cmp_ref(i) = .true.
+write(fu_input,'(a)') 'YEAR 2018 prognosis ! comment';    i = i + 1; year_ref(i) = 2018; cmp_ref(i) = .true.
+                                                                                     
+! Erroneous input:                                                                   
+write(fu_input,'(a)') 'YEARX 2018';                       i = i + 1; year_ref(i) = -9999; cmp_ref(i) = .false.
+write(fu_input,'(a)') 'YEAR 2018 prognose';               i = i + 1; year_ref(i) = -9999; cmp_ref(i) = .false.
+write(fu_input,'(a)') 'YEAR 2018 prognose ! prognosis';   i = i + 1; year_ref(i) = -9999; cmp_ref(i) = .false.
+rewind(fu_input)
+i_end = 1
+
+! Read and check records:
+do i = 1,i
+   msg = ' === test record     === '
+   write(msg(18:19),'(i2.2)') i
+   !write(*,*) msg
+
+   call read_ctr_year(year,chem_meteo_prognosis,error)
+   if (year_ref(i) .ne. -9999) then
+      if (error%haserror) goto 9999
+      !write(*,*) 'year, chem_meteo_prognosis: ',year,chem_meteo_prognosis
+      @assertEqual(year_ref(i), year,message=msg // ' year')
+      @assertEqual(cmp_ref(i), chem_meteo_prognosis,message=msg // ' chem_meteo_prognosis')
+   else
+      ! Check whether erroneous input is trapped (reset haserror each time):
+      @assertEqual(.true., error%haserror,message=msg // ' error')   
+      error%haserror = .false. 
+   endif
+enddo
+
+return
+
+9999 call WriteError(IOB_STDOUT,error)
+
+end subroutine tst_read_ctr_year

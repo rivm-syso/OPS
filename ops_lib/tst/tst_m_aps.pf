@@ -1,0 +1,57 @@
+!------------------------------------------------------------------------------
+! Tests for module m_aps (currently only SetAverage; test also GridValue)
+!------------------------------------------------------------------------------
+
+@test
+SUBROUTINE tst_set_average
+
+USE funit
+USE m_commonconst_lib                                                            ! EPS_DELTA only
+USE m_aps
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+REAL*4                            :: factor                     ! multiplication factor for the whole grid
+
+! SUBROUTINE ARGUMENTS - I/O
+TYPE (TApsGridReal)               :: grid                       ! real APS grid
+INTEGER                           :: fieldnumber                ! fieldnumber to retreive data from
+
+! LOCAL VARIABLES
+INTEGER*4                         :: nfields                     ! number of fields
+REAL                              :: tol_abs = 1.0e-5            ! absolute tolerance in testing
+
+!-------------------------------------------------------------------------------------------------------------------------------
+
+grid%gridheader%nrcol = 4
+grid%gridheader%nrrow = 1
+nfields = 1
+fieldnumber = 1
+allocate(grid%value(grid%gridheader%nrcol,grid%gridheader%nrrow,nfields))
+allocate(grid%average(nfields))
+
+grid%value(:,1,1) = (/ 1.0, 2.0, 3.0, 4.0 /)
+factor = 1.0
+call SetAverage(factor, grid, fieldnumber)
+@assertEqual(2.5,grid%average,tol_abs,'Test 1: average of [1, 2, 3, 4]')
+
+grid%value(:,1,1) = (/ 1.0, 2.0, 3.0, 4.0 /)
+factor = 2.0
+call SetAverage(factor, grid, fieldnumber)
+@assertEqual((/ 2.0, 4.0, 6.0, 8.0 /),grid%value(:,1,1),tol_abs,'Test 2a: 2 x [1, 2, 3, 4]')
+@assertEqual(5.0,grid%average,tol_abs,'Test 2b: average of 2 x [1, 2, 3, 4]')
+
+grid%value(:,1,1) = (/ -999.0, 2.0, 3.0, -999.0 /)
+factor = 2.0
+call SetAverage(factor, grid, fieldnumber)
+@assertEqual((/ -999.0, 4.0, 6.0, -999.0 /),grid%value(:,1,1),tol_abs,'Test 3a: 2 x [-999, 2, 3, -999]')
+@assertEqual(5.0,grid%average,tol_abs,'Test 3b: average of 2 x [-999, 2, 3, -999]')
+
+grid%value(:,1,1) = (/ 0.0, -999.0, -2.0, -999.0 /)
+factor = 1.0
+call SetAverage(factor, grid, fieldnumber)
+@assertEqual(-500.0,grid%average,tol_abs,'Test 4: average of [0, -999, -2, -999]')
+
+END SUBROUTINE tst_set_average
+
