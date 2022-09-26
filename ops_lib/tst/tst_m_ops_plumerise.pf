@@ -1,0 +1,528 @@
+!---------------------------------------------------------
+! test subroutines in module m_ops_plumerise
+!---------------------------------------------------------
+@test
+subroutine tst_ops_plumerise
+
+use funit
+
+use m_ops_plumerise
+use m_error
+use m_commonfile, only: IOB_STDOUT
+
+implicit none
+
+integer :: itest             ! index of test run
+
+! Input for test
+real    :: z0                ! roughness length [m]
+real    :: hemis0            ! initial emission height = stack height [m]
+real    :: uster             ! friction velocity [m/s]
+real    :: ol                ! Monin-Obukhov length [m]
+real    :: qw                ! heat content [MW]
+real    :: D_stack           ! diameter of the stack [m]
+real    :: V_stack           ! exit velocity of plume at stack tip [m/s]
+real    :: Ts_stack          ! temperature of effluent from stack [K]
+real    :: Ta_stack          ! ambient temperature at stack height [K]
+logical :: emis_horizontal   ! horizontal outflow of emission
+real    :: temp_C            ! ambient temperature at height zmet_T [C] 
+real    :: zmix              ! mixing height [m] 
+real    :: zmix_loc          ! mixing height, local scale [m]
+
+! Output                              
+real  :: hemis1              ! emission height, including plume rise [m]
+real  :: onder               ! part of plume below mixing height 
+type (TError):: error        ! error handling record 
+
+! Local:
+character(len = 512) :: str1 ! string with error message
+
+error%haserror = .FALSE.
+
+!----------------------------------------------
+! Test 1: vertical outflow, qw = 1 MW, Ts_stack = 373 (may not be consistent)
+!----------------------------------------------
+
+itest = 1
+z0        =  0.03            ! roughness length [m]
+hemis0    =  5.0             ! initial emission height = stack height [m]
+uster     =  0.2             ! friction velocity [m/s]
+ol        = 10.0             ! Monin-Obukhov length [m]
+qw        = 0.1              ! heat content [MW]
+D_stack   = 2.0              ! diameter of the stack [m]
+V_stack   = 1.0              ! exit velocity of plume at stack tip [m/s]
+Ts_stack  = -999.            ! temperature of effluent from stack [K]
+Ta_stack  = 285.0            ! ambient temperature at stack height [K]
+emis_horizontal = .FALSE.    ! horizontal outflow of emission
+temp_C    = 12.0             ! ambient temperature at height zmet_T [C] 
+zmix      = 1000.0           ! mixing height [m] 
+zmix_loc  = 1000.0           ! mixing height, local scale [m]
+call ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, hemis1, onder, error)
+if (error%haserror) goto 9999
+call tst_check2(itest,Ts_stack,-999.,emis_horizontal,.FALSE.,qw,0.1,hemis1,27.75813,onder,1.000000)!,'2019-10-02')
+
+!----------------------------------------------
+! Test 2: vertical outflow, qw = 0.5 MW, Ts_stack = -999.
+!----------------------------------------------
+itest = itest + 1
+qw = 0.5; Ts_stack = -999.
+call ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, hemis1, onder, error)
+if (error%haserror) goto 9999
+call tst_check2(itest,Ts_stack,-999.,emis_horizontal,.FALSE.,qw,0.5,hemis1,41.84061,onder,1.000000)!,'2019-10-02')
+
+!----------------------------------------------
+! Test 3: horizontal outflow, qw = 0
+!----------------------------------------------
+itest = itest + 1
+emis_horizontal = .TRUE.; qw = 0.0; Ts_stack = -999.;hemis1 = -999.
+call ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, hemis1, onder, error)
+if (error%haserror) goto 9999
+call tst_check2(itest,Ts_stack,-999.,emis_horizontal,.TRUE.,qw,0.0,hemis1,5.0,onder,1.000000)!,'2019-10-02')
+
+!----------------------------------------------
+! Test 4: horizontal outflow, qw = 0.5 MW
+!----------------------------------------------
+itest = itest + 1
+emis_horizontal = .TRUE.; qw = 0.5; Ts_stack = -999.
+call ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, hemis1, onder, error)
+if (error%haserror) goto 9999
+call tst_check2(itest,Ts_stack,-999.,emis_horizontal,.TRUE.,qw,0.5,hemis1,41.84061,onder,1.000000)!,'2019-10-02')
+
+!----------------------------------------------
+! Test 5: error in input, too large value for Qw
+!----------------------------------------------
+itest = itest + 1
+emis_horizontal = .FALSE.; qw = 1.0e10; Ts_stack = -999.
+call ops_plumerise(z0, hemis0, uster, ol, qw, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, zmix, zmix_loc, hemis1, onder, error)
+
+! Check error message:
+if (error%haserror) then
+   str1 = 'Error when computing effluent gas temperature Ts_stack from given heat content. ' // &
+          'The heat content specified cannot be reached within the given volume flux specified by velocity and stack diameter.'
+   @assertEqual(str1,error%message)
+else
+   @assertTrue(error%haserror,'error in input has not been trapped by routine ops_plumerise')
+endif
+
+write(*,'(/,a,/)') 'more tests needed for ops_plumerise, independent tests/measurements'
+
+! No errors from ops_plumerise:
+return 
+
+! Error handling of errors in ops_plumerise
+9999 CALL ErrorCall('tst_ops_plumerise', error)
+call WriteError(IOB_STDOUT,error) 
+! Trap unexpected error by pFUnit; error%haserror = true, so assertFalse produces a failure:
+@assertFalse(error%haserror,'unexpected error has occurred')
+
+end subroutine tst_ops_plumerise
+
+!----------------------------------------------------
+@test
+subroutine tst_ops_plumerise_qw_Ts
+
+use funit
+
+use m_ops_plumerise
+use m_error
+use m_commonfile, only: IOB_STDOUT
+use Binas, only : pi, T0
+
+implicit none
+
+integer :: itest             ! index of test run
+real    :: qw                ! heat content [MW]
+real    :: D_stack           ! diameter of the stack [m]
+real    :: V_stack           ! exit velocity of plume at stack tip [m/s]
+real    :: Ts_stack          ! temperature of effluent from stack [K]
+logical :: emis_horizontal   ! horizontal outflow of emission
+real    :: Ta_stack          ! ambient temperature at stack height (K) 
+real    :: C1                ! help variable = rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0*(1.0e-6). Needed for Ts_stack2 
+
+! Output:
+real :: Ts_stack2            ! effluent temperature at stack height, but missing value replaced by computation from Qw [K]
+real :: qw2                  ! heat content emission, but missing value replaced by computation from Ts [MW]
+type (TError):: error        ! error handling record 
+
+! Local 
+real :: V0                   ! normal flux (m0^3/s)
+character(len = 512) :: str1 ! string with error message
+
+
+error%haserror = .FALSE.
+
+!----------------------------------------------------------
+! Test 1: default example from Infomil rekenhulp.xls
+!----------------------------------------------------------
+! Note the different values of rho, Cp in rekenhulp.xls; correct for this.
+itest = 1
+V0 = 1.25; qw = -999.; D_stack = 2.0; Ts_stack = 373.; emis_horizontal = .FALSE.; Ta_stack = 285
+
+! normal flux: V0 = (pi*(0.5*D_stack)**2)*V_stack*T0/Ts_stack, so V_stack = (V0*Ts_stack)/(T0*pi*(0.5*D_stack)**2)
+V_stack = (V0*Ts_stack)/(T0*pi*(0.5*D_stack)**2)
+
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+if (error%haserror) goto 9999
+call tst_check1(itest,V_stack,0.5433152,Ts_stack2,373.0000,qw2,0.1429412,emis_horizontal,.FALSE.)!,'2019-09-18')
+
+!----------------------------------------------------------
+! Test 2: as test 1, but other way around:
+!----------------------------------------------------------
+itest = itest + 1
+qw = qw2; Ts_stack = -999.; emis_horizontal = .FALSE.; qw2 = -999.
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+if (error%haserror) goto 9999
+call tst_check1(itest,V_stack,0.5433152,Ts_stack2,373.0000,qw2,0.1429412,emis_horizontal,.FALSE.)!,'2019-09-18')
+
+!----------------------------------------------------------
+! Test 3: horizontal outflow, Qw = 1 MW
+!----------------------------------------------------------
+itest = itest + 1
+qw = 1.0; Ts_stack = -999.; emis_horizontal = .TRUE.; qw2 = -999.
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+if (error%haserror) goto 9999
+call tst_check1(itest,V_stack,0.5433152,Ts_stack2,-999.0000,qw2,1.000000,emis_horizontal,.TRUE.)!,'2019-10-02')
+
+!----------------------------------------------------------
+! Test 4: horizontal outflow, Ts = 285 K
+!----------------------------------------------------------
+itest = itest + 1
+qw = -999.; Ts_stack = 373.; emis_horizontal = .TRUE.; qw2 = -999.
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+if (error%haserror) goto 9999
+call tst_check1(itest,V_stack,0.5433152,Ts_stack2,373.0000,qw2,0.1429412,emis_horizontal,.TRUE.)!,'2019-10-02')
+
+!----------------------------------------------------------
+! Test 5: No Ts, vertical outflow, Qw >= C1 -> error
+!----------------------------------------------------------
+itest = itest + 1
+C1 = rho0*Cp0*(pi*(0.5*D_stack)**2)*V_stack*T0*(1.0e-6) ! compute C1
+qw = C1 + 0.1; Ts_stack = -999.; emis_horizontal = .FALSE.; qw2 = -999.
+call ops_plumerise_qw_Ts(qw, D_stack, V_stack, Ts_stack, emis_horizontal, Ta_stack, qw2, Ts_stack2, error)
+
+! Check error message:
+if (error%haserror) then
+   str1 = 'Error when computing effluent gas temperature Ts_stack from given heat content. ' // &
+          'The heat content specified cannot be reached within the given volume flux specified by velocity and stack diameter.'
+   @assertEqual(str1,error%message)
+else
+   @assertTrue(error%haserror,'error in input has not been trapped by routine ops_plumerise_qw_Ts')
+endif
+
+! no errors
+return
+
+! Error handling of errors in ops_plumerise_qw_Ts
+9999 CALL ErrorCall('tst_ops_plumerise_qw_Ts', error)
+call WriteError(IOB_STDOUT,error) 
+! Trap unexpected error by pFUnit; error%haserror = true, so assertFalse produces a failure:
+@assertFalse(error%haserror,'unexpected error has occurred')
+
+end subroutine tst_ops_plumerise_qw_Ts
+
+@test
+subroutine tst_ops_plumerise_buoyancy
+
+use funit
+
+use m_ops_plumerise
+use m_error
+use m_commonfile, only: IOB_STDOUT
+
+use m_commonconst_lib, only: pi, NTRAJ, NCOMP, NSTAB, NSEK, EPS_DELTA
+use Binas, only: grav, T0              ! acceleration of gravity [m/s2], melting point of ice [K]
+use m_ops_meteo, only: ops_wv_log_profile, ops_wv_powerlaw_metstat
+
+implicit none
+
+! Input
+real    :: z0               ! roughness length [m] 
+real    :: ol               ! Monin-Obukhovlengte [m]
+real    :: uster            ! friction velocity [m/s] 
+logical :: non_stable       ! non-stable (unstable/neutral) conditions
+real    :: qw               ! heat content (MW)
+real    :: Ta_stack         ! ambient temperature at stack height [K]
+real    :: dthetadz_stable  ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
+real    :: u_stack          ! wind speed at stack height [m/s]
+real    :: hemis0           ! initial emission height = stack height [m]   
+
+! Output                           
+real :: dh_buoyancy      ! plume rise due to buoyancy [m]
+
+! Input, optional:
+logical :: prelim      ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
+integer :: istab       ! index of stability class and preliminary wind sector
+integer :: isec_prelim ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
+!real    :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
+real                :: tol = 0.1      ! tolerance in equality checks, based on parameter 'epsa' from the subroutine ops_plumerise_buoyancy
+
+z0              =  0.03            ! roughness length [m]
+hemis0          =  50.0            ! initial emission height = stack height [m]
+uster           =  0.2             ! friction velocity [m/s]
+ol              = 10.0             ! Monin-Obukhov length [m]
+qw              = 0.0              ! heat content [MW]
+non_stable      = .FALSE.          ! unstable conditions?
+Ta_stack        = 285              ! ambient temperature @ stack height [K]
+dthetadz_stable = 0.006            ! In the OPS manual (just below Eq. 4.6) it is stated that an average value of 0.006 K/m is taken as representative
+u_stack         = 5.0              ! wind speed @ stack height [m/s]
+prelim          = .FALSE.          ! preliminary plume rise?
+istab           = 5                ! U1/U2, N1/N2, S1/S2
+isec_prelim     = 1                ! preliminary wind sector
+
+!----------------------------------------------------------
+! Test 1: qw = 0, so no plume rise, dh_buoyancy = 0
+!----------------------------------------------------------
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isec_prelim)
+@assertEqual(0.0,dh_buoyancy,tol,'Test 1: dh_buoyancy')
+
+!----------------------------------------------------------
+! Test 2: qw = 0.1, dh_buoyancy = 19.04226 (2021-06-22)
+!----------------------------------------------------------
+qw = 0.1
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isec_prelim)
+@assertEqual(19.04226,dh_buoyancy,tol,'Test 2: dh_buoyancy')
+
+!----------------------------------------------------------
+! Test 3: qw = 0.1, non_stable = T, istab=1, dh_buoyancy = 1.883308 (2021-06-22)
+!----------------------------------------------------------
+qw = 0.1; non_stable = .TRUE.; istab = 1
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isec_prelim)
+@assertEqual(1.883308,dh_buoyancy,tol,'Test 3: dh_buoyancy')
+
+!----------------------------------------------------------
+! Test 4: qw = 6.5 so that f>=55 Briggs1971, non_stable = T, istab=1, dh_buoyancy = 39.11432 (2021-06-22)
+!----------------------------------------------------------
+qw = 6.5; non_stable = .TRUE.; istab = 1
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh_buoyancy, prelim, istab, isec_prelim)
+@assertEqual(39.11432,dh_buoyancy,tol,'Test 4: dh_buoyancy')
+                                       
+end subroutine tst_ops_plumerise_buoyancy
+
+@test
+subroutine tst_ops_plumerise_momentum
+
+use funit
+
+use m_ops_plumerise
+
+use m_commonconst_lib, only: EPS_DELTA                      
+use m_ops_utils, only: is_missing
+
+implicit none
+
+! Input:
+real :: u_stack              ! wind speed at stack height [m/s]. For low sources the threshold height of 10m is applied.
+real :: D_stack              ! stack internal diameter [m]
+real :: V_stack              ! exit velocity of plume at stack tip [m/s]
+real :: Ts_stack             ! temperature of effluent from stack [K] 
+real :: Ta_stack             ! ambient temperature at stack height [K]
+real :: dthetadz_stable      ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
+logical :: non_stable           ! non-stable (unstable/neutral) conditions
+                                     
+! Output:
+real :: dh_momentum          ! plume rise due to momentum [m]
+real                :: tol = 1.0e-5      ! tolerance in equality checks
+
+u_stack         = 5.0              ! wind speed @ stack height [m/s]
+D_stack   = 2.0              ! diameter of the stack [m]
+V_stack   = 1.0              ! exit velocity of plume at stack tip [m/s]
+Ts_stack  = -999.            ! temperature of effluent from stack [K]
+Ta_stack  = 285.0            ! ambient temperature at stack height [K]
+dthetadz_stable = 0.006            ! In the OPS manual (just below Eq. 4.6) it is stated that an average value of 0.006 K/m is taken as representative
+
+!----------------------------------------------------------
+! Test 1: non_stable = T, dh_buoyancy = 1.2 (2021-06-22)
+!----------------------------------------------------------
+non_stable = .TRUE.
+call ops_plumerise_momentum(u_stack,D_stack,V_stack,Ts_stack,Ta_stack,dthetadz_stable,non_stable,dh_momentum)
+@assertEqual(1.2,dh_momentum,tol,'Test 1: dh_momentum')
+
+!----------------------------------------------------------
+! Test 2: non_stable = F, dh_buoyancy = -2.375771 (2021-06-22)
+!----------------------------------------------------------
+non_stable = .FALSE.
+call ops_plumerise_momentum(u_stack,D_stack,V_stack,Ts_stack,Ta_stack,dthetadz_stable,non_stable,dh_momentum)
+@assertEqual(-2.375771,dh_momentum,tol,'Test 2: dh_momentum')
+
+!----------------------------------------------------------
+! Test 3: V_stack=0, dh_buoyancy = 0
+!----------------------------------------------------------
+V_stack = 0.0
+call ops_plumerise_momentum(u_stack,D_stack,V_stack,Ts_stack,Ta_stack,dthetadz_stable,non_stable,dh_momentum)
+@assertEqual(0.0,dh_momentum,tol,'Test 3: dh_momentum')
+
+end subroutine tst_ops_plumerise_momentum 
+
+@test
+subroutine tst_ops_plume_penetration
+
+use funit
+use m_ops_plumerise
+use m_commonconst_lib, only: EPS_DELTA                      
+
+! Input                          
+real :: hemis0     ! initial emission height = stack height [m]
+real :: zmix       ! mixing height [m] 
+real :: zmix_loc   ! mixing height, local scale [m]
+real :: ol         ! Monin-Obukhov length [m]
+real :: dh         ! plume rise due to either buoyancy or momentum [m]
+real :: z0               ! roughness length [m] 
+real :: uster            ! friction velocity [m/s] 
+logical :: non_stable       ! non-stable (unstable/neutral) conditions
+real    :: qw               ! heat content (MW)
+real    :: Ta_stack         ! ambient temperature at stack height [K]
+real    :: D_stack              ! stack internal diameter [m]
+real    :: V_stack              ! exit velocity of plume at stack tip [m/s]
+real    :: Ts_stack             ! temperature of effluent from stack [K] 
+real    :: dthetadz_stable  ! fixed potential temperature gradient dtheta/dz [K/m] for stable conditions, used for dh_buoyancy and dh_momentum
+real    :: u_stack          ! wind speed at stack height [m/s]
+
+! Input, optional:
+logical :: prelim      ! preliminary plume rise, based on stability class and preliminary wind sector (ol, uster, ... still unknown)
+integer :: istab       ! index of stability class and preliminary wind sector
+integer :: isec_prelim ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
+!real    :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! statistical meteo parameters
+
+! Input/Output                   
+real :: hemis1     ! emission height, including plume rise [m]
+
+! Output                         
+real :: onder      ! part of plume below mixing height 
+real :: tol = 1.0e-5      ! tolerance in equality checks
+
+z0              =  0.03            ! roughness length [m]
+uster           =  0.2             ! friction velocity [m/s]
+qw              = 1.0              ! heat content [MW]
+non_stable      = .FALSE.          ! unstable conditions?
+Ta_stack        = 285              ! ambient temperature @ stack height [K]
+dthetadz_stable = 0.006            ! In the OPS manual (just below Eq. 4.6) it is stated that an average value of 0.006 K/m is taken as representative
+u_stack         = 5.0              ! wind speed @ stack height [m/s]
+prelim          = .FALSE.          ! preliminary plume rise?
+istab           = 5                ! U1/U2, N1/N2, S1/S2
+isec_prelim     = 1                ! preliminary wind sector
+hemis0    =  80.0             ! initial emission height = stack height [m]
+zmix      = 100.0           ! mixing height [m] 
+zmix_loc  = 100.0           ! mixing height, local scale [m]
+ol        = 10.0             ! Monin-Obukhov length [m]
+D_stack   = 2.0              ! diameter of the stack [m]
+V_stack   = 2.0              ! exit velocity of plume at stack tip [m/s]
+Ts_stack  = 300.            ! temperature of effluent from stack [K]
+
+!----------------------------------------------------------
+! Test 1: plumerise due to buoyancy, everyting below
+!----------------------------------------------------------
+zmix = 1000.0; zmix_loc = 1000.0
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh, prelim, istab, isec_prelim)
+hemis1 = hemis0 + dh
+@assertLessThan(hemis0, hemis1, 'Test 1: hemis0<hemis1')
+call ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
+@assertEqual(1.0,onder,tol,'Test 1: onder')
+
+!----------------------------------------------------------
+! Test 2: plumerise due to buoyancy, onder = 0.3567484 (2021-06-22)
+!----------------------------------------------------------
+zmix = 100.0; zmix_loc = 100.0
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh, prelim, istab, isec_prelim)
+hemis1 = hemis0 + dh
+@assertLessThan(hemis0, hemis1, 'Test 2: hemis0<hemis1')
+call ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
+@assertEqual(0.3567484,onder,tol,'Test 2: onder')
+
+!----------------------------------------------------------
+! Test 3: ol > 100, onder = 0.1114180 (2021-06-22)
+!----------------------------------------------------------
+ol = 101.0; zmix = 110.0; zmix_loc = 110.0
+call ops_plumerise_buoyancy(z0, ol, uster, non_stable, qw, Ta_stack, dthetadz_stable, u_stack, hemis0, dh, prelim, istab, isec_prelim)
+hemis1 = hemis0 + dh
+@assertLessThan(hemis0, hemis1, 'Test 3: hemis0<hemis1')
+call ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
+@assertEqual(0.1114180,onder,tol,'Test 3: onder')
+
+!----------------------------------------------------------
+! Test 4: hemis1>zmix & onder>0, onder = 0.7071428 & hemis1=zmix (2021-06-22)
+!----------------------------------------------------------
+ol = 10.0; zmix = 110.0; zmix_loc = 110.0
+hemis1 = 115.0
+dh = hemis1 - hemis0
+call ops_plume_penetration(hemis0,zmix,zmix_loc,ol,dh,hemis1,onder)
+@assertEqual(0.7071428,onder,tol,'Test 4: onder')
+@assertEqual(zmix,hemis1,tol,'Test 4: hemis1')
+
+end subroutine tst_ops_plume_penetration
+
+!----------------------------------------------------------------------------------
+! routines below are called from test routines
+!-----------------------------------------------------------------------------------
+subroutine tst_check1(itest,V_stack,V_stack0,Ts_stack2,Ts_stack20,qw2,qw20,emis_horizontal,emis_horizontal0)!,date0)
+
+use funit
+
+implicit none
+
+integer, intent(in) :: itest             ! index of test run
+real   , intent(in) :: V_stack           ! exit velocity of plume at stack tip [m/s]
+real   , intent(in) :: V_stack0          ! exit velocity of plume at stack tip [m/s], reference run
+real   , intent(in) :: Ts_stack2         ! effluent temperature at stack height, but missing value replaced by computation from Qw [K]
+real   , intent(in) :: Ts_stack20        ! effluent temperature at stack height, but missing value replaced by computation from Qw [K], reference run
+logical, intent(in) :: emis_horizontal   ! horizontal outflow of emission
+logical, intent(in) :: emis_horizontal0  ! horizontal outflow of emission, reference run
+real   , intent(in) :: qw2               ! heat content emission, but missing value replaced by computation from Ts [MW]
+real   , intent(in) :: qw20              ! heat content emission, but missing value replaced by computation from Ts [MW], reference run
+! character(len=*), intent(in) :: date0    ! date of reference run
+
+real                :: tol = 1.0e-5      ! tolerance in equality checks
+character(len = 8)  :: str1              ! help string
+
+! write(*,'(/,70(''-''),/,a,1x,i3,10x,a,10x,a,/,70(''-''))') 'output test ',itest,'now',date0
+! write(*,*) 'horizontal outflow = ',emis_horizontal,emis_horizontal0
+! write(*,*) 'V_stack            = ',V_stack,V_stack0,  ' m/s'
+! write(*,*) 'Ts_stack2          = ',Ts_stack2,Ts_stack20,' K'
+! write(*,*) 'qw2                = ',qw2,qw20,      'MW'
+
+str1 = 'test    '; write(str1(6:8),'(i3)') itest
+@assertEqual(V_stack0,V_stack,tol,str1 // ' / V_stack [m/s]')
+@assertEqual(qw20,qw2,tol,str1 // ' / qw2 [MW]')
+@assertEqual(Ts_stack20,Ts_stack2,tol,str1 // ' / Ts_stack2 [K]')
+@assertTrue(emis_horizontal0==emis_horizontal,str1 // ' /  => emis_horizontal')
+
+end subroutine tst_check1
+
+!--------------------------------------------------------------------------------------------------------------------------
+subroutine tst_check2(itest,Ts_stack,Ts_stack0,emis_horizontal,emis_horizontal0,qw,qw0,hemis1,hemis10,onder,onder0)!,date0)
+
+use funit
+
+implicit none
+
+integer, intent(in) :: itest             ! index of test run
+real   , intent(in) :: Ts_stack          ! effluent temperature at stack height, but missing value replaced by computation from Qw [K]
+real   , intent(in) :: Ts_stack0         ! effluent temperature at stack height, but missing value replaced by computation from Qw [K], reference run
+logical, intent(in) :: emis_horizontal   ! horizontal outflow of emission
+logical, intent(in) :: emis_horizontal0  ! horizontal outflow of emission, reference run
+real   , intent(in) :: qw                ! heat content emission, but missing value replaced by computation from Ts [MW]
+real   , intent(in) :: qw0               ! heat content emission, but missing value replaced by computation from Ts [MW], reference run
+real   , intent(in) :: hemis1            ! emission height including plume rise [m]
+real   , intent(in) :: hemis10           ! emission height including plume rise [m], reference run
+real   , intent(in) :: onder             ! fraction of emission inside mixing layer [-]
+real   , intent(in) :: onder0            ! fraction of emission inside mixing layer [-], reference run
+!character(len=*), intent(in) :: date0    ! date of reference run
+
+real                :: tol = 1.0e-5      ! tolerance in equality checks
+character(len = 8)  :: str1              ! help string
+
+! write(*,'(/,70(''-''),/,a,1x,i3,10x,a,10x,a,/,70(''-''))') 'output test ',itest,'now',date0
+! write(*,*) 'horizontal outflow = ',emis_horizontal,emis_horizontal0
+! write(*,*) 'Ts_stack           = ',Ts_stack,Ts_stack0,' K'
+! write(*,*) 'qw                 = ',qw,qw0,      'MW'
+! write(*,*) 'hemis1             = ',hemis1,hemis10,  ' m'
+! write(*,*) 'onder              = ',onder,onder0
+
+str1 = 'test    '; write(str1(6:8),'(i3)') itest
+@assertEqual(Ts_stack0,Ts_stack,tol,str1 // ' / Ts_stack [K]')
+@assertTrue(emis_horizontal0==emis_horizontal,str1 // ' /  => emis_horizontal')
+@assertEqual(qw0,qw,tol,str1 // ' / qw [MW]')
+@assertEqual(hemis10,hemis1,tol,str1 // ' / hemis1 [m]')
+@assertEqual(onder0,onder,tol,str1 // ' / onder [-]')
+
+end subroutine tst_check2
+

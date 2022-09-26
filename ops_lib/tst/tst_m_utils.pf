@@ -1,0 +1,157 @@
+@test
+!-------------------------------------------------------------------------------------------------------------------------------
+!
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!-------------------------------------------------------------------------------------------------------------------------------
+! DESCRIPTION          : General utilities
+! TESTED HERE 
+!                        - GetNumber: retrieves number from a string
+! NOT TESTED HERE
+!                        - Alloc: allocation of memory 
+!                        - DeAlloc: deallocation of memory
+!                        - AllocError: a less important procedure
+!                        - Jaartal: converts year to four digit year
+!                        - GetOS: retrieves operating system 
+!                        - GetCLArg: Retrieves command line arguments
+!                        - WisselBytes: Byte swapping 
+!                        - StartFormat: Initial assignment to a format string 
+!                        - AppendFormat: Appends a format string
+!                        - PrependFormat: Put format at start of format string
+!                        - GetIndex: Determines index for a numerically coded identity
+!                        - SortMatrix: Sorts rows of a matrix
+!-------------------------------------------------------------------------------------------------------------------------------
+subroutine tst_GetNumber
+
+USE funit
+USE m_utils
+USE m_error
+use m_commonfile, only: IOB_STDOUT
+
+IMPLICIT NONE
+
+integer, parameter :: mtest = 100                ! maximal number of tests
+integer       :: i                               ! index of test
+integer       :: i_end                           ! index of last test
+real          :: rval                            ! real value read from string
+integer       :: ival                            ! integer value read from string
+integer       :: beyondpos                       ! first position beyond integer in string; 0 if end of line
+logical       :: isdefault                       ! if nothing is extracted (use deafult value in this case)
+type(Terror)  :: error                           ! error structure
+
+! Reference data for each test:
+character(len = 20) :: str_(mtest)               ! input string
+real          :: rval_ref(mtest)                 ! real value read from string
+integer       :: ival_ref(mtest)                 ! integer value read from string
+integer       :: beyondpos_ref(mtest)            ! first position beyond integer in string; 0 if end of line
+logical       :: isdefault_ref(mtest)            ! if nothing is extracted (use deafult value in this case)
+logical       :: error_ref(mtest)                ! error has occurred
+character(len=40) :: msg                         ! message for AssertEqual
+
+! Define strings where to read numbers from and set reference data. -999 implies "this value is not read".
+! Note: at least one of ival_ref or rval_ref must be set (not -999)
+i = 1;     str_(i) = '1'        ; ival_ref(i) = 1   ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = -999; error_ref(i) = .false.
+i = i + 1; str_(i) = ''         ; ival_ref(i) = 0   ; rval_ref(i) = -999.; isdefault_ref(i) = .true. ; beyondpos_ref(i) = -999; error_ref(i) = .false.
+i = i + 1; str_(i) = ''         ; ival_ref(i) = -999; rval_ref(i) =  0.0 ; isdefault_ref(i) = .true. ; beyondpos_ref(i) = -999; error_ref(i) = .false.
+i = i + 1; str_(i) = '2.0'      ; ival_ref(i) = -999; rval_ref(i) =  2.0 ; isdefault_ref(i) = .false.; beyondpos_ref(i) = -999; error_ref(i) = .false.
+i = i + 1; str_(i) = '1'        ; ival_ref(i) = 1   ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = 0   ; error_ref(i) = .false.
+i = i + 1; str_(i) = '1 hallo'  ; ival_ref(i) = 1   ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = 2   ; error_ref(i) = .false.
+i = i + 1; str_(i) = '1 !hallo' ; ival_ref(i) = 1   ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = 2   ; error_ref(i) = .false.
+i = i + 1; str_(i) = '123 hallo'; ival_ref(i) = 123 ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = 4   ; error_ref(i) = .false.
+i = i + 1; str_(i) = 'hallo 234'; ival_ref(i) = 0   ; rval_ref(i) = -999.; isdefault_ref(i) = .true. ; beyondpos_ref(i) = 4   ; error_ref(i) = .true.
+i = i + 1; str_(i) = '34x'      ; ival_ref(i) = 0   ; rval_ref(i) = -999.; isdefault_ref(i) = .false.; beyondpos_ref(i) = 4   ; error_ref(i) = .true.
+i = i + 1; str_(i) = ' '        ; ival_ref(i) = 0   ; rval_ref(i) = -999.; isdefault_ref(i) = .true. ; beyondpos_ref(i) = 0   ; error_ref(i) = .false.
+
+! Output of tests. 
+!             str                            ival     rval   isdefault   beyondpos error%haserror
+! === test 01  "1                   "           1  -888.0000     F        -888        F
+! === test 02  "                    "           0  -888.0000     T        -888        F
+! === test 03  "                    "        -888  0.0000000E+00 T        -888        F
+! === test 04  "2.0                 "        -888   2.000000     F        -888        F
+! === test 05  "1                   "           1  -888.0000     F           0        F
+! === test 06  "1 hallo             "           1  -888.0000     F           2        F
+! === test 07  "1 !hallo            "           1  -888.0000     F           2        F
+! === test 08  "123 hallo           "         123  -888.0000     F           4        F
+! === test 09  "hallo 234           "        -888  -888.0000     T        -888        T
+! === test 10  "34x                 "        -888  -888.0000     F        -888        T
+! === test 11  "                    "           0  -888.0000     T           0        F
+
+! After call: 
+! if (error) then
+!    -> stop program
+! else
+!    if (isdefault) then
+!       -> default value 0 is returned; check if this is ok or not !
+!    else
+!       -> value read is returned
+!    endif
+! endif
+
+! Last test:
+i_end = i
+
+write(*,*) ' '
+
+! Read number and check result:
+do i = 1,i_end
+
+   ! Initial values:
+   rval = -888.
+   ival = -888
+   beyondpos = -888
+   error%haserror = .false.
+   
+   ! Read number:
+   if (ival_ref(i) .ne. -999 .and. beyondpos_ref(i) .ne. -999) then
+      call GetNumber(trim(str_(i)), ival, isdefault, error, beyondpos)
+   elseif (ival_ref(i) .ne. -999) then
+      call GetNumber(trim(str_(i)), ival, isdefault, error)
+   elseif (rval_ref(i) .ne. -999.) then
+      call GetNumber(trim(str_(i)), rval, isdefault, error)
+   endif
+
+   write(msg,'(a,i2.2)') '=== test ',i
+
+   ! Output to screen:
+   ! write(*,*) trim(msg),'  "',str_(i),'"',ival,rval,isdefault,beyondpos,error%haserror
+   
+   ! Check if error has been trapped:
+   if (error_ref(i)) then
+      ! Expected error:
+      @assertEqual(.true.,error%haserror,message=trim(msg)//' - error%haserror ===')
+
+   else
+      ! Unexpected error:
+      if (error%haserror) goto 9999   
+      
+      ! Check results:
+      if (ival_ref(i) .ne. -999) then
+         @assertEqual(ival_ref(i),ival,message=trim(msg)//' - ival ===')
+      endif
+      if (rval_ref(i) .ne. -999.0) then
+         @assertEqual(rval_ref(i),rval,message=trim(msg)//' - rval ===')
+      endif
+      @assertEqual(isdefault_ref(i),isdefault,message=trim(msg)//' - isdefault ===')
+      if (beyondpos_ref(i) .ne. -999.0) then
+         @assertEqual(beyondpos_ref(i),beyondpos,message=trim(msg)//' - beyondpos ===')
+      endif
+   endif
+enddo
+
+return
+
+9999 CALL ErrorCall('tst_GetNumber', error)
+call write_error(IOB_STDOUT,error)
+
+end subroutine tst_GetNumber

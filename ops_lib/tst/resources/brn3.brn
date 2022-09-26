@@ -1,0 +1,4 @@
+! BRN-VERSION 1												
+! snr	     x	     y	  q	   hc	  h	 r	s	dv	 cat  area	ps	component
+    1	155000	385000	1.0	    0	 40	 0	0	-1	3111   528	 2	aerosol
+    2	158000	386000	1.5	  0.1	 30	 0	0	-1	3111   528	 2	aerosol

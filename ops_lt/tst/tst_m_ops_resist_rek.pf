@@ -1,0 +1,83 @@
+@test
+subroutine tst_ops_resist_ra
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! input
+REAL*4 :: z0     ! surface roughness length in meters.
+REAL*4 :: z_dep  ! height for which deposition velocity is calculated (m)
+REAL*4 :: d      ! displacement height (usually 0.7 * vegetation height) (m)
+REAL*4 :: ol     ! monin-obukhov length (m)
+REAL*4 :: uster  ! friction velocity u* (m/s)
+
+! output
+REAL*4 :: ra     ! aerodynamic resistance at z_dep (s/m)
+real   :: tol = 0.1
+
+! First test
+z0 = 0.1; z_dep = 2.0; d = 1.5; ol = 40.0; uster = 2.0
+call ops_resist_ra(z0, z_dep, d, ol, uster, ra)
+
+! value of 2021-08-05
+@assertEqual(2.076650, ra, tol, message='Test 1')
+
+end subroutine tst_ops_resist_ra
+
+@test
+subroutine tst_ops_resist_rb
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4 :: icnr                       ! component number for calculation of rb
+REAL*4    :: uster                      ! friction velocity u* (m/s)
+
+
+! output
+REAL*4    :: rb                         ! laminar layer resistance for component incr (s/m)
+real      :: tol = 0.1
+
+! First test, NO2
+icnr = 7; uster = 2.0
+call ops_resist_rb(icnr, uster, rb)
+
+! value of 2021-08-09
+@assertEqual(3.255674, rb, tol, message='Test 1')
+
+end subroutine tst_ops_resist_rb
+
+@test
+subroutine tst_fpsih
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+REAL*4  :: eta                        ! stabiliteitsparameter z/l
+
+! output
+REAL*4  :: output                     ! laminar layer resistance for component incr (s/m)
+real    :: tol = 0.1
+
+! First test, eta < 0
+eta = -2.0
+output = fpsih(eta)
+
+! value of 2021-08-09
+@assertEqual(2.431179, output, tol, message='Test 1')
+
+! eta > 0
+eta = 2.0
+output = fpsih(eta)
+
+! value of 2021-08-09
+@assertEqual(-7.541484, output, tol, message='Test 2')
+
+end subroutine tst_fpsih

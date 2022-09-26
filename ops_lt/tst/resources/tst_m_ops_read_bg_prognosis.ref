@@ -1,0 +1,78 @@
+ 0  2018 SO2    bgso2c2018.ops bgnh3c2018.ops
+ 0  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops
+ 0  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+ 0  2019 SO2    bgso2c2019.ops bgnh3c2019.ops
+ 0  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops
+ 0  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops
+ 0  2020 SO2    bgso2c2020.ops bgnh3c2020.ops
+ 0  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops
+ 0  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops
+ 0  2021 SO2    bgso2c2021.ops bgnh3c2021.ops
+ 0  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops
+ 0  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops
+ 0  2022 SO2    bgso2c2022.ops bgnh3c2022.ops
+ 0  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops
+ 0  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops
+ 0  2023 SO2    bgso2c2023.ops bgnh3c2023.ops
+ 0  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops
+ 0  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops
+ 0  2024 SO2    bgso2c2024.ops bgnh3c2024.ops
+ 0  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops
+ 0  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops
+ 0  2025 SO2    bgso2c2025.ops bgnh3c2025.ops
+ 0  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops
+ 0  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops
+ 0  2026 SO2    bgso2c2026.ops bgnh3c2026.ops
+ 0  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops
+ 0  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops
+ 0  2027 SO2    bgso2c2027.ops bgnh3c2027.ops
+ 0  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops
+ 0  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops
+ 0  2028 SO2    bgso2c2028.ops bgnh3c2028.ops
+ 0  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops
+ 0  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops
+ 0  2029 SO2    bgso2c2029.ops bgnh3c2029.ops
+ 0  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops
+ 0  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops
+ 0  2030 SO2    bgso2c2030.ops bgnh3c2030.ops
+ 0  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops
+ 0  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops
+ 1  2018 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2018.ops SO2_mass_conv_dtfac_2018.ops
+ 1  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops NOx_mass_prec_2018.ops NOx_mass_conv_dtfac_2018.ops no3_distr_2018.ops
+ 1  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2018.ops NH3_mass_conv_dtfac_2018.ops
+ 1  2019 SO2    bgso2c2019.ops bgnh3c2019.ops SO2_mass_prec_2019.ops SO2_mass_conv_dtfac_2019.ops
+ 1  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops NOx_mass_prec_2019.ops NOx_mass_conv_dtfac_2019.ops no3_distr_2019.ops
+ 1  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops NH3_mass_prec_2019.ops NH3_mass_conv_dtfac_2019.ops
+ 1  2020 SO2    bgso2c2020.ops bgnh3c2020.ops SO2_mass_prec_2020.ops SO2_mass_conv_dtfac_2020.ops
+ 1  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops NOx_mass_prec_2020.ops NOx_mass_conv_dtfac_2020.ops no3_distr_2020.ops
+ 1  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops NH3_mass_prec_2020.ops NH3_mass_conv_dtfac_2020.ops
+ 1  2021 SO2    bgso2c2021.ops bgnh3c2021.ops SO2_mass_prec_2021.ops SO2_mass_conv_dtfac_2021.ops
+ 1  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops NOx_mass_prec_2021.ops NOx_mass_conv_dtfac_2021.ops no3_distr_2021.ops
+ 1  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops NH3_mass_prec_2021.ops NH3_mass_conv_dtfac_2021.ops
+ 1  2022 SO2    bgso2c2022.ops bgnh3c2022.ops SO2_mass_prec_2022.ops SO2_mass_conv_dtfac_2022.ops
+ 1  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops NOx_mass_prec_2022.ops NOx_mass_conv_dtfac_2022.ops no3_distr_2022.ops
+ 1  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops NH3_mass_prec_2022.ops NH3_mass_conv_dtfac_2022.ops
+ 1  2023 SO2    bgso2c2023.ops bgnh3c2023.ops SO2_mass_prec_2023.ops SO2_mass_conv_dtfac_2023.ops
+ 1  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops NOx_mass_prec_2023.ops NOx_mass_conv_dtfac_2023.ops no3_distr_2023.ops
+ 1  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops NH3_mass_prec_2023.ops NH3_mass_conv_dtfac_2023.ops
+ 1  2024 SO2    bgso2c2024.ops bgnh3c2024.ops SO2_mass_prec_2024.ops SO2_mass_conv_dtfac_2024.ops
+ 1  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops NOx_mass_prec_2024.ops NOx_mass_conv_dtfac_2024.ops no3_distr_2024.ops
+ 1  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops NH3_mass_prec_2024.ops NH3_mass_conv_dtfac_2024.ops
+ 1  2025 SO2    bgso2c2025.ops bgnh3c2025.ops SO2_mass_prec_2025.ops SO2_mass_conv_dtfac_2025.ops
+ 1  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops NOx_mass_prec_2025.ops NOx_mass_conv_dtfac_2025.ops no3_distr_2025.ops
+ 1  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops NH3_mass_prec_2025.ops NH3_mass_conv_dtfac_2025.ops
+ 1  2026 SO2    bgso2c2026.ops bgnh3c2026.ops SO2_mass_prec_2026.ops SO2_mass_conv_dtfac_2026.ops
+ 1  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops NOx_mass_prec_2026.ops NOx_mass_conv_dtfac_2026.ops no3_distr_2026.ops
+ 1  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops NH3_mass_prec_2026.ops NH3_mass_conv_dtfac_2026.ops
+ 1  2027 SO2    bgso2c2027.ops bgnh3c2027.ops SO2_mass_prec_2027.ops SO2_mass_conv_dtfac_2027.ops
+ 1  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops NOx_mass_prec_2027.ops NOx_mass_conv_dtfac_2027.ops no3_distr_2027.ops
+ 1  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops NH3_mass_prec_2027.ops NH3_mass_conv_dtfac_2027.ops
+ 1  2028 SO2    bgso2c2028.ops bgnh3c2028.ops SO2_mass_prec_2028.ops SO2_mass_conv_dtfac_2028.ops
+ 1  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops NOx_mass_prec_2028.ops NOx_mass_conv_dtfac_2028.ops no3_distr_2028.ops
+ 1  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops NH3_mass_prec_2028.ops NH3_mass_conv_dtfac_2028.ops
+ 1  2029 SO2    bgso2c2029.ops bgnh3c2029.ops SO2_mass_prec_2029.ops SO2_mass_conv_dtfac_2029.ops
+ 1  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops NOx_mass_prec_2029.ops NOx_mass_conv_dtfac_2029.ops no3_distr_2029.ops
+ 1  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops NH3_mass_prec_2029.ops NH3_mass_conv_dtfac_2029.ops
+ 1  2030 SO2    bgso2c2030.ops bgnh3c2030.ops SO2_mass_prec_2030.ops SO2_mass_conv_dtfac_2030.ops
+ 1  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops NOx_mass_prec_2030.ops NOx_mass_conv_dtfac_2030.ops no3_distr_2030.ops
+ 1  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops NH3_mass_prec_2030.ops NH3_mass_conv_dtfac_2030.ops
