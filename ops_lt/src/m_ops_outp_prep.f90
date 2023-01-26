@@ -23,9 +23,8 @@ implicit none
 
 contains
 
-SUBROUTINE ops_outp_prep(nrrcp, icm, nsubsec, conc_cf, f_subsec_rcp, csec, drydep, wetdep, cpri, totdep, csubsec, scale_con, scale_sec,     &
+SUBROUTINE ops_outp_prep(nrrcp, icm, nsubsec, conc_cf, f_subsec_rcp, csec, drydep, wetdep, cpri, cnox, totdep, csubsec, scale_con, scale_sec,     &
                       &  scale_subsec, scale_dep)
-
 use m_ops_scalefac
 
 IMPLICIT NONE
@@ -42,6 +41,7 @@ REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              !
 
 ! SUBROUTINE ARGUMENTS - I/O
 REAL*4,    INTENT(INOUT)                         :: cpri(nrrcp)                ! 
+REAL*4,    INTENT(INOUT)                         :: cnox(nrrcp)                ! NOx concentration, per receptor
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: totdep(nrrcp)              ! 
@@ -60,12 +60,16 @@ PARAMETER    (ROUTINENAAM = 'ops_outp_prep')
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
-! 1. Calculate totdep = total deposition = dry deposition + wet deposition
-! 2. Correct cpri = NOx concentration (to account for HNO2 and PAN contributions to NO2)
-! 3. Calculate concentration of sub-secondary species 
+! Calculate totdep = total deposition = dry deposition + wet deposition
 totdep = drydep + wetdep
+
 IF (icm == 2) THEN
+   ! Correct cpri = NOx concentration (to account for HNO2 and PAN contributions to NO2)
+   !    Note: NO2 by the vdHout formula is based on measurements and is not corrected
    cpri = cpri * conc_cf 
+   cnox = cnox * conc_cf
+ 
+   ! Calculate concentration of sub-secondary species 
    do isubsec = 1,nsubsec
       csubsec(:,isubsec) = f_subsec_rcp(:,isubsec)*csec
    enddo

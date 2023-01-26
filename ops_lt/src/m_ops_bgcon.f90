@@ -24,8 +24,8 @@ contains
 
 SUBROUTINE ops_bgcon(x, y, in_trajectory, bgdata, bgcon, error, fieldnumber)
 
-use m_aps
-use m_commonconst_lt, only: EPS_DELTA
+USE m_aps
+USE m_commonconst_lt, only: EPS_DELTA
 
 IMPLICIT NONE
 
@@ -66,7 +66,7 @@ ELSE
    ENDIF
 ENDIF
 
-! If separata receptor (not in trajectory) is outside background grid -> error
+! If separate receptor (not in trajectory) is outside background grid -> error 
 ! IF (.not. in_trajectory .and. .not. iscell) THEN
 !    CALL SetError('point outside background concentration grid', error)
 !    CALL ErrorParam('coordinates [m]', (/ x, y /), error)

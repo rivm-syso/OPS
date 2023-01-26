@@ -37,7 +37,7 @@ use m_commonconst_lib
 ! REAL*4,    PARAMETER    :: HUMAX       = 500.                 ! maximal plume height [m]      
 ! END m_commonconst_lib
 
-use Binas, only: pi                                                     
+USE Binas, only: pi                                                     
            
 INTEGER*4, PARAMETER                             :: NUNIT       = 6                    ! number of units for deposition
 INTEGER*4, PARAMETER                             :: NHRBLOCKS   = 12                   ! number of two-hour blocks in a day
@@ -63,8 +63,8 @@ INTEGER*4, PARAMETER                             :: IGEO        = 0             
 INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
 INTEGER*4, PARAMETER                             :: NYEARS      =   44                 ! number of years for interpolating backgground maps
 INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2022                 ! future year, from which prognosis chemical maps are used
-CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.0.2.1'            ! model version OPS-LT
-CHARACTER*20, PARAMETER                          :: RELEASEDATE = '23 dec 2021'        ! release date
+CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.1.0.2'            ! model version OPS-LT
+CHARACTER*20, PARAMETER                          :: RELEASEDATE = '14 jul 2022'        ! release date
 
 !
 ! CONSTANTS - Data

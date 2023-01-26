@@ -61,17 +61,18 @@ implicit none
 
 contains
 
-SUBROUTINE ops_reken(idep, isec, icm, gasv, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, rno2nox, ecvl, iseiz, zf, &
+SUBROUTINE ops_reken(do_proc, iter, idep, isec, icm, gasv, vchemc, iopt_vchem, vchemv, dv, amol1, amol2, amol21, ar, & 
+                  &  r_no2_nox_sec, r_no2_nox_season, ecvl, iseiz, zf, &
                   &  trafst, knatdeppar, mb, ugmoldep, dg, irev, scavcoef, koh, croutpri, rc_no, rhno2, rc_hno3, &
-                  &  nrrcp, ircp, gxm, gym, xm, ym, zm, frac, nh3bg_rcp, so2bg_rcp, rhno3_rcp, & 
+                  &  nrrcp, ircp, gxm, gym, xm, ym, zm, frac, nh3bg_rcp, o3bg_rcp, so2bg_rcp, rhno3_rcp, &   ! o3bg_rcp here only used for debug write
                   &  bqrv, bqtr, bx, by, bdiam, bsterkte, bwarmte, bhoogte, &
                   &  bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, buildingEffect, & 
-                  &  btgedr, bdegr, &
+                  &  btgedr, bdegr, bcatnr, nemcat_road, emcat_road, &
                   &  z0_src, z0_tra, z0_rcp, z0_metreg_rcp, lu_tra_per, lu_rcp_per, &
-                  &  so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, vchem2, maxidx, pmd, uspmd, spgrid, grid, subbron, uurtot, routsec, &
-                  &  rc_user, somvnsec, telvnsec, vvchem, vtel, somvnpri, &
-                  &  telvnpri, ddepri, wdepri, sdrypri, snatpri, sdrysec, snatsec, cpri, csec, drydep, wetdep, astat, cno2, &
-                  &  precip, routpri, dispg, & 
+                  &  so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, o3bgtra, vchem2, maxidx, pmd, uspmd, spgrid, grid, subbron, uurtot, routsec, &
+                  &  rc_user, lroad_corr_present, somvnsec, telvnsec, vvchem, vtel, somvnpri, &
+                  &  telvnpri, ddepri, wdepri, sdrypri, snatpri, sdrysec, snatsec, cpri, csec, drydep, wetdep, astat, cnox_sec, cno2, &                   
+                  &  percvk_sec, nsrc_sec, precip, routpri, dispg, & 
                   &  nparout, parout_val, parout_name, parout_unit, parout_write, error)
 
 use m_commonconst_lt
@@ -84,13 +85,14 @@ use m_ops_utils, only: is_missing
 use m_ops_vchem
 use m_ops_resist_rek
 use m_commonconst_lib, only: NLU
-use m_ops_conc_ini
-use m_ops_conc_rek
-use m_ops_depoparexp
 use m_ops_gen_precip
 use m_ops_par_chem
-use m_ops_stab_rek
 use m_ops_statparexp
+use m_ops_stab_rek
+use m_ops_conc_ini
+use m_ops_depoparexp
+use m_ops_conc_rek
+use m_ops_brondepl, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -99,6 +101,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_reken')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+INTEGER,   INTENT(IN)                            :: iter                       ! iteration index for road correction
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 LOGICAL,   INTENT(IN)                            :: idep                       ! TRUE if deposition is modelled
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE if component is either SO2, NOx or NH3 (and a secondary component is present)
 INTEGER*4, INTENT(IN)                            :: icm                        ! component number used in OPS 
@@ -115,7 +119,8 @@ REAL*4,    INTENT(IN)                            :: amol1                      !
 REAL*4,    INTENT(IN)                            :: amol2                      ! molar mass secondary component [g/mol]
 REAL*4,    INTENT(IN)                            :: amol21                     ! (molar mass secondary component)/(molar mass primary component) [-] 
 REAL*4,    INTENT(IN)                            :: ar                         ! proportionality constant in relation [OH] = ar Qr, with Qr = global radiation in W/m2 [(cm3 m2)/(molec W2)], see Egmond en Kesseboom (1983)
-REAL*4,    INTENT(IN)                            :: rno2nox                    ! season dependent component of [NO2]/[NOx] ratio [-]
+REAL*4,    INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
+REAL*4,    INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent  
 REAL*4,    INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! average diurnal emission variation for each stability/distance class
 INTEGER*4, INTENT(IN)                            :: iseiz                      ! season index (0=long term; 1=year; 2=winter; 3=summer; 4=month in winter; 5=month in summer)
 REAL*4,    INTENT(IN)                            :: zf                         ! interpolation factor between summer and winter (zf << "zomer fractie" = summer fraction)
@@ -145,8 +150,9 @@ REAL*4,    INTENT(IN)                            :: xm                         !
 REAL*4,    INTENT(IN)                            :: ym                         ! y-coordinate of receptor (m RDM)
 REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (m)
 REAL*4,    INTENT(IN)                            :: frac                       ! fraction of grid cell inside NL 
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration (used in DEPAC) [ug/m3]  
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration (used in DEPAC) [ug/m3]  																																	   
+REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! NH3 background concentration at receptor (used in DEPAC) [ug/m3]  
+REAL*4,    INTENT(IN)                            :: o3bg_rcp(NSEK)             ! O3 background concentration at receptor for all wind sectors [ug/m3]  
+REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! SO2 background concentration at receptor(used in DEPAC) [ug/m3]  																																	   
 REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3]_total at receptor points, [NO3]_total = [HNO3] + [NO3_aerosol] 
 REAL*4,    INTENT(IN)                            :: bqrv                       ! source strength of space heating source (rv << "ruimteverwarming" = space heating) [g/s]
 REAL*4,    INTENT(IN)                            :: bqtr                       ! source strength of traffic source [g/s]
@@ -168,6 +174,9 @@ INTEGER*4, INTENT(IN)                            :: btgedr                     !
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! option for particle size distribution
                                                                                ! bdegr >= 0 -> standard particle size distribution pmd
                                                                                ! bdegr  < 0 -> user-defined particle size distribution uspmd 
+INTEGER*4, INTENT(IN)                            :: bcatnr                     ! emission category number
+INTEGER*4, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER*4, INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
 REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
 REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
@@ -179,6 +188,7 @@ REAL*4,    INTENT(IN)                            :: no2sek(NSEK)               !
 REAL*4,    INTENT(IN)                            :: so2bgtra                   ! SO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: no2bgtra                   ! NO2 background concentration, trajectory averaged [ppb]
 REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! NH3 background concentration, trajectory averaged [ppb]
+REAL*4,    INTENT(IN)                            :: o3bgtra(NSEK)              ! O3 background concentration, trajectory averaged [ppb]
 type(Tvchem), INTENT(INOUT)                      :: vchem2                     !                                                                                  
 INTEGER*4, INTENT(IN)                            :: maxidx                     ! max. number of particle classes (= 1 for gas)
 REAL*4,    INTENT(IN)                            :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions 
@@ -197,6 +207,7 @@ INTEGER*4, INTENT(IN)                            :: nparout                    !
 LOGICAL,   INTENT(IN)                            :: parout_write               ! write parout parameters to output
 
 ! SUBROUTINE ARGUMENTS - I/O       (INOUT)
+LOGICAL,   INTENT(INOUT)                         :: lroad_corr_present         ! at least one road with vdHout correction is present
 REAL*8,    INTENT(INOUT)                         :: somvnsec(NPARTCLASS)       ! summed wet deposition flux secondary component [ug/m2/h] 
 REAL*8,    INTENT(INOUT)                         :: telvnsec(NPARTCLASS)       ! summed deposited mass per area for wet deposition of secondary component [ug/m2]
 REAL*8,    INTENT(INOUT)                         :: vvchem(NPARTCLASS)         ! summed chemical conversion rate [%/h] 
@@ -245,7 +256,10 @@ REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK
                                                                                !        25. surface resistance Rc of NO2 [s/m]
                                                                                !        26. surface resistance Rc of NH3 [s/m]
                                                                                !        27. surface resistance Rc of SO4 aerosol [s/m]
-REAL*4,    INTENT(INOUT)                         :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx)
+REAL*4,    INTENT(INOUT)                         :: cnox_sec(NSEK,nrrcp)       ! wind sector averaged NOx concentration (roads only) [ug/m3]
+REAL*4,    INTENT(INOUT)                         :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx) [ug/m3]
+REAL*4,    INTENT(INOUT)                         :: percvk_sec(NSEK,nrrcp)     ! frequency of occurrence of wind sector (roads only) [-]
+INTEGER*4, INTENT(INOUT)                         :: nsrc_sec(NSEK,nrrcp)       ! number of sources present in wind sector (roads only) [-]
 REAL*4,    INTENT(INOUT)                         :: parout_val(nparout)        ! values for extra output parameters, for current receptor
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
        
@@ -261,6 +275,7 @@ INTEGER*4                                        :: istab                      !
 INTEGER*4                                        :: kdeel                      ! teller over deeltjesklassen
 INTEGER*4                                        :: itra                       ! 
 INTEGER*4                                        :: idgr                       ! 
+INTEGER*4                                        :: ibroncat                   ! emission category number
 INTEGER*4                                        :: rond                       ! 
 INTEGER*4                                        :: iwd                        ! wind direction if wind is from source to receptor (degrees) 
 INTEGER*4                                        :: ibtg                       ! 
@@ -379,7 +394,7 @@ REAL*4                                           :: cdn                        !
 REAL*4                                           :: cch                        ! source depletion factor for wet deposition/chemical conversion
 REAL*4                                           :: cratio                     ! 
 REAL*4                                           :: rhno3_trj                  ! HNO3/NO3-total ratio for trajectory [-]     
-REAL*4                                           :: rrno2nox                   ! 
+REAL*4                                           :: r_no2_nox_year_bg_tra      ! component of NO2/NOx ratio which is based on yearly averaged background concentrations over a trajectory
 REAL*4                                           :: vchemnh3                   ! 
 REAL*4                                           :: dx                         ! 
 REAL*4                                           :: dy                         ! 
@@ -394,13 +409,14 @@ REAL*4                                           :: ra_trj_4                   !
 REAL*4                                           :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m  
 REAL*4                                           :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
-REAL*4                                           :: rnox                       ! NO2/NOx ratio
+REAL*4                                           :: r_no2_nox                  ! NO2/NOx ratio [-]
 
 LOGICAL                                          :: inc_rcp                    ! increase receptorpoints
 LOGICAL                                          :: depudone                   ! Ra, Rb have been computed (no need to repeat this for all particle size classes)
+LOGICAL                                          :: lroad_corr                 ! road correction needed for NO2/NOx ratio
+INTEGER                                          :: nstab_present              ! number of contributing stability classes present up till now (percvk > 0, disxx > 0, q > 0)
 
 !-------------------------------------------------------------------------------------------------------------------------------
-!
 !
 !   Generate precipitation field for this receptor. 
 !   Can be used to derive concentration in rainwater from deposition flux,
@@ -464,6 +480,7 @@ LOGICAL                                          :: depudone                   !
       nk = 0
       nr = 1
     ENDIF
+    
 !
 !+++ Loop over sub receptors (in x- and y-direction) ++++++++++++++++++++++++
 !
@@ -509,6 +526,7 @@ LOGICAL                                          :: depudone                   !
           kk = 0
           nb = 1
         ENDIF
+        
 !
 !++++++ Loop over sub-area sources ++++++++++++++++++++++++
 !
@@ -520,11 +538,12 @@ LOGICAL                                          :: depudone                   !
 !
 !           Get emission data for current source and compute wind sector for source - receptor direction
 
-!           Note: in ops_statparexp iwd and isec_prelim are corrected for the turning of the wind at higher altitudes.
+!           Note: in ops_statparexp, iwd and isec_prelim are corrected for the turning of the wind at higher altitudes.
 !
-            CALL wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm,    &
-                       &  ym, grid, nk, nr, mrcp, nrcp, kk, nb, karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, idgr,  &
-                       &  qrv, qtr, rond, diameter, iwd, isec_prelim)
+            CALL wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, & 
+                        & bbuilding, btgedr, bdegr, bcatnr, bqrv, bqtr, gxm, gym, xm, ym, grid, nk, nr, mrcp, nrcp, kk, nb, & 
+                        & karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, & 
+                        & emis_horizontal, building, ibtg, idgr, ibroncat, qrv, qtr, rond, diameter, iwd, isec_prelim)
 
             ! Compute building effect (depends on source-receptor distance; we can use linear distance, because the building effect is only present near the source):
             call ops_building_get_factor(building%type, angle_SR_xaxis, disx, buildingEffect%buildingFactAngleSRxaxis, buildingEffect%buildingFactDistances, building%buildingFactFunction, buildingFact)
@@ -534,15 +553,13 @@ LOGICAL                                          :: depudone                   !
 !           Compute chemical parameters (conversion rates, concentration ratios) in case of secondary components
 !
             IF (isec) THEN
-              CALL ops_par_chem(icm, iopt_vchem, isec_prelim, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, vchem2, disx, diameter, vchemnh3, rhno3_trj,  &
-                             &  rrno2nox, rations)
+              CALL ops_par_chem(icm, iopt_vchem, isec_prelim, so2sek, no2sek, so2bgtra, no2bgtra, nh3bgtra, o3bgtra, vchem2, disx, diameter, vchemnh3, rhno3_trj,  &
+                             &  r_no2_nox_year_bg_tra, rations)
             ENDIF
-            if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3_trj, rrno2nox, rations :',ircp,vchemnh3, rhno3_trj, rrno2nox, rations    
-
-
+            if (error%debug) write(*,'(3a,1x,i6,4(1x,e12.5))') trim(ROUTINENAAM),' B ',' ircp,vchemnh3, rhno3_trj, r_no2_nox_year_bg_tra, rations :',ircp,vchemnh3, rhno3_trj, r_no2_nox_year_bg_tra, rations    
 !
 !++++++++++ Loop over stability classes ++++++++++++++++++++++++
-!
+            nstab_present = 0
             DO istab = 1, NSTAB  
         
               ! Compute source radius
@@ -568,11 +585,13 @@ LOGICAL                                          :: depudone                   !
                                                                                   ircp,istab, htot, htt, aant, xl, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, xloc, xl100, rad, rc_so2_ms
                  write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C5,',' ircp,istab, coef_space_heating, regenk, buil, rint, percvk :', &
                                                                                   ircp,istab, coef_space_heating, regenk, buil, rint, percvk
-               endif
+                 write(*,'(3a,5(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C6,',' ircp,istab, isec_prelim, isec1, itra, percvk, disx, disxx :', &
+                                                                                  ircp,istab, isec_prelim, isec1, itra, percvk, disx, disxx
+              endif
 
               IF (error%haserror) GOTO 9999
 !
-!             Negative sensible heat flux H0 [W/m2] not allowed.
+!             Zero sensible heat flux H0 [W/m2] not allowed (to avoid division by zero)
 !
               IF (ABS(h0) <= EPS_DELTA) THEN
                 h0 = 1.
@@ -658,19 +677,20 @@ LOGICAL                                          :: depudone                   !
 !
                         IF (idep) THEN
                           ! Compute resistances for dry deposition, in-cloud scavenging ratio, chemical conversion rate and NO2/NOx ratio:
-                          CALL ops_resist_rek(vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, ar, &
-                                           &  rno2nox, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, &
+                          CALL ops_resist_rek(disxx,vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, isec_prelim, ar, &
+                                           &  r_no2_nox_season, ibroncat, nemcat_road, emcat_road, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, &
                                            &  z0_rcp, z0_metreg_rcp, kdeel, mb, vw10, temp_C, zm, koh, &
-                                           &  rations, rhno3_trj, rc_no, rhno2, rc_hno3, croutpri, rrno2nox, rhno3_rcp, &
+                                           &  rations, rhno3_trj, rc_no, rhno2, rc_hno3, croutpri, r_no2_nox_sec, r_no2_nox_year_bg_tra, rhno3_rcp, &
                                            &  rb_ms, ra_ms_4, ra_ms_zra, rc_user, routpri, vchem, rc_sec_trj, uh, rc_sec_rcp, rc_eff_rcp_4_pos, rb_rcp, &
                                            &  ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, z0_src, ol_src, uster_src, z0_tra, rc_eff_trj_4_pos, rc_eff_src_4_pos, &
                                            &  ra_src_4, rb_src, ra_trj_4, ra_trj_zra, rb_trj, rc_eff_rcp_4, nh3bg_rcp, nh3bgtra, &
-                                           &  so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
-        
+                                           &  so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, r_no2_nox, lroad_corr)
+                          if (error%debug) write(*,'(a,2(1x,i6,";"),13(1x,e12.5,";"))') 'ops_reken; receptor_nr, wind_sector, ozone_concentrations (ug/m3): ',ircp, isec_prelim, o3bg_rcp(isec_prelim), o3bg_rcp(:)
+
                           ! Compute parameters needed for dry deposition, wet deposition and chemical conversion;
                           ! not only deposition velocities, but also source depletion factors and vertical gradient factor:
                           cratio = 1.
-                          CALL ops_depoparexp(kdeel, c, qbpri, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, &
+                          CALL ops_depoparexp(do_proc, kdeel, c, qbpri, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, &
                                            &  virty, gasv, istab, grof, xvghbr, xvglbr, &
                                            &  regenk, rint, buil, zf, isec1, iseiz, mb, disxx, radius, xl, onder, dg, &
                                            &  knatdeppar, scavcoef, irev, htt, xloc, xl100, vw10, pcoef, vchem, dispg, htot, &
@@ -678,10 +698,18 @@ LOGICAL                                          :: depudone                   !
                                            &  vd_eff_trj_zra, rkc, ri, vnatpri, cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, & 
                                            &  rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, rb_src, ra_trj_zra, rb_trj, vd_coarse_part, &
                                            &  xm, ym, zm, bx, by)
+                          if (error%debug) then
+                             write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',E1,',' ircp,istab, pr, twt, cratio, ri, vnatpri', &
+                                                                                                      ircp,istab, pr, twt, cratio, ri, vnatpri
+                             write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',E2,',' ircp,istab, rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, rb_src, ra_trj_zra, rb_trj', &
+                                                                                                      ircp,istab, rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, rb_src, ra_trj_zra, rb_trj                             
+                             write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',E3,',' ircp,istab, grad, utr, routpri, vd_eff_trj_zra, rkc, cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, vd_coarse_part', &
+                                                                                                      ircp,istab, grad, utr, routpri, vd_eff_trj_zra, rkc, cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, vd_coarse_part
+                          endif
                                            
                           ! Compute concentration, taking into account source depletion factors for dry deposition,
                           ! wet deposition and chemical conversion and the vertical gradient:
-                          CALL ops_conc_rek(ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp, &
+                          CALL ops_conc_rek(do_proc, ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp, &
                                          &  ra_rcp_4, ra_rcp_zra, rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder, &
                                          &  regenk, virty, ri, vw10, hbron, pcoef, rkc, disxx, vnatpri, vchem, radius, xl, xloc, &
                                          &  htot, twt, xvghbr, xvglbr, grad, frac, cdn, cq2, c, sdrypri(kdeel), &
@@ -697,14 +725,19 @@ LOGICAL                                          :: depudone                   !
                            ! Building effect for idep = 0:
                            c = c*buildingFact
                         ENDIF ! end condition idep (compute deposition)
-!
-!                       Update summed concentration for primary concentration
-!                                            
-                        cpri(ircp,kdeel) = cpri(ircp,kdeel) + (c*percvk)
-                        IF (idep) THEN ! rnox is not set if no deposition
-                          cno2(ircp) = cno2(ircp) + (c*rnox*percvk)
-                        ENDIF
 
+                        ! Update summed concentration for primary concentration:                                            
+                        cpri(ircp,kdeel) = cpri(ircp,kdeel) + (c*percvk)
+                        
+                        ! Add NOx contribution to cnox_sec or NO2 contribution to cno2:
+                        IF (do_proc%chem .and. icm .eq. 2) THEN 
+                           call ops_vchem_add_nox_no2(lroad_corr, iter, nrrcp, ircp, isec_prelim, c, r_no2_nox, percvk, &
+                                   lroad_corr_present, cnox_sec, cno2, percvk_sec, nsrc_sec, nstab_present)
+                           if (error%debug) &
+                              write(*,'(a,a,a,4(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),' F ',' ircp,iwd,istab,isec_prelim,disx,percvk,r_no2_nox,r_no2_nox,cnox_sec', & 
+                                 ircp,iwd,istab,isec_prelim,disx,percvk,r_no2_nox,r_no2_nox_sec(isec_prelim),cnox_sec(isec_prelim,ircp) 
+                        ENDIF
+                                 
                         ! Check for negative concentrations:
                         IF (c < 0. - EPS_DELTA) GOTO 1000
                       ENDIF                                          ! end condition source strength of particle class > 0
@@ -713,6 +746,10 @@ LOGICAL                                          :: depudone                   !
                 ENDIF                                                ! end condition source - receptor distance > 0
               ENDIF                                                  ! end condition percvk > 0 (fraction occurrence of meteo class)
             ENDDO                                                    ! end loop over stability classes
+            
+            if (error%debug .and. lroad_corr_present) & 
+            write(*,'(a,a,a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),' G ',' ircp,iwd,isec_prelim,disx,percvk,cnox_sec(isec_prelim,ircp):', & 
+                                                                               ircp,iwd,isec_prelim,disx,percvk,cnox_sec(isec_prelim,ircp)
           ENDDO                                                      ! end loop over sub-areas (y-direction)
         ENDDO                                                        ! end loop over sub-areas (x-direction)
       ENDDO                                                          ! end loop over sub receptors (y-direction)
@@ -761,9 +798,10 @@ CONTAINS
 ! DESCRIPTION        : Compute preliminary wind sector, not including wind shear.
 !                      Also get all source data for the current source
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, gxm, gym, xm, ym,  &
-                 &  grid, nk, nr, mrcp, nrcp, kk, nb, karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, idgr, qrv,   &
-                 &  qtr, rond, diameter, iwd, isec_prelim)
+SUBROUTINE wind_rek(bx, by, bdiam, bsterkte, bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, bemis_horizontal, &
+                  & bbuilding, btgedr, bdegr, bcatnr, bqrv, bqtr, gxm, gym, xm, ym, grid, nk, nr, mrcp, nrcp, kk, nb, & 
+                  & karea, larea, angle_SR_xaxis, disx, x, y, qob, qww, hbron, szopp, D_stack, V_stack, Ts_stack, & 
+                  & emis_horizontal, building, ibtg, idgr, ibroncat, qrv, qtr, rond, diameter, iwd, isec_prelim)
 
 use Binas, only: deg2rad, rad2deg
                  
@@ -786,6 +824,7 @@ LOGICAL,   INTENT(IN)                            :: bemis_horizontal           !
 type(Tbuilding), INTENT(IN)                      :: bbuilding                  ! structure with building parameters
 INTEGER*4, INTENT(IN)                            :: btgedr                     ! 
 INTEGER*4, INTENT(IN)                            :: bdegr                      ! 
+INTEGER*4, INTENT(IN)                            :: bcatnr                     ! emission category number
 REAL*4,    INTENT(IN)                            :: bqrv                       ! 
 REAL*4,    INTENT(IN)                            :: bqtr                       ! 
 REAL*4,    INTENT(IN)                            :: gxm                        ! 
@@ -818,6 +857,7 @@ LOGICAL,   INTENT(OUT)                           :: emis_horizontal            !
 type(Tbuilding), INTENT(OUT)                     :: building                   ! strucure with building parameters
 INTEGER*4, INTENT(OUT)                           :: ibtg                       ! 
 INTEGER*4, INTENT(OUT)                           :: idgr                       ! 
+INTEGER*4, INTENT(OUT)                           :: ibroncat                   ! emission category number
 REAL*4,    INTENT(OUT)                           :: qrv                        ! 
 REAL*4,    INTENT(OUT)                           :: qtr                        ! 
 INTEGER*4, INTENT(OUT)                           :: rond                       ! 
@@ -851,6 +891,7 @@ emis_horizontal = bemis_horizontal    ! horizontal outflow of emission
 building = bbuilding                  ! building parameters 
 ibtg     = btgedr                     ! diurnal variation code
 idgr     = bdegr                      ! particle size distribution code
+ibroncat = bcatnr                     ! emission category number
 
 ! Source strengths for space heating and traffic:
 qrv      = (bqrv/nb)/nr

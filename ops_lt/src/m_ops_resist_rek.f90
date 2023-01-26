@@ -21,32 +21,32 @@ module m_ops_resist_rek
 ! DESCRIPTION        : Compute resistances for dry deposition, in-cloud scavenging ratio and chemical conversion rate.
 !
 ! contains 
-! ops_resist_rek               : computes all resistances needed for dry deposition + chemical conversion rate + in-cloud scavenging ratio; calls all routines below.
-! ops_resist_ra_all            : compute aerodynamic resistances Ra at different locations and different heights
-! ops_resist_ra                : compute aerodynamic resistances Ra at a specific location and height
-! ops_resist_rb_all            : compute laminar boundary layer resistances Rb at different locations
-! ops_resist_rb                : compute laminar boundary layer resistance Rb at a specific location
-! ops_resist_rc_all            : compute canopy resistances Rc at different locations
-! ops_resist_rc                : compute canopy resistance Rc at a specific location [s/m] for acidifying components (SO2, NOx, NH3), calling DEPAC.
-! ops_resist_rain_out_scav_rate: compute rain out scavenging rate
-! ops_resist_rc_sec_trj        : compute aerodynamic resistance for secondary component for trajectory
-! ops_resist_rcaer             : compute aerodynamic resistance for aerosols at the receptor
+! ops_resist_rek                : computes all resistances needed for dry deposition + chemical conversion rate + in-cloud scavenging ratio; calls all routines below.
+! ops_resist_ra_all             : compute aerodynamic resistances Ra at different locations and different heights
+! ops_resist_ra                 : compute aerodynamic resistances Ra at a specific location and height
+! ops_resist_rb_all             : compute laminar boundary layer resistances Rb at different locations
+! ops_resist_rb                 : compute laminar boundary layer resistance Rb at a specific location
+! ops_resist_rc_all             : compute canopy resistances Rc at different locations
+! ops_resist_rc                 : compute canopy resistance Rc at a specific location [s/m] for acidifying components (SO2, NOx, NH3), calling DEPAC.
+! ops_resist_rain_out_scav_ratio: compute rain out scavenging ratio
+! ops_resist_rc_sec_trj         : compute aerodynamic resistance for secondary component for trajectory
+! ops_resist_rcaer              : compute aerodynamic resistance for aerosols at the receptor
 !-------------------------------------------------------------------------------------------------------------------------------
 
 implicit none
 
 contains
 
-SUBROUTINE ops_resist_rek(vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, ar, &
-                          rno2nox, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, &
+SUBROUTINE ops_resist_rek(disxx, vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, isec_prelim, ar, &
+                          r_no2_nox_season, ibroncat, nemcat_road, emcat_road, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, &
                           z0_rcp, z0_metreg_rcp, kdeel, mb, vw10, temp_C, zm, koh, &
-                          rations, rhno3_trj, rc_no, rhno2, rc_hno3, croutpri, rrno2nox, rhno3_rcp, &
+                          rations, rhno3_trj, rc_no, rhno2, rc_hno3, croutpri, r_no2_nox_sec, r_no2_nox_year_bg_tra, rhno3_rcp, &
                           rb_ms, ra_ms_4, ra_ms_zra, rc_user, routpri, vchem, rc_sec_trj, uh, rc_sec_rcp, rc_eff_rcp_4_pos, rb_rcp, &
                           ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, z0_src, ol_src, uster_src, z0_tra, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, &
                           rb_src, ra_trj_4, ra_trj_zra, rb_trj, rc_eff_rcp_4, nh3bg_rcp, nh3bgtra, &
-                          so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, rnox)
+                          so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, r_no2_nox, lroad_corr)
 
-use m_commonconst_lt, only: EPS_DELTA, CNAME
+use m_commonconst_lt, only: EPS_DELTA, CNAME, NSEK
 use m_ops_vchem
 use m_ops_meteo
 use m_commonconst_lib, only: NLU
@@ -58,6 +58,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_resist_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+REAL*4,    INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]
 REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 REAL*4,    INTENT(IN)                            :: vchemv                     ! light dependent part of chemical conversion rate
@@ -70,8 +71,13 @@ REAL*4,    INTENT(IN)                            :: rc_aer_ms                  !
 INTEGER*4, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
 INTEGER*4, INTENT(IN)                            :: istab                      ! index of stability class
 INTEGER*4, INTENT(IN)                            :: itra                       ! index of trajectory class
+INTEGER*4, INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 REAL*4,    INTENT(IN)                            :: ar                         ! proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr
-REAL*4,    INTENT(IN)                            :: rno2nox                    ! season dependent component of NO2/NOx ratio
+REAL*4,    INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
+REAL*4,    INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent [-]
+INTEGER*4, INTENT(IN)                            :: ibroncat                   ! emission category number
+INTEGER*4, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER*4, INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
 REAL*4,    INTENT(IN)                            :: vchemnh3                   ! chemical conversion rate for NH3 -> NH4 [%/h]
 type(Tvchem), INTENT(IN)                         :: vchem2                     ! structure for chemical conversion rates
 REAL*4,    INTENT(IN)                            :: hum                        ! relative humidity [%]
@@ -92,7 +98,7 @@ REAL*4,    INTENT(IN)                            :: rc_no                      !
 REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
 REAL*4,    INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
 REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                   
-REAL*4,    INTENT(IN)                            :: rrno2nox                   ! space varying component in ratio NO2/NOx 
+REAL*4,    INTENT(IN)                            :: r_no2_nox_year_bg_tra      ! component of NO2/NOx ratio which is based on yearly averaged background concentrations over a trajectory
 REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3_totaal] at the receptor [-]
 REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
 REAL*4,    INTENT(IN)                            :: ol_src                     ! Monin-Obukhov length at source [m]
@@ -137,7 +143,8 @@ REAL*4,    INTENT(INOUT)                         :: rb_rcp                     !
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
 REAL*4,    INTENT(OUT)                           :: vchem                      ! chemical conversion rate [%/h]
 REAL*4,    INTENT(OUT)                           :: uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
-REAL*4,    INTENT(OUT)                           :: rnox                       ! NO2/NOx ratio
+REAL*4,    INTENT(OUT)                           :: r_no2_nox                  ! NO2/NOx ratio
+LOGICAL,   INTENT(OUT)                           :: lroad_corr                 ! road correction needed for NO2/NOx ratio
 
 ! Canopy resistances Rc
 REAL*4,    INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]; 
@@ -175,13 +182,10 @@ rad_W_m2 = rad*2.78
 nwet = NINT((regenk * 0.4 + hum/59 - 0.4)**5*.3)                              ! 990324
 IF(nwet.gt.1) nwet=1
 
-! Compute rnox = [NO2]/[NOx] ratio:
-if (icm .eq. 2) call ops_vchem_ratio_no2_nox(iseiz,istab,rrno2nox,rno2nox,rnox)
-
-! Compute chemical conversion rate:
-call ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, vchem2, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, rnox, &
-               vchem)
-                     
+! Compute NO2/NOx ratio and chemical conversion rate:
+call ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, vchem2, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, &
+               isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, ibroncat, nemcat_road, emcat_road, r_no2_nox, lroad_corr, vchem)
+               
 ! Continue for a gas and in case of particles if depudone is false (to prevent repeating this for each particle size class):
 if ( gasv .OR. (.not.gasv .AND. .not.depudone)) THEN  ! this is equivalent with (gasv .OR. (.not.depudone))
 
@@ -209,12 +213,12 @@ IF (icm .eq. 3) THEN
 ENDIF
 
 ! Compute routpri = in-cloud scavenging ratio for primary component; (rout << rain-out = in-cloud) [-])
-call ops_resist_rain_out_scav_rate(icm,gasv,isec,kdeel,croutpri,rations,rnox,routpri)   
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)   
 
 ! Compute canopy resistances at different locations and different heights (effective Rc may depend on height via Ra):
 call ops_resist_rc_all(icm,isec,gasv,kdeel,iseiz,mb,gym,uster_tra,uster_rcp, &
                        nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, &
-                       ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,rnox,rhno2, &
+                       ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,r_no2_nox,rhno2, &
                        rc_eff_src_4_pos,rc_eff_trj_4_pos,rc_eff_rcp_4,rc_eff_rcp_4_pos)
 
 IF (isec) THEN
@@ -483,7 +487,7 @@ END SUBROUTINE ops_resist_rb
 !-------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rc_all(icm,isec,gasv,kdeel,iseiz,mb,gym,uster_tra,uster_rcp, &
                              nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, &
-                             ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,rnox,rhno2, &
+                             ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,r_no2_nox,rhno2, &
                              rc_eff_src_4_pos,rc_eff_trj_4_pos,rc_eff_rcp_4,rc_eff_rcp_4_pos)
 
 use m_commonconst_lt, only: EPS_DELTA, NPARTCLASS
@@ -512,7 +516,7 @@ LOGICAL,   INTENT(IN)                            :: gasv                       !
 REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
 REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
 REAL*4,    INTENT(IN)                            :: rc_user                    ! canopy resistance specified by user in control file [s/m]
-REAL*4,    INTENT(IN)                            :: rnox                       ! NO2/NOx ratio
+REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
 REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
 REAL*4,    INTENT(IN)                            :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
 REAL*4,    INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
@@ -533,11 +537,9 @@ REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4               !
 ! LOCAL VARIABLES
 INTEGER*4                                        :: iratns                     ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
 REAL*4                                           :: rc_dummy                   ! Rc value not used (dummy output) [s/m]
-REAL*4                                           :: r                          ! help variable = Ra + Rb [s/m]
 REAL*4                                           :: catm 
 REAL*4                                           :: c_ave_prev_nh3
 REAL*4                                           :: c_ave_prev_so2
-REAL*4                                           :: rc_hno2                    ! canopy resistance HNO2 [s/m]
 
 ! CONSTANTS
 REAL*4                                           :: RCDEEL(NPARTCLASS)         ! canopy resistance for particle size classes [s/m]
@@ -567,15 +569,17 @@ IF (isec) THEN
    
    ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
    iratns = 2
-         
-   !   1. Compute average canopy resistance Rc over trajectory.
-   !      In case of NH3 a resistance scheme with compensationpoints is used for which two extra inputs are needed.
-   !      c_ave_prev   air concentration averaged over a previous period (e.g. previous year or month) (ug/m3);
-   !                   we use here the NH3 background concentration along the trajectory
-   !      catm         actual atmospheric concentration (ug/m3); we use here the NH3 background concentration along the trajectory;
-   !      the output Rc is returned in rc_eff_trj_4_pos = effective Rc over the trajectory (positive value, no net re-emission allowed)
-   !
-   !      (17/24) = conversion factor ppb -> ug/m3.
+
+   !-----------------------------------------------------------------------         
+   ! 1. Compute average canopy resistance Rc over trajectory (DEPAC).
+   !-----------------------------------------------------------------------
+   ! In case of NH3 a resistance scheme with compensationpoints is used for which two extra inputs are needed.
+   ! c_ave_prev   air concentration averaged over a previous period (e.g. previous year or month) (ug/m3);
+   !              we use here the NH3 background concentration along the trajectory
+   ! catm         actual atmospheric concentration (ug/m3); we use here the NH3 background concentration along the trajectory;
+   ! the output Rc is returned in rc_eff_trj_4_pos = effective Rc over the trajectory (positive value, no net re-emission allowed)
+   ! 
+   ! (17/24) = conversion factor ppb -> ug/m3.
    catm           = nh3bgtra*17/24
    c_ave_prev_nh3 = nh3bgtra*17/24
    c_ave_prev_so2 = so2bgtra*64/24
@@ -584,42 +588,25 @@ IF (isec) THEN
                   &  ra_trj_4, rb_trj, rc_eff_trj_4_pos, rc_dummy)
    rc_eff_src_4_pos = rc_eff_trj_4_pos !
    
-   ! 2. Compute canopy resistance Rc near the receptor.
-   !    The same as above, but now we use the NH3 background concentration at the receptor as inputs;
-   !    the output Rc is returned in rc_eff_rcp_4_pos = effective Rc near the receptor (always positive). 
-   !    rc_eff_rcp_4 = effective Rc near the receptor (might become a negative value -> re-emission)
-   !    Note: catm and c_ave_prev are only used for NH3.
-   !    Conversion from ppb -> ug/m3 for nh3bg_rcp already done in ops_rcp_char.
-   !
+   !-----------------------------------------------------------------------         
+   ! 2. Compute canopy resistance Rc near the receptor (DEPAC).
+   !-----------------------------------------------------------------------         
+   ! The same as above, but now we use the NH3 background concentration at the receptor as inputs;
+   ! the output Rc is returned in rc_eff_rcp_4_pos = effective Rc near the receptor (always positive). 
+   ! rc_eff_rcp_4 = effective Rc near the receptor (might become a negative value -> re-emission)
+   ! Note: catm and c_ave_prev are only used for NH3.
+   ! Conversion from ppb -> ug/m3 for nh3bg_rcp already done in ops_rcp_char.
+   ! Note that DEPAC returns Rc(NO2) for icm = 2 (NOx).
    catm           = nh3bg_rcp
    c_ave_prev_nh3 = nh3bg_rcp
    c_ave_prev_so2 = so2bg_rcp
-   
    CALL ops_resist_rc(icm, iseiz, mb, gym ,temp_C, uster_rcp, rad_W_m2, hum, nwet, iratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_rcp_per, &
                   &  ra_rcp_4, rb_rcp, rc_eff_rcp_4_pos, rc_eff_rcp_4)
                   
-   !---------------------------------------------------------------------------------------------------
-   !  Compute Rc-values for mixture NOx = NO + NO2 + HNO2 and for mixture HNO3 + NO3-aerosol
-   !---------------------------------------------------------------------------------------------------
+   ! Compute canopy resistances for NOx mixture:
    IF (icm .EQ. 2) THEN     
-
-      ! NOx
-      ! The primary substance is calculated as NO2 (because emissions are specified as such) but contains in reality a mixture of
-      ! NO, NO2 and HNO2. The whole is (finally) mentioned NOx and specified in ppb. Therefore dry deposition velocities have to
-      ! be calculated as representative for the NO-NO2-HNO2 mixture
-      ! Rc for NOx is, uptil now, Rc for NO2 (from DEPAC); now we compute the effective Rc for the NOx mixture as a weighed mean
-      ! of the Rc-values for NO, NO2, HNO2.
-      !
-      !        1                [NO2]/[NOx]         (1-[NO2]/[NOx])        [HNO2]/[NOx]
-      ! ------------------- = ------------------ + -------------------- + --------------------
-      !  Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
-      !
-      r                = rb_ms + ra_ms_4
-      rc_hno2          = rc_so2_ms        ! Rc(HNO2) = Rc(SO2); here Rc(SO2) from meteo statistics is used, so not Rc(SO2) of DEPAC
-      rc_eff_rcp_4_pos = 1./(rnox/(rc_eff_rcp_4_pos+r)  + (1.-rnox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r   
-      rc_eff_rcp_4     = rc_eff_rcp_4_pos  ! for NOx no re-emission, only for NH3
-      rc_eff_trj_4_pos = 1./(rnox/(rc_eff_trj_4_pos+r) + (1.-rnox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r
-      rc_eff_src_4_pos = rc_eff_trj_4_pos  
+      call ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2, &
+                             rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_rcp_4, rc_eff_src_4_pos)
    ENDIF
 ELSE
    
@@ -648,13 +635,14 @@ END SUBROUTINE ops_resist_rc_all
 SUBROUTINE ops_resist_rc(icm, iseiz, mb, gym ,temp_C, uster, rad_W_m2, hum, nwet, iratns, catm, c_ave_prev_nh3, c_ave_prev_so2, &
                       & lu_per, ra, rb, rc_eff_pos, rc_eff)
 
-! Compute canopy resistance Rc [s/m] for acidifying components (SO2, NOx, NH3), calling DEPAC.
+! Compute canopy resistance Rc [s/m] for acidifying components (SO2, NOx, NH3), calling DEPAC;
+! DEPAC returns Rc(NO2) for icm = 2 (NOx).
 ! ops_resist_rc uses one or more representative months and computes the average over different land use classes 
 ! (via averaging of deposition velocities).
 
 use m_commonconst_lt, only: CNAME
-use m_depac318
 use m_commonconst_lib, only: NLU
+use m_depac
 
 IMPLICIT NONE
 
@@ -690,17 +678,22 @@ INTEGER*4                                        :: mnt                        !
 INTEGER*4, DIMENSION(2)                          :: mnt_select                 ! 
 INTEGER*4                                        :: luclass                    ! 
 REAL*4                                           :: som_vd_month               ! summed vd over representative months
-REAL*4                                           :: som_vd_eff_ave             ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
-REAL*4                                           :: som_vd_eff_ave_pos         ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
+REAL*4                                           :: som_vd_eff_ave              ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
+REAL*4                                           :: som_vd_eff_ave_pos          ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
 REAL*4                                           :: telmaand 
-REAL*4                                           :: rc_eff_ave                 ! canopy resistance, re-emission allowed, averaged over representative months
-REAL*4                                           :: rc_eff_ave_pos             ! canopy resistance, no re-emission, averaged over representative months
+REAL*4                                           :: rc_eff_ave                  ! canopy resistance, re-emission allowed, averaged over representative months
+REAL*4                                           :: rc_eff_ave_pos              ! canopy resistance, no re-emission, averaged over representative months
 REAL*4                                           :: rc_tot
 REAL*4                                           :: sinphi
 REAL*4                                           :: ccomp_tot
 REAL*4, PARAMETER                                :: catm_min = 0.1E-05
-REAL*4                                           :: rc_eff_depac               ! canopy resistance from depac, re-emission allowed [s/m];  
-
+REAL*4                                           :: rc_eff_depac                ! canopy resistance from depac, re-emission allowed [s/m];  
+REAL, PARAMETER                                  :: gamma_soil_water_fac = 430.0 ! factor in linear relation between gamma_soil and NH3
+                                                                               ! If positive or zero, gamma_soil = gamma_soil_water_fac
+                                                                               ! If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
+                                                                               ! This replaces the fix by MS for unrealistically high re-emissions
+                                                                               ! in runs with a single source. 
+                                                                               ! In OPS LT, gamma_soil = gamma_soil_water_fac = 430 as before.
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! Initialise sums:
@@ -714,21 +707,20 @@ DO luclass = 1,NLU
 
     telmaand = 0.0
     som_vd_month = 0.0
-!
-!  Select representative month(s)
-!
-! iseiz: 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
-!
-! Arable land and long term or year run; average over April and July;
-! April and July are representative months in order to be able to compute deposition over a whole year;
-! this has been tested against results for 12 separate months
-!
-! No arable land; choose one representative month;
-! long term , year run -> May
-! winter               -> November
-! summer               -> June
-! 1 month              -> use mb, which has been read in ops_read_meteo
-!
+    
+    !  Select representative month(s)
+    !
+    ! iseiz: 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+    !
+    ! Arable land and long term or year run; average over April and July;
+    ! April and July are representative months in order to be able to compute deposition over a whole year;
+    ! this has been tested against results for 12 separate months
+    !
+    ! No arable land; choose one representative month;
+    ! long term , year run -> May
+    ! winter               -> November
+    ! summer               -> June
+    ! 1 month              -> use mb, which has been read in ops_read_meteo
     SELECT CASE(iseiz)
     CASE(0, 1)
       IF (luclass == 2) THEN
@@ -744,55 +736,47 @@ DO luclass = 1,NLU
     CASE DEFAULT
       mnt_select=mb
     END SELECT
-!      Compute Rc only for mnt_select(1) and if necessary mnt_select(2) 
-!
+    
+    ! Compute Rc only for mnt_select(1) and if necessary mnt_select(2):
     DO mnt=1,12
       IF (mnt .EQ. mnt_select(1) .OR. mnt .EQ. mnt_select(2) ) THEN
-!
-!          Set approximate day of year:
-!
+
+        ! Set approximate day of year:
         day_of_year = mnt*30-15   
-!
-!          Set sin of solar elevation angle; 
-!          fit of sinphi is based on hourly data of global radiation (cloudy hours are filtered out)
-!
+
+        ! Set sin of solar elevation angle; 
+        ! fit of sinphi is based on hourly data of global radiation (cloudy hours are filtered out)
         sinphi = 0.00237*rad_W_m2 - .00000186*rad_W_m2*rad_W_m2  
-!
-!          Update month counter:
-! 
-       telmaand = telmaand+1
-!
-!           Compute canopy resistance Rc with DEPAC for icm = 1,2,3 (CNAM = 'SO2', 'NO2', 'NH3').
-!           DEPAC has 3 outputs:
-!           rc_tot      : total canopy resistance Rc (is not used here)
-!           ccomp_tot   : total compensation point (is not used here)
-!           rc_eff_depac: effective Rc (includes effect of compensation point); rc_eff_depac depends on the value of Ra and Rb.
-!          
-        CALL depac318(CNAME(icm,5), day_of_year, gym ,temp_C, uster, rad_W_m2, sinphi, hum, nwet, luclass, iratns,   & 
-                    & rc_tot, c_ave_prev_nh3, c_ave_prev_so2, max(catm,catm_min), ccomp_tot, ra, rb, rc_eff_depac)
-!
-!          Detect missing values and set default values
-!
+        
+        ! Update month counter:
+        telmaand = telmaand+1
+
+        ! Compute canopy resistance Rc with DEPAC for icm = 1,2,3 (CNAME = 'SO2', 'NO2', 'NH3').
+        ! DEPAC has 3 outputs:
+        ! rc_tot      : total canopy resistance Rc (is not used here)
+        ! ccomp_tot   : total compensation point (is not used here)
+        ! rc_eff_depac: effective Rc (includes effect of compensation point); rc_eff_depac depends on the value of Ra and Rb.
+        CALL depac(CNAME(icm,5), day_of_year, gym ,temp_C, uster, rad_W_m2, sinphi, hum, nwet, luclass, iratns,   & 
+                    & rc_tot, c_ave_prev_nh3, c_ave_prev_so2, max(catm,catm_min), gamma_soil_water_fac, ccomp_tot, ra, rb, rc_eff_depac)
+
+        ! Detect missing values and set default values
         IF (rc_eff_depac  .EQ. -9999) rc_eff_depac = 10000
       
         som_vd_month = som_vd_month + 1/(rc_eff_depac + ra + rb)
       ENDIF
     ENDDO ! loop over representative months
-!
-!   Compute average over selected months:
-!
+
+    ! Compute average over selected months:
     rc_eff_ave  = telmaand / som_vd_month  - (ra + rb)
-!
-!   Negative values for effective Rc (re-emission) is not allowed in _pos variables; reset Rc = 1000 
-! 
+
+    ! Negative values for effective Rc (re-emission) is not allowed in _pos variables; reset Rc = 1000:
     IF (rc_eff_ave .GT. 0 ) THEN
       rc_eff_ave_pos = rc_eff_ave
     ELSE
       rc_eff_ave_pos = 1000  
     ENDIF
-!
-!      Compute average weighted conductance over the landuse types
-!
+
+    ! Compute average weighted conductance over the landuse types:
     som_vd_eff_ave_pos = som_vd_eff_ave_pos + lu_per(luclass)/sum(lu_per(1:NLU)) * 1/(rc_eff_ave_pos + (ra + rb))
     som_vd_eff_ave     = som_vd_eff_ave     + lu_per(luclass)/sum(lu_per(1:NLU)) * 1/(rc_eff_ave     + (ra + rb))
   ENDIF
@@ -803,6 +787,53 @@ rc_eff_pos = 1/som_vd_eff_ave_pos - (ra + rb)
 rc_eff     = 1/som_vd_eff_ave     - (ra + rb)
 
 END SUBROUTINE ops_resist_rc
+
+!-----------------------------------------------------------------------
+SUBROUTINE ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2, &
+                             rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_rcp_4, rc_eff_src_4_pos)
+
+! Compute canopy resistance for NOx mixture.                            
+! The primary substance is calculated as NO2 (because emissions are specified as such) but contains in reality a mixture of
+! NO, NO2 and HNO2. The whole is (finally) mentioned NOx and specified in ppb. Therefore dry deposition velocities have to
+! be calculated as representative for the NO-NO2-HNO2 mixture
+! Rc for NOx is, uptil now, Rc for NO2 (from DEPAC); now we compute the effective Rc for the NOx mixture as a weighed mean
+! of the Rc-values for NO, NO2, HNO2.
+
+! Input arguments:
+REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL*4,    INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
+REAL*4,    INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
+REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
+
+! Input/output:
+REAL*4,    INTENT(INOUT)                         :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m]
+                                                                               ! (i) for NO2, (o): for NOx
+REAL*4,    INTENT(INOUT)                         :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+                                                                               ! (i) for NO2, (o): for NOx
+! Output:
+REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m]
+REAL*4,    INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
+
+! Local:
+REAL*4                                           :: r                          ! help variable = Ra + Rb [s/m]
+REAL*4                                           :: rc_hno2                    ! canopy resistance HNO2 [s/m]
+
+! Compute canopy resistance for mixture NOx, based on weighed average of deposition velocities of NO2, NO and HNO2
+!
+!        1                [NO2]/[NOx]         (1-[NO2]/[NOx])        [HNO2]/[NOx]
+! ------------------- = ------------------ + -------------------- + --------------------
+!  Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
+!
+r                = rb_ms + ra_ms_4
+rc_hno2          = rc_so2_ms         ! Rc(HNO2) = Rc(SO2); here Rc(SO2) from meteo statistics is used, so not Rc(SO2) of DEPAC
+rc_eff_rcp_4_pos = 1./(r_no2_nox/(rc_eff_rcp_4_pos+r)  + (1.-r_no2_nox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r   
+rc_eff_rcp_4     = rc_eff_rcp_4_pos  ! for NOx no re-emission, only for NH3
+rc_eff_trj_4_pos = 1./(r_no2_nox/(rc_eff_trj_4_pos+r) + (1.-r_no2_nox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r
+rc_eff_src_4_pos = rc_eff_trj_4_pos  
+
+END SUBROUTINE ops_resist_rc_nox
 
 !-------------------------------------------------------------------------------------------------------------------------------
 REAL FUNCTION fpsih(eta)
@@ -839,11 +870,11 @@ ENDIF
 END FUNCTION fpsih
 
 !----------------------------------------------------------------------------------------
-SUBROUTINE ops_resist_rain_out_scav_rate(icm,gasv,isec,kdeel,croutpri,rations,rnox,routpri)   
+SUBROUTINE ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)   
 
-! Compute in-cloud scavenging ratio for acidifying component; (rout << rain-out = in-cloud) [-])
+! Compute in-cloud scavenging ratio (rout << rain-out = in-cloud) [-])
 
-use m_commonconst_lt, only: NPARTCLASS
+USE m_commonconst_lt, only: NPARTCLASS
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        ! component number
@@ -852,7 +883,7 @@ LOGICAL,   INTENT(IN)                            :: isec                       !
 INTEGER*4, INTENT(IN)                            :: kdeel                      ! index of particle size class
 REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
 REAL*4,    INTENT(IN)                            :: rations                    ! NH3/SO2 ratio over trajectory
-REAL*4,    INTENT(IN)                            :: rnox                       ! NO2/NOx ratio
+REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
@@ -885,7 +916,7 @@ IF (isec) THEN
    ELSE IF (icm .EQ. 2) THEN
    
       ! icm = 2: NOx
-      routpri = croutpri*rnox  ! depends on NO2/NOx ratio
+      routpri = croutpri*r_no2_nox  ! depends on NO2/NOx ratio
    
    ELSE IF (icm .EQ. 3) THEN
    
@@ -909,7 +940,7 @@ ELSE
    ENDIF
 ENDIF
 
-END SUBROUTINE ops_resist_rain_out_scav_rate
+END SUBROUTINE ops_resist_rain_out_scav_ratio
 
 !----------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rc_sec_trj(icm,ra_ms_4,rb_ms,rc_aer_ms,rc_hno3,rhno3_trj,rc_sec_trj)

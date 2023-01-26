@@ -19,6 +19,7 @@
 !             depac311 (for NH3) and depac33 (for other species).
 !             In this version, only depac311 has been retained, with some 
 !             bug fixes,
+! 2021-09-06: version 4.3 (see below for details)
 !************************************************************************
 
 !************************************************************************
@@ -373,11 +374,24 @@
 !                depac311 (for NH3) and depac33 (for other species).
 !                In this version, only depac311 has been retained, with some 
 !                bug fixes,
+!
+!   2021-07-07   Merge DEPAC versions used in ST & LT, move to OPS lib
+!   v4.0         Codeposition/compensation point NH3 by Roy Wichink Kruit
+!   v4.1         Enhancements from DEPAC OPS ST, small changes:
+!                * remove get_version_depac
+!                * add debugging info from ST via iopt_debug switch
+!                * rename (m_)depac318 to (m_)depac
+!   v4.2         Bugfix rc_temp_water
+!   v4.3         gamma_soil_c_fac : replace by input parameter gamma_soil_water_fac. 
+!                If positive or zero, gamma_soil = gamma_soil_water_fac
+!                If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
+!                This replaces the fix by Marina Sterk for unrealistically high
+!                re-emissions in runs with a single source.
 !                
 !************************************************************************
 !************************************************************************************
 !
-! module m_depac318, DEPAC version 3.18
+! module m_depac, DEPAC version 4.3
 !
 !************************************************************************************
 
@@ -1283,6 +1297,8 @@ else
    gsoil_eff = 0.0
 endif
 
+if (iopt_debug .ge. 1) write(*,'(a,a,i4,5(a,E13.6E2))') 'DEPAC',' nwet ', nwet, ' rsoil_eff ', rsoil_eff, ' rsoil(lu) ', rsoil(lu), ' rinc ', rinc, ' rsoil_wet ', rsoil_wet, ' gsoil_eff ', gsoil_eff
+
 end subroutine rc_gsoil_eff
 
 !-------------------------------------------------------------------
@@ -1356,7 +1372,7 @@ end subroutine rc_rctot
 !-------------------------------------------------------------------
 ! rc_comp_point: calculate compensation points (stomata, external leaf)
 !-------------------------------------------------------------------
-subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 
 ! Calculate ccomp, i.e. compensation point for NH3, for different deposition path ways
 ! (external leaf, stomata, soil), according to Roy Wichink Kruit article submitted 2009 Atm. Env.
@@ -1385,23 +1401,28 @@ subroutine rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev
 !
 
 ! Input/output variables:
-character(len=*), intent(in)  :: compnam      ! component name
-                                              ! 'HNO3','NO','NO2','O3','SO2','NH3'
-integer, intent(in)           :: lu           ! land use type, lu = 1,...,9
-integer, intent (in)          :: day_of_year  ! day of year 
-real, intent(in)              :: t            ! temperature (C) 
-real, intent(in)              :: catm         ! actual atmospheric concentration (ug/m3)
-real, intent(in)              :: c_ave_prev_nh3   ! air concentration averaged over a previous
-                                                  ! period (e.g. previous year or month) (ug/m3) 
-!real, optional,  intent(in)   :: c_ave_prev_so2   ! air concentration averaged over a previous
-real, intent(in)   :: c_ave_prev_so2   ! air concentration averaged over a previous
-                                                  ! period (e.g. previous year or month) (ug/m3)
-real, intent(in)              :: gw           ! external leaf conductance (m/s) 
-real, intent(in)              :: gstom        ! stomatal conductance (m/s)
-real, intent(in)              :: gsoil_eff    ! effective soil conductance (m/s)
-real, intent(in)              :: gc_tot       ! total canopy conductance (m/s)
-real, intent(out)             :: ccomp_tot    ! total compensation point (weighed average of 
-                                              ! separate compensation points) (ug/m3)
+character(len=*), intent(in)  :: compnam              ! component name
+                                                      ! 'HNO3','NO','NO2','O3','SO2','NH3'
+integer, intent(in)           :: lu                   ! land use type, lu = 1,...,9
+integer, intent (in)          :: day_of_year          ! day of year 
+real, intent(in)              :: t                    ! temperature (C) 
+real, intent(in)              :: catm                 ! actual atmospheric concentration (ug/m3)
+real, intent(in)              :: c_ave_prev_nh3       ! air concentration averaged over a previous
+                                                      ! period (e.g. previous year or month) (ug/m3) 
+real, intent(in)              :: c_ave_prev_so2       ! air concentration averaged over a previous
+                                                      ! period (e.g. previous year or month) (ug/m3)
+real, intent(in)              :: gamma_soil_water_fac ! factor in linear relation between gamma_soil and NH3
+                                                      ! If positive or zero, gamma_soil = gamma_soil_water_fac
+                                                      ! If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
+                                                      ! This replaces the fix by Marina Sterk for unrealistically high
+                                                      ! re-emissions in runs with a single source.
+                                                      
+real, intent(in)              :: gw                   ! external leaf conductance (m/s) 
+real, intent(in)              :: gstom                ! stomatal conductance (m/s)
+real, intent(in)              :: gsoil_eff            ! effective soil conductance (m/s)
+real, intent(in)              :: gc_tot               ! total canopy conductance (m/s)
+real, intent(out)             :: ccomp_tot            ! total compensation point (weighed average of 
+                                                      ! separate compensation points) (ug/m3)
 
 ! Variables from module:
 ! gamma_stom_c_fac: factor in linear relation between gamma_stom and NH3 air concentration.
@@ -1420,15 +1441,13 @@ real :: co_dep_fac ! co-deposition factor
 
 real   , dimension(nlu)    :: gamma_stom_c_fac   ! factor in linear relation between gamma_stom and NH3
                                                  ! air concentration; gamma_stom = [NH4+]/[H+] ratio in apoplast
-real   , dimension(nlu)    :: gamma_soil_c_fac   ! factor in linear relation between gamma_soil and NH3
-                                                 ! air concentration; gamma_soil = [NH4+]/[H+] ratio in soil
+                                                 
 !
 !                      grass arable  perm. conif. decid.  water  urban  other desert
 !                              land  crops forest forest
 !                          1      2      3      4      5      6      7      8      9    
 ! for current parametrization gamma_stom_c_fac is independent of lu
 data gamma_stom_c_fac /  362,   362,   362,   362,   362,  -999,  -999,   362,  -999 /  
-data gamma_soil_c_fac / -999,  -999,  -999,  -999,  -999,   430,  -999,  -999,  -999 /
 
 select case(trim(compnam))
 !case('HNO3') this routine is not called for HNO3
@@ -1482,27 +1501,34 @@ case('NH3')
       cw = 0.0
    endif
 
-
    ! Soil compensation point:
-   if (c_ave_prev_nh3 .gt. 0. .and. gamma_soil_c_fac(lu) > 0) then
-        if (lu .eq. 6)then
-          ! gamma_soil for water is determined to be 430 based on Waterbase data, 
-          ! here it is 'calculated' analogous to the other gamma_stom 
-          gamma_soil = gamma_soil_c_fac(lu)*1.
-        else
-          ! gamma_soil ([NH4+]/[H+] ratio in soil) is linearly dependent on an 
-          ! averaged air concentration in a previous period:
-          gamma_soil = gamma_soil_c_fac(lu)*c_ave_prev_nh3
-        endif
-      ! calculate soil compensation point for NH3 in ug/m3:
-      csoil = gamma_soil*tfac
+   ! gamma_soil for water is determined to be 430 based on a yearly average of Waterbase data, 
+   ! using locations along the coast. Here, it can be changed from this default
+   ! value by the user of DEPAC.
+   if (lu .eq. 6) then
+       if (gamma_soil_water_fac >= 0) then
+           ! use the supplied value for gamma_soil
+           gamma_soil = gamma_soil_water_fac
+       else
+           ! if negative, gamma_soil ([NH4+]/[H+] ratio in soil) is linearly dependent on an 
+           ! averaged air concentration in a previous period:
+           gamma_soil = abs(gamma_soil_water_fac)*c_ave_prev_nh3
+       endif
+       ! calculate soil compensation point for NH3 in ug/m3:
+       csoil = gamma_soil*tfac
    else
-      ! No concentration in previous period or no gamma-c factor:
-      csoil = 0.0
+       ! Other land use than water, or:
+       ! No concentration in previous period or no gamma-c factor:
+       csoil = 0.0
    endif 
-   
+
    ! Total compensation point is weighed average of separate compensation points:
    ccomp_tot = (gw/gc_tot)*cw + (gstom/gc_tot)*cstom + (gsoil_eff/gc_tot)*csoil
+
+   if (iopt_debug .ge. 1) write(*,'(14(a,E17.10E2))') 'DEPAC ccomp_tot ', ccomp_tot, ' cw ', cw, ' cstom ', cstom, ' csoil ', csoil, ' gc_tot ', gc_tot, ' gw ', gw, &
+                          ' gstom ', gstom, ' gsoil_eff ', gsoil_eff, ' tk ', tk, ' tfac ', tfac, ' c_ave_prev_nh3 ', c_ave_prev_nh3, ' c_ave_prev_so2 ', c_ave_prev_so2, &
+                          ' gamma_soil_water_fac ', gamma_soil_water_fac
+
    
 case default
    print *, 'error in subroutine rc_comp_point '
@@ -1608,6 +1634,8 @@ else
    rc_eff = -9999. ! no flux, resistance undefined
 endif
 
+if (iopt_debug .ge. 1) write(*,'(a,5(a,f16.7))') 'DEPAC',' ra ', ra, ' rb ', rb, ' ccomp_tot ', ccomp_tot, ' rc_tot ', rc_tot, ' catm ', catm
+
 return
 end subroutine rc_comp_point_rc_eff
 
@@ -1656,8 +1684,7 @@ end function missing
 
 end module m_depac_private
 
-!************************************************************************************
-module m_depac318
+module m_depac
 
 use m_depac_private
 
@@ -1665,35 +1692,9 @@ implicit none
       
 ! Make all variables and procedures private, except depac
 PRIVATE
-PUBLIC depac318
-PUBLIC get_version_depac
+PUBLIC depac
 
 contains
-
-!-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE: get_version_depac
-!-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE get_version_depac(dll_version, dll_date)
-
-!DEC$ ATTRIBUTES DLLEXPORT:: get_version_depac
-
-! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
-PARAMETER     (ROUTINENAAM = 'get_version_depac')
-
-! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: dll_version                ! 
-CHARACTER*(*), INTENT(OUT)                       :: dll_date                   ! 
-
-!-------------------------------------------------------------------------------------------------------------------------------
-
-! get_version_depac is not used anymore, version not updated
-
-dll_version="1.0.0"
-dll_date="28 jun 2012"
-
-END SUBROUTINE get_version_depac
-
 
 !**********************************************************************************
 !
@@ -1704,11 +1705,11 @@ END SUBROUTINE get_version_depac
 !-------------------------------------------------------------------
 ! depac: compute total canopy (or surface) resistance Rc for gases
 !-------------------------------------------------------------------
-subroutine depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-                   c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-                   ra, rb, rc_eff)
+subroutine depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
+                 c_ave_prev_nh3, c_ave_prev_so2, catm, gamma_soil_water_fac, ccomp_tot, &
+                 ra, rb, rc_eff)
 
-!DEC$ ATTRIBUTES DLLEXPORT:: depac318
+!DEC$ ATTRIBUTES DLLEXPORT:: depac
 
 ! The last two rows of depac arguments are optional:
 !
@@ -1750,6 +1751,11 @@ real, optional  , intent(in)  :: c_ave_prev_nh3   ! air concentration averaged o
 real, optional   , intent(in) :: c_ave_prev_so2   ! air concentration averaged over a previous
                                                   ! period (e.g. previous year or month) (ug/m3)
 real, optional  , intent(in)  :: catm         ! actual atmospheric concentration (ug/m3)
+real, optional  , intent(in)  :: gamma_soil_water_fac ! factor in linear relation between gamma_soil and NH3
+                                                      ! If positive or zero, gamma_soil = gamma_soil_water_fac
+                                                      ! If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
+                                                      ! This replaces the fix by Marina Sterk for unrealistically high
+                                                      ! re-emissions in runs with a single source.
 real, optional  , intent(out) :: ccomp_tot    ! total compensation point (ug/m3)
 
 ! optional arguments needed only if an effective Rc (based on compensation points) is computed;
@@ -1804,7 +1810,7 @@ if (.not. ready) then
    
    ! Compensation points:
    if (present(c_ave_prev_nh3) .and. present(c_ave_prev_so2) .and. present(catm) .and. present(ccomp_tot)) then
-      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+      call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 
       ! Effective Rc based on compensation points:
       if (present(rc_eff)) then
@@ -1813,6 +1819,6 @@ if (.not. ready) then
    endif
 endif
 
-end subroutine depac318
+end subroutine depac
 
-end module m_depac318
+end module m_depac

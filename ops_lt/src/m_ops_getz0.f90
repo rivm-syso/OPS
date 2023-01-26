@@ -26,8 +26,8 @@ contains
 SUBROUTINE ops_getz0(xr, yr, z0nlgrid, z0eurgrid, z0, error)
 
 use m_aps
-use m_geoutils
-use m_commonconst_lt
+USE m_geoutils
+USE m_commonconst_lt
 Use m_error
 Use m_commonfile, only: fu_log
 

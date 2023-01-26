@@ -38,10 +38,7 @@ IMPLICIT NONE
 !               error      (TError object). Assigned when an error occurred.
 ! RESULT      : Logical.    False if an error was detected.
 ! REMARK      : GetKeyValue is generic for the following types:
-!                           strings (character*(*))
-!                           integer*4
-!                           real*4
-!                           logical
+!                           integer, integer followed by a string, real, logical, string
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE GetKeyValue
    MODULE PROCEDURE get_key_integer
@@ -64,13 +61,13 @@ END INTERFACE
 !               error      (TError object). Assigned when an error occurred.
 ! RESULT      : Logical.    False if an error was detected.
 ! REMARK      : GetCheckedKey is generic for the following types:
-!                           integer*4
-!                           real*4
-! REMARK2     : A special checked key instance checks filepaths and has a different profile (isrequired is not passed):
-!             : parname    (character*(*)). Name of the parameter. checkdefine(logical). If flag is set: test whether name was
-!                           entered.
+!                           real, integer, integer array, string
+! REMARK2     : For integer array, isrequired is not a argument; an empty string after parnam returns nword = 0. 
+! REMARK3     : A special checked key instance (check_exist_file) checks filepaths and has a different profile (isrequired is not passed):
+!             : parname    (character*(*)). Name of the parameter. 
+!               checkdefine(logical). If flag is set: test whether name was entered.
 !               checkexists(logical) If flag is set: test whether file path is present, otherwise an error is returned.
-!               value      (character*(*)) Output: the path of the file. the parameter.
+!               value      (character*(*)) Output: the path of the file. 
 !               error      (TError object). Assigned when an error occurred.
 !-------------------------------------------------------------------------------------------------------------------------------
 INTERFACE GetCheckedKey
@@ -574,9 +571,9 @@ END SUBROUTINE cutfromstring
 ! SUBROUTINE           : check_range_real
 ! DESCRIPTION          : This function checks a string for the name of the parameter. Then the real value of the parameter is
 !                        extracted and assigned to the parameter.
-!                        If no value is extracted a default is set. If a value is extracted it is checked whether the value lies
-!                        within input limits.
-! RESULT               : False if an error was detected.
+!                        If no value is extracted a default MISVALNUM is returned. 
+!                        If isrequired = true, it is checked whether the value lies within input limits.
+! RESULT               : False if a range error was detected; other errors are set in error%haserror. 
 ! CALLED FUNCTIONS     : get_key
 !-------------------------------------------------------------------------------------------------------------------------------
 FUNCTION check_range_real(parname,lower,upper,isrequired, value, error)
@@ -640,7 +637,7 @@ END FUNCTION check_range_real
 ! DESCRIPTION          : This function checks a string for the name of the parameter. Then the integer value of the parameter is
 !                        extracted and assigned to the parameter. If no value is extracted a default is set. If a value is
 !                        extracted it is checked whether the value lies within input limits.
-! RESULT               : False if an error was detected.
+! RESULT               : False if a range error was detected; other errors are set in error%haserror. 
 ! CALLED FUNCTIONS     : GetKeyValue
 !-------------------------------------------------------------------------------------------------------------------------------
 FUNCTION check_range_integer(parname, lower, upper, isrequired, value, error)
@@ -700,14 +697,16 @@ check_range_integer = .FALSE.
 END FUNCTION check_range_integer
 
 !-------------------------------------------------------------------------------------------------------------------------------
-! FUNCTION             : check_range_integer
-! DESCRIPTION          : This function checks a string for the name of the parameter. Then the integer value of the parameter is
-!                        extracted and assigned to the parameter. If no value is extracted a default is set. If a value is
-!                        extracted it is checked whether the value lies within input limits.
-! RESULT               : False if an error was detected.
+! FUNCTION             : check_range_integer_array
+! DESCRIPTION          : This function checks a string for the name of the parameter. 
+!                        Next an integer array value of the parameter is extracted and assigned to the parameter. 
+!                        If there is an empty string (no value) after the parameter name, then nword = 0 is returned i
+!                        and value(*) is unchanged.
+!                        There is no logical "isrequired" in this case, because an empty string is allowed (nword = 0).
+! RESULT               : False if a range error was detected; other errors are set in error%haserror. 
 ! CALLED FUNCTIONS     : GetKeyValue
 !-------------------------------------------------------------------------------------------------------------------------------
-FUNCTION check_range_integer_array(parname, lower, upper, isrequired, nword, value, error)
+FUNCTION check_range_integer_array(parname, lower, upper, nword, value, error)
 
 !DEC$ ATTRIBUTES DLLEXPORT:: check_range_integer_array
 
@@ -715,11 +714,10 @@ FUNCTION check_range_integer_array(parname, lower, upper, isrequired, nword, val
 CHARACTER*(*), INTENT(IN)                        :: parname                    ! name of parameter looking for
 INTEGER*4, INTENT(IN)                            :: lower                      ! lower limit of value
 INTEGER*4, INTENT(IN)                            :: upper                      ! upper limit of value
-LOGICAL,   INTENT(IN)                            :: isrequired                 ! whether a value is required
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER,   INTENT(OUT)                           :: nword                      ! number of word read from inputline
-INTEGER*4, INTENT(OUT)                           :: value(*)                   ! integer value extracted
+INTEGER,   INTENT(OUT)                           :: nword                      ! number of words read from inputline
+INTEGER*4, INTENT(OUT)                           :: value(*)                   ! array with integer values extracted
 TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
@@ -727,98 +725,92 @@ INTEGER                                          :: beginpos                   !
 INTEGER                                          :: endpos                     ! end-position of a single word
 INTEGER                                          :: endlpos                    ! end-position of a line
 INTEGER                                          :: i                          ! loop-teller
-LOGICAL                                          :: first                      ! TRUE if character is blank
+LOGICAL                                          :: is_digit                   ! character read is a digit
+LOGICAL                                          :: end_of_line                ! end of line has been reached
+LOGICAL                                          :: found_new_word             ! a new word has been found
+LOGICAL                                          :: isdefault                  ! output of GetNumber indicating that an empty string was input
+INTEGER*4                                        :: value1                     ! one integer value extracted from input line
 CHARACTER*512                                    :: string                     ! Help-string
 
 ! RESULT
 LOGICAL                                          :: check_range_integer_array  ! 
 !-------------------------------------------------------------------------------------------------------------------------------
-!
-! Retrieve the integer array value for parname.
-!
+
+! Retrieve the integer array value for parname:
 check_range_integer_array = .TRUE.
 IF (checkparname(parname,string , error)) THEN
-!
-! Initialisation
-!
-string  = adjustl(string)
-endlpos = len_trim(string)
-nword   = 0
-first   = .TRUE.
-!
-! Look for number of numbers in string
-!
-DO i = 1,endlpos
-  IF (string(i:i) == "                                                         ! ") GOTO 101
-  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first) THEN
-    nword = nword + 1
-    first = .FALSE.
-  ELSE
-    IF ((ichar(string(i:i)) == ichar(" ")) .and. .not.first) first = .TRUE.
-  ENDIF
-ENDDO
-101 CONTINUE
-!
-! Fill array with the right numbers.
-!
-nword    = 1
-beginpos = 1
-endpos   = 1
-first    = .TRUE.
-DO i = 1,endlpos
-  IF (string(i:i) == "                                                         ! ") GOTO 102
-  IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. first) THEN
-    beginpos = i
-    first    = .FALSE.
-  ELSE
-    IF ((ichar(string(i:i)) == ichar(" ")) .and. .not.first) THEN
-      first  = .TRUE.
-      endpos = i-1
-      value(nword) = inum(string(beginpos:endpos))
-!
-!     Check whether a value is required. If not the default MISVALNUM is accepted.
-!
-      IF (isrequired.OR.value(nword).NE.MISVALNUM) THEN
-!
-!       Check lower limit.
-!
-        IF (value(nword).LT.lower) THEN
-          CALL SetError('Value read is below allowed lower limit', error)
-          GOTO 1000
-        ENDIF
-!
-!       Check upper limit.
-!
-        IF (value(nword).GT.upper) THEN
-          CALL SetError('Value read is above allowed upper limit', error)
-          GOTO 1000
-        ENDIF
-        nword    = nword + 1
-      ENDIF
-    ENDIF
-  ENDIF
-ENDDO
-value(nword) = inum(string(beginpos:endlpos))
-102 CONTINUE
-!
-! Check whether a value is required. If not the default MISVALNUM is accepted.
-!
-IF (isrequired.OR.value(nword).NE.MISVALNUM) THEN
-!
-! Check lower limit.
-!
-  IF (value(nword).LT.lower) THEN
-    CALL SetError('Value read is below allowed lower limit', error)
-    GOTO 1000
-  ENDIF
-!
-! Check upper limit.
-!
-  IF (value(nword).GT.upper) THEN
-    CALL SetError('Value read is above allowed upper limit', error)
-    GOTO 1000
-  ENDIF
-ENDIF
+   
+   ! Initialisation:
+   string  = adjustl(string)
+   endlpos = len_trim(string)
+
+   ! Fill array with the right numbers:
+   IF (endlpos > 0) THEN
+      nword    = 0
+      beginpos = 1
+      endpos   = 0
+      is_digit = .FALSE.
+      end_of_line = .FALSE.
+      
+      ! Loop over characters:
+      i = 0
+      DO WHILE (.not. end_of_line)
+         
+         ! Check for end of line (end position or comment delimiter):
+         i = i + 1
+         end_of_line = ((i == endlpos+1) .or. (string(i:i) == "!"))
+
+         IF (end_of_line) THEN        
+            ! Define end position of last word:
+            endpos = i-1
+         ELSE
+            
+            ! Define begin position of word if first numerical digit has been found (previous character was not a digit):
+            IF ((ichar(string(i:i)) >= ichar("0") .and. ichar(string(i:i)) <= ichar("9")) .and. .not. is_digit) THEN
+               beginpos       = i
+               found_new_word = .TRUE. 
+               is_digit       = .TRUE.
+            ELSE
+               ! Define end position of word, if first space has been found after word (previous character was a digit):
+               IF ((ichar(string(i:i)) == ichar(" ")) .and. is_digit) THEN
+                  is_digit = .FALSE.
+                  endpos   = i-1
+               ELSE 
+                  CONTINUE ! character is next space or next digit or non-digit
+               ENDIF
+            ENDIF
+         ENDIF
+         
+         ! If a non-empty word has been found:
+         IF (found_new_word .and. (endpos >= beginpos)) THEN
+         
+            ! Extract value:
+            CALL GetNumber(string(beginpos:endpos), value1, isdefault, error) ! note: string is non-empty, so isdefault = .false.
+            IF (error%haserror) GOTO 1001
+
+            ! Check lower limit:
+            IF (value1.LT.lower) THEN
+              CALL SetError('Value read is below allowed lower limit', error)
+              GOTO 1000
+            ENDIF
+            
+            ! Check upper limit:
+            IF (value1.GT.upper) THEN
+              CALL SetError('Value read is above allowed upper limit', error)
+              GOTO 1000
+            ENDIF
+            
+            ! Check succesfull, store value in array:
+            nword          = nword + 1
+            value(nword)   = value1
+            found_new_word = .false. 
+            ! write(*,*) '1 ',nword,value(nword),trim(string),'--',string(beginpos:endlpos),'--'
+         ENDIF ! check if word has been found
+      ENDDO ! Loop over characters
+   ELSE
+      ! endlpos = 0, empty string after parname:
+      nword = 0
+   ENDIF
 ENDIF
 
 RETURN
@@ -826,9 +818,17 @@ RETURN
 ! Range error occurred. Append some parameters to error.
 !
 1000 CALL ErrorParam( 'parameter', parname, error)
-CALL ErrorParam( 'value read', value(nword), error)
+CALL ErrorParam( 'value read', value1, error)
+CALL ErrorParam( 'index of value', nword, error)
 CALL ErrorParam( 'lower limit', lower, error)
 CALL ErrorParam( 'upper limit', upper, error)
+check_range_integer_array = .FALSE.
+
+RETURN
+
+! Error in reading integer
+1001 CALL ErrorParam( 'parameter', parname, error)
+CALL ErrorParam( 'index of number', nword+1, error)
 check_range_integer_array = .FALSE.
 
 END FUNCTION check_range_integer_array
@@ -838,6 +838,11 @@ END FUNCTION check_range_integer_array
 ! DESCRIPTION          : This function extracts a filename from a string.
 !                        Some flags decide what is tested for. The advantage of this combination of flags is that parameter
 !                        names are more easily included in error messages.
+!               parname    (character*(*)). Name of the parameter. 
+!               checkdefine(logical). If flag is set: test whether name was entered.
+!               checkexists(logical) If flag is set: test whether file path is present, otherwise an error is returned.
+!               value      (character*(*)) Output: the path of the file. 
+!               error      (TError object). Assigned when an error occurred.
 ! RESULT               : False if an error was detected.
 ! CALLED FUNCTIONS     : keystring, chkexist
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -848,12 +853,12 @@ FUNCTION check_exist_file(parname, checkdefine, checkexist, filename, error)
 USE m_fileutils
 
 ! SUBROUTINE ARGUMENTS - INPUT
-CHARACTER*(*), INTENT(IN)                        :: parname                    ! 
-LOGICAL,   INTENT(IN)                            :: checkdefine                ! if set and checkexist set, this function
-LOGICAL,   INTENT(IN)                            :: checkexist                 ! if set, this function checks whether filename
+CHARACTER*(*), INTENT(IN)                        :: parname                    ! parameter (key) name
+LOGICAL,   INTENT(IN)                            :: checkdefine                ! if checkexist is set, filename must be defined
+LOGICAL,   INTENT(IN)                            :: checkexist                 ! check whether filename exists
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-CHARACTER*(*), INTENT(OUT)                       :: filename                   ! 
+CHARACTER*(*), INTENT(OUT)                       :: filename                   ! output file name
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! RESULT
@@ -880,7 +885,7 @@ IF (checkexist) THEN
     ENDIF
   ELSE
 !
-!   Check existance of filename.
+!   Check existence of filename.
 !
     IF (.NOT.chkexist(filename,error)) THEN
 !
@@ -909,7 +914,7 @@ END FUNCTION check_exist_file
 !                        If no value is extracted a default is set (empty string). If a value is extracted it is checked whether the value lies
 !                        within input limits (for strings, the lower and upper limits are normally the same, which means that the input string 
 !                        must be equal to the limit values. 
-! RESULT               : False if an error was detected.
+! RESULT               : False if a range error was detected; other errors are set in error%haserror. 
 ! CALLED FUNCTIONS     : get_key
 !-------------------------------------------------------------------------------------------------------------------------------
 FUNCTION check_range_string(parname,lower,upper,isrequired, value, error)

@@ -1,5 +1,6 @@
 !---------------------------------------------------------
 ! test subroutines in module m_ops_plumerise
+
 !---------------------------------------------------------
 @test
 subroutine tst_ops_plumerise
@@ -103,8 +104,6 @@ if (error%haserror) then
 else
    @assertTrue(error%haserror,'error in input has not been trapped by routine ops_plumerise')
 endif
-
-write(*,'(/,a,/)') 'more tests needed for ops_plumerise, independent tests/measurements'
 
 ! No errors from ops_plumerise:
 return 

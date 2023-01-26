@@ -27,8 +27,8 @@ SUBROUTINE ops_read_meteo(intpol, jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, a
                        &  rainreg, z0_metreg, xreg, yreg, hourreg, error )
 
 use m_error
-use m_commonconst_lt
-use m_commonfile
+USE m_commonconst_lt
+USE m_commonfile
 
 IMPLICIT NONE
 
@@ -105,9 +105,9 @@ END SUBROUTINE ops_read_meteo
 SUBROUTINE ops_statfil(jb, mb, idb, jt, mt, idt, uurtot, iseiz, zf, astat, trafst, cs, rainreg, z0_metreg, xreg, yreg,    &
                     &  hourreg, error)
 
-use m_commonconst_lt
-use m_commonfile
-use m_error
+USE m_commonconst_lt
+USE m_commonfile
+USE m_error
 
 IMPLICIT NONE
 
@@ -218,9 +218,9 @@ END SUBROUTINE ops_statfil
 SUBROUTINE ops_readstexp(nfile, jb, mb, idb, gemre, iyr, imon, iday, xpos, ypos, z0_metreg1, jt, mt, idt,          &
                       &  uurtot, iseiz, zf, astat, trafst, error)
 
-use m_commonconst_lt
-use m_error
-use m_utils
+USE m_commonconst_lt
+USE m_error
+USE m_utils
 
 IMPLICIT NONE
 
@@ -402,11 +402,11 @@ RETURN                                                                         !
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_readdata(nfile, ishort, astat, error)
 
-use m_commonconst_lt
-use m_commonfile
-use m_error
-use m_utils
-use m_fileutils
+USE m_commonconst_lt
+USE m_commonfile
+USE m_error
+USE m_utils
+USE m_fileutils
 
 IMPLICIT NONE
 
@@ -523,7 +523,7 @@ END SUBROUTINE ops_readdata
 !-------------------------------------------------------------------------------------------------------------------------------
 FUNCTION ops_checkmeteo(value, valueread, paramname, error)
 
-use m_error
+USE m_error
 
 IMPLICIT NONE
 

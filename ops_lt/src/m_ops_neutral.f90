@@ -27,7 +27,7 @@ contains
 SUBROUTINE ops_neutral(z0, zi, ol, uster, h, x, uh, zu, szn)
 
 use m_commonconst_lt, only: EPS_DELTA 
-use m_ops_meteo
+USE m_ops_meteo
 
 IMPLICIT NONE
 

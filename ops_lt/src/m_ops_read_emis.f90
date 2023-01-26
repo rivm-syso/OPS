@@ -44,11 +44,10 @@ PARAMETER    (ROUTINENAAM = 'ops_read_emis')
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4, INTENT(IN)                            :: icm                        
 LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: ncatsel                    
-INTEGER*4, INTENT(IN)                            :: catsel(*)                  
-INTEGER*4, INTENT(IN)                            :: nlandsel                   
-INTEGER*4, INTENT(IN)                            :: landsel(*)                 
-
+INTEGER*4, INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
+INTEGER*4, INTENT(IN)                            :: catsel(*)                  ! list of selected emission categories
+INTEGER*4, INTENT(IN)                            :: nlandsel                   ! number of selected emission countries 
+INTEGER*4, INTENT(IN)                            :: landsel(*)                 ! list of selected emission countries 
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
@@ -73,6 +72,9 @@ LOGICAL,   INTENT(OUT)                           :: building_present1          !
 INTEGER*4                                        :: ps                         ! maximum code pmd distribution (dummy)
 INTEGER*4                                        :: usps                       ! maximum code uspmd distribution (dummy)
 
+! SCCS-ID VARIABLE
+CHARACTER*81                                     :: sccsida                    ! 
+sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Read standard diurnal variations
@@ -112,12 +114,12 @@ ENDIF
 !
 IF (.NOT.sysopen(fu_bron, brnam, 'r', 'emission file', error)) GOTO 9999
 !
-! Open scratch file
+! Open scratch file for selected emissions
 !
-OPEN(fu_scratch, STATUS = 'SCRATCH')
+OPEN(fu_scratch, STATUS = 'SCRATCH', FORM = 'UNFORMATTED')
 
 !
-! Read, select and check sources 
+! Read, select, check sources and write all selected emissions to scratch file
 !
 CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, numbron, building_present1, error)
 

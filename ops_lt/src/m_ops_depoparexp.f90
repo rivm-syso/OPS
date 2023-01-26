@@ -46,19 +46,18 @@ implicit none
 
 contains 
 
-SUBROUTINE ops_depoparexp(kdeel, c, qbstf, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, virty, gasv, &
+SUBROUTINE ops_depoparexp(do_proc, kdeel, c, qbstf, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, virty, gasv, &
                        &  istab, grof, xvghbr, xvglbr, regenk, rint, buil, zf, isec1, iseiz, mb, disx, radius, &
                        &  xl, onder, dg, knatdeppar, scavcoef, irev, htt, xloc, xl100, vw10, pcoef, vchem, dispg, htot, &
                        &  error, pr, twt, cratio, rc_eff_rcp_4_pos, grad, utr, routpri, vd_eff_trj_zra, rkc, ri, vnatpri, &
                        &  cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, rb_src, &
                        &  ra_trj_zra, rb_trj, vd_coarse_part, xm, ym, zm, bx, by)
                        
-
 use m_commonconst_lt
-use m_commonfile
-use m_error
-use m_ops_logfile
-use m_ops_meteo
+USE m_commonfile
+USE m_error
+USE m_ops_logfile
+USE m_ops_meteo
 use m_ops_brondepl
 
 IMPLICIT NONE
@@ -71,6 +70,7 @@ PARAMETER    (ROUTINENAAM = 'ops_depoparexp')
 REAL*4                                           :: VDDEEL(NPARTCLASS)         ! 
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
 REAL*4,    INTENT(IN)                            :: c                          ! initial estimate of concentration (without removal processes) [ug/m3]
 REAL*4,    INTENT(IN)                            :: qbstf                      ! source strength current source (for current particle class) [g/s] (= qbpri in calling routine)
@@ -264,8 +264,13 @@ CALL par_nat(regenk, rint, buil, zf, isec1, iseiz, mb, disx, radius, diameter, u
 ! Note: cgt = (1 - grad) = (1 - -------) is used as input for ops_brondepl (see there).
 !                                vd(z1)
 !
-cgt   = 1. - grad
-cgt_z = 1. - grad_z      ! EvdS
+IF (do_proc%grad_drydep) THEN
+   cgt   = 1. - grad
+   cgt_z = 1. - grad_z      ! EvdS
+ELSE
+   cgt   = 0.0
+   cgt_z = 0.0
+ENDIF
 
 ! Default value for wind speed for area source  
 uxr = ueff
@@ -457,7 +462,7 @@ ELSE
 
 
 
-   CALL ops_brondepl(disx, xg, c, ux0, ueff, sigz, vd_eff_trj_zra, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
+   CALL ops_brondepl(do_proc, disx, xg, c, ux0, ueff, sigz, vd_eff_trj_zra, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
                   &  ra_rcp_4, ra_rcp_zrcp, rc_eff_rcp_4_pos, rb_rcp, z0_src, ol_src, uster_src, htot, ra_src_4, rb_src, rc_eff_src_4_pos, qbstf, vd_trj_z0, &
                   &  onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, sigzr, dxeff, error)
 !
@@ -490,10 +495,13 @@ IF (disx .LE. (radius + EPS_DELTA)) THEN
 ELSE
    a = disx - dxeff 
 ENDIF
-cch = EXP( - (a/utr*(vnatpri + vchem)/360000.))
-!
+
+! cch = EXP( - (a/utr*(vnatpri + vchem)/360000.))
+cch = 1.0
+if (do_proc%chem)   cch = cch*EXP( - (a/utr*vchem/360000.))
+if (do_proc%depl_wetdep) cch = cch*EXP( - (a/utr*vnatpri/360000.))
+
 ! Check whether 0 <= cq1 <= 1 AND 0 <= cq2 <= 1 AND cch <= 1; if not write a warning message
-!
 IF ((cq1 .LT. (0. - EPS_DELTA)) .OR. (cq1 .GT. (1. + EPS_DELTA)) .OR. (cq2 .LT. (0. - EPS_DELTA)) .OR.                          &
  &  (cq2 .GT. (1. + EPS_DELTA)) .OR. (cch .GT. (1. + EPS_DELTA))) THEN
    IF (.NOT. ops_openlog(error)) GOTO 9999

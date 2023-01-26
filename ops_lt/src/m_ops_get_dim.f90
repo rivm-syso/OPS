@@ -26,10 +26,10 @@ contains
 SUBROUTINE ops_get_dim(spgrid, igrens, xc, yc, grid, nrcol, nrrow, nrrcp, xul_cell_centre, yul_cell_centre, masker, error)
 
 use m_aps
-use m_fileutils
-use m_error
-use m_commonconst_lt                                                              ! EPS_DELTA only
-use m_commonfile
+USE m_fileutils
+USE m_error
+USE m_commonconst_lt                                                              ! EPS_DELTA only
+USE m_commonfile
 
 IMPLICIT NONE
 

@@ -18,7 +18,7 @@
 ! DESCRIPTION        : Handling of background concentrations and other maps needed for chemistry.
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Subroutine   ops_read_bg
-! Purpose      Reads background concentrations for SO2, NO2 and NH3.
+! Purpose      Reads background concentrations for SO2, NO2, NH3 and O3.
 !              Reads EMEP grids with column averaged masses and mass converted [ug/m2] used for chemical conversion rate.
 !              Called only when isec is set (icm = 1, 2 or 3).
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ implicit none
 
 contains
 
-SUBROUTINE ops_read_bg(icm, iopt_vchem, nsubsec, year, chem_meteo_prognosis, so2bggrid, no2bggrid, nh3bggrid, f_subsec_grid, &
+SUBROUTINE ops_read_bg(icm, iopt_vchem, nsubsec, year, chem_meteo_prognosis, nemcat_road, so2bggrid, no2bggrid, nh3bggrid, o3bggrid, f_subsec_grid, &
                        vchem2, error, dir_chem, fnames_used_chem)
 
 use m_aps
@@ -44,12 +44,14 @@ INTEGER*4, INTENT(IN)                            :: icm                        !
 INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
 INTEGER*4, INTENT(IN)                            :: year                       ! year under consideration
-logical                                          :: chem_meteo_prognosis       ! use meteo prognosis in chemistry maps
+LOGICAL,   INTENT(IN)                            :: chem_meteo_prognosis       ! use meteo prognosis in chemistry maps
+INTEGER*4, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TApsGridReal), INTENT(OUT)                 :: so2bggrid                  ! grid with SO2 background concentration [ppb]
-TYPE (TApsGridReal), INTENT(OUT)                 :: no2bggrid                  ! grid with NO2 background concentration [ppb]
-TYPE (TApsGridReal), INTENT(OUT)                 :: nh3bggrid                  ! grid with NH3 background concentration [ppb]
+TYPE (TApsGridReal), INTENT(OUT)                 :: so2bggrid                  ! grid with SO2 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(OUT)                 :: no2bggrid                  ! grid with NO2 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(OUT)                 :: nh3bggrid                  ! grid with NH3 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(OUT)                 :: o3bggrid                   ! grids with O3 background concentration per wind sector [ug/m3]
 TYPE (TApsGridReal), INTENT(OUT)                 :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
 TYPE (Tvchem),       INTENT(INOUT)               :: vchem2                     ! 
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
@@ -67,7 +69,7 @@ REAL*4                                           :: nox_threshold              !
 REAL*4                                           :: alpha                      ! slope of linear function NOx -> NO2 conversion
 INTEGER                                          :: nfield                     ! number of fields in file with NO3-distribution grids (f_subsec_grid)
 INTEGER                                          :: ifield                     ! field number in f_subsec_grid
-
+CHARACTER*512                                    :: apsfile                    ! full file name of APS-file to read
 ! TYPE (TApsGridReal)                              :: qq                         ! test grid output (for debugging)
 
 ! CONSTANTS
@@ -188,6 +190,52 @@ IF (error%haserror) GOTO 9999
 factor = 24./17. * cf_nh3(mapnumber) * tf_nh3(ji)
 CALL SetAverage(factor, nh3bggrid)
 
+! Read ozone concentrations (needed for NO2/NOx ratio):
+if (icm .eq. 2) then
+      
+      ! Read and allocate the background grids for O3 (for NSEK windsectors; needed for NO2/NOx ratio) [ug/m3]:  
+      if (nemcat_road .gt. 0) then
+         CALL read_bg_file(year, 'o3' , 'background concentration', dir_chem, map_o3, fnames_used_chem, o3bggrid, error)
+         if (error%haserror) GOTO 9999
+         
+         
+         
+         
+         if (error%debug) then
+            write(*,*) '------------------ops_read_bg------------------------'
+            write(*,*) 'size(o3bggrid%value):',size(o3bggrid%value,1),'x',size(o3bggrid%value,2),'x',size(o3bggrid%value,3)  
+            write(*,*) o3bggrid%gridheader%nrcol, 'x', o3bggrid%gridheader%nrrow
+            write(*,*) error%haserror
+            write(*,*) '------------------------------------------'
+         endif
+         IF (error%haserror) GOTO 9999
+   
+         ! Check number of fields read from file:      
+         nfield = size(o3bggrid%value,3)
+         if (nfield .ne. NSEK) then
+             CALL SetError('unexpected number of fields in file for background concentrations O3 ', error)
+             CALL ErrorParam('file is last file in this list', fnames_used_chem, error)
+             CALL ErrorParam('number of fields read from file', nfield, error)
+             CALL ErrorParam('expected number of fields = number of wind sectors', NSEK, error)
+             goto 9999
+         endif
+   
+         ! Compute average grid value (to be used outside background grid and for missing values): 
+         DO ifield = 1,nfield
+            CALL SetAverage(1.0, o3bggrid, ifield)
+         ENDDO
+              
+         if (error%debug) then
+            write(*,*) 'o3bggrid%value(2,2:)'
+            write(*,*) o3bggrid%value(2,2,1:NSEK)
+            write(*,*) 'o3bggrid%value(400,400,:)'
+            write(*,*) o3bggrid%value(400,400,1:NSEK)
+            write(*,*) 'o3bggrid%average'
+            write(*,*) o3bggrid%average
+         endif
+      endif
+endif
+
 ! iopt_vchem = 1 -> read EMEP grids with column averaged masses and mass converted [ug/m2] used for chemical conversion rate vchem:
 if (iopt_vchem .eq. 1) then
 
@@ -276,7 +324,7 @@ if (iopt_vchem .eq. 1) then
    ! ! END TEST write to APS file --------------------------------------------------------------------------------------------
    
    IF (error%haserror) GOTO 9999
-endif
+endif ! if (iopt_vchem = 1)
 
 RETURN
 !
@@ -358,7 +406,6 @@ END SUBROUTINE read_bg_file
 ! Subroutine   set_bg_year_indices
 ! Purpose      Set indices for YEAR (map number for reference year, index in trend factor tf_)
 !-------------------------------------------------------------------------------------------------------------------------------
-
 subroutine set_bg_year_indices(year, chem_meteo_prognosis, dir_chem, mapnumber, ji)
 
 use m_commonconst_lt, only: FUTUREYEAR, FIRSTYEAR, NYEARS, NBGMAPS
@@ -384,7 +431,7 @@ CALL GetOS(os, slash)
 
 ! Check consistency:
 if (FIRSTYEAR+NYEARS .ne. FUTUREYEAR-1) then
-   write(*,*) 'Internal programming error in read_ctr_year'
+   write(*,*) 'Internal programming error in set_bg_year_indices'
    write(*,*) 'FIRSTYEAR  = ',FIRSTYEAR
    write(*,*) 'NYEARS     = ',NYEARS
    write(*,*) 'FUTUREYEAR = ',FUTUREYEAR

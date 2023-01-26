@@ -28,7 +28,7 @@ contains
 SUBROUTINE ops_bgcon_tra(xr, yr, xb, yb, bgdata, bgcon, error)
 
 use m_aps
-use m_ops_bgcon
+USE m_ops_bgcon
 
 IMPLICIT NONE
 

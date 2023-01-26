@@ -23,12 +23,13 @@ implicit none
 
 contains
 
-SUBROUTINE ops_seccmp(qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10,  &
+SUBROUTINE ops_seccmp(do_proc, qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10,  &
                    &  pcoef, virty, regenk, htot, onder, twt, ri, cgt, xvghbr, xvglbr, vnatpri, vchem, ra_rcp_4,  &
                    &  ra_rcp_zra, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, qsec, consec, vd_eff_trj_zra, ra_trj_zra, rb_trj)
 
 use m_commonconst_lt
 use m_ops_vchem
+use m_ops_brondepl, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -37,6 +38,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_seccmp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
 REAL*4,    INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
 REAL*4,    INTENT(IN)                            :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
@@ -227,10 +229,14 @@ ENDIF
 !
 
 gradsec = (ra_rcp_4 + rb_rcp + rc_sec_rcp)/(ra_rcp_zra + rb_rcp + rc_sec_rcp) 
-IF (grad .NE. 1) THEN
-   cgtsec = (1.-gradsec)*cgt/(1.-grad)
+IF (do_proc%grad_drydep) THEN
+   IF (grad .NE. 1) THEN
+      cgtsec = (1.-gradsec)*cgt/(1.-grad)
+   ELSE
+      cgtsec = (1.-gradsec)
+   ENDIF
 ELSE
-   cgtsec = (1.-gradsec)
+  cgtsec = 0.0
 ENDIF
 !
 ! vd_sec_uncorr_trj_zra = dry deposition velocity of secondary component at z = zra = 50 m, average over trajectory, uncorrected
@@ -266,7 +272,7 @@ ENDIF
 
 ! First compute qpri and qsec, cross-wind integrated mass fluxes of primary and secondary substances;
 ! seccd uses a numerical procedure, assuming constant parameters such as mixing height and transport speed:
-CALL seccd(qbpri, disx, radius, utr, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
+CALL seccd(do_proc, qbpri, disx, radius, utr, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
         &  qsec)
 !
 ! In reality, we have to deal with variable mixing heigth and a transport speed that depends on emission height ->
@@ -339,8 +345,10 @@ CONTAINS
 ! DESCRIPTION        : Compute cross-wind integrated mass fluxes Q for primary and secondary substances.
 !                      A numerical time stepping scheme is used here.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE seccd(qbpri, disx, radius, vw, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
+SUBROUTINE seccd(do_proc, qbpri, disx, radius, vw, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
               &  qsec)
+
+use m_ops_brondepl, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -349,6 +357,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'seccd')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
 REAL*4,    INTENT(IN)                            :: disx                       ! 
 REAL*4,    INTENT(IN)                            :: radius                     ! 
@@ -413,7 +422,12 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
    ELSE
       a1 = 1.5*sigz
    ENDIF
-   b = EXP( - (diameter/(vw*3.)*(vd_eff_trj_zra/a1 + (vchem + vnatpri)/360000.)))  
+   
+   ! b = EXP( - (diameter/(vw*3.)*(vd_eff_trj_zra/a1 + (vchem + vnatpri)/360000.)))
+   b = 1.0
+   if (do_proc%chem)   b = b*EXP( - (diameter/(vw*3.)*vchem/360000.))  
+   if (do_proc%depl_drydep) b = b*EXP( - (diameter/(vw*3.)*vd_eff_trj_zra/a1))  
+   if (do_proc%depl_wetdep) b = b*EXP( - (diameter/(vw*3.)*vnatpri/360000.))  
    IF (disx .LE. (radius + EPS_DELTA)) THEN
       a = diameter/2.*b
    ELSE
@@ -490,9 +504,25 @@ lfound_seg_depos = .false.
 ! e1_sec = source depletion factor for secondary species, due to dry deposition and wet deposition
 !        = 1 - EXP( -delta_t*(k_drydep + k_wetdep)) = 1 - EXP( -dt*(vd_sec_eff_trj_zra/xl + vnatsec/3.6e5))
 
-e1_pri = 1. - exp( - dt*(vd_eff_trj_zra/xl + (vnatpri + vchem)/3.6e5));
-e1_sec = 1. - exp( - dt*(vd_sec_eff_trj_zra/xl +  vnatsec/3.6e5));
-e3_pri_sec = (amol2/amol1)*dt*vchem/3.6e+05;
+! e1_pri = 1. - exp( - dt*(vd_eff_trj_zra/xl + (vnatpri + vchem)/3.6e5))
+e1_pri = 1.0
+if (do_proc%chem)   e1_pri = e1_pri*exp(-dt*(vchem/3.6e5))
+if (do_proc%depl_drydep) e1_pri = e1_pri*exp(-dt*vd_eff_trj_zra/xl)
+if (do_proc%depl_wetdep) e1_pri = e1_pri*exp(-dt*(vnatpri/3.6e5))
+e1_pri = 1.0 - e1_pri
+
+! e1_sec = 1. - exp( - dt*(vd_sec_eff_trj_zra/xl +  vnatsec/3.6e5));
+e1_sec = 1.0
+if (do_proc%depl_drydep) e1_sec = e1_sec*exp( - dt*vd_sec_eff_trj_zra/xl)
+if (do_proc%depl_wetdep) e1_sec = e1_sec*exp( - dt*vnatsec/3.6e5)
+e1_sec = 1.0 - e1_sec
+
+! e3_pri_sec = (amol2/amol1)*dt*vchem/3.6e+05
+if (do_proc%chem) then
+   e3_pri_sec = (amol2/amol1)*dt*vchem/3.6e+05
+else
+   e3_pri_sec = 0.0
+endif
 
 ! Loop over time steps:
 DO itim = 1, ntim

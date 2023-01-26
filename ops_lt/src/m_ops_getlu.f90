@@ -28,9 +28,9 @@ contains
 SUBROUTINE ops_getlu(xr, yr, in_trajectory, lugrid, landuse, error)
 
 use m_aps
-use m_commonconst_lt
+USE m_commonconst_lt
 Use m_error
-use m_commonconst_lib, only: NLU
+USE m_commonconst_lib, only: NLU
 
 IMPLICIT NONE
 

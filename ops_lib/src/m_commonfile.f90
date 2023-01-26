@@ -90,15 +90,16 @@ CHARACTER*24                                     :: dir_chem_meteo(2)          !
 CHARACTER*24                                     :: map_so2(6)                 ! name of file with background map SO2 (for reference years)
 CHARACTER*24                                     :: map_nox(6)                 ! name of file with background map NOx (for reference years)
 CHARACTER*24                                     :: map_nh3(6)                 ! name of file with background map NH3 (for reference years)
+CHARACTER*24                                     :: map_o3                     ! name of file with background map O3 (for each year)
 CHARACTER*128                                    :: map_mass_prec              ! filename with MASS_PREC averaged column mass precursor pre chemistry step, used for vchem
 CHARACTER*128                                    :: map_mass_conv_dtfac        ! filename with MASS_CONV_DTFAC = (100/dt) * averaged column mass converted in chemistry step, used for vchem
 CHARACTER*128                                    :: map_no3_distr              ! filename with distribution factors for different secondary species NO3
                                                                                ! HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total
-
 DATA dir_chem_meteo  / 'Chem_meteo_actual', 'Chem_meteo_prognosis' / 
 DATA map_so2  / 'bgso2c1984.ops', 'bgso2c1994.ops', 'bgso2c2005.ops', 'bgso2c2012.ops','bgso2c2018.ops','bgso2cyyyy.ops' /  ! yyyy = year (for years in the future
 DATA map_nox  / 'bgnoxc1984.ops', 'bgnoxc1994.ops', 'bgnoxc2005.ops', 'bgnoxc2012.ops','bgnoxc2018.ops','bgnoxcyyyy.ops' /
 DATA map_nh3  / 'bgnh3c1984.ops', 'bgnh3c1994.ops', 'bgnh3c2005.ops', 'bgnh3c2012.ops','bgnh3c2018.ops','bgnh3cyyyy.ops' /
+DATA map_o3   / 'bgo3cyyyy.ops' /   ! yyyy = year (e.g. 2019)
 DATA map_mass_prec       / 'xxx_mass_prec_yyyy.ops'       /   ! xxx = name primary species (SO2, NOx, NH3), yyyy = year (e.g. 2019)
 DATA map_mass_conv_dtfac / 'xxx_mass_conv_dtfac_yyyy.ops' /
 DATA map_no3_distr       / 'no3_distr_yyyy.ops' /

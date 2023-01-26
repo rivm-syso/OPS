@@ -28,11 +28,11 @@ SUBROUTINE ops_bron_rek(emtrend, buildingEffect, landmax, emis, nsbuf, bnr, bx, 
                         bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, bcatnr, blandnr, eof, error)
 
 use m_commonconst_lt
-use m_commonfile
-use m_error
-use m_geoutils
-use m_fileutils
-use m_ops_building
+USE m_commonfile
+USE m_error
+USE m_geoutils
+USE m_fileutils
+USE m_ops_building
 use m_ops_utils, only: is_missing
 
 IMPLICIT NONE
@@ -94,12 +94,11 @@ REAL*4                                           :: Ts_stack                   !
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
 REAL*4                                           :: qrv                        ! 
-CHARACTER*512                                    :: cbuf                       ! character buffer
 REAL                                             :: valueArray(buildingEffect%nParam)  ! array with parameters needed to compute building effect
 INTEGER                                          :: iParam                     ! index of building parameter
+INTEGER                                          :: ierr                       ! error code
 
 !-------------------------------------------------------------------------------------------------------------------------------
- 50 FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 3i4, i6, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters possibly -999). Also possible -999 for qw
 !
 ! Initialise nsbuf = 0 (no sources in buffer arrays).
 !
@@ -109,19 +108,17 @@ nsbuf = 0
 !
 
 DO WHILE (nsbuf /= LSBUF)
-!
-! Read source record cbuf from scratch file
-!
-  CALL sysread(fu_scratch, cbuf, eof, error)
-  IF (error%haserror) GOTO 9998
-!
-! If end of file has been reached, nothing is left to do here
-!
-  IF (eof) RETURN
-!
-! Read source record with RDM coordinates
-!
-  READ (cbuf, 50) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+
+  ! Read source record with RDM coordinates:
+  READ (fu_scratch, iostat = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+  IF (ierr < 0) THEN
+     eof = .true.
+     return ! If end of file has been reached, nothing is left to do here
+  ELSE IF (ierr > 0) THEN
+     CALL SetError('Error reading file', error)
+     CALL ErrorParam('io-status', ierr, error)
+     GOTO 9998
+  ENDIF
   nsbuf = nsbuf + 1
 
   !write(*,'(a,i6,10(1x,e12.5),1x,l2,4(1x,i4),4(1x,e12.5))') 'ops_bron_rek a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, & 
@@ -130,6 +127,9 @@ DO WHILE (nsbuf /= LSBUF)
   ! Determine building factor function (function of source receptor angle and source receptor distance):
   if (is_missing(building%length) .or. is_missing(building%width) .or. is_missing(building%height) .or. is_missing(building%orientation)) then  
      building%type = 0 ! no building effect
+     
+     ! Allocate building arrays to zero size, even when there is no building (they're passed as subroutine arguments)
+     call ops_building_alloc_zero(building, error) 
   else
      building%type = 1 ! building effect is present
      

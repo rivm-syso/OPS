@@ -27,11 +27,11 @@ SUBROUTINE ops_gen_rcp(spgrid, igrens, masker, grid, nrcol, nrrow, nrrcp, xul_ce
                      & lu_rcp_dom_all, z0_rcp_all, lu_rcp_per_user_all, varz, perc, error)
 
 use m_fileutils
-use m_aps
-use m_error
-use m_commonfile, only: fu_recep, namrecept
-use m_commonconst_lt, only: EPS_DELTA
-use m_commonconst_lib, only: NLU
+USE m_aps
+USE m_error
+USE m_commonfile, only: fu_recep, namrecept
+USE m_commonconst_lt, only: EPS_DELTA
+USE m_commonconst_lib, only: NLU
 
 IMPLICIT NONE
 
@@ -258,10 +258,10 @@ subroutine ops_recep_record1(nwords, i, h, is_data, namrp, ix, iy, zrcp, z0, lu_
 
 ! Read one record from the receptor file
 
-use m_commonconst_lib, only: NLU
-use m_commonfile, only: fu_recep, namrecept
-use m_string, only: string_count_words
-use m_error
+USE m_commonconst_lib, only: NLU
+USE m_commonfile, only: fu_recep, namrecept
+USE m_string, only: string_count_words
+USE m_error
 
 ! SUBROUTINE ARGUMENTS - INPUT
 INTEGER*4,     INTENT(IN)                        :: nwords                     ! number of expected words in data record 

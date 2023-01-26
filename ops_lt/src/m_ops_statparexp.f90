@@ -55,10 +55,10 @@ SUBROUTINE ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_ho
                        &   xl, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, xloc,xl100, rad, rc_so2_ms, coef_space_heating, regenk, buil, rint, percvk, error)
 
 use m_error
-use m_commonconst_lt
-use m_commonfile
-use m_ops_plumerise
-use m_ops_meteo
+USE m_commonconst_lt
+USE m_commonfile
+USE m_ops_plumerise
+USE m_ops_meteo
 
 IMPLICIT NONE
 
@@ -297,7 +297,9 @@ IF (aant > EPS_DELTA) THEN
 !          i.e. (number of hours that a {distance/stability/wind-direction} class occurs) / (total number of hours)
 !
   percvk = (aant*ccor)/uurtot
-  !write(*,*) 'percvk2:',aant,ccor,uurtot,percvk
+  !WRITE(*,'(3a,4(1x,i6),99(1x,e12.5))') & 
+  !    trim(ROUTINENAAM),',A,',' itrx,istab,isec_in,isec_prelim,aant,ccor,uurtot,percvk: ', &
+  !                              itrx,istab,isec_in,isec_prelim,aant,ccor,uurtot,percvk
 
 ELSE
 
@@ -794,7 +796,7 @@ END SUBROUTINE windsek
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE windcorr(itra, istab, radius, disx, isec1, iwdd, isec2, astat, isec_in, ispecial, phi, s_wind)
 
-use Binas, only: rad2deg
+USE Binas, only: rad2deg
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 

@@ -41,8 +41,8 @@ subroutine ops_parout_circle(ircp, xm, ym, parout_disx, subbron, nsbuf, nbron, n
 ! The NSEK sources are located in the middle of each wind direction sector.
 
 use Binas, only: deg2rad 
-use m_commonconst_lt, only: LSBUF, NSEK
-use m_ops_building
+USE m_commonconst_lt, only: LSBUF, NSEK
+USE m_ops_building
 
 ! Input:
 integer, intent(in) :: ircp                      ! index of receptor

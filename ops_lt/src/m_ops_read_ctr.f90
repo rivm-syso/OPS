@@ -23,15 +23,16 @@ implicit none
 
 contains
 
-SUBROUTINE ops_read_ctr(project, runid, year, icm, namco, amol1, gasv, idep, kdeppar, ddeppar, knatdeppar, wdeppar, dg,        &
-                     &  irev, vchemc, iopt_vchem, vchemv, emtrend, ncatsel, catsel, nlandsel, landsel, spgrid, xc, yc, nrcol, nrrow,       &
-                     &  grid, igrens, z0_user, intpol, ideh, igrid, checked, f_z0user, isec, nsubsec, chem_meteo_prognosis, error)
+SUBROUTINE ops_read_ctr(project, runid, year, icm, namco, amol1, gasv, do_proc, idep, kdeppar, ddeppar, knatdeppar, wdeppar, dg, &
+                     &  irev, vchemc, iopt_vchem, vchemv, emtrend, ncatsel, catsel, nemcat_road, emcat_road, nlandsel, landsel, & 
+                     &  spgrid, xc, yc, nrcol, nrrow, grid, igrens, z0_user, intpol, ideh, igrid, checked, f_z0user, isec, nsubsec, chem_meteo_prognosis, error)
 
 use m_getkey
 use m_fileutils
 use m_error
 use m_commonfile
 use m_commonconst_lt
+use m_ops_brondepl, only: Tdo_proc
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -45,6 +46,7 @@ INTEGER*4, INTENT(OUT)                           :: icm
 CHARACTER*(*), INTENT(OUT)                       :: namco                      
 REAL*4,    INTENT(OUT)                           :: amol1                      
 LOGICAL,   INTENT(OUT)                           :: gasv                       ! type of component (0: particle; 1: gas)
+TYPE(Tdo_proc), INTENT(OUT)                      :: do_proc                    ! options to switch on/off specific processes
 LOGICAL,   INTENT(OUT)                           :: idep                       
 INTEGER*4, INTENT(OUT)                           :: kdeppar                    
 REAL*4,    INTENT(OUT)                           :: ddeppar                    
@@ -56,10 +58,12 @@ REAL*4,    INTENT(OUT)                           :: vchemc                     !
 INTEGER*4, INTENT(OUT)                           :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
 REAL*4,    INTENT(OUT)                           :: vchemv                     
 REAL*4,    INTENT(OUT)                           :: emtrend                    
-INTEGER*4, INTENT(OUT)                           :: ncatsel                    
-INTEGER*4, INTENT(OUT)                           :: catsel(*)                  
-INTEGER*4, INTENT(OUT)                           :: nlandsel                   
-INTEGER*4, INTENT(OUT)                           :: landsel(*)                 
+INTEGER*4, INTENT(OUT)                           :: ncatsel                    ! number of selected emission categories
+INTEGER*4, INTENT(OUT)                           :: catsel(*)                  ! list of selected emission categories
+INTEGER*4, INTENT(OUT)                           :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER*4, INTENT(OUT)                           :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER*4, INTENT(OUT)                           :: nlandsel                   ! number of selected emission countries 
+INTEGER*4, INTENT(OUT)                           :: landsel(*)                 ! list of selected emission countries 
 INTEGER*4, INTENT(OUT)                           :: spgrid                     
 REAL*4,    INTENT(OUT)                           :: xc                         ! x-coordinate grid centre of user specified grid (spgrid = 1)
 REAL*4,    INTENT(OUT)                           :: yc                         ! y-coordinate grid centre of user specified grid (spgrid = 1)
@@ -98,11 +102,11 @@ IF (.NOT. GetKeyValue ('PROJECT', project, error)) GOTO 1000
 IF (.NOT. GetKeyValue ('RUNID', runid, error)) GOTO 1000
 
 ! Read year for chemical maps:
-call read_ctr_year(year,chem_meteo_prognosis,error)
+call ops_read_ctr_year(year,chem_meteo_prognosis,error)
 if (error%haserror) goto 1000
 
 !
-! Read component code, name, mole weight, phase (gas/particle), whether or not to compute deposition ('LOSS')
+! Read component code, name, mole weight, phase (gas/particle)
 !
 IF (.NOT. GetCheckedKey('COMPCODE', 0, 27, .TRUE., icm, error)) GOTO 1000
 !
@@ -113,7 +117,10 @@ isec = icm <= 3 .AND. icm > 0
 IF (.NOT. GetKeyValue  ('COMPNAME', namco, error)) GOTO 1000
 IF (.NOT. GetCheckedKey('MOLWEIGHT', 1., 1000., .TRUE., amol1, error)) GOTO 1000
 IF (.NOT. GetKeyValue  ('PHASE', .TRUE., gasv, error)) GOTO 1000
-IF (.NOT. GetKeyValue  ('LOSS', .TRUE., idep, error)) GOTO 1000
+
+! Read option(s) to switch on/of loss processes chemistry, dry and wet deposition ('LOSS')
+call ops_read_ctr_loss(do_proc, idep, error)
+if (error%haserror) goto 1000
 !
 ! Read choice of dry deposition parametrisation and dry deposition parameter ddeppar
 ! (either deposition velocity vd (kdeppar = 1) or surface resistance Rc (kdeppar = 2);
@@ -157,7 +164,7 @@ IF (.NOT. GetKeyValue  ('WASHOUT', gasv .AND. idep .AND. knatdeppar.EQ.3, irev, 
 ! iopt_vchem = 1) or a fixed value of vchemc. 
 ! A value of vchemc is only required for non-acidifying components (isec = false), because for acidifying components, we use either
 ! the EMEP maps or (if EMEP is not specified) an old chemical conversion rate parameterisation (iopt_vchem = 0; see OPS-doc).
-call read_ctr_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error) 
+call ops_read_ctr_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error) 
 if (error%haserror) GOTO 1000 
 
 IF (.NOT. GetCheckedKey('LDCONVRATE', 0., 99.99, gasv .AND. idep .AND..NOT.isec, vchemv, error)) GOTO 1000
@@ -195,13 +202,26 @@ IF (.NOT. GetCheckedKey('USDVEFILE',.FALSE.,.TRUE.,                         &  !
 IF (.NOT. GetCheckedKey('USPSDFILE',.FALSE.,.TRUE.,                         &  ! if defined it must be present
                      &  uspsdnam, error)) GOTO 1000
 IF (.NOT. GetCheckedKey('EMCORFAC', 0.01, 9.99, .TRUE., emtrend, error)) GOTO 1000
-IF (.NOT. GetCheckedKey('TARGETGROUP', 0, 9999, .TRUE., ncatsel, catsel, error)) GOTO 1000
-IF (.NOT. GetCheckedKey('COUNTRY', 0, 9999, .TRUE., nlandsel, landsel, error)) GOTO 1000
-!
+IF (.NOT. GetCheckedKey('TARGETGROUP', 0, 9999, ncatsel, catsel, error)) GOTO 1000
+IF (.NOT. GetCheckedKey('COUNTRY', 0, 9999, nlandsel, landsel, error)) GOTO 1000
+
+! Read emission categories that are roads; they use a 'road correction' according to vdHout (close to the road) for NO2/NOx ratio.
+! Record is optional; default no road emission categories (nemcat_road = 0:
+call ops_read_ctr_roads(nemcat_road, emcat_road, error)
+if (error%haserror) goto 1000
+
 ! Read receptor layer (receptor type (regular grid/specified points), centre of grid,
 ! number of columns and rows of the grid)
-!
 IF (.NOT. GetCheckedKey('RECEPTYPE', 0, 3, .TRUE., spgrid, error)) GOTO 1000
+
+! Check invalid combination of ROADS and possible use of sub receptors: 
+if ((spgrid .ne. 2) .and. (nemcat_road .gt. 0)) then
+   call SetError('ROADS categories currently only allowed for RECEPTYPE 2 (no sub receptors).', &
+                 'Combination of other RECEPTYPE and ROADS categories has not been tested yet.',error)
+   call ErrorParam('RECEPTYPE',spgrid,error)
+   goto 1000
+endif
+
 IF (.NOT. GetKeyValue  ('XCENTER', xc, error)) GOTO 1000  ! only needed for spgrid = 1; if value field is empty -> assign MISVALNUM
 IF (.NOT. GetKeyValue  ('YCENTER', yc, error)) GOTO 1000  ! only needed for spgrid = 1; if value field is empty -> assign MISVALNUM
 IF (.NOT. GetCheckedKey('NCOLS', 0, MAXCOL, spgrid == 1, nrcol, error)) GOTO 1000
@@ -213,7 +233,7 @@ IF (.NOT. GetCheckedKey('NROWS', 0, MAXROW, spgrid == 1, nrrow, error)) GOTO 100
 ! For spgrid = 0,3, the grid resolution must be > 100 m;
 ! for other receptor types a 1 m resolution is the lower limit.
 !
-  IF (spgrid .EQ. 0 .OR. spgrid .EQ. 3) THEN
+IF (spgrid .EQ. 0 .OR. spgrid .EQ. 3) THEN
   lower=100
 ELSEIF (spgrid .EQ. 1) THEN
   lower=1
@@ -270,7 +290,7 @@ CALL ErrorCall(ROUTINENAAM, error)
 END SUBROUTINE ops_read_ctr
 
 !------------------------------------------------------------------------------------------------
-subroutine read_ctr_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error)
+subroutine ops_read_ctr_conv_rate(gasv,idep,isec,vchemc,iopt_vchem,error)
 
 use m_error
 use m_commonconst_lt,only: MISVALNUM, EPS_DELTA
@@ -355,10 +375,10 @@ ENDIF
 RETURN
 1000 CONTINUE  ! error handling in calling routine
 
-end subroutine read_ctr_conv_rate
+end subroutine ops_read_ctr_conv_rate
 
 !------------------------------------------------------------------------------------------------
-subroutine read_ctr_year(year,chem_meteo_prognosis,error)
+subroutine ops_read_ctr_year(year,chem_meteo_prognosis,error)
 
 ! Read year for chemical maps (background concentrations, masses needed for conversion rates, 
 ! chemical distribution maps)
@@ -407,6 +427,149 @@ endif
 RETURN
 1000 CONTINUE  ! error handling in calling routine
 
-end subroutine read_ctr_year
+end subroutine ops_read_ctr_year
+
+!---------------------------------------------------------------
+subroutine ops_read_ctr_loss(do_proc, idep, error)
+
+! Read option(s) to switch on/off loss processes
+
+use m_getkey
+use m_error
+use m_ops_brondepl, only: Tdo_proc
+use m_commonfile, only: fu_input
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                ! 
+PARAMETER    (ROUTINENAAM = 'ops_read_ctr_loss')
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+TYPE(Tdo_proc), INTENT(OUT)                      :: do_proc                    ! options to switch on/off specific processes
+LOGICAL,   INTENT(OUT)                           :: idep                       
+
+! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL
+INTEGER*4                                        :: int5(5) = -999             ! array for five settings for idep and do_proc
+INTEGER*4                                        :: ios                        ! IO-status
+CHARACTER(LEN = 50)                              :: string                     ! string read after 'LOSS'
+
+! Syntax 1
+! LOSS idep
+!      idep = 0 -> no chemistry, no dry deposition, no wet deposition (over trajectory and at receptor)
+!      idep = 1 -> include chemistry, dry deposition, wet deposition (over trajectory and at receptor)
+! 
+! Supplementary values of LOSS are NOT for normal OPS users, only for testing purposes!!
+! With these settings, one or more specific processes can be switched on (=1) or off (=0).
+! 
+! Syntax 2:
+! LOSS idep do_proc%chem do_proc%depl_drydep do_proc%depl_wetdep do_proc%grad_drydep
+!
+! do_proc%chem         : do process chemistry
+! do_proc%depl_drydep  : do process of depletion over trajectory due to dry deposition (deposition at receptor still possible)
+! do_proc%depl_wetdep  : do process of depletion over trajectory due to wet deposition (deposition at receptor still possible)
+! do_proc%grad_drydep  : do process of vertical gradient due to local deposition at receptor
+
+! Read value for idep (syntax 1, 'normal' input):
+IF (.NOT. GetKeyValue  ('LOSS', .TRUE., idep, error)) GOTO 9999
+
+! Read line again and check whether there are five 0 and 1's available for idep and do_proc (syntax 2)
+backspace(fu_input)
+IF (.NOT. GetKeyValue  ('LOSS', string, error)) GOTO 9999  ! error will not occur (otherwise previous GetKeyValue has also an error)
+read(string,*,iostat = ios) int5
+
+! If reading was ok, get logicals from five integers:
+if (ios .eq. 0) then
+
+   ! Check for 0 / 1:
+   if (any(int5 .lt. 0) .or. any(int5 .gt. 1)) then
+      CALL SetError('Incorrect values for settings of do_proc in LOSS: only 0 or 1 allowed;','special OPS-users only', error)
+      CALL ErrorParam('integer values read', int5, error)
+      goto 9999
+   endif
+
+   ! idep               = (int5(1) .eq. 1) is already set
+   do_proc%chem         = (int5(2) .eq. 1) 
+   do_proc%depl_drydep  = (int5(3) .eq. 1) 
+   do_proc%depl_wetdep  = (int5(4) .eq. 1) 
+   do_proc%grad_drydep  = (int5(5) .eq. 1)
+else
+   ! If reading of five integers was unsuccessfull, use setting of idep:
+   do_proc%chem         = idep 
+   do_proc%depl_drydep  = idep 
+   do_proc%depl_wetdep  = idep 
+   do_proc%grad_drydep  = idep
+endif
+
+! If all loss processes are switched off by idep, you cannot switch a specific process on:
+if (.not. idep .and. (do_proc%chem .or. do_proc%depl_drydep .or. do_proc%depl_wetdep .or. do_proc%grad_drydep)) then
+      CALL SetError('If all loss processes are switched off by idep, you cannot switch a specific process on;','special OPS-users only', error)
+      CALL ErrorParam('idep',                idep,                error)
+      CALL ErrorParam('do_proc%chem',        do_proc%chem,        error) 
+      CALL ErrorParam('do_proc%depl_drydep', do_proc%depl_drydep, error) 
+      CALL ErrorParam('do_proc%depl_wetdep', do_proc%depl_wetdep, error) 
+      CALL ErrorParam('do_proc%grad_drydep', do_proc%grad_drydep, error)
+      goto 9999
+endif
+
+RETURN
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+
+end subroutine ops_read_ctr_loss
+
+!---------------------------------------------------------------
+subroutine ops_read_ctr_roads(nemcat_road, emcat_road, error)
+
+! Read record with emission categories that are roads; they use a 'road correction' according to vdHout (close to the road) for NO2/NOx ratio.
+! Record is optional; default no road emission categories.
+! Examples:
+! ROADS      3100 3200 3300  -> emission categories 3100, 3200 and 3300 are roads
+! ROADS      0               -> all emission categories are roads
+! ROADS                      -> no emission categories are roads
+! -- no line with ROADS --   -> no emission categories are roads (allows the use of 'old' ctr-files)
+
+use m_getkey
+use m_commonfile, only: fu_input
+
+! OUTPUT  
+integer, intent(out)        :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+integer, intent(out)        :: emcat_road(3)              ! list of road emission categories (for vdHout NO2/NOx ratio)
+
+! INPUT/OUTPUT
+type(Terror), intent(inout) :: error                      ! error handling record
+
+! CONSTANTS
+CHARACTER*512                                    :: ROUTINENAAM                ! 
+PARAMETER    (ROUTINENAAM = 'ops_read_ctr_roads')
+
+! Read line with ROADS and array with values:
+IF (.NOT. GetCheckedKey('ROADS', 0, 9999, nemcat_road, emcat_road, error)) THEN 
+   ! GetCheckedKey is false due to an array value out of range -> error
+   goto 9999
+ELSE
+   ! GetCheckedKey is true (no array value out of range), but we still have to check whether an error occurred
+   if (error%haserror) then
+      if (error%message .eq. 'Undeclared parameter') then
+         ! Missing parameter name ROADS -> no road emission categories (is ok, so reset haserror and backspace input file):
+         nemcat_road = 0
+         error%haserror = .false. 
+         backspace(fu_input)
+      else
+         ! Other error:
+         goto 9999
+      endif
+   endif
+ENDIF
+
+!write(*,*) 'nemcat_road = ',nemcat_road
+!write(*,*) 'emcat_road  = ',emcat_road
+
+return
+
+9999 CALL ErrorCall(ROUTINENAAM, error)
+
+end subroutine ops_read_ctr_roads
 
 end module m_ops_read_ctr

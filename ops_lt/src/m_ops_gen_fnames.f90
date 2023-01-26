@@ -29,10 +29,10 @@ contains
 SUBROUTINE ops_gen_fnames(gasv, spgrid, intpol, error)
 
 use m_error
-use m_fileutils
-use m_string
-use m_commonconst_lt
-use m_commonfile
+USE m_fileutils
+USE m_string
+USE m_commonconst_lt
+USE m_commonfile
 
 IMPLICIT NONE
 
