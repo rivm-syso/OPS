@@ -521,7 +521,7 @@ ENDIF
 
 ! Point source, so extra virtual distance for area source = 0
 virty = 0.
-
+   
 RETURN
 END SUBROUTINE par_puntbr
 

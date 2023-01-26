@@ -1,2 +1,5 @@
 # Set the default behavior for EOL conversion, in case people don't have core.autocrlf set.
 * text=auto
+
+# R files encoded as UTF-8
+*.R encoding=utf-8

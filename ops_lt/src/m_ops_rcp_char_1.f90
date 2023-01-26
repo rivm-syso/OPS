@@ -28,11 +28,11 @@ SUBROUTINE ops_rcp_char_1(isec, ircp, nrrcp, intpol, gxm_rcp, gym_rcp, cs, z0_me
                        &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
 
 use m_commonconst_lt
-use m_commonfile
-use m_error
-use m_aps
-use m_geoutils
-use m_commonconst_lib, only: NLU
+USE m_commonfile
+USE m_error
+USE m_aps
+USE m_geoutils
+USE m_commonconst_lib, only: NLU
 
 IMPLICIT NONE
 
@@ -212,7 +212,7 @@ CONTAINS
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE reginpo(x, y, cs, z0_metreg, xreg, yreg, z0_metreg_xy, uurtot, astat, error)
 
-use Binas, only: deg2rad
+USE Binas, only: deg2rad
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 

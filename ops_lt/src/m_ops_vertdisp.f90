@@ -122,9 +122,10 @@ ELSE
   CALL ops_surface(z0,zi,ol,uster,h,x, uh, zu, szs)
   sz = szs
 ENDIF
-if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
-   ' ircp,istab,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn:', &
-     -999,-999,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn
+! Note: not all local variables are defined always (fs, szc)
+!if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
+!   ' ircp,istab,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn:', &
+!     -999,-999,h,zi,ol,h/zi/0.1,zi/ol,fm,fs,szs,szc,szn
 
 RETURN
 END SUBROUTINE ops_vertdisp

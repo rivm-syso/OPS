@@ -18,15 +18,15 @@
 ! USAGE                :
 ! DESCRIPTION          : Prepares values for landuse and roughness and background concentrations over trajectory.
 !-------------------------------------------------------------------------------------------------------------------------------
-module m_ops_tra_char 
+module m_ops_tra_char
 
 implicit none
 
 contains
 
 SUBROUTINE ops_tra_char (icm, iopt_vchem, f_z0user, z0_user, x_rcp, y_rcp, x_src, y_src, &
-                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, vchem2, domlu, & 
-                      &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra,       &
+                      &  lugrid, z0nlgrid, z0eurgrid, so2bggrid, no2bggrid, nh3bggrid, o3bggrid, vchem2, domlu, & 
+                      &  z0_tra, lu_tra_per, so2bgtra, no2bgtra, nh3bgtra, o3bgtra,      &
                       &  error)
 
 use m_commonconst_lt
@@ -35,6 +35,8 @@ use m_error
 use m_aps
 use m_ops_vchem
 use m_commonconst_lib, only: NLU
+use m_ops_getz0_tra
+use m_ops_getlu_tra
 use m_ops_bgcon_tra
 use m_ops_getlu_tra
 use m_ops_getz0_tra
@@ -57,9 +59,10 @@ INTEGER*4, INTENT(IN)                            :: y_src                      !
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
-TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! 
-TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  ! 
-TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! 
+TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! grid with SO2 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(IN)                  :: no2bggrid                  ! grid with NO2 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! grid with NH3 background concentration [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(IN)                  :: o3bggrid                   ! grids with O3 background concentration per wind sector [ug/m3]
 TYPE (Tvchem)      , INTENT(INOUT)               :: vchem2                     !
 LOGICAL,   INTENT(IN)                            :: domlu                      ! use dominant land use instead of land use percentages
 
@@ -69,6 +72,7 @@ REAL*4,    INTENT(OUT)                           :: lu_tra_per(NLU)            !
 REAL*4,    INTENT(OUT)                           :: so2bgtra                   ! 
 REAL*4,    INTENT(OUT)                           :: no2bgtra                   ! 
 REAL*4,    INTENT(OUT)                           :: nh3bgtra                   ! 
+REAL*4,    INTENT(OUT)                           :: o3bgtra(NSEK)              ! 
 TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
 
 ! LOCAL VARIABLES:
@@ -105,6 +109,9 @@ ENDIF
 IF (ANY(icm == (/1,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), so2bggrid, so2bgtra, error)
 IF (ANY(icm == (/2,3/)))   CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), no2bggrid, no2bgtra, error)
 IF (ANY(icm == (/1,2,3/))) CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), nh3bggrid, nh3bgtra, error)
+! IF (icm == 2 .and. nemcat_road .gt. 0) CALL ops_bgcon_tra(x_rcp, y_rcp, float(x_src), float(y_src), o3bggrid,  o3bgtra,  error) 
+o3bgtra = -999.0 
+
 IF (error%haserror) goto 9999
 
 ! Compute average mass_prec and mass_conv_dtfac values ocver trajectory (EMEP option iopt_vchem = 1):
@@ -122,4 +129,4 @@ RETURN
 
 END SUBROUTINE ops_tra_char
 
-end module m_ops_tra_char 
+end module m_ops_tra_char

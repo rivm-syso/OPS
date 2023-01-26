@@ -26,7 +26,7 @@ contains
 SUBROUTINE ops_print_kop(project, namco)
 
 use m_commonconst_lt
-use m_commonfile
+USE m_commonfile
 
 IMPLICIT NONE
 

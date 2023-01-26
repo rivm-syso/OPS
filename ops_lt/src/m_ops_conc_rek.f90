@@ -30,7 +30,7 @@ implicit none
 
 contains
 
-SUBROUTINE ops_conc_rek(ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp, ra_rcp_4, ra_rcp_zra, &
+SUBROUTINE ops_conc_rek(do_proc, ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp, ra_rcp_4, ra_rcp_zra, &
                      &  rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder, regenk, virty, ri, vw10, hbron, pcoef, &
                      &  rkc, disx, vnatpri, vchem, radius, xl, xloc, htot, twt, xvghbr, xvglbr, grad, frac, &
                      &  cdn, cq2, c, sdrypri, sdrysec, snatsec, somvnsec, telvnsec, vvchem, vtel, snatpri, somvnpri, &
@@ -40,6 +40,7 @@ SUBROUTINE ops_conc_rek(ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol
 use m_commonconst_lt
 use m_ops_output_lt
 use m_ops_seccmp
+use m_ops_brondepl, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -48,6 +49,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_conc_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 REAL*4,    INTENT(IN)                            :: ueff                       ! 
 REAL*4,    INTENT(IN)                            :: qbpri                      ! source strength current source (for current particle class) [g/s]
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
@@ -267,7 +269,7 @@ IF (isec) THEN
    IF (vchem .GT. (0. + EPS_DELTA)) THEN
       xvg  = 1.
       qsec = 0.
-      CALL ops_seccmp(qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10, &
+      CALL ops_seccmp(do_proc, qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10, &
                    &  pcoef, virty, regenk, htot, onder, twt, ri, cgt, xvghbr, xvglbr, vnatpri, vchem, ra_rcp_4, &
                    &  ra_rcp_zra, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, qsec, consec, vd_eff_trj_zra, ra_trj_zra, rb_trj)
       consec = consec*buildingFact

@@ -1,0 +1,22 @@
+LOSS  1 0 0 0 0 
+LOSS  1 0 0 0 1 
+LOSS  1 0 0 1 0 
+LOSS  1 0 0 1 1 
+LOSS  1 0 1 0 0 
+LOSS  1 0 1 0 1 
+LOSS  1 0 1 1 0 
+LOSS  1 0 1 1 1 
+LOSS  1 1 0 0 0 
+LOSS  1 1 0 0 1 
+LOSS  1 1 0 1 0 
+LOSS  1 1 0 1 1 
+LOSS  1 1 1 0 0 
+LOSS  1 1 1 0 1 
+LOSS  1 1 1 1 0 
+LOSS  1 1 1 1 1 
+LOSS  0 0 0 0 0 
+LOSS  1
+LOSS  0
+LOSS  0 0 1 0 0   -> error, idep = 0, then all other values should be 0
+LOSS -1 1 1 1 1   -> error
+LOSS  1 -2 1 1 1  -> error

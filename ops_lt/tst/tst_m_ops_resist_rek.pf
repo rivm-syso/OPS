@@ -1,3 +1,22 @@
+
+!------------------------------------------------------------------------
+! Tests for module m_ops_resist_rek, which computes deposition resistances.
+! 
+! Tests are available for the following routines (empty -> not tested yet)
+! ops_resist_rek
+! ops_resist_ra_all
+! ops_resist_ra                 : aerodynamic resistance
+! ops_resist_rb_all
+! ops_resist_rb                 : boundary layer resistance
+! ops_resist_rc_all
+! ops_resist_rc                 
+! ops_resist_rc_nox             : canopy resistance for mixture NOx
+! ops_resist_rain_out_scav_ratio: in-cloud scavenging ratio
+! ops_resist_rc_sec_trj         : canopy resistance secondary component representative for trajectory
+! ops_resist_rcaer              : canopy resistance for aerosols SO4, NO3, NH4
+! fpsih                         : stability correction function for heat
+!------------------------------------------------------------------------
+
 @test
 subroutine tst_ops_resist_ra
 
@@ -26,6 +45,7 @@ call ops_resist_ra(z0, z_dep, d, ol, uster, ra)
 
 end subroutine tst_ops_resist_ra
 
+!------------------------------------------------------------------------
 @test
 subroutine tst_ops_resist_rb
 
@@ -52,6 +72,351 @@ call ops_resist_rb(icnr, uster, rb)
 
 end subroutine tst_ops_resist_rb
 
+!-----------------------------------------------------------------------
+@test
+subroutine tst_ops_resist_rain_out_scav_ratio   
+
+! Compute in-cloud scavenging ratio (rout << rain-out = in-cloud) [-])
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4                            :: icm                        ! component number
+LOGICAL                              :: gasv                       ! TRUE for gasuous component
+LOGICAL                              :: isec                       ! TRUE if component=[SO2, NOx, NH3] (acidifying components)
+INTEGER*4                            :: kdeel                      ! index of particle size class
+REAL*4                               :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
+REAL*4                               :: rations                    ! NH3/SO2 ratio over trajectory
+REAL*4                               :: r_no2_nox                  ! NO2/NOx ratio
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4                               :: routpri                    ! in-cloud scavenging ratio for primary component
+
+real      :: tol = 0.1
+
+icm       = 1
+gasv      = .true.
+isec      = .true. 
+kdeel     = 1
+croutpri  = 100000.0
+rations   = 3.0
+r_no2_nox = 0.6
+
+! icm = 1, SO2; routpri = croutpri*rations
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)  
+@assertEqual(300000.0, routpri, tol, message='assert routpri SO2') 
+
+! icm = 2: NOx; routpri = croutpri*r_no2_nox
+icm = 2
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)  
+@assertEqual(60000.0, routpri, tol, message='assert routpri NOx') 
+
+!   icm = 3: NH3; routpri = croutpri
+icm = 3
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)  
+@assertEqual(100000.0, routpri, tol, message='assert routpri NH3') 
+
+! Particles; routpri = RORATIO(kdeel)
+isec = .false.; gasv = .false.; kdeel = 1
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)  
+@assertEqual(240000.0, routpri, tol, message='assert routpri particles') 
+
+! gas, non-acidifying ; routpri keeps initial value
+isec = .false.; gasv = .true.; routpri = 1234567.8
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)  
+@assertEqual(1234567.8, routpri, tol, message='assert routpri non-acidifying gas') 
+
+end subroutine tst_ops_resist_rain_out_scav_ratio   
+
+!-----------------------------------------------------------------------
+@test
+subroutine tst_ops_resist_rc_nox
+
+! Compute canopy resistance for NOx mixture.                            
+! The primary substance is calculated as NO2 (because emissions are specified as such) but contains in reality a mixture of
+! NO, NO2 and HNO2. The whole is (finally) mentioned NOx and specified in ppb. Therefore dry deposition velocities have to
+! be calculated as representative for the NO-NO2-HNO2 mixture
+! Rc for NOx is, uptil now, Rc for NO2 (from DEPAC); now we compute the effective Rc for the NOx mixture as a weighed mean
+! of the Rc-values for NO, NO2, HNO2.
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! Input arguments:
+REAL*4                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL*4                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL*4                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL*4                            :: r_no2_nox                  ! NO2/NOx ratio
+REAL*4                            :: rc_no                      ! canopy resistance for NO [s/m]
+REAL*4                            :: rhno2                      ! ratio HNO2/NOx [-]
+
+! Input/output:
+REAL*4                            :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m]
+                                                                ! (i) for NO2, (o): for NOx
+REAL*4                            :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+                                                                               ! (i) for NO2, (o): for NOx
+! Output:
+REAL*4                            :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m]
+REAL*4                            :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
+
+! Local:
+real :: tol = 0.1   ! tolerance for assert
+
+ra_ms_4   = 100                ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+rb_ms     = 20                 ! boundary layer resistance from meteo statistics [s/m]
+rc_so2_ms = 30                 ! Rc(SO2) from meteo statistics [s/m] 
+r_no2_nox = 0.6                ! NO2/NOx ratio
+rc_no     = 600                ! canopy resistance for NO [s/m]
+rhno2     = 0.04               ! ratio HNO2/NOx [-]
+rc_eff_rcp_4_pos = 80          ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m]
+                               ! (i) for NO2, (o): for NOx
+rc_eff_trj_4_pos = 70          ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+                               ! (i) for NO2, (o): for NOx
+
+! Compute canopy resistance for mixture NOx, based on weighed average of deposition velocities of NO2, NO and HNO2
+!
+!        1                [NO2]/[NOx]         (1-[NO2]/[NOx])        [HNO2]/[NOx]
+! ------------------- = ------------------ + -------------------- + --------------------
+!  Rc(NOx) + Rb + Ra     Rc(NO2)+ Rb + Ra      Rc(NO) + Rb + Ra      Rc(HNO2) + Rb + Ra
+!
+
+! r                = rb_ms + ra_ms_4
+! rc_hno2          = rc_so2_ms         ! Rc(HNO2) = Rc(SO2); here Rc(SO2) from meteo statistics is used, so not Rc(SO2) of DEPAC
+! rc_eff_rcp_4_pos = 1./(r_no2_nox/(rc_eff_rcp_4_pos+r)  + (1.-r_no2_nox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r   
+! rc_eff_rcp_4     = rc_eff_rcp_4_pos  ! for NOx no re-emission, only for NH3
+! rc_eff_trj_4_pos = 1./(r_no2_nox/(rc_eff_trj_4_pos+r) + (1.-r_no2_nox)/(rc_no+r) + rhno2/(rc_hno2+r)) - r
+! rc_eff_src_4_pos = rc_eff_trj_4_pos  
+
+! Rc_NO2 = 80; Rinv = 0.6/(Rc_NO2+20+100) + 0.4/(600+20+100)+0.04/(30+20+100); Rc_NOx = 1/Rinv - 20 - 100;
+call ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2, &
+                       rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_rcp_4, rc_eff_src_4_pos)
+@assertEqual(1.416279e+02,rc_eff_rcp_4_pos, tol, message='assert1 rc_eff_rcp_4_pos') 
+
+! Rc_NO2 = 70; Rinv = 0.6/(Rc_NO2+20+100) + 0.4/(600+20+100)+0.04/(30+20+100); Rc_NOx = 1/Rinv - 20 - 100;
+@assertEqual(1.31248898e+02,rc_eff_trj_4_pos  , tol, message='assert1 rc_eff_trj_4_pos') 
+@assertEqual(rc_eff_rcp_4_pos,rc_eff_rcp_4    , tol, message='assert2 rc_eff_rcp_4    ') 
+@assertEqual(rc_eff_trj_4_pos,rc_eff_src_4_pos, tol, message='assert3 rc_eff_src_4_pos') 
+                             
+end subroutine tst_ops_resist_rc_nox
+
+!----------------------------------------------------------------------------------------
+@test
+subroutine tst_ops_resist_rc_sec_trj
+
+! Compute rc_sec_trj: canopy resistance secondary component representative for trajectory
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4                         :: icm                        ! component number
+REAL*4                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL*4                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL*4                            :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
+REAL*4                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
+REAL*4                            :: rhno3_trj                  ! ratio [HNO3]/[NO3_totaal] [-]
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4                            :: rc_sec_trj                 !  canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
+
+! LOCAL VARIABLES
+real                              :: tol = 0.1                  ! tolerance for assert
+  
+! icm = 1: SO2, secondary component = SO4
+! rc_sec_trj: canopy resistance secondary aerosol representative for trajectory; taken as 0.8*Rc(SO4_aerosol) = rc_aer_ms*0.8
+icm = 1
+ra_ms_4   = 100                ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+rb_ms     = 20                 ! boundary layer resistance from meteo statistics [s/m]
+rc_aer_ms = 60                 ! Rc(SO4-aerosol) from meteo statistics [s/m]
+rc_hno3   = 80                 ! canopy resistance for HNO3 [s/m]
+rhno3_trj = 0.2                ! ratio [HNO3]/[NO3_totaal] [-]
+call ops_resist_rc_sec_trj(icm,ra_ms_4,rb_ms,rc_aer_ms,rc_hno3,rhno3_trj,rc_sec_trj)
+@assertEqual(48.0,rc_sec_trj,tol,message='assert rc_sec_trj for SO4')
+
+! icm = 2: NOx, secondary component = NO3
+!
+!            1             [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
+! ------------------- = ----------------------- + ---------------------------- = 0.2/(80+20+100) + 0.8/(60+20+100) = 0.2/200 + 0.8/180 = 0.0054444
+!  Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra      
+!
+! Rc(NO3) = 1/0.00544444 - 20 - 100 = 63.673469
+
+icm = 2 
+call ops_resist_rc_sec_trj(icm,ra_ms_4,rb_ms,rc_aer_ms,rc_hno3,rhno3_trj,rc_sec_trj)
+@assertEqual(63.673469,rc_sec_trj,tol,message='assert rc_sec_trj for NO3')
+
+! icm = 3: NH3, secondary component = NH4 
+! rc_sec_trj = 0.8*Rc(SO4_aerosol) 
+icm = 3
+call ops_resist_rc_sec_trj(icm,ra_ms_4,rb_ms,rc_aer_ms,rc_hno3,rhno3_trj,rc_sec_trj)
+@assertEqual(48.0,rc_sec_trj,tol,message='assert rc_sec_trj for NH4')
+
+end subroutine tst_ops_resist_rc_sec_trj
+
+!----------------------------------------------------------------------------------------
+@test 
+subroutine tst_ops_resist_rcaer 
+
+! SUBROUTINE         : ops_resist_rcaer
+! DESCRIPTION        : calculation of canopy resistance for aerosols SO4, NO3, NH4 according
+!                      to Wesely et al. (1985) for low vegetation and other areas with
+!                      a roughness length (znul) < 0.5m and to Erisman et al (1994) and
+!                      Ruijgrok et al. (1994) for forest and other areas with a roughness
+!                      length above 0.5m.
+
+use funit
+use m_ops_resist_rek
+
+implicit none
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER*4                            :: icmpsec                    ! component number (11 = SO4, 12 = NO3, 13 = NH4)
+REAL*4                               :: znul                       ! roughness length [m]
+REAL*4                               :: ust                        ! friction velocity [m/s]
+REAL*4                               :: ol                         ! Monin-Obukhov length [m][m]
+REAL*4                               :: hum                        ! relative humidity [%]
+INTEGER*4                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
+REAL*4                               :: Uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
+REAL*4                               :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL*4                               :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m]
+REAL*4                               :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
+REAL*4                               :: rhno3                      ! ratio [HNO3]/[NO3_total] [-]
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL*4                               :: rc_aer                     ! canopy resistance aerosols SO4, NO3, NH4 [s/m]
+
+! LOCAL VARIABLES
+real :: tol = 0.1 ! tolerance in assert
+
+!-------------------------------------------------------------------------------------------------------------------------------
+! components:
+! 11 = SO4
+! 12 = NO3
+! 13 = NH4
+!
+ust     = 1.1              ! friction velocity [m/s]
+hum     = 80.0             ! relative humidity [%]
+nwet    = 0                ! wetness indicator depending on percipitation probability and humidity
+Uh      = 11.0             ! wind speed used in parametrisation of vd for aerosols [m/s]
+ra_ms_4 = 100              ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+rb_ms   = 20               ! boundary layer resistance SO2 from meteo statistics [s/m]
+rc_hno3 = 80               ! canopy resistance for HNO3 [s/m]
+rhno3   = 0.2              ! ratio [HNO3]/[NO3_total] [-]
+
+! A. znul.lt.0.5
+!    A1. (ol.lt.0) -> rc_aer = 1.0/((ust/500.)*(1.+((300./(-1.*ol))**(2./3.)))) 
+!    A2. (ol.ge.0) -> rc_aer = 1.0/(ust/500) 
+!
+! B. znul.ge.0.5 -> rc_aer = 1.0/(E*ust**2/Uh) 
+!    SO4/B1. hum.le.80, (nwet.ge.1) -> E = 0.08*ust**0.45  
+!    SO4/B2. hum.le.80, (nwet.lt.1) -> E = 0.05*ust**0.28  
+!    SO4/B3. hum.gt.80, (nwet.ge.1) -> E = 0.08*ust**0.45*(1+0.37*EXP((hum-80)/20))  
+!    SO4/B4. hum.gt.80, (nwet.lt.1) -> E = 0.05*ust**0.28*(1+0.18*EXP((hum-80)/20))  
+
+!---------------------------------
+! Sulphate
+!---------------------------------
+! A1. znul.lt.0.5, ol.lt.0
+!                         1
+! rc_aer = --------------------------------------------
+!          ((ust/500)*(1 + ((300/(-L))**(2./3.))))
+! (300/((-L))**(2/3) = 1.5**(2/3) = 1.310370697104448; ust/500 = 0.0022; rc_aer = 1/(0.0022*(1 + 1.310370697104448)) = 1.967413519895874e+02
+icmpsec = 11; znul = 0.03; ol = -200.0;  
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual( 1.9674135e+02,rc_aer,tol,message='assert A1 rc_aer SO4')
+
+! A2. znul.lt.0.5, (ol.ge.0) -> rc_aer = 1.0/(ust/500) = 454.5454...
+icmpsec = 11; znul = 0.03; ol = 200.0
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(4.54545e+02,rc_aer,tol,message='assert A2 rc_aer SO4')
+
+! B. znul.ge.0.5 -> rc_aer = 1.0/(E*ust**2/Uh) 
+!    SO4/B1. hum.le.80, (nwet.ge.1) -> E = 0.08*ust**0.45  
+icmpsec = 11; znul = 0.6; hum = 70; nwet = 2; ! E = 0.083505810443527; rc_aer = 1.088655872282932e+02  
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(1.088656e+02,rc_aer,tol,message='assert B1 rc_aer SO4')
+
+!    SO4/B2. hum.le.80, (nwet.lt.1) -> E = 0.05*ust**0.28  
+icmpsec = 11; znul = 0.6; hum = 70; nwet = 0; ! E = 0.051352306662934; rc_aer = 1.770301994529647e+02
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(1.77030e+02,rc_aer,tol,message='assert B2 rc_aer SO4')
+
+!    SO4/B3. hum.gt.80, (nwet.ge.1) -> E = 0.08*ust**0.45*(1+0.37*EXP((hum-80)/20))  
+icmpsec = 11; znul = 0.6; hum = 85; nwet = 2; ! E = 0.123178536172248; rc_aer = 73.802704378599998
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(73.802704,rc_aer,tol,message='assert B3 rc_aer SO4')
+
+!    SO4/B4. hum.gt.80, (nwet.lt.1) -> E = 0.05*ust**0.28*(1+0.18*EXP((hum-80)/20))  
+icmpsec = 11; znul = 0.6; hum = 85; nwet = 0; ! E = 0.063221086715870; rc_aer = 1.437955208167453e+02
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(1.4379552e+02,rc_aer,tol,message='assert B4 rc_aer SO4')
+
+!---------------------------------
+! Nitrate
+!---------------------------------
+!  rc_aer is valid for NO3 aerosol. Calculate now a weighted value for the NO3+HNO3 mixture 
+!
+!          1               [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
+! ------------------- = ----------------------- + ---------------------------- 
+!  Rc(NO3) + Rb + Ra       Rc(HNO3)+ Rb + Ra        Rc(NO3_aerosol) + Rb + Ra      
+!
+! Rinv = 0.2/(80+20+100) + 0.8/(rc_aer+20+100); rc_aer = 1/Rinv -20 - 100
+
+! B. znul.ge.0.5 -> rc_aer = 1.0/(E*ust**2/Uh) 
+!    NO3/B1. hum.le.80, nwet.ge.1 -> E = 0.10*ust**0.43
+icmpsec = 12; znul = 0.6; hum = 70; nwet = 2; ! E = 0.10418; rc_aer1 =  87.25864; rc_aer2 = 85.76507
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(85.76507,rc_aer,tol,message='assert B1 rc_aer NO3')
+
+!    NO3/B2. hum.le.80, nwet.lt.1 -> E = 0.063*ust**0.25
+icmpsec = 12; znul = 0.6; hum = 70; nwet = 0; ! E = 0.06452; rc_aer1 = 140.90247; rc_aer2 = 125.92503
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(125.92503,rc_aer,tol,message='assert B2 rc_aer NO3')
+
+!    NO3/B3. hum.gt.80, nwet.ge.1 -> E = 0.10*ust**0.43*(1+0.37*EXP((hum-80)/20))
+icmpsec = 12; znul = 0.6; hum = 85; nwet = 2; ! E = 0.15368; rc_aer1 = 59.15482; rc_aer2 = 62.96884
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(62.96884,rc_aer,tol,message='assert B3 rc_aer NO3')
+
+!    NO3/B4. hum.gt.80, nwet.lt.1 -> E = 0.063*ust**0.25*(1+0.18*EXP((hum-80)/20))
+icmpsec = 12; znul = 0.6; hum = 85; nwet = 0; ! E = 0.07943; rc_aer1 = 114.45021; rc_aer2 = 106.64233
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(106.64233,rc_aer,tol,message='assert B4 rc_aer NO3')
+
+!----------------------------
+! Ammonium
+!----------------------------!!
+
+! B. znul.ge.0.5 -> rc_aer = 1.0/(E*ust**2/Uh) 
+! NH4/B1. hum.le.80, nwet.ge.1 -> E = 0.066*ust**0.41
+icmpsec = 13; znul = 0.6; hum = 70; nwet = 2; ! E = 0.06863; rc_aer = 132.46233
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(132.46233,rc_aer,tol,message='assert B1 rc_aer NH4')
+
+! NH4/B2. hum.le.80, nwet.lt.1 -> E = 0.05*ust**0.23
+icmpsec = 13; znul = 0.6; hum = 70; nwet = 0; ! E = 0.05111; rc_aer = 177.87585
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(177.87585,rc_aer,tol,message='assert B2 rc_aer NH4')
+  
+! NH4/B3. hum.gt.80, nwet.ge.1 -> E = 0.066*ust**0.41*(1+0.37*EXP((hum-80)/20))
+icmpsec = 13; znul = 0.6; hum = 85; nwet = 2; ! E = 0.10124; rc_aer =  89.79952
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(89.79952,rc_aer,tol,message='assert B3 rc_aer NH4')
+
+! NH4/B4. hum.gt.80, nwet.lt.1 -> E = 0.05*ust**0.23*(1+0.18*EXP((hum-80)/20))
+icmpsec = 13; znul = 0.6; hum = 85; nwet = 0; ! E = 0.06292; rc_aer = 144.48242
+call ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+@assertEqual(144.48242,rc_aer,tol,message='assert B4 rc_aer NH4')
+
+end subroutine tst_ops_resist_rcaer
+!-----------------------------------------------------------------------
 @test
 subroutine tst_fpsih
 
@@ -60,10 +425,10 @@ use m_ops_resist_rek
 
 implicit none
 
-REAL*4  :: eta                        ! stabiliteitsparameter z/l
+REAL*4  :: eta                        ! stability parameter z/L
 
 ! output
-REAL*4  :: output                     ! laminar layer resistance for component incr (s/m)
+REAL*4  :: output                     ! psi_h = stability correction function for heat
 real    :: tol = 0.1
 
 ! First test, eta < 0

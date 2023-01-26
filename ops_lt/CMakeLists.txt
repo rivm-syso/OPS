@@ -14,10 +14,10 @@ SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 # NETCDF_DIR, OPSLIB_DIR, MATHLIB_DIR, PFUNIT_DIR.
 
 # make sure that the default build type is DEBUG
-set ( CMAKE_CONFIGURATION_TYPES "Debug" "Release" "Coverage" )
+set ( CMAKE_CONFIGURATION_TYPES "Debug" "Release" "Coverage" "Profiler" )
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE DEBUG CACHE STRING
-      "Choose the type of build, options are: Debug, Release, Coverage."
+      "Choose the type of build, options are: Debug, Release, Coverage, Profiler."
       FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 message (STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
@@ -26,6 +26,7 @@ message (STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 set(CMAKE_DEBUG_POSTFIX "_debug")
 set(CMAKE_RELEASE_POSTFIX "_optim")
 set(CMAKE_COVERAGE_POSTFIX "_cov")
+set(CMAKE_PROFILER_POSTFIX "_prof")
 
 # Get name of Fortran compiler (without directory):
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
@@ -34,7 +35,8 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 if (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (default/preferred compiler)
   set (CMAKE_Fortran_FLAGS_RELEASE "-nowarn -DUNIX -fpp -assume byterecl -O2 -extend-source -module ${MOD_DIR}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-warn unused -diag-disable8291 -diag-disable7841 -DUNIX -fpp -assume byterecl -check -warn interfaces -debug-parameters all -traceback -O0 -g -extend-source -module ${MOD_DIR}") 
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fpe0 -warn unused -diag-disable8291 -diag-disable7841 -DUNIX -fpp -assume byterecl -check -warn interfaces -debug-parameters all -traceback -O0 -g -extend-source -module ${MOD_DIR}") 
+  set (CMAKE_Fortran_FLAGS_PROFILER   "-pg ${CMAKE_Fortran_FLAGS_RELEASE}") 
   set (CMAKE_Fortran_FLAGS_COVERAGE   "${CMAKE_Fortran_FLAGS_DEBUG} -prof-gen=srcpos -prof-dir=${COV_DIR}") 
 else ()
   message (STATUS "CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
@@ -42,6 +44,7 @@ else ()
   message (STATUS "No optimized Fortran compiler flags are known for compilers other than ifort, we just try -O2...")
   set (CMAKE_Fortran_FLAGS_RELEASE "-O2")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g")
+  set (CMAKE_Fortran_FLAGS_PROFILER   "-pg ${CMAKE_Fortran_FLAGS_RELEASE}") 
   set (CMAKE_Fortran_FLAGS_COVERAGE   "${CMAKE_Fortran_FLAGS_DEBUG} -prof-gen=srcpos -prof-dir=${COV_DIR}") 
 endif (Fortran_COMPILER_NAME MATCHES "ifort.*")
 

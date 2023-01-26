@@ -21,6 +21,8 @@ target_include_directories(ops_lt PUBLIC ${MATH77_INCLUDE_DIRS} PUBLIC ${OPSLIB_
 string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type_lower)
 IF(build_type_lower STREQUAL "release")
     set_target_properties(ops_lt PROPERTIES SUFFIX "_optim.exe")
+ELSEIF(build_type_lower STREQUAL "profiler")
+    set_target_properties(ops_lt PROPERTIES SUFFIX "_prof.exe")
 ELSE()
     set_target_properties(ops_lt PROPERTIES SUFFIX "_debug.exe")
 ENDIF(build_type_lower STREQUAL "release")

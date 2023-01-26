@@ -27,7 +27,7 @@ contains
 SUBROUTINE ops_write_progress(progress, formatstring, numbs, memdone)
 
 use m_utils
-use m_commonfile
+USE m_commonfile
 
 IMPLICIT NONE
 

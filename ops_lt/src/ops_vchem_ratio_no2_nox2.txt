@@ -1,0 +1,64 @@
+SUBROUTINE ops_vchem_ratio_no2_nox2(iseiz, istab, isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, & 
+                                   ibroncat, nemcat_road, emcat_road, r_no2_nox_rcp, r_no2_nox_tra, lroad_corr)
+
+! Compute r_no2_nox = [NO2]/[NOx] ratio for current source - receptor, 
+! either based on the vdHout formula (near roads) or based on background concentrations.
+
+USE m_commonconst_lt, only: NSEK, SCWINTER
+
+! SUBROUTINE ARGUMENTS - INPUT
+INTEGER, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+INTEGER, INTENT(IN)                            :: istab                      ! index of stability class
+INTEGER, INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
+REAL,    INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]
+REAL,    INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
+REAL,    INTENT(IN)                            :: r_no2_nox_year_bg_tra      ! component of NO2/NOx ratio which is based on yearly averaged background concentrations over a trajectory
+REAL,    INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent  
+INTEGER, INTENT(IN)                            :: ibroncat                   ! emission category number
+INTEGER, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER, INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL,    INTENT(OUT)                           :: r_no2_nox_rcp              ! NO2/NOx ratio at receptor
+REAL,    INTENT(OUT)                           :: r_no2_nox_tra              ! NO2/NOx ratio representative for trajectory
+LOGICAL, INTENT(OUT)                           :: lroad_corr                 ! road correction needed for NO2/NOx ratio
+
+! LOCAL VARIABLES
+REAL                                           :: scno2nox                   ! stability class dependent component in NO2/NOx-ratio (only in winter)
+real,    parameter                             :: dist_road_corr = 5000.0    ! distance beyond which there is no road correction [m]
+
+!------------------------------------------------------------------------------------
+
+! We use road correction according to vd Hout, if the emission category is a road category and if the receptor is close to a road:
+if (nemcat_road .gt. 0) then
+   ! Special case emcat_road = [0] -> all categories use road correction
+   lroad_corr = (nemcat_road .eq. 1 .and. (emcat_road(1) .eq. 0)) .or. &
+                (any(ibroncat .eq. emcat_road(1:nemcat_road)))
+   lroad_corr = lroad_corr .and. (disxx < dist_road_corr)
+else
+   lroad_corr = .false. 
+endif
+
+! Get stability class dependent component of NO2/NOx-ratio (scno2nox, only in winter):
+IF ((iseiz .EQ. 2) .OR. (iseiz .EQ. 4)) THEN
+   scno2nox = SCWINTER(istab)
+ELSE
+   scno2nox = 1.
+ENDIF
+
+! Check distance to road and whether r_nox_nox_vdhout has been filled already (in the first iteration step, r_no2_nox_sec < 0 -> is not filled):
+IF (lroad_corr .and. r_no2_nox_sec(1) .ge. 0.0) THEN
+
+   ! Get NO2/NOx ratio near a road (sector average) from previous iteration:
+   r_no2_nox_rcp = r_no2_nox_sec(isec_prelim)
+ELSE
+   ! NO2/NOx ratio based on background concentrations:
+   ! r_no2_nox consists of a space varying component (r_no2_nox_year_bg_tra, computed in ops_par_chem), a season dependent component 
+   ! (r_no2_nox_season, set in ops_init) and a stability class dependent component (scno2nox):
+   r_no2_nox_rcp = r_no2_nox_year_bg_tra*r_no2_nox_season*scno2nox
+ENDIF
+
+! For a trajectory, we use the parameterisation based on background concentrations:
+r_no2_nox_tra = r_no2_nox_year_bg_tra*r_no2_nox_season*scno2nox
+
+END SUBROUTINE ops_vchem_ratio_no2_nox2

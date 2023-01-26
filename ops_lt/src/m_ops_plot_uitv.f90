@@ -24,7 +24,7 @@ implicit none
 contains
 
 SUBROUTINE ops_plot_uitv(spgrid, isec, coneh, nrrcp, nsubsec, jump, xul_cell_centre, yul_cell_centre, nrcol, nrrow, grid, idep, namco, nam_pri_sec, namsec,        &
-                      & depeh, namrcp, xm, ym, cpri, csec, drydep, ddepri, wdepri, wetdep, cno2, icm, csubsec, nam_subsec, &
+                      & depeh, namrcp, xm, ym, cpri, csec, drydep, ddepri, wdepri, wetdep, cno2, cnox, icm, csubsec, nam_subsec, &
                       & nparout, parout_val, parout_name, parout_unit, parout_write, error)
 
 use m_error
@@ -61,6 +61,7 @@ REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              !
 REAL*4,    INTENT(IN)                            :: wdepri(nrrcp)              ! 
 REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! 
 REAL*4,    INTENT(IN)                            :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx)
+REAL*4,    INTENT(IN)                            :: cnox(nrrcp)                ! NOx concentration, saved from previous iteration
 INTEGER*4, INTENT(IN)                            :: icm                        ! 
 REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
@@ -85,11 +86,16 @@ INTEGER*4                                        :: iparout                    !
 CHARACTER*12                                     :: str1                       ! help string for header
 CHARACTER*12                                     :: str2                       ! help string for header
 CHARACTER*12                                     :: str3                       ! help string for header
+CHARACTER*12                                     :: str4                       ! help string for header
+REAL*4                                           :: tmp_rcp(nrrcp)             ! temporary array [nrrcp]
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER    (ROUTINENAAM = 'ops_plot_uitv')
 
+! SCCS-ID VARIABLES
+CHARACTER*81                                     :: sccsida                    ! 
+sccsida = '%W%:%E%'//char(0)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Open plot file
@@ -107,41 +113,42 @@ IF (spgrid .EQ. 2) THEN
       ! Acidifying components
       
       ! Define help strings for NO2 concentration:
-      ! cno2 not yet suited for output 
-      !IF (icm .eq. 2) THEN
-      !   str1 = 'conc_test'
-      !   str2 = 'NO2'
-      !   str3 = 'ug/m3'
-      !ELSE
+      IF (icm .eq. 2) THEN
+         str1 = 'conc.'
+         str2 = 'NO2_ROADS'
+         str3 = 'ug/m3'
+         str4 = 'NOx_ROADS'
+      ELSE
          str1 = ''
          str2 = ''
          str3 = ''
-      !ENDIF
+         str4 = ''
+      ENDIF
 
-      WRITE (fu_plt, '(a4,8x,a8,a8,14a12)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',       &
-          &  'tot_dep.', ('conc.', isubsec = 1,nsubsec+1), 'dry_dep.', 'dry_dep.', 'wet_dep.', 'wet_dep.',trim(str1)
+      WRITE (fu_plt, '(a4,8x,a8,a8,15a12:)', IOSTAT = ierr) 'name', 'x-coord', 'y-coord', 'conc.', 'dry_dep.', 'wet_dep.',       &
+          &  'tot_dep.', ('conc.', isubsec = 1,nsubsec+1), 'dry_dep.', 'dry_dep.', 'wet_dep.', 'wet_dep.',trim(str1),trim(str1)
       IF (ierr .GT. 0) GOTO 4200
 
       ls = LEN_TRIM(nam_pri_sec)
-      WRITE (fu_plt, '(a4,8x,a8,a8,14a12:)', IOSTAT = ierr) '-', '-', '-', namco(:LEN_TRIM(namco)), nam_pri_sec(:ls), nam_pri_sec(:ls), nam_pri_sec(:ls),              &
+      WRITE (fu_plt, '(a4,8x,a8,a8,15a12:)', IOSTAT = ierr) '-', '-', '-', namco(:LEN_TRIM(namco)), nam_pri_sec(:ls), nam_pri_sec(:ls), nam_pri_sec(:ls),              &
             &  namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,nsubsec), & 
-            &  namco(:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), namco(:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)),trim(str2)
+            &  namco(:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), namco(:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)),trim(str2),trim(str4)
       IF (ierr .GT. 0) GOTO 4200
 
-      WRITE (fu_plt, '(a4,8x,a8,a8,14a12:)', IOSTAT = ierr) '-','m', 'm', coneh, depeh, depeh, depeh, ('ug/m3', isubsec = 1,nsubsec+1), & 
-                                                            depeh, depeh, depeh, depeh, trim(str3)
+      WRITE (fu_plt, '(a4,8x,a8,a8,15a12:)', IOSTAT = ierr) '-','m', 'm', coneh, depeh, depeh, depeh, ('ug/m3', isubsec = 1,nsubsec+1), & 
+                                                            depeh, depeh, depeh, depeh, trim(str3),trim(str3)
+
       IF (ierr .GT. 0) GOTO 4200
 
-     ! cno2 not yet suited for output 
-     !IF (icm .eq. 2) THEN
-     !   ! NOx, NO2 included:
-     !   DO j = 1, nrrcp
-     !      WRITE (fu_plt, '(a12,2i8,14e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),  &
-     !                &  wetdep(j), drydep(j) + wetdep(j), csec(j), (csubsec(j,isubsec), isubsec = 1,nsubsec),           &
-     !                &  ddepri(j), drydep(j)-ddepri(j), wdepri(j), wetdep(j)-wdepri(j), cno2(j)
-     !      IF (ierr .GT. 0) GOTO 4200
-     !   ENDDO
-     !ELSE
+     IF (icm .eq. 2) THEN
+        ! NOx, NO2 included:
+        DO j = 1, nrrcp
+           WRITE (fu_plt, '(a12,2i8,20e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),  &
+                     &  wetdep(j), drydep(j) + wetdep(j), csec(j), (csubsec(j,isubsec), isubsec = 1,nsubsec),           &
+                     &  ddepri(j), drydep(j)-ddepri(j), wdepri(j), wetdep(j)-wdepri(j), cno2(j), cnox(j)
+           IF (ierr .GT. 0) GOTO 4200
+        ENDDO
+     ELSE
         ! Acidifying species, not NOx:
         DO j = 1, nrrcp
            WRITE (fu_plt, '(a12,2i8,13e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),  &
@@ -149,7 +156,7 @@ IF (spgrid .EQ. 2) THEN
                      &  ddepri(j), drydep(j)-ddepri(j), wdepri(j), wetdep(j)-wdepri(j)
            IF (ierr .GT. 0) GOTO 4200
         ENDDO
-     !ENDIF
+     ENDIF
 
   ELSE IF (idep) THEN
 !
@@ -236,20 +243,23 @@ ELSE
     ENDIF
 
     ! Print dry and wet deposition for primary and secondary component:
-    CALL plot_mat(fu_plt, ddepri,        nrrcp, jump, nrcol, nrrow, 'drydep._pri._component', namco , depeh  , grid, xul_corner, yul_corner, error)
+    CALL plot_mat(fu_plt, ddepri,  nrrcp, jump, nrcol, nrrow, 'drydep._pri._component', namco , depeh  , grid, xul_corner, yul_corner, error)
     IF (error%haserror) GOTO 9000
-    CALL plot_mat(fu_plt, drydep-ddepri, nrrcp, jump, nrcol, nrrow, 'drydep._sec._component', namsec, depeh  , grid, xul_corner, yul_corner, error)
+    tmp_rcp = drydep-ddepri
+    CALL plot_mat(fu_plt, tmp_rcp, nrrcp, jump, nrcol, nrrow, 'drydep._sec._component', namsec, depeh  , grid, xul_corner, yul_corner, error)
     IF (error%haserror) GOTO 9000
-    CALL plot_mat(fu_plt, wdepri,        nrrcp, jump, nrcol, nrrow, 'wetdep._pri._component', namco , depeh  , grid, xul_corner, yul_corner, error)
+    CALL plot_mat(fu_plt, wdepri,  nrrcp, jump, nrcol, nrrow, 'wetdep._pri._component', namco , depeh  , grid, xul_corner, yul_corner, error)
     IF (error%haserror) GOTO 9000
-    CALL plot_mat(fu_plt, wetdep-wdepri, nrrcp, jump, nrcol, nrrow, 'wetdep._sec._component', namsec, depeh  , grid, xul_corner, yul_corner, error)
+    tmp_rcp = wetdep-wdepri
+    CALL plot_mat(fu_plt, tmp_rcp, nrrcp, jump, nrcol, nrrow, 'wetdep._sec._component', namsec, depeh  , grid, xul_corner, yul_corner, error)
     IF (error%haserror) GOTO 9000
   ENDIF
   
   ! Write extra output parameters:
   IF (parout_write) THEN
      DO iparout = 1,nparout
-        CALL plot_mat(fu_plt, parout_val(iparout,:), nrrcp, jump, nrcol, nrrow, parout_name(iparout), '-', parout_unit(iparout), grid, xul_corner, yul_corner, error)
+        tmp_rcp = parout_val(iparout,:)
+        CALL plot_mat(fu_plt, tmp_rcp, nrrcp, jump, nrcol, nrrow, parout_name(iparout), '-', parout_unit(iparout), grid, xul_corner, yul_corner, error)
         IF (error%haserror) GOTO 9000
      ENDDO
   ENDIF

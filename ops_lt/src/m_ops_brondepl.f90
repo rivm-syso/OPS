@@ -27,9 +27,17 @@ module m_ops_brondepl
 
 implicit none
 
+TYPE Tdo_proc
+   ! Options to switch on / off certain processes; for testing purposes only !
+   logical :: chem         ! do chemistry
+   logical :: depl_drydep  ! do depletion (i.e. loss over trajectory) caused by dry deposition; dry deposition at receptor is still possible
+   logical :: depl_wetdep  ! do depletion (i.e. loss over trajectory) caused by wet deposition; wet deposition at receptor is still possible
+   logical :: grad_drydep  ! do gradient due to dry deposition (at receptor). Note: there is no gradient due to wet deposition.
+END TYPE
+
 contains
 
-SUBROUTINE ops_brondepl(disx, xg, c, ux0, ueff, sigz, vd_eff_trj_zra, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
+SUBROUTINE ops_brondepl(do_proc, disx, xg, c, ux0, ueff, sigz, vd_eff_trj_zra, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
                      &  ra_rcp_4, ra_rcp_zrcp, rc_eff_rcp_4_pos, rb_rcp, z0_src, ol_src, uster_src, htot, ra_src_4, rb_src, rc_eff_src_4_pos, qbstf, &
                      &  vd_trj_z0, onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, &
                      &  sigzr, dxeff, error)
@@ -46,6 +54,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_brondepl')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
 REAL*4,    INTENT(IN)                            :: disx                       ! 
 REAL*4,    INTENT(IN)                            :: xg                         ! location where phase II of source depletion starts, see section 5.2 in OPS 4.5.2. doc
 REAL*4,    INTENT(IN)                            :: c                          ! undepleted concentration at z = 0 m
@@ -202,7 +211,12 @@ ELSE
    !           ksi=xg
    !
    !            
-   cdn    = EXP( - ((disx - xg)/ueff*vd_eff_trj_zra/xl))
+
+   if (do_proc%depl_drydep) then
+      cdn = EXP( - ((disx - xg)/ueff*vd_eff_trj_zra/xl))
+   else
+      cdn = 1.0
+   endif
 
    ! Set representative distance for phase 2 of the plume and compute sigma_z there:
    xx     = xg
@@ -284,7 +298,6 @@ ENDIF
 ! Compute cgt = (1 - grad)(1 - exp[-t/tau]), t = a/ugem, tau = z1/vd(z1) = 4*(Ra(4) + Rb + Rc):
 cgt   = cgt  *(1.-exp(-a/(4.*(ra_rcp_4    + rb_rcp + rc_eff_rcp_4_pos)*ugem))) 
 cgt_z = cgt_z*(1.-exp(-a/(zm*(ra_rcp_zrcp + rb_rcp + rc_eff_rcp_4_pos)*ugem)))
-
 !-----------------------------------------------------------------------------------------------------------
 ! Compute help variables for an area source, such as sigma_z, wind speeds ugem and uxr, effective height hf 
 ! and dry deposition rate k_drydep_src = vd(z=4 m)/sigma_z.
@@ -362,8 +375,8 @@ ENDIF
 !                              ugem*onder*qbstf*12                                               
 !
 ! Note: error in (2.5.15) thesis van Jaarsveld with factor 2 instead of 4
-cq2 = 1.
-IF (disx .GT. (radius + EPS_DELTA) .AND. xg .GT. (radius + EPS_DELTA)) THEN
+
+IF (disx .GT. (radius + EPS_DELTA) .AND. xg .GT. (radius + EPS_DELTA) .and. do_proc%depl_drydep) THEN
 
   ! Compute help variables sh = sigma_z**2/h**2 and al = beta:
   sh  = (sigzxg/htot)**2
@@ -372,7 +385,11 @@ IF (disx .GT. (radius + EPS_DELTA) .AND. xg .GT. (radius + EPS_DELTA)) THEN
   ! If NOT (stable meteo class and stack emitting above mixing layer), compute cq2 (else cq2 = 1):
   IF (flag .NE. 1) THEN 
     cq2 = EXP( -(2.*al/qbstf*1.e-6*vd_trj_z0/12*2*PI*(xx + virty)* cxx*ueff/ugem/onder*(xx - radius)*(1.-cgt)))
+  ELSE
+     cq2 = 1.0
   ENDIF
+ELSE
+   cq2 = 1.0
 ENDIF
 
 !-----------------------------------------------------------------------------------------------------------------
@@ -420,7 +437,8 @@ ENDIF
 !
 
 ! for the area sources that are nowadays (2011) common in OPS, this correction is probably not important
-IF (ABS(radius) .GT. EPS_DELTA) THEN
+
+IF (ABS(radius) .GT. EPS_DELTA .and. do_proc%depl_drydep) THEN
   a = ((vchem + vnatpri)/3.6e5 + k_drydep_src)*diameter/uxr
   IF (a .GT. (15. + EPS_DELTA)) THEN 
     a = (a/15.)**.49*15.
@@ -431,6 +449,10 @@ ELSE
   dxeff = 0.
   cq1   = 1.
 ENDIF
+
+if (error%debug) write(*,'(3a,99(1x,e12.5,";"))') & 
+   trim(ROUTINENAAM),',A,',' cgt,cgt_z,cdn,ugem,hf,a,cq1,cq2,uxr,zu,sigzr,dxeff', &
+                             cgt,cgt_z,cdn,ugem,hf,a,cq1,cq2,uxr,zu,sigzr,dxeff
 
 RETURN
 END SUBROUTINE ops_brondepl

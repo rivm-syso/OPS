@@ -309,7 +309,6 @@ if (.not. is_missing(V_stack)) then
                call ErrorParam('exit velocity of plume at stack tip [m/s]',V_stack,error)
                call ErrorParam('ambient temperature at stack height [C]',Ta_stack-T0,error)
                call ErrorParam('lower limit effluent gas temperature [C]',0.0,error)
-               write(*,*) 'check error message in ops_plumerise_qw_Ts'
                if (Ts_stack2 .lt. 0.0) then
                   call ErrorParam('<effluent gas temperature [C]>','Inf',error)
                else

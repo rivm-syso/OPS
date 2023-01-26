@@ -39,7 +39,7 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_get_arg')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: diag                       
+INTEGER*4, INTENT(OUT)                           :: diag                       ! = 1,3 (argument -r) -> print version number and quit
 LOGICAL,   INTENT(INOUT)                         :: subbron                    
 LOGICAL,   INTENT(INOUT)                         :: domlu                      ! use dominant land use instead of land use percentages
 LOGICAL,   INTENT(INOUT)                         :: varz                    
@@ -109,22 +109,22 @@ IF ((numarg < 1) .OR. (numarg > 3)) THEN
 
 ! number of arguments = 1, argument -r -> print version number and quit
 ELSEIF (numarg == 1) THEN
-  IF (arg(1) == '-r') THEN
-    diag = 1
-    INQUIRE (FILE = "ops_core.dll", EXIST = iexist)
-    IF (iexist) THEN
-      INQUIRE (FILE = "depac.dll", EXIST = iexist)
+   IF (arg(1) == '-r') THEN
+      diag = 1
+      INQUIRE (FILE = "ops_core.dll", EXIST = iexist)
       IF (iexist) THEN
-        INQUIRE (FILE = "ops_utils.dll", EXIST = iexist)
-        IF (iexist) diag = 3
+         INQUIRE (FILE = "depac.dll", EXIST = iexist)
+         IF (iexist) THEN
+           INQUIRE (FILE = "ops_utils.dll", EXIST = iexist)
+           IF (iexist) diag = 3
+         ENDIF
       ENDIF
-    ENDIF
-    GOTO 2000
-  ELSE
-    WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
-    CALL SetError('Invalid first and only argument', error)
-    GOTO 1000
-  ENDIF
+      GOTO 2000
+   ELSE
+     WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
+     CALL SetError('Invalid first and only argument', error)
+     GOTO 1000
+   ENDIF
 
 ! number of arguments = 2, -i control_file (= "stuurfile")
 ELSEIF (numarg == 2) THEN

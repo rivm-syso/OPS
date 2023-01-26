@@ -5,18 +5,21 @@
 
 if [ "$1" == "" ]
 then
-   echo " call: cpall compname (lower case so2, nox, nh3)"
+   echo " call: cpall compname (lower case so2, nox, nh3, o3)"
    exit
 fi
 
 FIRSTYEAR=1977
-OVERLAPYEAR=2018  # from this year on we have an overlap of chem_meteo_actual and chem_meteo_prognosis
+OVERLAPYEAR=2018  # from this year on we have an overlap of Chem_meteo_actual and Chem_meteo_prognosis
 FUTUREYEAR=2022
 ENDYEAR=2030
 
 # File names to copy from (_nf3 means 3 fields):
-fnam=template3x2.ops
+fnam1=template3x2.ops
 fnam3=template3x2_nf3.ops
+fnam12=template3x2_nf12.ops
+
+# Get component name and upper case component name:
 cmp=$1
 cmp_upper=$(echo "$cmp" | tr '[:lower:]' '[:upper:]')
 if [ "$cmp_upper" == "NOX" ]
@@ -25,43 +28,77 @@ then
 fi
 echo $cmp_upper
  
-# Background concentration files for reference years:
-for year in 1984 1994 2005 2012 2018 
-do
-   echo ${year}
-   cp $fnam ../chem_meteo_actual/bg${cmp}c${year}.ops
-done
+# Define reference years and template file name:
+if [ "$cmp" == "o3" ]
+then
+   # For ozone, maps for all years are given:
+   ref_years=""
+   year=$FIRSTYEAR
+   while [ $year -le $ENDYEAR ]
+   do
+      ref_years="$ref_years $year"
+      year=`expr $year '+' 1`
+   done
 
-# Background concentration files for years starting at OVERLAPYEAR:
+   # 12 fields (wind sectors) for ozone maps:
+   fnam=$fnam12 
+else
+   # Specific years for other components:
+   ref_years="1984 1994 2005 2012 2018"
+
+   # 1 field:
+   fnam=$fnam1
+fi
+
+# Background concentration files for actual meteo (reference years):
+echo "========================================="
+echo "copy dummy files for actual meteo"
+echo "========================================="
+for year in $ref_years
+do
+   echo -n "${year} "
+   cp $fnam ../Chem_meteo_actual/bg${cmp}c${year}.ops
+done
+echo " "
+
+# Background concentration files for prognosis meteo (years starting at OVERLAPYEAR):
+echo "========================================="
+echo "copy dummy files for prognosis meteo"
 echo "========================================="
 #year=$FUTUREYEAR
 year=$OVERLAPYEAR
 while [ ${year} -le $ENDYEAR ]
 do
-   echo ${year}
-   cp $fnam ../chem_meteo_prognosis/bg${cmp}c${year}.ops
+   echo -n "${year} "
+   cp $fnam ../Chem_meteo_prognosis/bg${cmp}c${year}.ops
    year=$(expr ${year} '+' 1)
 done
+echo " "
 
 # EMEP files starting from 2014:
-echo "========================================="
-year=2014
-while [ ${year} -le $ENDYEAR ]
-do
-   echo ${year}
-
-   if [ ${year} -lt $FUTUREYEAR ]
-   then
-      cp $fnam ../chem_meteo_actual/${cmp_upper}_mass_prec_${year}.ops
-      cp $fnam ../chem_meteo_actual/${cmp_upper}_mass_conv_dtfac_${year}.ops
-      cp $fnam3 ../chem_meteo_actual/no3_distr_${year}.ops
-   fi
-   if [ ${year} -ge $OVERLAPYEAR ]
-   then
-      cp $fnam ../chem_meteo_prognosis/${cmp_upper}_mass_prec_${year}.ops
-      cp $fnam ../chem_meteo_prognosis/${cmp_upper}_mass_conv_dtfac_${year}.ops
-      cp $fnam3 ../chem_meteo_prognosis/no3_distr_${year}.ops
-   fi
-   year=$(expr ${year} '+' 1)
-done
-
+if [ "$cmp" != "o3" ]
+then
+   echo "========================================="
+   echo "copy dummy EMEP chemical conversion files"
+   echo "========================================="
+   year=2014
+   while [ ${year} -le $ENDYEAR ]
+   do
+      echo -n ${year}
+   
+      if [ ${year} -lt $FUTUREYEAR ]
+      then
+         cp $fnam ../Chem_meteo_actual/${cmp_upper}_mass_prec_${year}.ops
+         cp $fnam ../Chem_meteo_actual/${cmp_upper}_mass_conv_dtfac_${year}.ops
+         cp $fnam3 ../Chem_meteo_actual/no3_distr_${year}.ops
+      fi
+      if [ ${year} -ge $OVERLAPYEAR ]
+      then
+         cp $fnam ../Chem_meteo_prognosis/${cmp_upper}_mass_prec_${year}.ops
+         cp $fnam ../Chem_meteo_prognosis/${cmp_upper}_mass_conv_dtfac_${year}.ops
+         cp $fnam3 ../Chem_meteo_prognosis/no3_distr_${year}.ops
+      fi
+      year=$(expr ${year} '+' 1)
+   done
+   echo " "
+fi

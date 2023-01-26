@@ -1,107 +1,12 @@
-!@test
-!
-!! number of landuse types
-!integer, parameter :: nlu = 9
-!
-!! diffusion coefficients:
-!real, parameter    :: dwat = 0.21e-4 ! diffusion coefficient of water vapour (m2/s)
-!real, parameter    :: dO3  = 0.13e-4 ! diffusion coefficient of ozon (m2/s)
-!
-!! Vegetation indicators:
-!logical            :: LAI_present ! leaves are present for current land use type
-!logical            :: SAI_present ! vegetation is present for current land use type
-!
-!! debug output:
-!integer            :: iopt_debug = 0 ! write output (1) or not (0) for debugging purposes
-!
-!contains
-!
-!@test
-!!-------------------------------------------------------------------
-!! depac: compute total canopy (or surface) resistance Rc for gases
-!!-------------------------------------------------------------------
-!subroutine tst_depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!                   c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-!                   ra, rb, rc_eff)
-!
-!! The last two rows of depac arguments are optional:
-!!
-!! A. compute Rc without compensation points:
-!!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
-!!
-!! B. compute Rc (incl. new parameterisation Rw) and compensation points (used for LOTOS-EUROS): 
-!!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!!                  c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot)
-!!
-!! C. compute effective Rc based on compensation points, incl. new parameterisation Rw (used for OPS):
-!!     call depac (compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!!                 c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-!!                 ra, rb, rc_eff)
-!
-!implicit none
-!
-!character(len=*), intent(in)  :: compnam      ! component name
-!                                              ! 'HNO3','NO','NO2','O3','SO2','NH3'
-!integer         , intent(in)  :: day_of_year  ! day of year, 1 ... 365 (366)
-!real            , intent(in)  :: lat          ! latitude Northern hemisphere (degrees) (DEPAC cannot be used for S. hemisphere)
-!real            , intent(in)  :: t            ! temperature (C) 
-!                                              ! NB discussion issue is temp T_2m or T_surf of T_leaf? 
-!real            , intent(in)  :: ust          ! friction velocity (m/s)
-!real            , intent(in)  :: glrad        ! global radiation (W/m2)
-!real            , intent(in)  :: sinphi       ! sin of solar elevation angle
-!real            , intent(in)  :: rh           ! relative humidity (%)
-!integer         , intent(in)  :: nwet         ! wetness indicator; nwet=0 -> dry; nwet=1 -> wet; nwet=9 -> snow
-!integer         , intent(in)  :: lu           ! land use type, lu = 1,...,nlu
-!integer         , intent(in)  :: iratns       ! index for NH3/SO2 ratio;
-!                                              ! iratns = 1: low NH3/SO2
-!                                              ! iratns = 2: high NH3/SO2
-!                                              ! iratns = 3: very low NH3/SO2
-!real            , intent(out) :: rc_tot       ! total canopy resistance Rc (s/m)
-!
-!! optional arguments needed only if compensation points are computed
-!real, optional  , intent(in)  :: c_ave_prev_nh3   ! air concentration averaged over a previous
-!                                                  ! period (e.g. previous year or month) (ug/m3) 
-!real, optional   , intent(in) :: c_ave_prev_so2   ! air concentration averaged over a previous
-!                                                  ! period (e.g. previous year or month) (ug/m3)
-!real, optional  , intent(in)  :: catm         ! actual atmospheric concentration (ug/m3)
-!real, optional  , intent(out) :: ccomp_tot    ! total compensation point (ug/m3)
-!
-!! optional arguments needed only if an effective Rc (based on compensation points) is computed;
-!! in this case, also the previous three optional arguments are needed
-!real, optional  , intent(in)  :: ra           ! aerodynamic resistance (s/m)
-!real, optional  , intent(in)  :: rb           ! boundary layer resistance (s/m)
-!real, optional  , intent(out) :: rc_eff       ! effective total canopy resistance (s/m)
-!
-!! Local variables:
-!real                          :: lai          ! one-sided leaf area index (-)
-!real                          :: sai          ! surface area index (-) (lai + branches and stems)
-!logical                       :: ready        ! Rc has been set
-!real                          :: diffc        ! diffusion coefficient of the gas involved          
-!integer                       :: ipar_snow    ! parameterisation in case of snow:
-!                                              ! = 1 -> constant Rc
-!                                              ! = 2 -> temperature dependent Rc
-!real                          :: rsoil_wet    ! soil resistance for wet soil
-!real                          :: rsoil_frozen ! soil resistance for frozen soil
-!real   , dimension(nlu)       :: rsoil        ! soil resistance
-!real                          :: gw           ! external leaf conductance (m/s) 
-!real                          :: gstom        ! stomatal conductance (m/s)
-!real                          :: gsoil_eff    ! effective soil conductance (m/s)
-!real                          :: gc_tot       ! total canopy conductance (m/s)
-!
-!
-!call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, &
-!              c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, &
-!              ra, rb, rc_eff)
-!
-!end subroutine tst_depac318
-
 
 
 @test
 subroutine tst_rc_lai
 
 use funit
+use m_depac
 use m_depac_private
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -166,12 +71,12 @@ end subroutine tst_rc_lai
 subroutine tst_rc_gw
 
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
 
 ! Test external conductance
-
 ! Input variables:
 character(len=20) :: compnam ! component name
 integer           :: iratns  ! index for NH3/SO2 ratio;
@@ -205,7 +110,30 @@ call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)
 !write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
 @assertRelativelyEqual(0.005,gw,tol_rel,'external conductance [m/s];')
 
+compnam = 'SO2'; iratns = 2; t = 15.0; rh = 70; nwet = 0; sai = 3.0;  SAI_present = .true. 
+call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+!write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
+@assertRelativelyEqual(0.5115E-02,gw,tol_rel,'external conductance [m/s]; SO2')
 
+compnam = 'SO2'; iratns = 2; t = 15.0; rh = 90; nwet = 0; sai = 3.0;  SAI_present = .true. 
+call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+!write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
+@assertRelativelyEqual(0.5588E-01,gw,tol_rel,'external conductance [m/s]; SO2')
+
+compnam = 'NO2'; iratns = 2; t = 15.0; rh = 90; nwet = 0; sai = 3.0;  SAI_present = .true. 
+call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+!write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
+@assertRelativelyEqual(1.0/2000.,gw,tol_rel,'external conductance [m/s]; NO2')
+
+compnam = 'NO'; iratns = 2; t = 15.0; rh = 90; nwet = 0; sai = 3.0;  SAI_present = .true. 
+call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+!write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
+@assertRelativelyEqual(-999.,gw,tol_rel,'external conductance [m/s]; NO')
+
+compnam = 'O3'; iratns = 2; t = 15.0; rh = 90; nwet = 0; sai = 3.0;  SAI_present = .true. 
+call rc_gw(compnam,iratns,t,rh,nwet,sai,gw)         
+!write(*,*) 'gw = ',gw, ', Rw = ',1.0/gw
+@assertRelativelyEqual(1./1000.,gw,tol_rel,'external conductance [m/s]; O3')
 
 end subroutine tst_rc_gw
 
@@ -213,7 +141,9 @@ end subroutine tst_rc_gw
 subroutine tst_rc_gstom
 
 use funit
+use m_depac
 use m_depac_private
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -292,6 +222,7 @@ subroutine tst_rc_temp_water
 ! test water temperature 
 
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -325,6 +256,7 @@ end subroutine tst_rc_temp_water
 subroutine tst_rw_constant
 
 use funit
+use m_depac
 use m_depac_private
 use m_ops_utils, only: is_missing
 
@@ -355,6 +287,7 @@ end subroutine tst_rw_constant
 subroutine tst_rc_get_vpd
 
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -384,8 +317,10 @@ end subroutine tst_rc_get_vpd
 SUBROUTINE tst_rc_gstom_emb
 
 use funit
+use m_depac
 use m_depac_private
 use binas, only: pi
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -445,8 +380,10 @@ END SUBROUTINE tst_rc_gstom_emb
 subroutine tst_rc_gsoil_eff
 
 use funit
+use m_depac
 use m_depac_private
 use binas, only: pi
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -500,15 +437,73 @@ call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
 call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
 @assertEqual(0.8032129E-03,gsoil_eff,tol,'Test 4, gsoil_eff:')
 
+!------------------------------------------------
+! Test 6: dry, NO, water
+!------------------------------------------------
+compnam = 'NO'; lu = 6; sai = 3.5; ust = 0.2; nwet = 0; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.50E-03,gsoil_eff,tol,'Test 6, gsoil_eff:')
+
+!------------------------------------------------
+! Test 7: dry, NO2
+!------------------------------------------------
+compnam = 'NO2'; lu = 2; sai = 3.5; ust = 0.2; nwet = 0; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.8032E-03,gsoil_eff,tol,'Test 7, gsoil_eff:')
+
+!------------------------------------------------
+! Test 8: wet, NO2
+!------------------------------------------------
+compnam = 'NO2'; lu = 2; sai = 3.5; ust = 0.2; nwet = 1; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.4454E-03,gsoil_eff,tol,'Test 8, gsoil_eff:')
+
+!------------------------------------------------
+! Test 9: dry, O3
+!------------------------------------------------
+compnam = 'O3'; lu = 2; sai = 3.5; ust = 0.2; nwet = 0; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.2247E-02,gsoil_eff,tol,'Test 9, gsoil_eff:')
+
+!------------------------------------------------
+! Test 10: wet, O3
+!------------------------------------------------
+compnam = 'O3'; lu = 2; sai = 3.5; ust = 0.2; nwet = 1; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.4454E-03,gsoil_eff,tol,'Test 10, gsoil_eff:')
+
+!------------------------------------------------
+! Test 11: dry, SO2
+!------------------------------------------------
+compnam = 'SO2'; lu = 2; sai = 3.5; ust = 0.2; nwet = 0; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.8032E-03,gsoil_eff,tol,'Test 11, gsoil_eff:')
+
+!------------------------------------------------
+! Test 12: wet, SO2
+!------------------------------------------------
+compnam = 'SO2'; lu = 2; sai = 3.5; ust = 0.2; nwet = 1; t = 22.5
+call rc_getpar(compnam,diffc,rsoil_wet,rsoil_frozen,ipar_snow,rsoil)
+call rc_gsoil_eff(lu,sai,ust,nwet,t,rsoil,rsoil_wet,rsoil_frozen,gsoil_eff)
+@assertEqual(0.3922E-02,gsoil_eff,tol,'Test 12, gsoil_eff:')
+
 end subroutine tst_rc_gsoil_eff
 
 @test
 subroutine tst_rc_rinc
 
 use funit
+use m_depac
 use m_depac_private
 use m_ops_utils, only: is_missing
 use binas, only: pi
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -553,6 +548,7 @@ end subroutine tst_rc_rinc
 subroutine tst_rc_rctot
 
 use funit
+use m_depac
 use m_depac_private
 use m_ops_utils, only: is_missing
 use binas, only: pi
@@ -597,6 +593,7 @@ end subroutine tst_rc_rctot
 @test
 SUBROUTINE tst_par_dir_diff
 use funit
+use m_depac
 use m_depac_private
 use binas, only: pi
 
@@ -642,6 +639,7 @@ END SUBROUTINE tst_par_dir_diff
 @test
 subroutine tst_rc_snow
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -692,6 +690,7 @@ end subroutine tst_rc_snow
 @test
 subroutine tst_rw_so2
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -759,6 +758,7 @@ end subroutine tst_rw_so2
 @test
 subroutine tst_rw_nh3_sutton
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -796,6 +796,7 @@ end subroutine tst_rw_nh3_sutton
 @test
 subroutine tst_rc_comp_point
 use funit
+use m_depac
 use m_depac_private
 
 implicit none
@@ -811,6 +812,7 @@ real :: c_ave_prev_nh3   ! air concentration averaged over a previous
                                                   ! period (e.g. previous year or month) (ug/m3) 
 real :: c_ave_prev_so2   ! air concentration averaged over a previous
                                                   ! period (e.g. previous year or month) (ug/m3)
+real :: gamma_soil_water_fac ! user supplied value for gamma_soil
 real :: gw           ! external leaf conductance (m/s) 
 real :: gstom        ! stomatal conductance (m/s)
 real :: gsoil_eff    ! effective soil conductance (m/s)
@@ -823,19 +825,22 @@ real :: ccomp_tot    ! total compensation point (weighed average of
 ! LAI_present or SAI_present: vegetation is present
 
 real :: tol = 1.0e-5  ! tolerance for equality of reals
+
+! as in LT version
+gamma_soil_water_fac = 430.
                                       
 !----------------------------------------------------------------------------
 ! Test 1: for compnam != NH3, ccomp_tot = 0
 !----------------------------------------------------------------------------
 lu = 1; day_of_year = 231; t = 22.5; catm = 5.3; c_ave_prev_nh3 = 7.9;
 c_ave_prev_so2 = 0.9; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
-call rc_comp_point('NO',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point('NO',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(0., ccomp_tot, tol, 'Test 1: ccomp_tot for NO = 0:')
-call rc_comp_point('NO2',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point('NO2',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(0., ccomp_tot, tol, 'Test 1: ccomp_tot for NO2 = 0:')
-call rc_comp_point('O3',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point('O3',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(0., ccomp_tot, tol, 'Test 1: ccomp_tot for O3 = 0:')
-call rc_comp_point('SO2',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point('SO2',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(0., ccomp_tot, tol, 'Test 1: ccomp_tot for SO2 = 0:')
 
 !----------------------------------------------------------------------------
@@ -844,7 +849,7 @@ call rc_comp_point('SO2',lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,
 lu = 5; LAI_present = .TRUE.; SAI_present = .TRUE.; 
 compnam = 'NH3'; day_of_year = 231; t = 22.5; catm = 15.3; c_ave_prev_nh3 = 17.;
 c_ave_prev_so2 = 0.1; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
-call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(14.27670, ccomp_tot, tol, 'Test 2: ccomp_tot:')
 
 !----------------------------------------------------------------------------
@@ -853,30 +858,55 @@ call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,g
 lu = 5; LAI_present = .TRUE.; SAI_present = .TRUE.; 
 compnam = 'NH3'; day_of_year = 231; t = 22.5; catm = 5.3; c_ave_prev_nh3 = 0.;
 c_ave_prev_so2 = 0.; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
-call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
 @assertEqual(0., ccomp_tot, tol, 'Test 3: ccomp_tot:')
 
 !----------------------------------------------------------------------------
-! Test 4: water, 2021-06-23 = +0.5777042E-01
-!                2012-12-07 = .3932707 (bugfix water temperature)
+! Test 4: water, 2021-07-13 = 0.3932707
 !----------------------------------------------------------------------------
 lu = 6; LAI_present = .FALSE.; SAI_present = .FALSE.; 
 compnam = 'NH3'; day_of_year = 231; t = 22.5; catm = 5.3; c_ave_prev_nh3 = 7.9;
 c_ave_prev_so2 = 0.9; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
-call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
-@assertEqual(.3932707, ccomp_tot, tol, 'Test 4: ccomp_tot:')
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+@assertEqual(0.3932707, ccomp_tot, tol, 'Test 4: ccomp_tot:')
 
 ! temperature should be set in rc_temp_water -> no change
 call rc_temp_water(day_of_year,t)
-@assertGreaterThan(ABS(t-22.5), 0.0, message='Test 4: sea temperature different from 22.5C')
-call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
-@assertEqual(.3932707, ccomp_tot, tol, 'Test 4: ccomp_tot different T:')
+@assertGreaterThan(ABS(t-22.5), 0.0, 'Test 4: sea temperature different from 22.5C')
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+@assertEqual(0.3932707, ccomp_tot, tol, message='Test 4: ccomp_tot different T:')
+
+! if gamma_soil_water_fac is negative but the same value, there should be a
+! change because c_ave_prev > 0
+gamma_soil_water_fac = -1.0*abs(gamma_soil_water_fac)
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+@assertEqual(3.106839, ccomp_tot, tol, message='Test 4: gamma_soil_water_fac < 0:')
+gamma_soil_water_fac = abs(gamma_soil_water_fac)
+
+!----------------------------------------------------------------------------
+! Test 5: decid. forest, prev. SO2 = 0., 2021-07-13 = 0.3885208
+!----------------------------------------------------------------------------
+compnam = 'NH3'; day_of_year = 180; t = 22.5; catm = 15.3; c_ave_prev_nh3 = 17.;
+c_ave_prev_so2 = 0.0; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+@assertEqual(0.3885208, ccomp_tot, tol, message='Test 5: ccomp_tot:')
+
+!----------------------------------------------------------------------------
+! Test 6: gamma_soil_water_fac = 0 (no re-emission from water)
+!----------------------------------------------------------------------------
+gamma_soil_water_fac = 0
+lu = 6; LAI_present = .FALSE.; SAI_present = .FALSE.; 
+compnam = 'NH3'; day_of_year = 231; t = 22.5; catm = 5.3; c_ave_prev_nh3 = 7.9;
+c_ave_prev_so2 = 0.9; gw = 0.05; gstom = 0.05; gsoil_eff = 0.03; gc_tot = gstom+gsoil_eff+gw
+call rc_comp_point(compnam,lu,day_of_year,t,catm,c_ave_prev_nh3,c_ave_prev_so2,gamma_soil_water_fac,gw,gstom,gsoil_eff,gc_tot,ccomp_tot)
+@assertEqual(0.0, ccomp_tot, tol, message='Test 6: ccomp_tot:')
 
 end subroutine tst_rc_comp_point
 
 @test
 subroutine tst_rc_comp_point_rc_eff
 use funit
+use m_depac
 use m_depac_private
 use m_ops_utils, only: is_missing
 
@@ -909,12 +939,13 @@ call rc_comp_point_rc_eff(ccomp_tot,catm,ra,rb,rc_tot,rc_eff)
 end subroutine tst_rc_comp_point_rc_eff
 
 @test
-subroutine tst_depac318
+subroutine tst_depac
 
 use funit
+use m_depac
 use m_depac_private
-use m_depac318
 use binas, only: pi
+use m_commonconst_lib, only: nlu
 
 implicit none
 
@@ -941,6 +972,7 @@ real :: c_ave_prev_nh3   ! air concentration averaged over a previous
                          ! period (e.g. previous year or month) (ug/m3) 
 real :: c_ave_prev_so2   ! air concentration averaged over a previous
                          ! period (e.g. previous year or month) (ug/m3)
+real :: gamma_soil_water_fac ! user supplied value for gamma_soil
 real :: catm         ! actual atmospheric concentration (ug/m3)
 real :: ccomp_tot    ! total compensation point (ug/m3) [output]
 
@@ -952,12 +984,15 @@ real :: rc_eff       ! effective total canopy resistance (s/m) [output]
 
 real :: tol = 1.0e-4  ! tolerance for equality of reals
 
+! as in LT version
+gamma_soil_water_fac = 430.
+
 !----------------------------------------------------------------------------
 ! Test 1: no optional arguments ; 2021-06-24: 4.254499
 !----------------------------------------------------------------------------
 compnam = 'NH3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
 glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 4; iratns = 2
-call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
 @assertTrue(LAI_present, 'Test 1: LAI should be present')
 @assertTrue(SAI_present, 'Test 1: SAI should be present')
 @assertEqual(4.254499, rc_tot, tol, 'Test 1: rc_tot:')
@@ -969,7 +1004,7 @@ call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, ir
 compnam = 'NH3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
 glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 4; iratns = 2
 c_ave_prev_nh3 = 8.9; c_ave_prev_so2 = 2.1; catm = 7.3
-call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot)
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, gamma_soil_water_fac, ccomp_tot)
 @assertTrue(LAI_present, 'Test 2: LAI should be present')
 @assertTrue(SAI_present, 'Test 2: SAI should be present')
 @assertEqual(4.254499, rc_tot, tol, 'Test 2: rc_tot:')
@@ -984,7 +1019,7 @@ compnam = 'NH3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
 glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 4; iratns = 2
 c_ave_prev_nh3 = 8.9; c_ave_prev_so2 = 2.1; catm = 7.3
 ra = 0.1; rb = 0.8
-call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, ra, rb, rc_eff)
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, gamma_soil_water_fac, ccomp_tot, ra, rb, rc_eff)
 @assertTrue(LAI_present, 'Test 3: LAI should be present')
 @assertTrue(SAI_present, 'Test 3: SAI should be present')
 @assertEqual(4.254499, rc_tot, tol, 'Test 3: rc_tot:')
@@ -993,20 +1028,59 @@ call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, ir
 
 !----------------------------------------------------------------------------
 ! Test 4: with compensation points & Rc ; 2021-06-24: rc_tot = 10.0,
-!                                                     ccomp_tot = 0.2773165, bug water temperature
-!                                                     ccomp_tot = 1.846130,  bugfix water temperature
-!                                                     rc_eff = 10.43043 (bug) , 13.68964 (bugfix)
+!                                                     ccomp_tot = 1.846130,
+!                                                     rc_eff = 10.43043
 !         lu = 6 (water) -> no LAI / SAI
 !----------------------------------------------------------------------------
 compnam = 'NH3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
 glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 6; iratns = 2
 c_ave_prev_nh3 = 8.9; c_ave_prev_so2 = 2.1; catm = 7.3
 ra = 0.1; rb = 0.8
-call depac318(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, ccomp_tot, ra, rb, rc_eff)
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot, c_ave_prev_nh3, c_ave_prev_so2, catm, gamma_soil_water_fac, ccomp_tot, ra, rb, rc_eff)
 @assertFalse(LAI_present, 'Test 4: LAI should not be present')
 @assertFalse(SAI_present, 'Test 4: SAI should not be present')
 @assertEqual(10.0, rc_tot, tol, 'Test 4: rc_tot:')
 @assertEqual(1.846130, ccomp_tot, tol, 'Test 4: ccomp_tot:')
 @assertEqual(13.68964, rc_eff, tol, 'Test 4: rc_eff:')
 
-end subroutine tst_depac318
+!---------------------------------------------------------
+! Test 5: for SO2
+!---------------------------------------------------------
+compnam = 'SO2'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
+glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 2; iratns = 2
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+@assertEqual(31.935, rc_tot, tol, 'Test 5: rc_tot:')
+
+!---------------------------------------------------------
+! Test 6: for NO2
+!---------------------------------------------------------
+compnam = 'NO2'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
+glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 2; iratns = 2
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+@assertEqual(62.3103, rc_tot, tol, 'Test 6: rc_tot:')
+
+!---------------------------------------------------------
+! Test 7: for NO
+!---------------------------------------------------------
+compnam = 'NO'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
+glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 2; iratns = 2
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+@assertEqual(-9999., rc_tot, tol, 'Test 7: rc_tot:')
+
+!---------------------------------------------------------
+! Test 8: for O3
+!---------------------------------------------------------
+compnam = 'O3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
+glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 2; iratns = 2
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+@assertEqual(52.95541, rc_tot, tol, 'Test 8: rc_tot:')
+
+!---------------------------------------------------------
+! Test 9: for HNO3
+!---------------------------------------------------------
+compnam = 'HNO3'; day_of_year = 213; lat = 52.1; t = 21.3; ust = 0.5
+glrad = 400.; sinphi = SIN(pi/3); rh = 83.7; nwet = 0; lu = 2; iratns = 2
+call depac(compnam, day_of_year, lat, t, ust, glrad, sinphi, rh, nwet, lu, iratns, rc_tot)
+@assertEqual(10., rc_tot, tol, 'Test 9: rc_tot:')
+
+end subroutine tst_depac

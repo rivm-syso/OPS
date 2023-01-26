@@ -30,9 +30,9 @@ contains
 SUBROUTINE ops_z0corr(z01, uster1, ol1, z02, uster2, ol2, error)
 
 use m_commonconst_lt
-use m_error
-use m_ops_logfile
-use m_commonfile, only: fu_log
+USE m_error
+USE m_ops_logfile
+USE m_commonfile, only: fu_log
 
 IMPLICIT NONE
 

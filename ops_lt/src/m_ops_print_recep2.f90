@@ -17,14 +17,14 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION         : Print output for non-gridded receptors to print file (= PRNFILE in control file)
 !-------------------------------------------------------------------------------------------------------------------------------
-module m_ops_print_recep2 
-
+module m_ops_print_recep2
+ 
 implicit none
 
 contains
 
-SUBROUTINE ops_print_recep2 (project, icm, gasv, idep, isec, igrid, verb, namco, namsec, nam_pri_sec, coneh, depeh, conc_cf, amol21, &
-        &  ugmoldep, nrrcp, nsubsec, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, wdepri, cno2, lu_rcp_dom_all, z0_rcp_all, &
+SUBROUTINE ops_print_recep2 (project, icm, gasv, idep, do_proc, isec, igrid, verb, namco, namsec, nam_pri_sec, coneh, depeh, conc_cf, amol21, &
+        &  ugmoldep, nrrcp, nsubsec, namrcp, xm, ym, precip, cpri, csec, drydep, ddepri, wetdep, wdepri, cno2, cnox, lu_rcp_dom_all, z0_rcp_all, &
         &  gemcpri, gemcsec, ccr, gemddep, gemddpri, gemddsec, ddrpri, ddrsec, gemwdep, gemwdpri, gemwdsec, wdrpri, &
         &  wdrsec, gemprec, gemtdep, csubsec, gem_subsec, nam_subsec, totdep, scale_con, scale_sec, &
         &  scale_subsec, scale_dep, error)
@@ -34,6 +34,7 @@ use m_error
 use m_utils
 use m_commonconst_lt
 use m_ops_print_kop
+use m_ops_brondepl, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -45,6 +46,7 @@ PARAMETER    (ROUTINENAAM = 'ops_print_recep2')
 CHARACTER*(*), INTENT(IN)                        :: project                    ! 
 INTEGER*4, INTENT(IN)                            :: icm                        ! component number
 LOGICAL,   INTENT(IN)                            :: gasv                       ! 
+type(Tdo_proc),   INTENT(IN)                     :: do_proc                    ! options to switch on/off specific processes
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
 LOGICAL,   INTENT(IN)                            :: verb                       ! 
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
@@ -68,6 +70,7 @@ REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              !
 REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
 REAL*4,    INTENT(IN)                            :: wdepri(nrrcp)              ! wet deposition of primary component
 REAL*4,    INTENT(IN)                            :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx)
+REAL*4,    INTENT(IN)                            :: cnox(nrrcp)                ! NOx concentration, saved from previous iteration
 INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
 REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
 REAL*4,    INTENT(IN)                            :: gemcpri                    ! mean for prim. concentration
@@ -107,13 +110,14 @@ INTEGER*4                                        :: isubsec                    !
 REAL*4                                           :: vdpri(nrrcp)               ! 
 REAL*4                                           :: vdsec(nrrcp)               ! 
 CHARACTER*4                                      :: vdeh                       ! 
-CHARACTER*4                                      :: z0eh                       ! 
-CHARACTER*4                                      :: lueh                       !
+CHARACTER*4                                      :: z0eh                       ! unit for z0 (eh << eenheid)
+CHARACTER*4                                      :: lueh                       ! unit for land use (eh << eenheid)
+CHARACTER*7                                      :: precip_eh                  ! unit for precipitation (eh << eenheid)
 CHARACTER(LEN=40), ALLOCATABLE                   :: par_comp(:)                ! component names
 CHARACTER(LEN=40), ALLOCATABLE                   :: par_nam(:)                 ! parameter names
 REAL, ALLOCATABLE                                :: par_val(:,:)               ! parameter values
 CHARACTER(LEN=40), ALLOCATABLE                   :: par_unit(:)                ! unit for parameter
-REAL, ALLOCATABLE                                :: par_scale(:)               ! scale factors for parameter values  
+REAL, ALLOCATABLE                                :: par_scale(:)               ! scale factors for parameter values (not used anymore, see print_values_par_val)
 CHARACTER(LEN=40), ALLOCATABLE                   :: par_fmt(:)                 ! format for value (i = integer, e = E-format, f = F-format)
 INTEGER                                          :: npar                       ! number of parameters = number of columns in table 
 INTEGER                                          :: ipar                       ! index of parameter
@@ -124,6 +128,7 @@ INTEGER                                          :: ipar                       !
 vdeh = 'cm/s'
 z0eh = 'm'
 lueh = '-'
+precip_eh = 'mm/year'
 
 ! To avoid unlogical combinations: 
 IF (verb) igrid = .TRUE.  ! option -v -> igrid = true
@@ -141,11 +146,11 @@ IF (igrid) THEN
    IF (isec) THEN
       ! SO2, NOx, NH3:
       IF (icm .eq. 2) THEN      
-         CALL print_conc_names(namco, namsec, nam_subsec, 'NO2')
-         ipar = ipar + 3 + nsubsec; ! cpri, csec, csubsec, cno2
+         CALL print_conc_names(namco, namsec, nam_subsec, 'NO2', 'NOx') 
+         ipar = ipar + 4 + nsubsec ! cpri, csec, csubsec, cno2, cnox
       ELSE
          CALL print_conc_names(namco, namsec, nam_subsec)
-         ipar = ipar + 2 + nsubsec; ! cpri, csec, csubsec
+         ipar = ipar + 2 + nsubsec ! cpri, csec, csubsec
       ENDIF
       IF (idep) THEN
          CALL print_depo_names(namsec)
@@ -191,6 +196,7 @@ IF (igrid) THEN
    par_fmt = 'e12.5'
    
    ! Always print primary concentration:
+   ! Note: par_scale is not used anymore (as in old ops_print_recep), see print_values_par_val.
    ipar = 1; par_comp(ipar) = namco; par_nam = 'conc'; par_unit(ipar) = coneh; par_val(:,ipar) = cpri; par_scale(ipar) = scale_con;
    
    IF (idep) THEN
@@ -225,9 +231,9 @@ IF (igrid) THEN
       ENDIF
 
       ! Add z0, lu, precipitation:
-      ipar = ipar + 1; par_nam(ipar) = 'z0';     par_unit(ipar) = z0eh; par_val(:,ipar) = z0_rcp_all;           par_scale(ipar) = 1.0e3;
-      ipar = ipar + 1; par_nam(ipar) = 'lu_dom'; par_unit(ipar) = lueh; par_val(:,ipar) = REAL(lu_rcp_dom_all); par_scale(ipar) = 1.0; par_fmt(ipar) = 'i12'
-      ipar = ipar + 1; par_nam(ipar) = 'precip'; par_unit(ipar) = 'mm/year'; par_val(:,ipar) = precip; par_scale(ipar) = 1.0;
+      ipar = ipar + 1; par_nam(ipar) = 'z0';     par_unit(ipar) = z0eh;      par_val(:,ipar) = z0_rcp_all;           par_scale(ipar) = 1.0e3;
+      ipar = ipar + 1; par_nam(ipar) = 'lu_dom'; par_unit(ipar) = lueh;      par_val(:,ipar) = REAL(lu_rcp_dom_all); par_scale(ipar) = 1.0;   par_fmt(ipar) = 'i12'
+      ipar = ipar + 1; par_nam(ipar) = 'precip'; par_unit(ipar) = precip_eh; par_val(:,ipar) = precip;               par_scale(ipar) = 1.0;
    ENDIF
 
    ! Additional deposition values: 
@@ -241,9 +247,13 @@ IF (igrid) THEN
        ! Deposition sub-secondary species:
     ENDIF
 
-   ! NO2 concentration (last column):
+   ! NO2 and NOx concentrations:
    IF (icm .eq. 2) THEN
+       ! NO2:
        ipar = ipar + 1; par_comp(ipar) = 'NO2'; par_nam = 'conc'; par_unit(ipar) = coneh; par_val(:,ipar) = cno2; par_scale(ipar) = scale_con;
+       
+       ! NOx:
+       ipar = ipar + 1; par_comp(ipar) = 'NOx'; par_nam = 'conc'; par_unit(ipar) = coneh; par_val(:,ipar) = cnox; par_scale(ipar) = scale_con;
     ENDIF
    
    ! Check:
@@ -296,6 +306,13 @@ ELSE
       WRITE (fu_prt,'('' Dispersion and deposition of secundary'', '' component '', a, '' included'')')                        &
           &  namsec(1:LEN_TRIM(namsec))
     ENDIF
+    IF (do_proc%chem .or. do_proc%depl_drydep .or. do_proc%depl_wetdep .or. do_proc%grad_drydep) THEN
+      write(fu_prt,'(a)') 'Settings for specific processes switched on (T) or off (F) (special OPS-users only)'
+      write(fu_prt,'(l2,a)') do_proc%chem       , ' chemistry'
+      write(fu_prt,'(l2,a)') do_proc%depl_drydep, ' depletion over trajectory due to dry deposition (deposition at receptor still possible)'
+      write(fu_prt,'(l2,a)') do_proc%depl_wetdep, ' depletion over trajectory due to wet deposition (deposition at receptor still possible)'
+      write(fu_prt,'(l2,a)') do_proc%grad_drydep, ' vertical gradient due to local deposition at receptor'
+    ENDIF  
   ENDIF
 ENDIF
 WRITE(fu_prt,'(1x,80a)') ('-',i=1,79)

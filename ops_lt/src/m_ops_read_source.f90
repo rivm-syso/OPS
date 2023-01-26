@@ -17,8 +17,8 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION           : Read source file with emissions.
 !                         Emissions are read from a source file and emissions for selected emission categories and countries 
-!                         are then copied to a scratch file (line for line);
-!                         emission parameters that lie outside a specified range agenerate an error.
+!                         are then copied to an unformatted scratch file (line for line);
+!                         emission parameters that lie outside a specified range generate an error.
 !-------------------------------------------------------------------------------------------------------------------------------
 module m_ops_read_source
 
@@ -86,7 +86,6 @@ type(Tbuilding)                                  :: building                   !
 LOGICAL                                          :: check_psd                  ! check whether particle size distribution has been read
 
 !-------------------------------------------------------------------------------------------------------------------------------
- 50 FORMAT (i4, 2f9.0, es12.3, f9.3, f6.1, f8.0, f6.1, 3e12.5, l2, 3i4, i6, 4f9.3) ! format for writing to scratch (RDM; includes D_stack, V_stack, Ts_stack, building parameters, possibly -999). Also possible -999 for qw
 
 ! Initialisation:
 end_of_file = .FALSE.
@@ -122,7 +121,7 @@ DO WHILE (.NOT. end_of_file)
          category_selected = any((catsel(1:ncatsel)   .eq. 0) .OR. (ibroncat .eq. catsel(1:ncatsel)))
          
          IF (country_selected .AND. category_selected) THEN
-            WRITE (fu_scratch, 50) mm,x,y,qob,qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+            WRITE (fu_scratch) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
             numbron = numbron+1
          ENDIF
       ENDIF

@@ -17,11 +17,11 @@
 !-------------------------------------------------------------------------------------------------------------------------------
 ! DESCRIPTION         : Subroutines supporting receptor point printing.
 !-------------------------------------------------------------------------------------------------------------------------------
-MODULE ops_print_table
+module ops_print_table
 
 use m_error
-use m_utils
 use m_commonfile, only: fu_prt
+use m_utils
 
 IMPLICIT NONE
 
@@ -47,7 +47,7 @@ CONTAINS
 ! SUBROUTINE: print_conc_names
 ! PURPOSE:    prints names of concentration parameters
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE  print_conc_names(namco, namsec, nam_subsec, nam_no2)
+SUBROUTINE  print_conc_names(namco, namsec, nam_subsec, nam_no2, nam_nox)
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -58,6 +58,7 @@ CHARACTER*(*), INTENT(IN)                        :: namco                      !
 CHARACTER*(*), INTENT(IN), OPTIONAL              :: namsec                     ! 
 CHARACTER*(*), INTENT(IN), OPTIONAL              :: nam_subsec(:)              ! names of sub-secondary species
 CHARACTER*(*), INTENT(IN), OPTIONAL              :: nam_no2                    ! name of NO2
+CHARACTER*(*), INTENT(IN), OPTIONAL              :: nam_nox                    ! name of NOx
 
 ! Local variable
 INTEGER                                          :: isubsec                    ! index of sub-secondary species
@@ -65,11 +66,14 @@ INTEGER                                          :: isubsec                    !
 !
 ! FORMATS
 !
-700 FORMAT (/' Concentrations for ',10(1x,a))
+700 FORMAT (/' Concentrations for ',15(1x,a))
 701 FORMAT (/' Concentrations for ',a:,' and ',a:)
 702 FORMAT (/' Concentrations for ',a:)
 
-IF (PRESENT(nam_no2)) THEN
+IF (PRESENT(nam_nox)) THEN
+   WRITE(fu_prt, 700) namco(1:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,size(nam_subsec)), &
+                      nam_no2, nam_nox
+ELSEIF (PRESENT(nam_no2)) THEN
    WRITE(fu_prt, 700) namco(1:LEN_TRIM(namco)), namsec(:LEN_TRIM(namsec)), (nam_subsec(isubsec)(:LEN_TRIM(nam_subsec(isubsec))), isubsec = 1,size(nam_subsec)), &
                       nam_no2
 ELSEIF (PRESENT(nam_subsec)) THEN
@@ -353,7 +357,7 @@ DO ircp = 1, nrrcp
    write(fu_prt,'(a)') '' ! new line
 ENDDO
 
-write(*,*) par_scale(1)  
+! write(*,*) par_scale(1)  
 
 end subroutine print_values_par_val
 
@@ -441,4 +445,4 @@ ENDIF
 
 END FUNCTION set_rcp_values
 
-END MODULE ops_print_table
+end module ops_print_table
