@@ -1,125 +1,4 @@
 @test
-
-subroutine tst_read_bg_file
-
-use funit
-use m_aps
-use m_error
-use m_ops_read_bg
-!use m_commonfile, only: map_so2, map_nox, map_nh3, IOB_STDOUT
-use m_commonfile, only: datadir, map_so2, IOB_STDOUT
-use m_commonconst_lt, only: FIRSTYEAR, FUTUREYEAR, tf_so2
-
-implicit none
-
-INTEGER, PARAMETER   :: ENDYEAR = 2030             ! end year for tests
-
-! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4            :: year                       ! year for chemical maps
-CHARACTER(len=3)     :: compname                   ! component name for which to read background concentration
-LOGICAL              :: chem_meteo_prognosis       ! use meteo prognosis in chemistry maps
-CHARACTER(len=50)    :: mapnames_ref(6)            ! names of file with background concentration for chosen reference year
-! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
-CHARACTER(LEN = 512) :: fnames_used_chem           ! string with names of file used (with possible compname xxx and year yyyy replaced by actual values)
-
-! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4            :: mapnumber                  ! number of background map
-INTEGER*4            :: ji                         ! year index, i.e. the index in the trendfactor tf_... of the current year
-TYPE (TApsGridReal)  :: bggrid                     ! background concentration grid
-TYPE (TError)        :: error                      ! error handling record
-CHARACTER(512)       :: dir_chem                   ! directory with chemistry files
-
-INTEGER                                          :: year_start                 ! start year
-INTEGER                                          :: lu_ref = 11                ! logical unit number file with reference data
-CHARACTER(LEN=512)                               :: line_test                  ! line with test data (file names which have been read)
-CHARACTER(LEN=512)                               :: line_ref                   ! line with reference data (file names which have been read)
-INTEGER                                          :: ichem                      ! index for loop over chem_meteo_prognosis
-INTEGER                                          :: ji_ref                     ! reference data for year index
-INTEGER                                          :: iyear                      ! index of test year
-CHARACTER(LEN = 40)                              :: msg                        ! message for assertEqual
-
-CHARACTER*512, PARAMETER                         :: ROUTINENAAM = 'tst_read_bg_file'
-
-! Test is only for the background file names for so2; reading of data is not tested here
-
-do ichem = 1,2
-   ! First actual meteo, then prognosis meteo:
-   chem_meteo_prognosis = (ichem .eq. 2)
-
-   ! Open reference file:
-   if (chem_meteo_prognosis) then
-      open(lu_ref, file='./tst/resources/tst_m_ops_read_bg_prognosis1.ref')
-   else
-      open(lu_ref, file='./tst/resources/tst_m_ops_read_bg_actual1.ref')
-   endif
-   rewind(lu_ref)
-   
-   datadir = './tst/resources/'
-   
-   ! Set start year for test (from this year files are available):
-   call tst_m_ops_read_bg_year_start(chem_meteo_prognosis,0,year_start) ! test for iopt_vchem = 0, old chemistry
-   
-   ! Define file name and read background concentrations
-   iyear = 0
-   do year = FIRSTYEAR,ENDYEAR
-      iyear = iyear + 1
-      fnames_used_chem = ''
-      compname = 'so2'; mapnames_ref = map_so2
-      
-      ! Define file name and read background concentrations
-      call set_bg_year_indices(year, chem_meteo_prognosis, dir_chem, mapnumber, ji)
-      call read_bg_file(year, compname, 'test ', dir_chem, mapnames_ref(mapnumber), fnames_used_chem, bggrid, error) ! ignore error
-   
-      ! Check for error:   
-      if (year < year_start) then
-         
-         ! Expected error if year is before start year (reset error in this case):
-         write(msg,'(a,i4)') 'test expected error for year ',year
-         @assertEqual(.true.,error%haserror,message=msg)
-         error%haserror = .false.
-      else
-         ! Unexpected error:
-         if (error%haserror) goto 9999
-      
-         ! No error; check directory:
-         if (year .ge. FUTUREYEAR .or. chem_meteo_prognosis) then
-            @assertEqual(trim(datadir)//'Chem_meteo_prognosis/',dir_chem,message='directory for chemistry maps')
-         else
-            @assertEqual(trim(datadir)//'Chem_meteo_actual/',dir_chem,message='directory for chemistry maps')
-         endif
-         
-         !  Check file name:
-         read(lu_ref,'(a)') line_ref
-         ! write(*,*) year,trim(fnames_used_chem) ! to generate reference data
-         write(line_test,*) year,trim(fnames_used_chem)
-         @assertEqual(line_ref,line_test,message='test background concentration file name')
-         
-         ! Check indices ji into tf_ (note: SIZE(tf_so2) = NYEARS+1):
-         if (chem_meteo_prognosis .or. (year .ge. FUTUREYEAR)) then
-            ji_ref = SIZE(tf_so2)
-         elseif (year .eq. FUTUREYEAR-1) then
-            ji_ref = iyear-1 ! measurement not available, so get trendfactor of previous year
-         else
-            ji_ref = iyear
-         endif
-         write(msg,'(a,i4)') 'test index ji for year ',year
-         @assertEqual(ji_ref,ji,message=msg)
-      endif
-      
-   enddo ! loop over years
-   close(lu_ref)
-enddo ! loop over chem_meteo_prognosis
-
-return
-
-9999 CALL ErrorCall(ROUTINENAAM, error)
-call ErrorParam('YEAR',year,error)
-call WriteError(IOB_STDOUT,error)
-
-end subroutine tst_read_bg_file
-
-!--------------------------------------------------------------------------------------------
-@test
 subroutine tst_ops_read_bg
 
 ! Test is only for the file names; reading of data is not (yet) tested
@@ -161,13 +40,20 @@ INTEGER                                          :: year_start                 !
 INTEGER                                          :: lu_ref = 11                ! logical unit number file with reference data
 CHARACTER(LEN=512)                               :: line_test                  ! line with test data (file names which have been read)
 CHARACTER(LEN=512)                               :: line_ref                   ! line with reference data (file names which have been read)
+INTEGER                                          :: iline                      ! line number in file with reference data
 REAL                                             :: grid(3,2,1)                ! help grid, same as read from mockup files.
 REAL                                             :: grid_o3(3,2,12)            ! help grid for ozone (12 wind sectors), same as read from mockup files.
 REAL                                             :: cf                         ! calibration factor
 REAL                                             :: tf                         ! trend factor
 INTEGER                                          :: ichem                      ! index for loop over chem_meteo_prognosis
-CHARACTER(LEN = 40)                              :: msg                        ! message for assertEqual
+CHARACTER(LEN = 200)                             :: msg                        ! message for assertEqual
 ! LOGICAL                                          :: no_ozone                   ! no ozone data available
+CHARACTER(LEN = 20)                              :: chem_meteo_type            ! 'chem_meteo_actual' or 'chem_meteo_prognosis'
+CHARACTER(LEN = 14)                              :: chem_type                  ! 'EMEP' or 'OPS_background'
+CHARACTER(LEN = 100)                             :: fnam_ref                   ! filw with reference file names
+INTEGER*4                                        :: icm2                       ! substance index
+INTEGER*4                                        :: iopt_vchem2                ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
+
 CHARACTER*512, PARAMETER                         :: ROUTINENAAM = 'tst_ops_read_bg'
 
 ! Set help grid with data present in mock-up data files (see tst/resources):
@@ -190,18 +76,32 @@ grid_o3(:,1,12) = (/ 210.0, 220.0, 250.0 /); grid_o3(:,2,12) = (/ 240.0, 250.0, 
 datadir = './tst/resources/'
 
 ! Open reference file:
-open(lu_ref, file='./tst/resources/tst_m_ops_read_bg.ref')
+fnam_ref = './tst/resources/tst_m_ops_read_bg.ref'
+open(lu_ref, file = fnam_ref)
 rewind(lu_ref)
+iline = 0
 
 ! Number of road emission categories must be larger than 0 to get things going:
 nemcat_road = 1
 
 do ichem = 1,2
-   ! First actual meteo, then prognosis meteo:
+   ! First check actual meteo, then prognosis meteo:
    chem_meteo_prognosis = (ichem .eq. 2)
+
+   if (chem_meteo_prognosis) then
+      chem_meteo_type = 'chem_meteo_prognosis'
+   else
+      chem_meteo_type = 'chem_meteo_actual'
+   endif
    
    
    do iopt_vchem = 0,1
+   
+      if (iopt_vchem .eq. 1) then
+         chem_type = 'EMEP'
+      else
+         chem_type = 'OPS_background'
+      endif
    
       ! Set start year for test (from this year files are available):
       call tst_m_ops_read_bg_year_start(chem_meteo_prognosis,iopt_vchem,year_start)
@@ -268,52 +168,93 @@ do ichem = 1,2
                ! No error; check directory:
                if (year .ge. FUTUREYEAR .or. chem_meteo_prognosis) then
                   @assertEqual(trim(datadir)//'Chem_meteo_prognosis/',dir_chem,message='directory for chemistry maps')
-                  write(msg,'(a,i4,a)') 'test maps for year ',year,'; prognosis meteo'
+                  write(msg,'(a,i4,a)') 'test maps for year ',year,'; chem_meteo_prognosis ====== See HELP above ======; '
                else
                   @assertEqual(trim(datadir)//'Chem_meteo_actual/',dir_chem,message='directory for chemistry maps')
-                  write(msg,'(a,i4,a)') 'test maps for year ',year,'; actual meteo' 
+                  write(msg,'(a,i4,a)') 'test maps for year ',year,'; chem_meteo_actual ====== See HELP above ======; ' 
                endif
                      
-               ! Following line can be used to generate a reference file; the contents have to be checked of course!
-               ! write(*,'(l1,1x,i2,1x,i5,3(1x,a))') chem_meteo_prognosis,iopt_vchem,year, trim(CNAME(icm,1)),' ',trim(fnames_used_chem)   
-
-               ! Read from reference file and check file names used:
-               ! background maps for SO2: SO2, NH3
-               ! background maps for NOx: NOx, NH3, O3
-               ! background maps for NH3: SO2, NOx, NH3
-               read(lu_ref,'(a)') line_ref
-               write(line_test,'(l1,1x,i2,1x,i5,3(1x,a))') chem_meteo_prognosis,iopt_vchem,year, trim(CNAME(icm,1)),' ',trim(fnames_used_chem)
-               @assertEqual(line_ref,line_test,message=msg)
-               
-               ! Check some grid values:
-               if (icm .eq. 3 .and. year .eq. 2013) then
-                  cf= 0.72; tf = 0.98 ! see m_commonconst_lt, so2
-                  @assertEqual(24./64.*cf*tf*grid,so2bggrid%value,message='test so2 background')
-               
-                  !cf= 0.94; tf = 1.00 ! see m_commonconst_lt, nox
-                  !@assertEqual(24./46.*cf*tf*grid,no2bggrid%value,message='test no2 background') ! difficult to check because of NOx-NO2 conversion 
-               
-                  cf= 1.12; tf = 0.97 ! see m_commonconst_lt, nh3
-                  @assertEqual(24./17.*cf*tf*grid,nh3bggrid%value,message='test nh3 background')
-               endif
-
-               ! Ozone
-               if (icm .eq. 2 .and. year .eq. 2019) then
-                  @assertEqual(grid_o3,o3bggrid%value,message='test o3 background')
-               endif
-               
-               if (icm .eq. 3 .and. year .eq. 2023) then
-                  cf= 0.95; tf = 1.0 ! see m_commonconst_lt, so2
-                  @assertEqual(24./64.*cf*tf*grid,so2bggrid%value,message='test so2 background')
-
-                  !@assertEqual(24./46.*cf*tf*grid,no2bggrid%value,message='test no2 background') ! difficult to check because of NOx-NO2 conversion 
-
-                  cf= 0.99; tf = 1.0 ! see m_commonconst_lt, nh3
-                  @assertEqual(24./17.*cf*tf*grid,nh3bggrid%value,message='test nh3 background')
+               if (year .ge. FUTUREYEAR .and. .not. chem_meteo_prognosis) then
+                  ! year >= FUTUREYEAR and chem_meteo_actual -> chem-file not present -> no check needed               
+                  continue
+               else
+                  ! Following line can be used to generate a reference file; the contents have to be checked of course!
+                  ! write(*,'(a20,1x,a14,1x,i5,3(1x,a))') trim(chem_meteo_type),trim(chem_type),year, trim(CNAME(icm,1)),' ',trim(fnames_used_chem)   
                   
-                  if (iopt_vchem .eq. 1) then
-                     @assertEqual(grid,vchem2%mass_prec_grid%value,message='test mass_prec')
-                     @assertEqual(grid,vchem2%mass_conv_dtfac_grid%value,message='test mass_conv_dtfac')
+                  ! Read from reference file and check file names used:
+                  ! background maps for SO2: SO2, NH3
+                  ! background maps for NOx: NOx, NH3, O3
+                  ! background maps for NH3: SO2, NOx, NH3
+                  read(lu_ref,'(a)') line_ref
+                  iline = iline + 1
+                  write(line_test,'(a20,1x,a14,1x,i5,3(1x,a))') trim(chem_meteo_type),trim(chem_type),year, trim(CNAME(icm,1)),' ',trim(fnames_used_chem)
+                  
+                  ! Provide help what to do if FUTUREYEAR has been changed:
+                  if (line_test .ne. line_ref) then
+                     write(*,'(/,a)')   '====== HELP ======================================================================================== '
+                     write(*,'(a,a,a)') ' If an error occurs in ', trim(ROUTINENAAM),', this may be due to a new FUTUREYEAR in OPS.'
+                     write(*,'(a,a,a,i4,a1,/)') ' If this is the case, add the following 3 lines with file names in the reference file ',trim(fnam_ref),' after line ',iline-1,':'
+                     do iopt_vchem2 = 0,1
+                        if (iopt_vchem2 .eq. 1) then
+                           chem_type = 'EMEP'
+                        else
+                           chem_type = 'OPS_background'
+                        endif
+                        do icm2 = 1,3
+                           ! Determine number of sub secondary species (see ops_read_ctr):
+                           if (icm2 .eq. 2) then
+                              if (iopt_vchem2 .eq. 0) then
+                                 nsubsec = 2 
+                              else
+                                 nsubsec = 4
+                              endif
+                           else
+                              nsubsec = 0
+                           endif
+                           ! Get file names to read from:
+                           call ops_read_bg(icm2, iopt_vchem2, nsubsec, year, chem_meteo_prognosis, nemcat_road, so2bggrid, no2bggrid, nh3bggrid, o3bggrid, &
+                                   f_subsec_grid, vchem2, error, dir_chem, fnames_used_chem)
+                           write(*,'(a20,1x,a14,1x,i5,3(1x,a))') trim(chem_meteo_type),trim(chem_type),year, trim(CNAME(icm2,1)),' ',trim(fnames_used_chem)
+                        enddo
+                        if (iopt_vchem2 .eq. 0) then
+                           write(*,'(/,a,/)') ' and another 3 lines further on in this file:'
+                        endif
+                     enddo
+                     write(*,'(/,a)') ' Please check if these lines are as expected!'
+                     write(*,'(a,/)') '==================================================================================================== '
+                  endif
+                  @assertEqual(line_ref,line_test,message=msg)
+                  
+                  ! Check some grid values:
+                  if (icm .eq. 3 .and. year .eq. 2013) then
+                     cf= 0.72; tf = 0.98 ! see m_commonconst_lt, so2
+                     @assertEqual(24./64.*cf*tf*grid,so2bggrid%value,message='test so2 background')
+                  
+                     !cf= 0.94; tf = 1.00 ! see m_commonconst_lt, nox
+                     !@assertEqual(24./46.*cf*tf*grid,no2bggrid%value,message='test no2 background') ! difficult to check because of NOx-NO2 conversion 
+                  
+                     cf= 1.12; tf = 0.97 ! see m_commonconst_lt, nh3
+                     @assertEqual(24./17.*cf*tf*grid,nh3bggrid%value,message='test nh3 background')
+                  endif
+                  
+                  ! Ozone
+                  if (icm .eq. 2 .and. year .eq. 2019) then
+                     @assertEqual(grid_o3,o3bggrid%value,message='test o3 background')
+                  endif
+                  
+                  if (icm .eq. 3 .and. year .eq. 2023) then
+                     cf= 0.95; tf = 1.0 ! see m_commonconst_lt, so2
+                     @assertEqual(24./64.*cf*tf*grid,so2bggrid%value,message='test so2 background')
+                  
+                     !@assertEqual(24./46.*cf*tf*grid,no2bggrid%value,message='test no2 background') ! difficult to check because of NOx-NO2 conversion 
+                  
+                     cf= 0.99; tf = 1.0 ! see m_commonconst_lt, nh3
+                     @assertEqual(24./17.*cf*tf*grid,nh3bggrid%value,message='test nh3 background')
+                     
+                     if (iopt_vchem .eq. 1) then
+                        @assertEqual(grid,vchem2%mass_prec_grid%value,message='test mass_prec')
+                        @assertEqual(grid,vchem2%mass_conv_dtfac_grid%value,message='test mass_conv_dtfac')
+                     endif
                   endif
                endif
             endif

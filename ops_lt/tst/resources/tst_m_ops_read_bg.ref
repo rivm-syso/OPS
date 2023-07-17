@@ -1,291 +1,243 @@
-F  0  1977 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1977 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1977.ops
-F  0  1977 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1978 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1978 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1978.ops
-F  0  1978 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1979 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1979 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1979.ops
-F  0  1979 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1980 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1980 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1980.ops
-F  0  1980 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1981 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1981 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1981.ops
-F  0  1981 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1982 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1982 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1982.ops
-F  0  1982 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1983 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1983 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1983.ops
-F  0  1983 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1984 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1984 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1984.ops
-F  0  1984 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1985 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1985 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1985.ops
-F  0  1985 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1986 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1986 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1986.ops
-F  0  1986 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1987 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1987 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1987.ops
-F  0  1987 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1988 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1988 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1988.ops
-F  0  1988 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1989 SO2    bgso2c1984.ops bgnh3c1984.ops
-F  0  1989 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1989.ops
-F  0  1989 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
-F  0  1990 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1990 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1990.ops
-F  0  1990 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1991 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1991 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1991.ops
-F  0  1991 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1992 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1992 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1992.ops
-F  0  1992 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1993 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1993 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1993.ops
-F  0  1993 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1994 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1994 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1994.ops
-F  0  1994 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1995 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1995 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1995.ops
-F  0  1995 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1996 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1996 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1996.ops
-F  0  1996 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1997 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1997 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1997.ops
-F  0  1997 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1998 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1998 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1998.ops
-F  0  1998 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  1999 SO2    bgso2c1994.ops bgnh3c1994.ops
-F  0  1999 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1999.ops
-F  0  1999 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
-F  0  2000 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2000 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2000.ops
-F  0  2000 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2001 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2001 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2001.ops
-F  0  2001 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2002 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2002 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2002.ops
-F  0  2002 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2003 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2003 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2003.ops
-F  0  2003 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2004 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2004 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2004.ops
-F  0  2004 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2005 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2005 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2005.ops
-F  0  2005 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2006 SO2    bgso2c2005.ops bgnh3c2005.ops
-F  0  2006 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2006.ops
-F  0  2006 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
-F  0  2007 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2007 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2007.ops
-F  0  2007 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2008 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2008 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2008.ops
-F  0  2008 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2009 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2009 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2009.ops
-F  0  2009 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2010 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2010 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2010.ops
-F  0  2010 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2011 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2011 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2011.ops
-F  0  2011 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2012 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2012 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2012.ops
-F  0  2012 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2013 SO2    bgso2c2012.ops bgnh3c2012.ops
-F  0  2013 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2013.ops
-F  0  2013 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
-F  0  2014 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2014 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2014.ops
-F  0  2014 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2015 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2015 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2015.ops
-F  0  2015 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2016 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2016 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2016.ops
-F  0  2016 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2017 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2017 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2017.ops
-F  0  2017 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2018 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops
-F  0  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2019 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2019 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2019.ops
-F  0  2019 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2020 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2020 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2020.ops
-F  0  2020 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2021 SO2    bgso2c2018.ops bgnh3c2018.ops
-F  0  2021 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2021.ops
-F  0  2021 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-F  0  2022 SO2    bgso2c2022.ops bgnh3c2022.ops
-F  0  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops
-F  0  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops
-F  0  2023 SO2    bgso2c2023.ops bgnh3c2023.ops
-F  0  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops
-F  0  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops
-F  0  2024 SO2    bgso2c2024.ops bgnh3c2024.ops
-F  0  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops
-F  0  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops
-F  0  2025 SO2    bgso2c2025.ops bgnh3c2025.ops
-F  0  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops
-F  0  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops
-F  0  2026 SO2    bgso2c2026.ops bgnh3c2026.ops
-F  0  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops
-F  0  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops
-F  0  2027 SO2    bgso2c2027.ops bgnh3c2027.ops
-F  0  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops
-F  0  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops
-F  0  2028 SO2    bgso2c2028.ops bgnh3c2028.ops
-F  0  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops
-F  0  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops
-F  0  2029 SO2    bgso2c2029.ops bgnh3c2029.ops
-F  0  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops
-F  0  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops
-F  0  2030 SO2    bgso2c2030.ops bgnh3c2030.ops
-F  0  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops
-F  0  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops
-F  1  2014 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2014.ops SO2_mass_conv_dtfac_2014.ops
-F  1  2014 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2014.ops NOx_mass_prec_2014.ops NOx_mass_conv_dtfac_2014.ops no3_distr_2014.ops
-F  1  2014 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2014.ops NH3_mass_conv_dtfac_2014.ops
-F  1  2015 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2015.ops SO2_mass_conv_dtfac_2015.ops
-F  1  2015 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2015.ops NOx_mass_prec_2015.ops NOx_mass_conv_dtfac_2015.ops no3_distr_2015.ops
-F  1  2015 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2015.ops NH3_mass_conv_dtfac_2015.ops
-F  1  2016 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2016.ops SO2_mass_conv_dtfac_2016.ops
-F  1  2016 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2016.ops NOx_mass_prec_2016.ops NOx_mass_conv_dtfac_2016.ops no3_distr_2016.ops
-F  1  2016 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2016.ops NH3_mass_conv_dtfac_2016.ops
-F  1  2017 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2017.ops SO2_mass_conv_dtfac_2017.ops
-F  1  2017 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2017.ops NOx_mass_prec_2017.ops NOx_mass_conv_dtfac_2017.ops no3_distr_2017.ops
-F  1  2017 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2017.ops NH3_mass_conv_dtfac_2017.ops
-F  1  2018 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2018.ops SO2_mass_conv_dtfac_2018.ops
-F  1  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops NOx_mass_prec_2018.ops NOx_mass_conv_dtfac_2018.ops no3_distr_2018.ops
-F  1  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2018.ops NH3_mass_conv_dtfac_2018.ops
-F  1  2019 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2019.ops SO2_mass_conv_dtfac_2019.ops
-F  1  2019 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2019.ops NOx_mass_prec_2019.ops NOx_mass_conv_dtfac_2019.ops no3_distr_2019.ops
-F  1  2019 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2019.ops NH3_mass_conv_dtfac_2019.ops
-F  1  2020 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2020.ops SO2_mass_conv_dtfac_2020.ops
-F  1  2020 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2020.ops NOx_mass_prec_2020.ops NOx_mass_conv_dtfac_2020.ops no3_distr_2020.ops
-F  1  2020 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2020.ops NH3_mass_conv_dtfac_2020.ops
-F  1  2021 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2021.ops SO2_mass_conv_dtfac_2021.ops
-F  1  2021 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2021.ops NOx_mass_prec_2021.ops NOx_mass_conv_dtfac_2021.ops no3_distr_2021.ops
-F  1  2021 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2021.ops NH3_mass_conv_dtfac_2021.ops
-F  1  2022 SO2    bgso2c2022.ops bgnh3c2022.ops SO2_mass_prec_2022.ops SO2_mass_conv_dtfac_2022.ops
-F  1  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops NOx_mass_prec_2022.ops NOx_mass_conv_dtfac_2022.ops no3_distr_2022.ops
-F  1  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops NH3_mass_prec_2022.ops NH3_mass_conv_dtfac_2022.ops
-F  1  2023 SO2    bgso2c2023.ops bgnh3c2023.ops SO2_mass_prec_2023.ops SO2_mass_conv_dtfac_2023.ops
-F  1  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops NOx_mass_prec_2023.ops NOx_mass_conv_dtfac_2023.ops no3_distr_2023.ops
-F  1  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops NH3_mass_prec_2023.ops NH3_mass_conv_dtfac_2023.ops
-F  1  2024 SO2    bgso2c2024.ops bgnh3c2024.ops SO2_mass_prec_2024.ops SO2_mass_conv_dtfac_2024.ops
-F  1  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops NOx_mass_prec_2024.ops NOx_mass_conv_dtfac_2024.ops no3_distr_2024.ops
-F  1  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops NH3_mass_prec_2024.ops NH3_mass_conv_dtfac_2024.ops
-F  1  2025 SO2    bgso2c2025.ops bgnh3c2025.ops SO2_mass_prec_2025.ops SO2_mass_conv_dtfac_2025.ops
-F  1  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops NOx_mass_prec_2025.ops NOx_mass_conv_dtfac_2025.ops no3_distr_2025.ops
-F  1  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops NH3_mass_prec_2025.ops NH3_mass_conv_dtfac_2025.ops
-F  1  2026 SO2    bgso2c2026.ops bgnh3c2026.ops SO2_mass_prec_2026.ops SO2_mass_conv_dtfac_2026.ops
-F  1  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops NOx_mass_prec_2026.ops NOx_mass_conv_dtfac_2026.ops no3_distr_2026.ops
-F  1  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops NH3_mass_prec_2026.ops NH3_mass_conv_dtfac_2026.ops
-F  1  2027 SO2    bgso2c2027.ops bgnh3c2027.ops SO2_mass_prec_2027.ops SO2_mass_conv_dtfac_2027.ops
-F  1  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops NOx_mass_prec_2027.ops NOx_mass_conv_dtfac_2027.ops no3_distr_2027.ops
-F  1  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops NH3_mass_prec_2027.ops NH3_mass_conv_dtfac_2027.ops
-F  1  2028 SO2    bgso2c2028.ops bgnh3c2028.ops SO2_mass_prec_2028.ops SO2_mass_conv_dtfac_2028.ops
-F  1  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops NOx_mass_prec_2028.ops NOx_mass_conv_dtfac_2028.ops no3_distr_2028.ops
-F  1  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops NH3_mass_prec_2028.ops NH3_mass_conv_dtfac_2028.ops
-F  1  2029 SO2    bgso2c2029.ops bgnh3c2029.ops SO2_mass_prec_2029.ops SO2_mass_conv_dtfac_2029.ops
-F  1  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops NOx_mass_prec_2029.ops NOx_mass_conv_dtfac_2029.ops no3_distr_2029.ops
-F  1  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops NH3_mass_prec_2029.ops NH3_mass_conv_dtfac_2029.ops
-F  1  2030 SO2    bgso2c2030.ops bgnh3c2030.ops SO2_mass_prec_2030.ops SO2_mass_conv_dtfac_2030.ops
-F  1  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops NOx_mass_prec_2030.ops NOx_mass_conv_dtfac_2030.ops no3_distr_2030.ops
-F  1  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops NH3_mass_prec_2030.ops NH3_mass_conv_dtfac_2030.ops
-T  0  2018 SO2    bgso2c2018.ops bgnh3c2018.ops
-T  0  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops
-T  0  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
-T  0  2019 SO2    bgso2c2019.ops bgnh3c2019.ops
-T  0  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops bgo3c2019.ops
-T  0  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops
-T  0  2020 SO2    bgso2c2020.ops bgnh3c2020.ops
-T  0  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops bgo3c2020.ops
-T  0  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops
-T  0  2021 SO2    bgso2c2021.ops bgnh3c2021.ops
-T  0  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops bgo3c2021.ops
-T  0  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops
-T  0  2022 SO2    bgso2c2022.ops bgnh3c2022.ops
-T  0  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops
-T  0  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops
-T  0  2023 SO2    bgso2c2023.ops bgnh3c2023.ops
-T  0  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops
-T  0  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops
-T  0  2024 SO2    bgso2c2024.ops bgnh3c2024.ops
-T  0  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops
-T  0  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops
-T  0  2025 SO2    bgso2c2025.ops bgnh3c2025.ops
-T  0  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops
-T  0  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops
-T  0  2026 SO2    bgso2c2026.ops bgnh3c2026.ops
-T  0  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops
-T  0  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops
-T  0  2027 SO2    bgso2c2027.ops bgnh3c2027.ops
-T  0  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops
-T  0  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops
-T  0  2028 SO2    bgso2c2028.ops bgnh3c2028.ops
-T  0  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops
-T  0  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops
-T  0  2029 SO2    bgso2c2029.ops bgnh3c2029.ops
-T  0  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops
-T  0  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops
-T  0  2030 SO2    bgso2c2030.ops bgnh3c2030.ops
-T  0  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops
-T  0  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops
-T  1  2018 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2018.ops SO2_mass_conv_dtfac_2018.ops
-T  1  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops NOx_mass_prec_2018.ops NOx_mass_conv_dtfac_2018.ops no3_distr_2018.ops
-T  1  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2018.ops NH3_mass_conv_dtfac_2018.ops
-T  1  2019 SO2    bgso2c2019.ops bgnh3c2019.ops SO2_mass_prec_2019.ops SO2_mass_conv_dtfac_2019.ops
-T  1  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops bgo3c2019.ops NOx_mass_prec_2019.ops NOx_mass_conv_dtfac_2019.ops no3_distr_2019.ops
-T  1  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops NH3_mass_prec_2019.ops NH3_mass_conv_dtfac_2019.ops
-T  1  2020 SO2    bgso2c2020.ops bgnh3c2020.ops SO2_mass_prec_2020.ops SO2_mass_conv_dtfac_2020.ops
-T  1  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops bgo3c2020.ops NOx_mass_prec_2020.ops NOx_mass_conv_dtfac_2020.ops no3_distr_2020.ops
-T  1  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops NH3_mass_prec_2020.ops NH3_mass_conv_dtfac_2020.ops
-T  1  2021 SO2    bgso2c2021.ops bgnh3c2021.ops SO2_mass_prec_2021.ops SO2_mass_conv_dtfac_2021.ops
-T  1  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops bgo3c2021.ops NOx_mass_prec_2021.ops NOx_mass_conv_dtfac_2021.ops no3_distr_2021.ops
-T  1  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops NH3_mass_prec_2021.ops NH3_mass_conv_dtfac_2021.ops
-T  1  2022 SO2    bgso2c2022.ops bgnh3c2022.ops SO2_mass_prec_2022.ops SO2_mass_conv_dtfac_2022.ops
-T  1  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops NOx_mass_prec_2022.ops NOx_mass_conv_dtfac_2022.ops no3_distr_2022.ops
-T  1  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops NH3_mass_prec_2022.ops NH3_mass_conv_dtfac_2022.ops
-T  1  2023 SO2    bgso2c2023.ops bgnh3c2023.ops SO2_mass_prec_2023.ops SO2_mass_conv_dtfac_2023.ops
-T  1  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops NOx_mass_prec_2023.ops NOx_mass_conv_dtfac_2023.ops no3_distr_2023.ops
-T  1  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops NH3_mass_prec_2023.ops NH3_mass_conv_dtfac_2023.ops
-T  1  2024 SO2    bgso2c2024.ops bgnh3c2024.ops SO2_mass_prec_2024.ops SO2_mass_conv_dtfac_2024.ops
-T  1  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops NOx_mass_prec_2024.ops NOx_mass_conv_dtfac_2024.ops no3_distr_2024.ops
-T  1  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops NH3_mass_prec_2024.ops NH3_mass_conv_dtfac_2024.ops
-T  1  2025 SO2    bgso2c2025.ops bgnh3c2025.ops SO2_mass_prec_2025.ops SO2_mass_conv_dtfac_2025.ops
-T  1  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops NOx_mass_prec_2025.ops NOx_mass_conv_dtfac_2025.ops no3_distr_2025.ops
-T  1  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops NH3_mass_prec_2025.ops NH3_mass_conv_dtfac_2025.ops
-T  1  2026 SO2    bgso2c2026.ops bgnh3c2026.ops SO2_mass_prec_2026.ops SO2_mass_conv_dtfac_2026.ops
-T  1  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops NOx_mass_prec_2026.ops NOx_mass_conv_dtfac_2026.ops no3_distr_2026.ops
-T  1  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops NH3_mass_prec_2026.ops NH3_mass_conv_dtfac_2026.ops
-T  1  2027 SO2    bgso2c2027.ops bgnh3c2027.ops SO2_mass_prec_2027.ops SO2_mass_conv_dtfac_2027.ops
-T  1  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops NOx_mass_prec_2027.ops NOx_mass_conv_dtfac_2027.ops no3_distr_2027.ops
-T  1  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops NH3_mass_prec_2027.ops NH3_mass_conv_dtfac_2027.ops
-T  1  2028 SO2    bgso2c2028.ops bgnh3c2028.ops SO2_mass_prec_2028.ops SO2_mass_conv_dtfac_2028.ops
-T  1  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops NOx_mass_prec_2028.ops NOx_mass_conv_dtfac_2028.ops no3_distr_2028.ops
-T  1  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops NH3_mass_prec_2028.ops NH3_mass_conv_dtfac_2028.ops
-T  1  2029 SO2    bgso2c2029.ops bgnh3c2029.ops SO2_mass_prec_2029.ops SO2_mass_conv_dtfac_2029.ops
-T  1  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops NOx_mass_prec_2029.ops NOx_mass_conv_dtfac_2029.ops no3_distr_2029.ops
-T  1  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops NH3_mass_prec_2029.ops NH3_mass_conv_dtfac_2029.ops
-T  1  2030 SO2    bgso2c2030.ops bgnh3c2030.ops SO2_mass_prec_2030.ops SO2_mass_conv_dtfac_2030.ops
-T  1  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops NOx_mass_prec_2030.ops NOx_mass_conv_dtfac_2030.ops no3_distr_2030.ops
-T  1  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops NH3_mass_prec_2030.ops NH3_mass_conv_dtfac_2030.ops
+   chem_meteo_actual OPS_background  1977 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1977 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1977.ops
+   chem_meteo_actual OPS_background  1977 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1978 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1978 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1978.ops
+   chem_meteo_actual OPS_background  1978 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1979 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1979 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1979.ops
+   chem_meteo_actual OPS_background  1979 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1980 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1980 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1980.ops
+   chem_meteo_actual OPS_background  1980 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1981 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1981 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1981.ops
+   chem_meteo_actual OPS_background  1981 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1982 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1982 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1982.ops
+   chem_meteo_actual OPS_background  1982 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1983 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1983 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1983.ops
+   chem_meteo_actual OPS_background  1983 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1984 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1984 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1984.ops
+   chem_meteo_actual OPS_background  1984 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1985 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1985 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1985.ops
+   chem_meteo_actual OPS_background  1985 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1986 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1986 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1986.ops
+   chem_meteo_actual OPS_background  1986 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1987 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1987 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1987.ops
+   chem_meteo_actual OPS_background  1987 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1988 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1988 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1988.ops
+   chem_meteo_actual OPS_background  1988 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1989 SO2    bgso2c1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1989 NOx    bgnoxc1984.ops bgnh3c1984.ops bgo3c1989.ops
+   chem_meteo_actual OPS_background  1989 NH3    bgso2c1984.ops bgnoxc1984.ops bgnh3c1984.ops
+   chem_meteo_actual OPS_background  1990 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1990 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1990.ops
+   chem_meteo_actual OPS_background  1990 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1991 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1991 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1991.ops
+   chem_meteo_actual OPS_background  1991 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1992 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1992 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1992.ops
+   chem_meteo_actual OPS_background  1992 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1993 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1993 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1993.ops
+   chem_meteo_actual OPS_background  1993 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1994 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1994 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1994.ops
+   chem_meteo_actual OPS_background  1994 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1995 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1995 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1995.ops
+   chem_meteo_actual OPS_background  1995 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1996 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1996 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1996.ops
+   chem_meteo_actual OPS_background  1996 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1997 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1997 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1997.ops
+   chem_meteo_actual OPS_background  1997 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1998 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1998 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1998.ops
+   chem_meteo_actual OPS_background  1998 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1999 SO2    bgso2c1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  1999 NOx    bgnoxc1994.ops bgnh3c1994.ops bgo3c1999.ops
+   chem_meteo_actual OPS_background  1999 NH3    bgso2c1994.ops bgnoxc1994.ops bgnh3c1994.ops
+   chem_meteo_actual OPS_background  2000 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2000 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2000.ops
+   chem_meteo_actual OPS_background  2000 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2001 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2001 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2001.ops
+   chem_meteo_actual OPS_background  2001 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2002 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2002 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2002.ops
+   chem_meteo_actual OPS_background  2002 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2003 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2003 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2003.ops
+   chem_meteo_actual OPS_background  2003 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2004 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2004 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2004.ops
+   chem_meteo_actual OPS_background  2004 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2005 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2005 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2005.ops
+   chem_meteo_actual OPS_background  2005 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2006 SO2    bgso2c2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2006 NOx    bgnoxc2005.ops bgnh3c2005.ops bgo3c2006.ops
+   chem_meteo_actual OPS_background  2006 NH3    bgso2c2005.ops bgnoxc2005.ops bgnh3c2005.ops
+   chem_meteo_actual OPS_background  2007 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2007 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2007.ops
+   chem_meteo_actual OPS_background  2007 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2008 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2008 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2008.ops
+   chem_meteo_actual OPS_background  2008 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2009 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2009 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2009.ops
+   chem_meteo_actual OPS_background  2009 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2010 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2010 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2010.ops
+   chem_meteo_actual OPS_background  2010 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2011 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2011 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2011.ops
+   chem_meteo_actual OPS_background  2011 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2012 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2012 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2012.ops
+   chem_meteo_actual OPS_background  2012 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2013 SO2    bgso2c2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2013 NOx    bgnoxc2012.ops bgnh3c2012.ops bgo3c2013.ops
+   chem_meteo_actual OPS_background  2013 NH3    bgso2c2012.ops bgnoxc2012.ops bgnh3c2012.ops
+   chem_meteo_actual OPS_background  2014 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2014 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2014.ops
+   chem_meteo_actual OPS_background  2014 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2015 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2015 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2015.ops
+   chem_meteo_actual OPS_background  2015 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2016 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2016 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2016.ops
+   chem_meteo_actual OPS_background  2016 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2017 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2017 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2017.ops
+   chem_meteo_actual OPS_background  2017 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2018 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops
+   chem_meteo_actual OPS_background  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2019 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2019 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2019.ops
+   chem_meteo_actual OPS_background  2019 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2020 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2020 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2020.ops
+   chem_meteo_actual OPS_background  2020 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2021 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2021 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2021.ops
+   chem_meteo_actual OPS_background  2021 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2022 SO2    bgso2c2018.ops bgnh3c2018.ops
+   chem_meteo_actual OPS_background  2022 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2022.ops
+   chem_meteo_actual OPS_background  2022 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+   chem_meteo_actual           EMEP  2014 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2014.ops SO2_mass_conv_dtfac_2014.ops
+   chem_meteo_actual           EMEP  2014 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2014.ops NOx_mass_prec_2014.ops NOx_mass_conv_dtfac_2014.ops no3_distr_2014.ops
+   chem_meteo_actual           EMEP  2014 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2014.ops NH3_mass_conv_dtfac_2014.ops
+   chem_meteo_actual           EMEP  2015 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2015.ops SO2_mass_conv_dtfac_2015.ops
+   chem_meteo_actual           EMEP  2015 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2015.ops NOx_mass_prec_2015.ops NOx_mass_conv_dtfac_2015.ops no3_distr_2015.ops
+   chem_meteo_actual           EMEP  2015 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2015.ops NH3_mass_conv_dtfac_2015.ops
+   chem_meteo_actual           EMEP  2016 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2016.ops SO2_mass_conv_dtfac_2016.ops
+   chem_meteo_actual           EMEP  2016 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2016.ops NOx_mass_prec_2016.ops NOx_mass_conv_dtfac_2016.ops no3_distr_2016.ops
+   chem_meteo_actual           EMEP  2016 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2016.ops NH3_mass_conv_dtfac_2016.ops
+   chem_meteo_actual           EMEP  2017 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2017.ops SO2_mass_conv_dtfac_2017.ops
+   chem_meteo_actual           EMEP  2017 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2017.ops NOx_mass_prec_2017.ops NOx_mass_conv_dtfac_2017.ops no3_distr_2017.ops
+   chem_meteo_actual           EMEP  2017 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2017.ops NH3_mass_conv_dtfac_2017.ops
+   chem_meteo_actual           EMEP  2018 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2018.ops SO2_mass_conv_dtfac_2018.ops
+   chem_meteo_actual           EMEP  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops NOx_mass_prec_2018.ops NOx_mass_conv_dtfac_2018.ops no3_distr_2018.ops
+   chem_meteo_actual           EMEP  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2018.ops NH3_mass_conv_dtfac_2018.ops
+   chem_meteo_actual           EMEP  2019 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2019.ops SO2_mass_conv_dtfac_2019.ops
+   chem_meteo_actual           EMEP  2019 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2019.ops NOx_mass_prec_2019.ops NOx_mass_conv_dtfac_2019.ops no3_distr_2019.ops
+   chem_meteo_actual           EMEP  2019 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2019.ops NH3_mass_conv_dtfac_2019.ops
+   chem_meteo_actual           EMEP  2020 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2020.ops SO2_mass_conv_dtfac_2020.ops
+   chem_meteo_actual           EMEP  2020 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2020.ops NOx_mass_prec_2020.ops NOx_mass_conv_dtfac_2020.ops no3_distr_2020.ops
+   chem_meteo_actual           EMEP  2020 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2020.ops NH3_mass_conv_dtfac_2020.ops
+   chem_meteo_actual           EMEP  2021 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2021.ops SO2_mass_conv_dtfac_2021.ops
+   chem_meteo_actual           EMEP  2021 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2021.ops NOx_mass_prec_2021.ops NOx_mass_conv_dtfac_2021.ops no3_distr_2021.ops
+   chem_meteo_actual           EMEP  2021 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2021.ops NH3_mass_conv_dtfac_2021.ops
+   chem_meteo_actual           EMEP  2022 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2022.ops SO2_mass_conv_dtfac_2022.ops
+   chem_meteo_actual           EMEP  2022 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2022.ops NOx_mass_prec_2022.ops NOx_mass_conv_dtfac_2022.ops no3_distr_2022.ops
+   chem_meteo_actual           EMEP  2022 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2022.ops NH3_mass_conv_dtfac_2022.ops
+chem_meteo_prognosis OPS_background  2018 SO2    bgso2c2018.ops bgnh3c2018.ops
+chem_meteo_prognosis OPS_background  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops
+chem_meteo_prognosis OPS_background  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops
+chem_meteo_prognosis OPS_background  2019 SO2    bgso2c2019.ops bgnh3c2019.ops
+chem_meteo_prognosis OPS_background  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops bgo3c2019.ops
+chem_meteo_prognosis OPS_background  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops
+chem_meteo_prognosis OPS_background  2020 SO2    bgso2c2020.ops bgnh3c2020.ops
+chem_meteo_prognosis OPS_background  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops bgo3c2020.ops
+chem_meteo_prognosis OPS_background  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops
+chem_meteo_prognosis OPS_background  2021 SO2    bgso2c2021.ops bgnh3c2021.ops
+chem_meteo_prognosis OPS_background  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops bgo3c2021.ops
+chem_meteo_prognosis OPS_background  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops
+chem_meteo_prognosis OPS_background  2022 SO2    bgso2c2022.ops bgnh3c2022.ops
+chem_meteo_prognosis OPS_background  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops
+chem_meteo_prognosis OPS_background  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops
+chem_meteo_prognosis OPS_background  2023 SO2    bgso2c2023.ops bgnh3c2023.ops
+chem_meteo_prognosis OPS_background  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops
+chem_meteo_prognosis OPS_background  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops
+chem_meteo_prognosis OPS_background  2024 SO2    bgso2c2024.ops bgnh3c2024.ops
+chem_meteo_prognosis OPS_background  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops
+chem_meteo_prognosis OPS_background  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops
+chem_meteo_prognosis OPS_background  2025 SO2    bgso2c2025.ops bgnh3c2025.ops
+chem_meteo_prognosis OPS_background  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops
+chem_meteo_prognosis OPS_background  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops
+chem_meteo_prognosis OPS_background  2026 SO2    bgso2c2026.ops bgnh3c2026.ops
+chem_meteo_prognosis OPS_background  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops
+chem_meteo_prognosis OPS_background  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops
+chem_meteo_prognosis OPS_background  2027 SO2    bgso2c2027.ops bgnh3c2027.ops
+chem_meteo_prognosis OPS_background  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops
+chem_meteo_prognosis OPS_background  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops
+chem_meteo_prognosis OPS_background  2028 SO2    bgso2c2028.ops bgnh3c2028.ops
+chem_meteo_prognosis OPS_background  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops
+chem_meteo_prognosis OPS_background  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops
+chem_meteo_prognosis OPS_background  2029 SO2    bgso2c2029.ops bgnh3c2029.ops
+chem_meteo_prognosis OPS_background  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops
+chem_meteo_prognosis OPS_background  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops
+chem_meteo_prognosis OPS_background  2030 SO2    bgso2c2030.ops bgnh3c2030.ops
+chem_meteo_prognosis OPS_background  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops
+chem_meteo_prognosis OPS_background  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops
+chem_meteo_prognosis           EMEP  2018 SO2    bgso2c2018.ops bgnh3c2018.ops SO2_mass_prec_2018.ops SO2_mass_conv_dtfac_2018.ops
+chem_meteo_prognosis           EMEP  2018 NOx    bgnoxc2018.ops bgnh3c2018.ops bgo3c2018.ops NOx_mass_prec_2018.ops NOx_mass_conv_dtfac_2018.ops no3_distr_2018.ops
+chem_meteo_prognosis           EMEP  2018 NH3    bgso2c2018.ops bgnoxc2018.ops bgnh3c2018.ops NH3_mass_prec_2018.ops NH3_mass_conv_dtfac_2018.ops
+chem_meteo_prognosis           EMEP  2019 SO2    bgso2c2019.ops bgnh3c2019.ops SO2_mass_prec_2019.ops SO2_mass_conv_dtfac_2019.ops
+chem_meteo_prognosis           EMEP  2019 NOx    bgnoxc2019.ops bgnh3c2019.ops bgo3c2019.ops NOx_mass_prec_2019.ops NOx_mass_conv_dtfac_2019.ops no3_distr_2019.ops
+chem_meteo_prognosis           EMEP  2019 NH3    bgso2c2019.ops bgnoxc2019.ops bgnh3c2019.ops NH3_mass_prec_2019.ops NH3_mass_conv_dtfac_2019.ops
+chem_meteo_prognosis           EMEP  2020 SO2    bgso2c2020.ops bgnh3c2020.ops SO2_mass_prec_2020.ops SO2_mass_conv_dtfac_2020.ops
+chem_meteo_prognosis           EMEP  2020 NOx    bgnoxc2020.ops bgnh3c2020.ops bgo3c2020.ops NOx_mass_prec_2020.ops NOx_mass_conv_dtfac_2020.ops no3_distr_2020.ops
+chem_meteo_prognosis           EMEP  2020 NH3    bgso2c2020.ops bgnoxc2020.ops bgnh3c2020.ops NH3_mass_prec_2020.ops NH3_mass_conv_dtfac_2020.ops
+chem_meteo_prognosis           EMEP  2021 SO2    bgso2c2021.ops bgnh3c2021.ops SO2_mass_prec_2021.ops SO2_mass_conv_dtfac_2021.ops
+chem_meteo_prognosis           EMEP  2021 NOx    bgnoxc2021.ops bgnh3c2021.ops bgo3c2021.ops NOx_mass_prec_2021.ops NOx_mass_conv_dtfac_2021.ops no3_distr_2021.ops
+chem_meteo_prognosis           EMEP  2021 NH3    bgso2c2021.ops bgnoxc2021.ops bgnh3c2021.ops NH3_mass_prec_2021.ops NH3_mass_conv_dtfac_2021.ops
+chem_meteo_prognosis           EMEP  2022 SO2    bgso2c2022.ops bgnh3c2022.ops SO2_mass_prec_2022.ops SO2_mass_conv_dtfac_2022.ops
+chem_meteo_prognosis           EMEP  2022 NOx    bgnoxc2022.ops bgnh3c2022.ops bgo3c2022.ops NOx_mass_prec_2022.ops NOx_mass_conv_dtfac_2022.ops no3_distr_2022.ops
+chem_meteo_prognosis           EMEP  2022 NH3    bgso2c2022.ops bgnoxc2022.ops bgnh3c2022.ops NH3_mass_prec_2022.ops NH3_mass_conv_dtfac_2022.ops
+chem_meteo_prognosis           EMEP  2023 SO2    bgso2c2023.ops bgnh3c2023.ops SO2_mass_prec_2023.ops SO2_mass_conv_dtfac_2023.ops
+chem_meteo_prognosis           EMEP  2023 NOx    bgnoxc2023.ops bgnh3c2023.ops bgo3c2023.ops NOx_mass_prec_2023.ops NOx_mass_conv_dtfac_2023.ops no3_distr_2023.ops
+chem_meteo_prognosis           EMEP  2023 NH3    bgso2c2023.ops bgnoxc2023.ops bgnh3c2023.ops NH3_mass_prec_2023.ops NH3_mass_conv_dtfac_2023.ops
+chem_meteo_prognosis           EMEP  2024 SO2    bgso2c2024.ops bgnh3c2024.ops SO2_mass_prec_2024.ops SO2_mass_conv_dtfac_2024.ops
+chem_meteo_prognosis           EMEP  2024 NOx    bgnoxc2024.ops bgnh3c2024.ops bgo3c2024.ops NOx_mass_prec_2024.ops NOx_mass_conv_dtfac_2024.ops no3_distr_2024.ops
+chem_meteo_prognosis           EMEP  2024 NH3    bgso2c2024.ops bgnoxc2024.ops bgnh3c2024.ops NH3_mass_prec_2024.ops NH3_mass_conv_dtfac_2024.ops
+chem_meteo_prognosis           EMEP  2025 SO2    bgso2c2025.ops bgnh3c2025.ops SO2_mass_prec_2025.ops SO2_mass_conv_dtfac_2025.ops
+chem_meteo_prognosis           EMEP  2025 NOx    bgnoxc2025.ops bgnh3c2025.ops bgo3c2025.ops NOx_mass_prec_2025.ops NOx_mass_conv_dtfac_2025.ops no3_distr_2025.ops
+chem_meteo_prognosis           EMEP  2025 NH3    bgso2c2025.ops bgnoxc2025.ops bgnh3c2025.ops NH3_mass_prec_2025.ops NH3_mass_conv_dtfac_2025.ops
+chem_meteo_prognosis           EMEP  2026 SO2    bgso2c2026.ops bgnh3c2026.ops SO2_mass_prec_2026.ops SO2_mass_conv_dtfac_2026.ops
+chem_meteo_prognosis           EMEP  2026 NOx    bgnoxc2026.ops bgnh3c2026.ops bgo3c2026.ops NOx_mass_prec_2026.ops NOx_mass_conv_dtfac_2026.ops no3_distr_2026.ops
+chem_meteo_prognosis           EMEP  2026 NH3    bgso2c2026.ops bgnoxc2026.ops bgnh3c2026.ops NH3_mass_prec_2026.ops NH3_mass_conv_dtfac_2026.ops
+chem_meteo_prognosis           EMEP  2027 SO2    bgso2c2027.ops bgnh3c2027.ops SO2_mass_prec_2027.ops SO2_mass_conv_dtfac_2027.ops
+chem_meteo_prognosis           EMEP  2027 NOx    bgnoxc2027.ops bgnh3c2027.ops bgo3c2027.ops NOx_mass_prec_2027.ops NOx_mass_conv_dtfac_2027.ops no3_distr_2027.ops
+chem_meteo_prognosis           EMEP  2027 NH3    bgso2c2027.ops bgnoxc2027.ops bgnh3c2027.ops NH3_mass_prec_2027.ops NH3_mass_conv_dtfac_2027.ops
+chem_meteo_prognosis           EMEP  2028 SO2    bgso2c2028.ops bgnh3c2028.ops SO2_mass_prec_2028.ops SO2_mass_conv_dtfac_2028.ops
+chem_meteo_prognosis           EMEP  2028 NOx    bgnoxc2028.ops bgnh3c2028.ops bgo3c2028.ops NOx_mass_prec_2028.ops NOx_mass_conv_dtfac_2028.ops no3_distr_2028.ops
+chem_meteo_prognosis           EMEP  2028 NH3    bgso2c2028.ops bgnoxc2028.ops bgnh3c2028.ops NH3_mass_prec_2028.ops NH3_mass_conv_dtfac_2028.ops
+chem_meteo_prognosis           EMEP  2029 SO2    bgso2c2029.ops bgnh3c2029.ops SO2_mass_prec_2029.ops SO2_mass_conv_dtfac_2029.ops
+chem_meteo_prognosis           EMEP  2029 NOx    bgnoxc2029.ops bgnh3c2029.ops bgo3c2029.ops NOx_mass_prec_2029.ops NOx_mass_conv_dtfac_2029.ops no3_distr_2029.ops
+chem_meteo_prognosis           EMEP  2029 NH3    bgso2c2029.ops bgnoxc2029.ops bgnh3c2029.ops NH3_mass_prec_2029.ops NH3_mass_conv_dtfac_2029.ops
+chem_meteo_prognosis           EMEP  2030 SO2    bgso2c2030.ops bgnh3c2030.ops SO2_mass_prec_2030.ops SO2_mass_conv_dtfac_2030.ops
+chem_meteo_prognosis           EMEP  2030 NOx    bgnoxc2030.ops bgnh3c2030.ops bgo3c2030.ops NOx_mass_prec_2030.ops NOx_mass_conv_dtfac_2030.ops no3_distr_2030.ops
+chem_meteo_prognosis           EMEP  2030 NH3    bgso2c2030.ops bgnoxc2030.ops bgnh3c2030.ops NH3_mass_prec_2030.ops NH3_mass_conv_dtfac_2030.ops

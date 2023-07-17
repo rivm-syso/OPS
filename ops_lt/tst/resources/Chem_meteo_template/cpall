@@ -6,12 +6,17 @@
 if [ "$1" == "" ]
 then
    echo " call: cpall compname (lower case so2, nox, nh3, o3)"
+   echo "   compname = so2, nox, nh3, o3 (lower case)"
    exit
 fi
 
+# FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
+# NYEARS      =   45                 ! number of years for interpolating background maps
+# FUTUREYEAR  = 2023                 ! future year, from which prognosis 
+
 FIRSTYEAR=1977
 OVERLAPYEAR=2018  # from this year on we have an overlap of Chem_meteo_actual and Chem_meteo_prognosis
-FUTUREYEAR=2022
+FUTUREYEAR=2023
 ENDYEAR=2030
 
 # File names to copy from (_nf3 means 3 fields):
@@ -84,7 +89,7 @@ then
    year=2014
    while [ ${year} -le $ENDYEAR ]
    do
-      echo -n ${year}
+      echo -n "${year} "
    
       if [ ${year} -lt $FUTUREYEAR ]
       then

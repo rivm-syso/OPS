@@ -666,6 +666,8 @@ IF (.not. (diag == 1 .OR. diag == 3)) THEN
    
 ENDIF ! Check -r option
 
+! Finally, make sure progress counter is set to 100%
+CALL ops_write_progress(100.0, '(F5.1)', 5, memdone)
 ! Close the progression file:
 CALL sysclose(fu_progress, indnam, error)
 IF (error%haserror) GOTO 9999 ! GOTO error handling at end of program
