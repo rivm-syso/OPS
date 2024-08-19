@@ -61,10 +61,10 @@ REAL*4                                           :: z0_FACT_EUR = 10000.        
 
 INTEGER*4, PARAMETER                             :: IGEO        = 0                    ! 1 -> Geographical coordinates lon-lat [degrees]; 0 -> RDM coordinates [m]  
 INTEGER*4, PARAMETER                             :: FIRSTYEAR   = 1977                 ! first year, used for interpolating background maps
-INTEGER*4, PARAMETER                             :: NYEARS      =   45                 ! number of years for interpolating background maps
-INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2023                 ! future year, from which prognosis chemical maps are used
-CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.1.1.0'            ! model version OPS-LT
-CHARACTER*20, PARAMETER                          :: RELEASEDATE = '18 jan 2023'        ! release date
+INTEGER*4, PARAMETER                             :: NYEARS      =   46                 ! number of years for interpolating background maps
+INTEGER*4, PARAMETER                             :: FUTUREYEAR  = 2024                 ! future year, from which prognosis chemical maps are used
+CHARACTER*8,  PARAMETER                          :: MODVERSIE   = '5.1.2.0'            ! model version OPS-LT
+CHARACTER*20, PARAMETER                          :: RELEASEDATE = '15 nov 2023'        ! release date
 
 !
 ! CONSTANTS - Data
@@ -74,9 +74,9 @@ INTEGER*4                                        :: NACHTWINTER(NSTAB, NTRAJ)   
 REAL*4                                           :: DISPH(NSTAB)                       ! coefficients for vertical dispersion coefficient sigma_z; sigma_z = dispg*x**disph  
 REAL*4                                           :: STOKES(NPARTCLASS)                 ! Sedimentation velocity (m/s) needed for plume descent in case of heavy particles, for each particle class
 REAL*4                                           :: SCWINTER(NSTAB)                    ! variation in NO2/NOx ratio (relative to stability class S2) for each stability class (only in winter)
-REAL*4                                           :: cf_so2(NBGMAPS+1)                  ! correction factors for the difference between model output and measurements for SO2
-REAL*4                                           :: cf_nox(NBGMAPS+1)                  ! correction factors for the difference between model output and measurements for NOx
-REAL*4                                           :: cf_nh3(NBGMAPS+1)                  ! correction factors for the difference between model output and measurements for NH3
+REAL*4                                           :: cf_so2(NBGMAPS+1)                    ! correction factors for the difference between model output and measurements for SO2
+REAL*4                                           :: cf_nox(NBGMAPS+1)                    ! correction factors for the difference between model output and measurements for NOx
+REAL*4                                           :: cf_nh3(NBGMAPS+1)                    ! correction factors for the difference between model output and measurements for NH3
 REAL*4                                           :: tf_so2(NYEARS + 1)                 ! trendfactors for SO2: concentration in year T, relative to the concentration in reference year
 REAL*4                                           :: tf_no2(NYEARS + 1)                 ! trendfactors for NO2: concentration in year T, relative to the concentration in reference year
 REAL*4                                           :: tf_nh3(NYEARS + 1)                 ! trendfactors for NH3: concentration in year T, relative to the concentration in reference year
@@ -133,21 +133,21 @@ DATA tf_so2    /  1.11,1.39,1.79,1.27,1.19,1.20,0.94,1.00,1.04,1.02,1.10,0.62,0.
                &                 1.60,1.70,1.46,1.33,1.00,0.86,1.02,0.78,0.63,0.50,          &  ! 1990 t/m 1999 (ref = 1994)
                &            1.33,1.15,1.20,1.14,1.01,1.00,0.96,                              &  ! 2000 t/m 2006 (ref = 2005)
                &            1.72,1.85,1.75,1.44,1.14,1.00,0.98,                              &  ! 2007 t/m 2013 (ref = 2012)
-               &                 1.54,1.04,0.97,0.78,1.00,0.75,0.66,0.60,1.00                /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018)  
+               &                 1.54,1.04,0.97,0.78,1.00,0.75,0.66,0.60,0.69,1.00           /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018)  
 
                !   -7   -6   -5   -4   -3   -2   -1  ref  +1   +2   +3   +4   +5
 DATA tf_no2    /  0.91,0.92,1.03,0.93,0.92,1.00,0.93,1.00,1.05,0.93,0.88,0.81,0.94,          &  ! 1977 t/m 1989 (ref = 1984)
                &                 1.12,1.19,1.06,1.02,1.00,0.94,1.04,1.03,0.91,0.86,          &  ! 1990 t/m 1999 (ref = 1994)
                &            1.07,1.05,1.06,1.17,1.06,1.00,0.99,                              &  ! 2000 t/m 2006 (ref = 2005)
                &            1.09,1.15,1.12,1.06,1.04,1.00,0.94,                              &  ! 2007 t/m 2013 (ref = 2012)
-               &                 1.02,0.95,1.01,0.98,1.00,0.93,0.79,0.74,1.00                /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018) 
+               &                 1.02,0.95,1.01,0.98,1.00,0.93,0.79,0.74,0.76,1.00                /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018) 
                
                !   -7   -6   -5   -4   -3   -2   -1  ref  +1   +2   +3   +4   +5
 DATA tf_nh3    /  1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,          &  ! 1977 t/m 1989 (ref=1984)
                &                 1.00,1.00,1.00,1.01,1.00,0.97,0.97,1.03,0.75,0.85,          &  ! 1990 t/m 1999 (ref=1994)
                &            0.94,1.00,0.83,1.04,0.84,1.00,1.06,                              &  ! 2000 t/m 2006 (ref=2005)
                &            0.90,0.93,0.97,0.89,1.07,1.00,0.97,                              &  ! 2007 t/m 2013 (ref = 2012)
-               &                 0.70,0.60,0.74,0.73,1.00,0.89,0.80,0.72,1.00                /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018) 
+               &                 0.70,0.60,0.74,0.73,1.00,0.89,0.80,0.72,0.78,1.00                /  ! 2014 t/m FUTUREYEAR-1 plus future (ref=2018) 
                
 ! Declaration of the naming convention used for SO2, NOx and NH3
 ! CNAME(:,1): name of primary substance
