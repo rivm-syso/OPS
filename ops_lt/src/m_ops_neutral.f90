@@ -24,8 +24,9 @@ implicit none
 
 contains
 
-SUBROUTINE ops_neutral(z0, zi, ol, uster, h, x, uh, zu, szn)
+SUBROUTINE ops_neutral(varin_meteo, z0, zi, ol, uster, h, x, uh, zu, szn)
 
+use m_ops_varin
 use m_commonconst_lt, only: EPS_DELTA 
 USE m_ops_meteo
 
@@ -36,31 +37,32 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_neutral')
 
 ! CONSTANTS
-REAL*4                                           :: A                          ! correctiefactor to obtain equal limit values |L| > $ 
-REAL*4                                           :: K                          ! von Karmanconstante
+REAL                                             :: A                          ! correctiefactor to obtain equal limit values |L| > $ 
+REAL                                             :: K                          ! von Karmanconstante
 PARAMETER   (A = 1. )
 PARAMETER   (K = 0.4)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source heigth (including plume rise) (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+REAL,      INTENT(IN)                            :: z0                         ! roughness length (m)
+REAL,      INTENT(IN)                            :: zi                         ! mixing height (m)
+REAL,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+REAL,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+REAL,      INTENT(IN)                            :: h                          ! source heigth (including plume rise) (m)
+REAL,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+REAL,      INTENT(OUT)                           :: uh                         ! windspeed at downwind distance x and height zu (m/s)
+REAL,      INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: szn                        ! vertical dispersion coefficient for near neutral upper layer (m)
+REAL,      INTENT(OUT)                           :: szn                        ! vertical dispersion coefficient for near neutral upper layer (m)
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: fz                         ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: sw                         ! 
-REAL*4                                           :: tl                         ! 
+INTEGER                                          :: last                       ! 
+REAL                                             :: fz                         ! 
+REAL                                             :: s                          ! 
+REAL                                             :: sw                         ! 
+REAL                                             :: tl                         ! 
 LOGICAL                                          :: finished                   ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ DO WHILE (.NOT. finished)
 !
 !  calculate the wind velocity at a certain height, starting from the friction velocity
 !
-   CALL ops_wv_log_profile(z0, zu, uster, ol, uh)
+   CALL ops_wv_log_profile(z0, zu, uster, ol, varin_meteo, uh)
 !
 !  Lagrangian time scale tau_L, Gryning et al., 1987 ?
 !

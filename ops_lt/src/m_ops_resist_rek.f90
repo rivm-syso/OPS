@@ -37,16 +37,17 @@ implicit none
 
 contains
 
-SUBROUTINE ops_resist_rek(disxx, vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, isec_prelim, ar, &
-                          r_no2_nox_season, ibroncat, nemcat_road, emcat_road, vchemnh3, vchem2, hum, uster_rcp, ol_rcp, uster_tra, &
+SUBROUTINE ops_resist_rek(varin_meteo, varin_unc, disxx, vchemc, iopt_vchem, vchemv, rad, isec, icm, rc_so2_ms, regenk, rc_aer_ms, iseiz, istab, itra, isec_prelim, ar, &
+                          r_no2_nox_season, ibroncat, nemcat_road, road_chem, emcat_road, vchemnh3, hum, uster_rcp, ol_rcp, uster_tra, &
                           z0_rcp, z0_metreg_rcp, kdeel, mb, vw10, temp_C, zm, koh, &
                           rations, rhno3_trj, rc_no, rhno2, rc_hno3, croutpri, r_no2_nox_sec, r_no2_nox_year_bg_tra, rhno3_rcp, &
                           rb_ms, ra_ms_4, ra_ms_zra, rc_user, routpri, vchem, rc_sec_trj, uh, rc_sec_rcp, rc_eff_rcp_4_pos, rb_rcp, &
                           ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, z0_src, ol_src, uster_src, z0_tra, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, &
                           rb_src, ra_trj_4, ra_trj_zra, rb_trj, rc_eff_rcp_4, nh3bg_rcp, nh3bgtra, &
-                          so2bg_rcp, so2bgtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, r_no2_nox, lroad_corr)
+                          so2bg_rcp, so2bgtra, gw_rcp, gwtra, gym, depudone, gasv, lu_rcp_per, lu_tra_per, r_no2_nox, lroad_corr)
 
-use m_commonconst_lt, only: EPS_DELTA, CNAME, NSEK
+use m_ops_varin, only: Tvarin_meteo, Tvarin_unc
+use m_commonconst_lt, only: EPS_DELTA, NSEK, icm_NH3, icm_SO2, icm_NOx
 use m_ops_vchem
 use m_ops_meteo
 use m_commonconst_lib, only: NLU
@@ -58,118 +59,131 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_resist_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]
-REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
-INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-REAL*4,    INTENT(IN)                            :: vchemv                     ! light dependent part of chemical conversion rate
-REAL*4,    INTENT(IN)                            :: rad                        ! global radiation [J/cm2/h]
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc                  ! NOTE:
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]
+REAL,      INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
+INTEGER,   INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
+REAL,      INTENT(IN)                            :: vchemv                     ! light dependent part of chemical conversion rate
+REAL,      INTENT(IN)                            :: rad                        ! global radiation [J/cm2/h]
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE if component=[SO2, NOx, NH3]
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
-REAL*4,    INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-]
-REAL*4,    INTENT(IN)                            :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
-INTEGER*4, INTENT(IN)                            :: istab                      ! index of stability class
-INTEGER*4, INTENT(IN)                            :: itra                       ! index of trajectory class
-INTEGER*4, INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
-REAL*4,    INTENT(IN)                            :: ar                         ! proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr
-REAL*4,    INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
-REAL*4,    INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent [-]
-INTEGER*4, INTENT(IN)                            :: ibroncat                   ! emission category number
-INTEGER*4, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
-INTEGER*4, INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
-REAL*4,    INTENT(IN)                            :: vchemnh3                   ! chemical conversion rate for NH3 -> NH4 [%/h]
-type(Tvchem), INTENT(IN)                         :: vchem2                     ! structure for chemical conversion rates
-REAL*4,    INTENT(IN)                            :: hum                        ! relative humidity [%]
-REAL*4,    INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: uster_tra                  ! friction velocity representative for trajectory [m/s]
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! index of particle size class
-INTEGER*4, INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
-REAL*4,    INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
-REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor point (m)
-REAL*4,    INTENT(IN)                            :: koh                        ! reaction constant [ppb-1 h-1] for NO2 + OH -> HNO3
-REAL*4,    INTENT(IN)                            :: rations                    ! NH3/SO2 ratio over trajectory 
-REAL*4,    INTENT(IN)                            :: rhno3_trj                  ! ratio [HNO3]/[NO3_total] for trajectory [-]
-REAL*4,    INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
-REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
-REAL*4,    INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
-REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                   
-REAL*4,    INTENT(IN)                            :: r_no2_nox_year_bg_tra      ! component of NO2/NOx ratio which is based on yearly averaged background concentrations over a trajectory
-REAL*4,    INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3_totaal] at the receptor [-]
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     ! Monin-Obukhov length at source [m]
-REAL*4,    INTENT(IN)                            :: uster_src                  ! friction velocity at source [m/s]
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! background NH3-concentration at receptor [ug/m3]
-REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! background NH3-concentration over trajectory [ug/m3]
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! background SO2-concentration at receptor [ug/m3]
-REAL*4,    INTENT(IN)                            :: so2bgtra                   ! background SO2-concentration over trajectory [ug/m3]
-REAL*4,    INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
+REAL,      INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-]
+REAL,      INTENT(IN)                            :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class
+INTEGER,   INTENT(IN)                            :: itra                       ! index of trajectory class
+INTEGER,   INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
+REAL,      INTENT(IN)                            :: ar                         ! proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr
+REAL,      INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
+REAL,      INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent [-]
+INTEGER,   INTENT(IN)                            :: ibroncat                   ! emission category number
+INTEGER,   INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER,   INTENT(IN)                            :: emcat_road(:)              ! list of road emission categories (for vdHout NO2/NOx ratio)
+LOGICAL,   INTENT(IN)							 :: road_chem					 !switch for road chemistry GTHO
+REAL,      INTENT(IN)                            :: vchemnh3                   ! chemical conversion rate for NH3 -> NH4 [%/h]
+REAL,      INTENT(IN)                            :: hum                        ! relative humidity [%]
+REAL,      INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(IN)                            :: uster_tra                  ! friction velocity representative for trajectory [m/s]
+REAL,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+REAL,      INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+INTEGER,   INTENT(IN)                            :: kdeel                      ! index of particle size class
+INTEGER,   INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
+REAL,      INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
+REAL,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor point (m)
+REAL,      INTENT(IN)                            :: koh                        ! reaction constant [ppb-1 h-1] for NO2 + OH -> HNO3
+REAL,      INTENT(IN)                            :: rations                    ! NH3/SO2 ratio over trajectory 
+REAL,      INTENT(IN)                            :: rhno3_trj                  ! ratio [HNO3]/[NO3_total] for trajectory [-]
+REAL,      INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
+REAL,      INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
+REAL,      INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
+REAL,      INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component                   
+REAL,      INTENT(IN)                            :: r_no2_nox_year_bg_tra      ! component of NO2/NOx ratio which is based on yearly averaged background concentrations over a trajectory
+REAL,      INTENT(IN)                            :: rhno3_rcp                  ! ratio [HNO3]/[NO3_totaal] at the receptor [-]
+REAL,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+REAL,      INTENT(IN)                            :: ol_src                     ! Monin-Obukhov length at source [m]
+REAL,      INTENT(IN)                            :: uster_src                  ! friction velocity at source [m/s]
+REAL,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+REAL,      INTENT(IN)                            :: nh3bg_rcp                  ! background NH3-concentration at receptor [ug/m3]
+REAL,      INTENT(IN)                            :: nh3bgtra                   ! background NH3-concentration over trajectory [ug/m3]
+REAL,      INTENT(IN)                            :: so2bg_rcp                  ! background SO2-concentration at receptor [ug/m3]
+REAL,      INTENT(IN)                            :: so2bgtra                   ! background SO2-concentration over trajectory [ug/m3]
+REAL,      INTENT(IN)                            :: gw_rcp                     ! gamma water value at receptor
+REAL,      INTENT(IN)                            :: gwtra                      ! gamma water value over trajectory
+REAL,      INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
 LOGICAL,   INTENT(IN)                            :: gasv                       ! TRUE for gasuous component
-REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
-REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
-REAL*4,    INTENT(IN)                            :: rc_user                    ! canopy resistance specified by user in control file [s/m]
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
+REAL,      INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
+REAL,      INTENT(IN)                            :: rc_user                    ! canopy resistance specified by user in control file [s/m]
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m] 
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: rb_ms                      ! (in) boundary layer resistance SO2 from meteo statistics [s/m]
+REAL,      INTENT(INOUT)                         :: rb_ms                      ! (in) boundary layer resistance SO2 from meteo statistics [s/m]
                                                                                ! (out) boundary layer resistance SO2 or NH3 from meteo statistics [s/m]
 LOGICAL,   INTENT(INOUT)                         :: depudone                   ! Ra, Rb have been computed (no need to repeat this for all particle size classes)
                                                                                
 ! SUBROUTINE ARGUMENTS - I/O aerodynamid (Ra) and boundary layer (Rb) resistances
 ! Ra, Rb values for particles (.not. gasv) are only computed for the first particle size class (intent(OUT) and for the 
 ! next classes they use the values from the call of the first class (intent(IN))
-REAL*4,    INTENT(INOUT)                         :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m] 
-REAL*4,    INTENT(INOUT)                         :: rb_src                     ! boundary layer resistance at source [s/m] 
+REAL,      INTENT(INOUT)                         :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m] 
+REAL,      INTENT(INOUT)                         :: rb_src                     ! boundary layer resistance at source [s/m] 
 
-REAL*4,    INTENT(INOUT)                         :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
-REAL*4,    INTENT(INOUT)                         :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
+REAL,      INTENT(INOUT)                         :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
+REAL,      INTENT(INOUT)                         :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m 
-REAL*4,    INTENT(INOUT)                         :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
+REAL,      INTENT(INOUT)                         :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
 
-REAL*4,    INTENT(INOUT)                         :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
-REAL*4,    INTENT(INOUT)                         :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
-REAL*4,    INTENT(INOUT)                         :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
+REAL,      INTENT(INOUT)                         :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
+REAL,      INTENT(INOUT)                         :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
+REAL,      INTENT(INOUT)                         :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m
-REAL*4,    INTENT(INOUT)                         :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
+REAL,      INTENT(INOUT)                         :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
-REAL*4,    INTENT(OUT)                           :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(OUT)                           :: uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
-REAL*4,    INTENT(OUT)                           :: r_no2_nox                  ! NO2/NOx ratio
-LOGICAL,   INTENT(OUT)                           :: lroad_corr                 ! road correction needed for NO2/NOx ratio
+REAL,      INTENT(INOUT)                         :: routpri                    ! in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
+                                                                               ! NB: INOUT, because routpri keeps its original value when gasv .and. .not. isec
+REAL,      INTENT(INOUT)                         :: vchem                      ! chemical conversion rate [%/h]
+REAL,      INTENT(OUT)                           :: uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
+REAL,      INTENT(INOUT)                         :: r_no2_nox                  ! NO2/NOx ratio
+                                                                               ! NB: INOUT, because r_no2_nox keeps its original 
+                                                                               !     value when icm/=icm_NOx
+LOGICAL,   INTENT(INOUT)                         :: lroad_corr                 ! road correction needed for NO2/NOx ratio
+                                                                               ! NB: INOUT, because lroad_corr keeps its original 
+                                                                               !     value when icm /= icm_NOx
 
 ! Canopy resistances Rc
-REAL*4,    INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]; 
+REAL,      INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]; 
                                                                                !   used for the computation of cq1 = source depletion ratio for all removal processes for phase 1 (area source) 
-REAL*4,    INTENT(OUT)                           :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(OUT)                           :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
                                                                                !   used for source depletion (loss over trajectory)
-REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m];
+REAL,      INTENT(OUT)                           :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m];
                                                                                !   used for deposition gradient at receptor
-REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m];  
+REAL,      INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m];  
                                                                                !   used for the computation of drypri, the deposition at the receptor
 ! Rc for secondary component:
-REAL*4,    INTENT(OUT)                           :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
-REAL*4,    INTENT(OUT)                           :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
+REAL,      INTENT(INOUT)                         :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
+                                                                               ! NB: INOUT, because rc_sec_trj keeps its original 
+                                                                               !     value when .not.isec
+REAL,      INTENT(INOUT)                         :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
+                                                                               ! NB: INOUT, because rc_sec_rcp keeps its original 
+                                                                               !     value when .not.isec
                                                                                
 ! LOCAL VARIABLES
-INTEGER*4                                        :: icmpsec                    ! component number secondary component used in ops_resist_rek_rcaer
-INTEGER*4                                        :: nwet                       ! wetness indicator depending on percipitation probability and humidity
-REAL*4                                           :: rad_W_m2                   ! global radiation [W/m2]
-REAL*4, PARAMETER                                :: zra = 50.0                 ! zra is height where concentration profile is undisturbed by deposition = 50 m
+INTEGER                                          :: icmpsec                    ! component number secondary component used in ops_resist_rek_rcaer
+INTEGER                                          :: nwet                       ! wetness indicator depending on percipitation probability and humidity
+REAL                                             :: rad_W_m2                   ! global radiation [W/m2]
+REAL,   PARAMETER                                :: zra = 50.0                 ! zra is height where concentration profile is undisturbed by deposition = 50 m
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! Wind speed for rough surfaces, such as forests (z0 > 0.5 m) -> from logarithmic wind profile at 8*z0(receptor);
 ! for smoother surfaces (z0 <= 0.5) -> set equal to wind speed at 10 m height.
 IF (z0_rcp .GT. 0.5 + EPS_DELTA) THEN
-   CALL ops_wv_log_profile(z0_rcp,8*z0_rcp,uster_rcp,ol_rcp, uh)
+   CALL ops_wv_log_profile(z0_rcp,8*z0_rcp,uster_rcp,ol_rcp, varin_meteo, uh)
 ELSE
    uh = vw10
 ENDIF
@@ -183,8 +197,8 @@ nwet = NINT((regenk * 0.4 + hum/59 - 0.4)**5*.3)                              ! 
 IF(nwet.gt.1) nwet=1
 
 ! Compute NO2/NOx ratio and chemical conversion rate:
-call ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, vchem2, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, &
-               isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, ibroncat, nemcat_road, emcat_road, r_no2_nox, lroad_corr, vchem)
+call ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, &
+               isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, ibroncat, nemcat_road, road_chem, emcat_road, varin_unc, r_no2_nox, lroad_corr, vchem)
                
 ! Continue for a gas and in case of particles if depudone is false (to prevent repeating this for each particle size class):
 if ( gasv .OR. (.not.gasv .AND. .not.depudone)) THEN  ! this is equivalent with (gasv .OR. (.not.depudone))
@@ -204,7 +218,7 @@ ENDIF ! (gasv .OR. (.not.depudone))
 
 
 
-IF (icm .eq. 3) THEN
+IF (icm == icm_NH3) THEN
    !                                                   Rb(NH3)     M(NH3)  1/3   17  1/3
    ! rb_ms  : boundary layer resistance rb_ms [s/m];  -------- = (--------)  = (----)  = 0.6431
    !          (4.5 OPS report)                         Rb(SO2)     M(SO2)        64
@@ -213,11 +227,11 @@ IF (icm .eq. 3) THEN
 ENDIF
 
 ! Compute routpri = in-cloud scavenging ratio for primary component; (rout << rain-out = in-cloud) [-])
-call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)   
+call ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri, varin_unc)   
 
 ! Compute canopy resistances at different locations and different heights (effective Rc may depend on height via Ra):
 call ops_resist_rc_all(icm,isec,gasv,kdeel,iseiz,mb,gym,uster_tra,uster_rcp, &
-                       nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, &
+                       nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, gwtra, gw_rcp, &
                        ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,r_no2_nox,rhno2, &
                        rc_eff_src_4_pos,rc_eff_trj_4_pos,rc_eff_rcp_4,rc_eff_rcp_4_pos)
 
@@ -231,21 +245,15 @@ IF (isec) THEN
    !---------------------------------------------------------------------------------------------------
    
    !  Set component number for secondary component of SO2, NO2, NH3:
-   !  11: sulphate
-   !  12: nitrate
-   !  13: ammonium
-   !  and set a default secondary component = 11 (note that in this IF-branch, isec = .true., so icm = 1,2,3)
+   !  10 + icm_SO2: sulphate
+   !  10 + icm_NOx: nitrate
+   !  10 + icm_NH3: ammonium
+   !  and set a default secondary component = 10 + icm_SO2 (note that in this IF-branch, isec = .true., so icm = icm_SO2,icm_NOx,icm_NH3)
    !
-   IF (ANY(icm == (/1,2,3/))) THEN
-      IF (CNAME(icm,5) .EQ. "SO2") THEN
-         icmpsec = 11
-      ELSEIF (CNAME(icm,5) .EQ. "NO2") THEN
-         icmpsec = 12
-      ELSEIF (CNAME(icm,5) .EQ. "NH3") THEN
-         icmpsec = 13
-      ENDIF
+   IF (ANY(icm == (/icm_SO2,icm_NOx,icm_NH3/))) THEN
+      icmpsec = 10 + icm
    ELSE
-      icmpsec = 11
+      icmpsec = 10 + icm_SO2
    ENDIF
 
    ! Compute rc_sec_rcp = canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]:
@@ -264,27 +272,27 @@ SUBROUTINE ops_resist_ra_all(zm,zra,z0_src,z0_tra,z0_rcp,z0_metreg_rcp,ol_src,ol
 ! Compute aerodynamic resistances Ra at different locations (src, trj, rcp)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor point (m)
-REAL*4,    INTENT(IN)                            :: zra                        ! zra is height where concentration profile is undisturbed by deposition = 50 m
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     ! Monin-Obukhov length at source [m]
-REAL*4,    INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: uster_src                  ! friction velocity at source [m/s]
-REAL*4,    INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor point (m)
+REAL,      INTENT(IN)                            :: zra                        ! zra is height where concentration profile is undisturbed by deposition = 50 m
+REAL,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+REAL,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+REAL,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+REAL,      INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+REAL,      INTENT(IN)                            :: ol_src                     ! Monin-Obukhov length at source [m]
+REAL,      INTENT(IN)                            :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(IN)                            :: uster_src                  ! friction velocity at source [m/s]
+REAL,      INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m] 
                                                                                
 ! SUBROUTINE ARGUMENTS - OUTPUT aerodynamic resistances Ra
-REAL*4,    INTENT(OUT)                           :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m] 
-REAL*4,    INTENT(OUT)                           :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
-REAL*4,    INTENT(OUT)                           :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
+REAL,      INTENT(OUT)                           :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m] 
+REAL,      INTENT(OUT)                           :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
+REAL,      INTENT(OUT)                           :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m 
-REAL*4,    INTENT(OUT)                           :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
-REAL*4,    INTENT(OUT)                           :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
-REAL*4,    INTENT(OUT)                           :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
+REAL,      INTENT(OUT)                           :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
+REAL,      INTENT(OUT)                           :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
+REAL,      INTENT(OUT)                           :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m
 ! LOCAL VARIABLES
 REAL                                             :: d                          ! displacement height [m]
@@ -350,21 +358,21 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_resist_ra')
 
 ! CONSTANTS
-REAL*4                                           :: VONK                       ! Von Karman constant
+REAL                                             :: VONK                       ! Von Karman constant
 PARAMETER   (VONK = 0.4  )
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! surface roughness length in meters.
-REAL*4,    INTENT(IN)                            :: z_dep                      ! height for which deposition velocity is calculated (m)
-REAL*4,    INTENT(IN)                            :: d                          ! displacement height (usually 0.7 * vegetation height) (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! monin-obukhov length (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
+REAL,      INTENT(IN)                            :: z0                         ! surface roughness length in meters.
+REAL,      INTENT(IN)                            :: z_dep                      ! height for which deposition velocity is calculated (m)
+REAL,      INTENT(IN)                            :: d                          ! displacement height (usually 0.7 * vegetation height) (m)
+REAL,      INTENT(IN)                            :: ol                         ! monin-obukhov length (m)
+REAL,      INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: ra                         ! aerodynamic resistance at z_dep (s/m)
+REAL,      INTENT(OUT)                           :: ra                         ! aerodynamic resistance at z_dep (s/m)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: zru                        ! height, corrected for displacement height
+REAL                                             :: zru                        ! height, corrected for displacement height
 
 ! Correction for the displacement height:
 zru = z_dep - d
@@ -376,6 +384,8 @@ END SUBROUTINE ops_resist_ra
 
 !-----------------------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rb_all(icm,uster_src,uster_tra,uster_rcp,rb_src,rb_trj,rb_rcp)
+
+use m_commonconst_lt, only: icm_NH3
 
 ! Compute laminar boundary layer resistances Rb at different locations (src, trj, rcp)
 
@@ -396,7 +406,7 @@ INTEGER                                          :: icnr                       !
 ! 
 ! Component number icnr for calculation of Rb;
 ! Rb currently only for SO2 or NH3; for NO2 Rc values are high and Rb not so important.
-IF (icm .EQ. 3) THEN
+IF (icm == icm_NH3) THEN
    icnr = 9
 ELSE
    icnr = 1
@@ -445,23 +455,23 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_resist_rb')
 
 ! CONSTANTS
-REAL*4                                           :: P                          ! exponent (experimenteel bepaald)
-REAL*4                                           :: PR                         ! Prandtl number
-REAL*4                                           :: VONK                       ! Von Karman constante
+REAL                                             :: P                          ! exponent (experimenteel bepaald)
+REAL                                             :: PR                         ! Prandtl number
+REAL                                             :: VONK                       ! Von Karman constante
 
 PARAMETER   (VONK = 0.4  )
 PARAMETER   (P    = 2./3.)
 PARAMETER   (PR   = 0.72 )
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icnr                       ! component number for calculation of rb
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
+INTEGER,   INTENT(IN)                            :: icnr                       ! component number for calculation of rb
+REAL,      INTENT(IN)                            :: uster                      ! friction velocity u* (m/s)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rb                         ! laminar layer resistance for component incr (s/m)
+REAL,      INTENT(OUT)                           :: rb                         ! laminar layer resistance for component incr (s/m)
 
 ! LOCAL VARIABLES
-REAL*4                                           :: sc                         ! Schmidt number
+REAL                                             :: sc                         ! Schmidt number
 
 
 ! Schmidt number:
@@ -486,69 +496,71 @@ END SUBROUTINE ops_resist_rb
 
 !-------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rc_all(icm,isec,gasv,kdeel,iseiz,mb,gym,uster_tra,uster_rcp, &
-                             nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, &
+                             nwet,hum,temp_C,rad_W_m2,lu_tra_per,lu_rcp_per,so2bgtra,nh3bgtra,so2bg_rcp,nh3bg_rcp, gwtra, gw_rcp, &
                              ra_ms_4,ra_trj_4,ra_rcp_4,rb_trj,rb_ms,rb_rcp,rc_user,rc_so2_ms,rc_no,r_no2_nox,rhno2, &
                              rc_eff_src_4_pos,rc_eff_trj_4_pos,rc_eff_rcp_4,rc_eff_rcp_4_pos)
 
-use m_commonconst_lt, only: EPS_DELTA, NPARTCLASS
+use m_commonconst_lt, only: EPS_DELTA, NPARTCLASS, icm_NOx, icm_SO2, icm_NH3
 use m_commonconst_lib, only: NLU
 
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE if component=[SO2, NOx, NH3]
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
-REAL*4,    INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
-INTEGER*4, INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
-REAL*4,    INTENT(IN)                            :: hum                        ! relative humidity [%]
-REAL*4,    INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(IN)                            :: uster_tra                  ! friction velocity representative for trajectory [m/s]
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! index of particle size class
-INTEGER*4, INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
-REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
-REAL*4,    INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
-REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
-REAL*4,    INTENT(IN)                            :: nh3bg_rcp                  ! background NH3-concentration at receptor [ug/m3]
-REAL*4,    INTENT(IN)                            :: nh3bgtra                   ! background NH3-concentration over trajectory [ug/m3]
-REAL*4,    INTENT(IN)                            :: so2bg_rcp                  ! background SO2-concentration at receptor [ug/m3]
-REAL*4,    INTENT(IN)                            :: so2bgtra                   ! background SO2-concentration over trajectory [ug/m3]
-REAL*4,    INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
+REAL,      INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+INTEGER,   INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
+REAL,      INTENT(IN)                            :: hum                        ! relative humidity [%]
+REAL,      INTENT(IN)                            :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(IN)                            :: uster_tra                  ! friction velocity representative for trajectory [m/s]
+INTEGER,   INTENT(IN)                            :: kdeel                      ! index of particle size class
+INTEGER,   INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
+REAL,      INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
+REAL,      INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
+REAL,      INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
+REAL,      INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
+REAL,      INTENT(IN)                            :: nh3bg_rcp                  ! background NH3-concentration at receptor [ug/m3]
+REAL,      INTENT(IN)                            :: nh3bgtra                   ! background NH3-concentration over trajectory [ug/m3]
+REAL,      INTENT(IN)                            :: so2bg_rcp                  ! background SO2-concentration at receptor [ug/m3]
+REAL,      INTENT(IN)                            :: so2bgtra                   ! background SO2-concentration over trajectory [ug/m3]
+REAL,      INTENT(IN)                            :: gw_rcp                     ! gamma water value at receptor
+REAL,      INTENT(IN)                            :: gwtra                      ! gamma water value over trajectory
+REAL,      INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
 LOGICAL,   INTENT(IN)                            :: gasv                       ! TRUE for gasuous component
-REAL*4,    INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
-REAL*4,    INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
-REAL*4,    INTENT(IN)                            :: rc_user                    ! canopy resistance specified by user in control file [s/m]
-REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
-REAL*4,    INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
-REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
+REAL,      INTENT(IN)                            :: lu_rcp_per(NLU)            ! land use percentages for all land use classes of receptor
+REAL,      INTENT(IN)                            :: lu_tra_per(NLU)            ! land use percentages for all land use classes over trajectory
+REAL,      INTENT(IN)                            :: rc_user                    ! canopy resistance specified by user in control file [s/m]
+REAL,      INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: ra_trj_4                   ! aerodynamic resistance for trajectory, 4 m height [s/m] 
+REAL,      INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m] 
+REAL,      INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
+REAL,      INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]; 
+REAL,      INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]; 
                                                                                !   used for the computation of cq1 = source depletion ratio for all removal processes for phase 1 (area source) 
-REAL*4,    INTENT(OUT)                           :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(INOUT)                           :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
                                                                                !   used for source depletion (loss over trajectory)
-REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m];
+REAL,      INTENT(OUT)                           :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m];
                                                                                !   used for deposition gradient at receptor
-REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m];  
+REAL,      INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m];  
                                                                                !   used for the computation of drypri, the deposition at the receptor
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iratns                     ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
-REAL*4                                           :: rc_dummy                   ! Rc value not used (dummy output) [s/m]
-REAL*4                                           :: catm 
-REAL*4                                           :: c_ave_prev_nh3
-REAL*4                                           :: c_ave_prev_so2
+INTEGER                                          :: iratns                     ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
+REAL                                             :: rc_dummy                   ! Rc value not used (dummy output) [s/m]
+REAL                                             :: catm_trj, catm_rcp
+REAL                                             :: c_ave_prev_nh3_trj, c_ave_prev_nh3_rcp 
+REAL                                             :: c_ave_prev_so2_trj, c_ave_prev_so2_rcp 
 
 ! CONSTANTS
-REAL*4                                           :: RCDEEL(NPARTCLASS)         ! canopy resistance for particle size classes [s/m]
-
 ! RCDEEL: canopy resistance Rc per per particle class computed from Ra and Rb values per particle class and 
 ! averaged dry deposition velocities vd (weighed over stability classes).
 ! See new OPS report, Table 5.2
 ! See also definition of VDDEEL in ops_depoparexp 
-DATA RCDEEL/3200., 700., 150., 50., 2., -17./
+REAL,   parameter :: RCDEEL(NPARTCLASS) = &    ! canopy resistance for particle size classes [s/m]
+               (/3200., 700., 150., 50., 2., -17./)
+
 
 ! Compute canopy resistances Rc at different locations (src, trj, rcp) and different heights;
 ! note that the effective canopy resistance may depend on height via Ra
@@ -580,13 +592,9 @@ IF (isec) THEN
    ! the output Rc is returned in rc_eff_trj_4_pos = effective Rc over the trajectory (positive value, no net re-emission allowed)
    ! 
    ! (17/24) = conversion factor ppb -> ug/m3.
-   catm           = nh3bgtra*17/24
-   c_ave_prev_nh3 = nh3bgtra*17/24
-   c_ave_prev_so2 = so2bgtra*64/24
-   
-   CALL ops_resist_rc(icm, iseiz, mb, gym ,temp_C, uster_tra, rad_W_m2, hum, nwet, iratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_tra_per, &
-                  &  ra_trj_4, rb_trj, rc_eff_trj_4_pos, rc_dummy)
-   rc_eff_src_4_pos = rc_eff_trj_4_pos !
+   catm_trj           = nh3bgtra*17/24
+   c_ave_prev_nh3_trj = nh3bgtra*17/24
+   IF (ANY(icm == (/icm_SO2,icm_NH3/))) c_ave_prev_so2_trj = so2bgtra*64/24
    
    !-----------------------------------------------------------------------         
    ! 2. Compute canopy resistance Rc near the receptor (DEPAC).
@@ -596,15 +604,21 @@ IF (isec) THEN
    ! rc_eff_rcp_4 = effective Rc near the receptor (might become a negative value -> re-emission)
    ! Note: catm and c_ave_prev are only used for NH3.
    ! Conversion from ppb -> ug/m3 for nh3bg_rcp already done in ops_rcp_char.
-   ! Note that DEPAC returns Rc(NO2) for icm = 2 (NOx).
-   catm           = nh3bg_rcp
-   c_ave_prev_nh3 = nh3bg_rcp
-   c_ave_prev_so2 = so2bg_rcp
-   CALL ops_resist_rc(icm, iseiz, mb, gym ,temp_C, uster_rcp, rad_W_m2, hum, nwet, iratns, catm, c_ave_prev_nh3, c_ave_prev_so2, lu_rcp_per, &
-                  &  ra_rcp_4, rb_rcp, rc_eff_rcp_4_pos, rc_eff_rcp_4)
-                  
+   ! Note that DEPAC returns Rc(NO2) for icm = icm_NOx (NOx).
+   catm_rcp           = nh3bg_rcp
+   c_ave_prev_nh3_rcp = nh3bg_rcp
+   c_ave_prev_so2_rcp = so2bg_rcp
+
+  ! Compute 1. and 2. (these have been combined to save an expensive extra call to RC_GSTOM_EMB)
+   call ops_resist_rc_trj_rcp(icm, iseiz, mb, gym, temp_C, rad_W_m2, hum, nwet, iratns, &  ! Generic inputs
+                            & catm_trj, c_ave_prev_nh3_trj, c_ave_prev_so2_trj, gwtra, &  
+                            & uster_tra, lu_tra_per, ra_trj_4, rb_trj, rc_eff_trj_4_pos, rc_dummy, &                             ! Tra inputs
+                            & catm_rcp, c_ave_prev_nh3_rcp, c_ave_prev_so2_rcp, gw_rcp, &  
+                            & uster_rcp, lu_rcp_per, ra_rcp_4, rb_rcp, rc_eff_rcp_4_pos, rc_eff_rcp_4)                           ! Rcp inputs
+   rc_eff_src_4_pos = rc_eff_trj_4_pos !
+
    ! Compute canopy resistances for NOx mixture:
-   IF (icm .EQ. 2) THEN     
+   IF (icm == icm_NOx) THEN     
       call ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2, &
                              rc_eff_rcp_4_pos, rc_eff_trj_4_pos, rc_eff_rcp_4, rc_eff_src_4_pos)
    ENDIF
@@ -631,17 +645,23 @@ ENDIF
    
 END SUBROUTINE ops_resist_rc_all
 
-!------------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_resist_rc(icm, iseiz, mb, gym ,temp_C, uster, rad_W_m2, hum, nwet, iratns, catm, c_ave_prev_nh3, c_ave_prev_so2, &
-                      & lu_per, ra, rb, rc_eff_pos, rc_eff)
-
+!-------------------------------------------------------------------
+! ops_resist_rc_trj_rcp: compute canopy resistance for 2 inputs (trj, rcp) at the same time
+!
 ! Compute canopy resistance Rc [s/m] for acidifying components (SO2, NOx, NH3), calling DEPAC;
-! DEPAC returns Rc(NO2) for icm = 2 (NOx).
-! ops_resist_rc uses one or more representative months and computes the average over different land use classes 
+! DEPAC returns Rc(NO2) for icm = icm_NOx (NOx).
+! ops_resist_rc_trj_rcp uses one or more representative months and computes the average over different land use classes 
 ! (via averaging of deposition velocities).
+!-------------------------------------------------------------------
 
-use m_commonconst_lt, only: CNAME
-use m_commonconst_lib, only: NLU
+SUBROUTINE ops_resist_rc_trj_rcp(icm, iseiz, mb, gym ,temp_C, rad_W_m2, hum, nwet, iratns, &
+                      & catm1, c_ave_prev_nh31, c_ave_prev_so21, gamma_soil_water_fac1, &
+                      & uster1, lu_per1, ra1, rb1, rc_eff_pos1, rc_eff1, &
+                      & catm2, c_ave_prev_nh32, c_ave_prev_so22, gamma_soil_water_fac2, &
+                      & uster2, lu_per2, ra2, rb2, rc_eff_pos2, rc_eff2)
+
+use m_commonconst_lt, only: icm_NOx, icm_SO2, icm_NH3
+use m_commonconst_lib, only: NLU, i_HNO3, i_NO, i_NO2, i_O3, i_SO2, i_NH3
 use m_depac
 
 IMPLICIT NONE
@@ -651,63 +671,110 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_resist_rc')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number (1 = SO2, 2 = NOx, 3 = NH3)
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
-INTEGER*4, INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
-INTEGER*4, INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
-REAL*4,    INTENT(IN)                            :: hum                        ! relative humidity [%] 
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity [m/s]
-REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
-REAL*4,    INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
-INTEGER*4, INTENT(IN)                            :: iratns                     ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
-REAL*4,    INTENT(IN)                            :: catm                       ! actual atmospheric concentration used in compensation point [ug/m3]
-REAL*4,    INTENT(IN)                            :: c_ave_prev_nh3             ! NH3 air concentration averaged over a previous period (e.g. previous year or month) [ug/m3]
-REAL*4,    INTENT(IN)                            :: c_ave_prev_so2             ! SO2 air concentration averaged over a previous period (e.g. previous year or month) [ug/m3]
-REAL*4,    INTENT(IN)                            :: ra                         ! aerodynamic resistance [s/m]
-REAL*4,    INTENT(IN)                            :: rb                         ! boundary layer resistance [s/m]
-REAL*4,    INTENT(IN)                            :: lu_per(NLU)                ! land use percentages for all land use classes [%]
+INTEGER,   INTENT(IN)                            :: icm                        ! component number (icm_SO2 = SO2, icm_NOx = NOx, icm_NH3 = NH3)
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+INTEGER,   INTENT(IN)                            :: mb                         ! month number (only used for iseiz = 4,5)
+INTEGER,   INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
+REAL,      INTENT(IN)                            :: hum                        ! relative humidity [%] 
+REAL,      INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C]
+REAL,      INTENT(IN)                            :: gym                        ! y-coordinate of receptor (lon-lat) [degrees]
+REAL,      INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
+INTEGER,   INTENT(IN)                            :: iratns                     ! N/S ratio indicator (nitrogen/sulphur) (1 = low, 2 = high, 3 = very low ratio; see DEPAC)
+REAL,      INTENT(IN)                            :: catm1, catm2                      ! actual atmospheric concentration used in compensation point [ug/m3]
+REAL,      INTENT(IN)                            :: c_ave_prev_nh31, c_ave_prev_nh32             ! NH3 air concentration averaged over a previous period (e.g. previous year or month) [ug/m3]
+REAL,      INTENT(IN)                            :: c_ave_prev_so21, c_ave_prev_so22             ! SO2 air concentration averaged over a previous period (e.g. previous year or month) [ug/m3]
+REAL,      INTENT(IN)                            :: uster1                      ! friction velocity [m/s]
+REAL,      INTENT(IN)                            :: uster2                      ! friction velocity [m/s]
+REAL,      INTENT(IN)                            :: ra1                         ! aerodynamic resistance [s/m]
+REAL,      INTENT(IN)                            :: ra2                         ! aerodynamic resistance [s/m]
+REAL,      INTENT(IN)                            :: rb1                         ! boundary layer resistance [s/m]
+REAL,      INTENT(IN)                            :: rb2                         ! boundary layer resistance [s/m]
+REAL,      INTENT(IN)                            :: lu_per1(NLU)                ! land use percentages for all land use classes [%]
+REAL,      INTENT(IN)                            :: lu_per2(NLU)                ! land use percentages for all land use classes [%]
+REAL,      INTENT(IN)                            :: gamma_soil_water_fac1       ! factor in linear relation between gamma_soil and NH3
+REAL,      INTENT(IN)                            :: gamma_soil_water_fac2       ! If positive or zero, gamma_soil = gamma_soil_water_fac
+                                                                                ! If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
+                                                                                ! This replaces the fix by
+                                                                                ! in runs with a single source. 
+                                                                                ! In OPS LT, gamma_soil = gamma_soil_water_fac = 430 as before.
+
+
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rc_eff_pos                 ! canopy resistance, no re-emission [s/m]  
-REAL*4,    INTENT(OUT)                           :: rc_eff                     ! canopy resistance, re-emission allowed [s/m];  
+REAL,      INTENT(OUT)                           :: rc_eff_pos1                 ! canopy resistance, no re-emission [s/m]  
+REAL,      INTENT(OUT)                           :: rc_eff1                     ! canopy resistance, re-emission allowed [s/m];  
+REAL,      INTENT(OUT)                           :: rc_eff_pos2                 ! canopy resistance, no re-emission [s/m]  
+REAL,      INTENT(OUT)                           :: rc_eff2                     ! canopy resistance, re-emission allowed [s/m];  
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: day_of_year                ! 
-INTEGER*4                                        :: mnt                        ! 
-INTEGER*4, DIMENSION(2)                          :: mnt_select                 ! 
-INTEGER*4                                        :: luclass                    ! 
-REAL*4                                           :: som_vd_month               ! summed vd over representative months
-REAL*4                                           :: som_vd_eff_ave              ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
-REAL*4                                           :: som_vd_eff_ave_pos          ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
-REAL*4                                           :: telmaand 
-REAL*4                                           :: rc_eff_ave                  ! canopy resistance, re-emission allowed, averaged over representative months
-REAL*4                                           :: rc_eff_ave_pos              ! canopy resistance, no re-emission, averaged over representative months
-REAL*4                                           :: rc_tot
-REAL*4                                           :: sinphi
-REAL*4                                           :: ccomp_tot
-REAL*4, PARAMETER                                :: catm_min = 0.1E-05
-REAL*4                                           :: rc_eff_depac                ! canopy resistance from depac, re-emission allowed [s/m];  
-REAL, PARAMETER                                  :: gamma_soil_water_fac = 430.0 ! factor in linear relation between gamma_soil and NH3
-                                                                               ! If positive or zero, gamma_soil = gamma_soil_water_fac
-                                                                               ! If negative, gamma_soil = abs(gamma_soil_water_fac) * c_ave_prev_nh3
-                                                                               ! This replaces the fix by MS for unrealistically high re-emissions
-                                                                               ! in runs with a single source. 
-                                                                               ! In OPS LT, gamma_soil = gamma_soil_water_fac = 430 as before.
+INTEGER                                          :: comp_id                    ! component id for DEPAC call
+INTEGER                                          :: day_of_year                ! 
+INTEGER                                          :: mnt                        ! 
+INTEGER,   DIMENSION(2)                          :: mnt_select                 ! 
+INTEGER                                          :: luclass                    ! 
+REAL                                             :: som_vd_month1               ! summed vd over representative months
+REAL                                             :: som_vd_eff_ave1              ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
+REAL                                             :: som_vd_eff_ave_pos1          ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
+REAL                                             :: som_vd_month2               ! summed vd over representative months
+REAL                                             :: som_vd_eff_ave2              ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff)
+REAL                                             :: som_vd_eff_ave_pos2          ! summed vd over land use classes (vd = 1/Ra + Rb + Rc_eff_pos)
+REAL                                             :: telmaand 
+REAL                                             :: rc_eff_ave1                  ! canopy resistance, re-emission allowed, averaged over representative months
+REAL                                             :: rc_eff_ave_pos1              ! canopy resistance, no re-emission, averaged over representative months
+REAL                                             :: rc_eff_ave2                  ! canopy resistance, re-emission allowed, averaged over representative months
+REAL                                             :: rc_eff_ave_pos2              ! canopy resistance, no re-emission, averaged over representative months
+REAL                                             :: sinphi
+REAL,   PARAMETER                                :: catm_min = 0.1E-05
+REAL                                             :: rc_eff_depac1                ! canopy resistance from depac, re-emission allowed [s/m];  
+REAL                                             :: rc_eff_depac2                ! canopy resistance from depac, re-emission allowed [s/m];  
+REAL                                             :: lai          ! one-sided leaf area index (-)
+REAL                                             :: sai          ! surface area index (-) (lai + branches and stems)
+LOGICAL                                          :: ready        ! Rc has been set
+REAL                                             :: rsoil_wet    ! soil resistance for wet soil
+REAL                                             :: rsoil_frozen ! soil resistance for frozen soil
+REAL,   DIMENSION(nlu)                           :: rsoil        ! soil resistance
+REAL                                             :: gw           ! external leaf conductance (m/s) 
+REAL                                             :: gstom        ! stomatal conductance (m/s)
+REAL                                             :: rc_tot
+REAL                                             :: ccomp_tot
+LOGICAL                                          :: run1
+LOGICAL                                          :: run2
 !-------------------------------------------------------------------------------------------------------------------------------
 
+! Get DEPAC component id from component name
+select case(icm)
+case(icm_NOx)
+   comp_id = i_NO2
+case(icm_SO2)
+   comp_id = i_SO2
+case(icm_NH3)
+   comp_id = i_NH3
+end select
+
 ! Initialise sums:
-som_vd_month       = 0.0
-som_vd_eff_ave     = 0.0
-som_vd_eff_ave_pos = 0.0
+som_vd_month1       = 0.0
+som_vd_eff_ave1     = 0.0
+som_vd_eff_ave_pos1 = 0.0
+som_vd_month2       = 0.0
+som_vd_eff_ave2     = 0.0
+som_vd_eff_ave_pos2 = 0.0
    
 ! loop over land use classes:
 DO luclass = 1,NLU
-  IF (lu_per(luclass) /= 0.0) THEN
 
-    telmaand = 0.0
-    som_vd_month = 0.0
-    
+  ! determine if input1 (trj) and/or input2 (rcp) need to be run
+  IF (lu_per1(luclass) /= 0.0) THEN
+    run1 = .TRUE. 
+  ELSE
+    run1 = .FALSE.
+  ENDIF
+  IF (lu_per2(luclass) /= 0.0) THEN
+    run2 = .TRUE. 
+  ELSE
+    run2 = .FALSE.
+  ENDIF
+  IF (run1 .or. run2) THEN
+
     !  Select representative month(s)
     !
     ! iseiz: 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
@@ -721,6 +788,9 @@ DO luclass = 1,NLU
     ! winter               -> November
     ! summer               -> June
     ! 1 month              -> use mb, which has been read in ops_read_meteo
+    telmaand = 0.0
+    som_vd_month1 = 0.0
+    som_vd_month2 = 0.0
     SELECT CASE(iseiz)
     CASE(0, 1)
       IF (luclass == 2) THEN
@@ -751,42 +821,71 @@ DO luclass = 1,NLU
         ! Update month counter:
         telmaand = telmaand+1
 
-        ! Compute canopy resistance Rc with DEPAC for icm = 1,2,3 (CNAME = 'SO2', 'NO2', 'NH3').
+        ! Compute canopy resistance Rc with DEPAC for icm = icm_SO2,icm_NOx,icm_NH3 ('SO2', 'NO2', 'NH3').
         ! DEPAC has 3 outputs:
         ! rc_tot      : total canopy resistance Rc (is not used here)
         ! ccomp_tot   : total compensation point (is not used here)
         ! rc_eff_depac: effective Rc (includes effect of compensation point); rc_eff_depac depends on the value of Ra and Rb.
-        CALL depac(CNAME(icm,5), day_of_year, gym ,temp_C, uster, rad_W_m2, sinphi, hum, nwet, luclass, iratns,   & 
-                    & rc_tot, c_ave_prev_nh3, c_ave_prev_so2, max(catm,catm_min), gamma_soil_water_fac, ccomp_tot, ra, rb, rc_eff_depac)
+        !
+        ! DEPAC consists of two calls, depac_prepare() and depac_finish();
+        ! if depac_prepare() sets ready to .TRUE., depac_finish() does not need to be run.
+        ! The depac_prepare() call is slow, but only needs to be run once for a trj/rcp combination.
 
-        ! Detect missing values and set default values
-        IF (rc_eff_depac  .EQ. -9999) rc_eff_depac = 10000
-      
-        som_vd_month = som_vd_month + 1/(rc_eff_depac + ra + rb)
+        CALL depac_prepare(comp_id, day_of_year, gym ,temp_C, rad_W_m2, sinphi, hum, nwet, luclass, iratns,   & 
+        & lai, sai, ready, rsoil_wet, rsoil_frozen, rsoil, gw, gstom, rc_tot, ccomp_tot)
+        if (.NOT. ready) then
+          if (run1) then
+            CALL depac_finish(comp_id, day_of_year, temp_C, uster1, nwet, luclass, lai, sai, rsoil_wet, rsoil_frozen, rsoil, gw, gstom, & 
+                    & c_ave_prev_nh31, c_ave_prev_so21, max(catm1,catm_min), gamma_soil_water_fac1, ra1, rb1, rc_tot, ccomp_tot, rc_eff_depac1)
+            ! Detect missing values and set default values
+            IF (rc_eff_depac1  .EQ. -9999) rc_eff_depac1 = 10000
+            som_vd_month1 = som_vd_month1 + 1/(rc_eff_depac1 + ra1 + rb1)
+          endif
+          if (run2) then
+            CALL depac_finish(comp_id, day_of_year, temp_C, uster2, nwet, luclass, lai, sai, rsoil_wet, rsoil_frozen, rsoil, gw, gstom, & 
+                    & c_ave_prev_nh32, c_ave_prev_so22, max(catm2,catm_min), gamma_soil_water_fac2, ra2, rb2, rc_tot, ccomp_tot, rc_eff_depac2)
+            ! Detect missing values and set default values
+            IF (rc_eff_depac2  .EQ. -9999) rc_eff_depac2 = 10000
+            som_vd_month2 = som_vd_month2 + 1/(rc_eff_depac2 + ra2 + rb2)
+          endif
+        endif
       ENDIF
-    ENDDO ! loop over representative months
+    ENDDO
 
-    ! Compute average over selected months:
-    rc_eff_ave  = telmaand / som_vd_month  - (ra + rb)
-
-    ! Negative values for effective Rc (re-emission) is not allowed in _pos variables; reset Rc = 1000:
-    IF (rc_eff_ave .GT. 0 ) THEN
-      rc_eff_ave_pos = rc_eff_ave
-    ELSE
-      rc_eff_ave_pos = 1000  
-    ENDIF
-
-    ! Compute average weighted conductance over the landuse types:
-    som_vd_eff_ave_pos = som_vd_eff_ave_pos + lu_per(luclass)/sum(lu_per(1:NLU)) * 1/(rc_eff_ave_pos + (ra + rb))
-    som_vd_eff_ave     = som_vd_eff_ave     + lu_per(luclass)/sum(lu_per(1:NLU)) * 1/(rc_eff_ave     + (ra + rb))
+    if (run1) then
+      ! Compute average over selected months:
+      rc_eff_ave1  = telmaand / som_vd_month1  - (ra1 + rb1)
+      ! Negative values for effective Rc (re-emission) is not allowed in _pos variables; reset Rc = 1000:
+      IF (rc_eff_ave1 .GT. 0 ) THEN
+        rc_eff_ave_pos1 = rc_eff_ave1
+      ELSE
+        rc_eff_ave_pos1 = 1000  
+      ENDIF
+      som_vd_eff_ave_pos1 = som_vd_eff_ave_pos1 + lu_per1(luclass)/sum(lu_per1(1:NLU)) * 1/(rc_eff_ave_pos1 + (ra1 + rb1))
+      som_vd_eff_ave1     = som_vd_eff_ave1     + lu_per1(luclass)/sum(lu_per1(1:NLU)) * 1/(rc_eff_ave1     + (ra1 + rb1))
+    endif
+    if (run2) then
+      ! Compute average over selected months:
+      rc_eff_ave2  = telmaand / som_vd_month2  - (ra2 + rb2)
+      ! Negative values for effective Rc (re-emission) is not allowed in _pos variables; reset Rc = 1000:
+      IF (rc_eff_ave2 .GT. 0 ) THEN
+        rc_eff_ave_pos2 = rc_eff_ave2
+      ELSE
+        rc_eff_ave_pos2 = 1000  
+      ENDIF
+      som_vd_eff_ave_pos2 = som_vd_eff_ave_pos2 + lu_per2(luclass)/sum(lu_per2(1:NLU)) * 1/(rc_eff_ave_pos2 + (ra2 + rb2))
+      som_vd_eff_ave2     = som_vd_eff_ave2     + lu_per2(luclass)/sum(lu_per2(1:NLU)) * 1/(rc_eff_ave2     + (ra2 + rb2))
+    endif
   ENDIF
 ENDDO  ! loop over land use classes
 
 ! Compute Rc without (_pos) and with re-emission: 
-rc_eff_pos = 1/som_vd_eff_ave_pos - (ra + rb)
-rc_eff     = 1/som_vd_eff_ave     - (ra + rb)
+rc_eff_pos1 = 1/som_vd_eff_ave_pos1 - (ra1 + rb1)
+rc_eff_pos2 = 1/som_vd_eff_ave_pos2 - (ra2 + rb2)
+rc_eff1     = 1/som_vd_eff_ave1     - (ra1 + rb1)
+rc_eff2     = 1/som_vd_eff_ave2     - (ra2 + rb2)
 
-END SUBROUTINE ops_resist_rc
+END SUBROUTINE ops_resist_rc_trj_rcp
 
 !-----------------------------------------------------------------------
 SUBROUTINE ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2, &
@@ -800,25 +899,25 @@ SUBROUTINE ops_resist_rc_nox(ra_ms_4, rb_ms, rc_so2_ms, r_no2_nox, rc_no, rhno2,
 ! of the Rc-values for NO, NO2, HNO2.
 
 ! Input arguments:
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
-REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
-REAL*4,    INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
-REAL*4,    INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
+REAL,      INTENT(IN)                            :: rc_no                      ! canopy resistance for NO [s/m]
+REAL,      INTENT(IN)                            :: rhno2                      ! ratio HNO2/NOx [-]
 
 ! Input/output:
-REAL*4,    INTENT(INOUT)                         :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(INOUT)                         :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m]
                                                                                ! (i) for NO2, (o): for NOx
-REAL*4,    INTENT(INOUT)                         :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(INOUT)                         :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
                                                                                ! (i) for NO2, (o): for NOx
 ! Output:
-REAL*4,    INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m]
-REAL*4,    INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(OUT)                           :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m]
+REAL,      INTENT(OUT)                           :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
 
 ! Local:
-REAL*4                                           :: r                          ! help variable = Ra + Rb [s/m]
-REAL*4                                           :: rc_hno2                    ! canopy resistance HNO2 [s/m]
+REAL                                             :: r                          ! help variable = Ra + Rb [s/m]
+REAL                                             :: rc_hno2                    ! canopy resistance HNO2 [s/m]
 
 ! Compute canopy resistance for mixture NOx, based on weighed average of deposition velocities of NO2, NO and HNO2
 !
@@ -851,13 +950,13 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'fpsih')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: eta                        ! stabiliteitsparameter z/l
+REAL,      INTENT(IN)                            :: eta                        ! stabiliteitsparameter z/l
 
 ! OUTPUT
 !     Return value
 !
 ! LOCAL VARIABLES
-REAL*4                                           :: y                          ! hulpvariabele bij de berekening
+REAL                                             :: y                          ! hulpvariabele bij de berekening
 
 !-------------------------------------------------------------------------------------------------------------------------------
 IF (eta .LT. (0. - EPS_DELTA)) THEN
@@ -870,26 +969,30 @@ ENDIF
 END FUNCTION fpsih
 
 !----------------------------------------------------------------------------------------
-SUBROUTINE ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri)   
+SUBROUTINE ops_resist_rain_out_scav_ratio(icm,gasv,isec,kdeel,croutpri,rations,r_no2_nox,routpri,varin_unc)   
 
 ! Compute in-cloud scavenging ratio (rout << rain-out = in-cloud) [-])
 
-USE m_commonconst_lt, only: NPARTCLASS
+USE m_commonconst_lt, only: NPARTCLASS, icm_NOx, icm_NH3, icm_SO2
+USE m_ops_varin, only: Tvarin_unc
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
 LOGICAL,   INTENT(IN)                            :: gasv                       ! TRUE for gasuous component
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE if component=[SO2, NOx, NH3] (acidifying components)
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! index of particle size class
-REAL*4,    INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
-REAL*4,    INTENT(IN)                            :: rations                    ! NH3/SO2 ratio over trajectory
-REAL*4,    INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
+INTEGER,   INTENT(IN)                            :: kdeel                      ! index of particle size class
+REAL,      INTENT(IN)                            :: croutpri                   ! constant (initial) in-cloud scavenging ratio [-] for primary component (rout << rain-out = in-cloud) 
+REAL,      INTENT(IN)                            :: rations                    ! NH3/SO2 ratio over trajectory
+REAL,      INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: routpri                    ! in-cloud scavenging ratio for primary component
+REAL,      INTENT(INOUT)                         :: routpri                    ! in-cloud scavenging ratio for primary component
+                                                                               ! NB: INOUT, because routpri keeps its original 
+                                                                               !     value when gasv .and. .not. isec
 
 ! CONSTANTS
-REAL*4                                           :: RORATIO(NPARTCLASS)        ! (geschatte) waarden scavenging ratio per deeltjesklasse
+REAL                                             :: RORATIO(NPARTCLASS)        ! (geschatte) waarden scavenging ratio per deeltjesklasse
 
 ! roratio: scavenging ratio per particle class 
 ! Estimated from measurements of rainwater concentration and air concentration for different substances.
@@ -908,26 +1011,26 @@ DATA RORATIO/240000., 1000000., 1000000., 5000000., 2*9000000./
 IF (isec) THEN
 
    ! Acidifying componentsL
-   IF (icm .EQ. 1) THEN
+   IF (icm == icm_SO2) THEN
       
-      ! icm = 1: SO2
+      ! icm = icm_SO2: SO2
       routpri = croutpri*rations ! depends on N/S ratio
    
-   ELSE IF (icm .EQ. 2) THEN
+   ELSE IF (icm == icm_NOx) THEN
    
-      ! icm = 2: NOx
+      ! icm = icm_NOx: NOx
       routpri = croutpri*r_no2_nox  ! depends on NO2/NOx ratio
    
-   ELSE IF (icm .EQ. 3) THEN
+   ELSE IF (icm == icm_NH3) THEN
    
-      !   icm = 3: NH3  
+      !   icm = icm_NH3: NH3  
       routpri = croutpri
    
    ELSE
-      write(*,*) 'internal programming error in ops_resist_rek; isec and icm < 1 or icm > 3'
+      write(*,*) 'internal programming error in ops_resist_rek; isec and icm < icm_SO2 or icm > icm_NH3'
       write(*,*) icm
-      stop
-   ENDIF ! IF icm = 1,2 or 3
+      stop 1
+   ENDIF ! IF icm = icm_SO2,icm_NOx or icm_NH3
 ELSE
    ! (.not. isec): non-acidifying components
    
@@ -940,37 +1043,43 @@ ELSE
    ENDIF
 ENDIF
 
+!Edit
+! Adjustments relevant for sensitivity analyses. Multiplication factors are 1.0 by default.
+! Note: hier aanpassen, of direct onder bepaling van routpri (4x) hierboven. 
+routpri = varin_unc%unc_sourcedepl%rainout_pri_fact * routpri
+!End Edit
+
 END SUBROUTINE ops_resist_rain_out_scav_ratio
 
 !----------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rc_sec_trj(icm,ra_ms_4,rb_ms,rc_aer_ms,rc_hno3,rhno3_trj,rc_sec_trj)
-
+use m_commonconst_lt, only: icm_SO2, icm_NOx, icm_NH3
 ! Compute rc_sec_trj: canopy resistance secondary component representative for trajectory
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
-REAL*4,    INTENT(IN)                            :: rhno3_trj                      ! ratio [HNO3]/[NO3_totaal] [-]
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rb_ms                      ! boundary layer resistance from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
+REAL,      INTENT(IN)                            :: rhno3_trj                      ! ratio [HNO3]/[NO3_totaal] [-]
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rc_sec_trj                 !  canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
+REAL,      INTENT(OUT)                           :: rc_sec_trj                 !  canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: r                          ! help variable = Ra + Rb
+REAL                                             :: r                          ! help variable = Ra + Rb
 
-IF (icm .EQ. 1) THEN
+IF (icm == icm_SO2) THEN
    
-   ! icm = 1: SO2, secondary component = SO4
+   ! icm = icm_SO2: SO2, secondary component = SO4
    ! rc_sec_trj: canopy resistance secondary aerosol representative for trajectory; taken as 0.8*Rc(SO4_aerosol)
    rc_sec_trj = rc_aer_ms*0.8
 
-ELSE IF (icm .EQ. 2) THEN
+ELSE IF (icm == icm_NOx) THEN
 
-   ! icm = 2: NOx, secondary component = NO3
+   ! icm = icm_NOx: NOx, secondary component = NO3
    !
    !            1             [HNO3]/[NO3]_totaal     (1-[HNO3]/[NO3]_totaal)
    ! ------------------- = ----------------------- + ---------------------------- 
@@ -979,21 +1088,23 @@ ELSE IF (icm .EQ. 2) THEN
    r          = rb_ms + ra_ms_4                                                 
    rc_sec_trj = 1./(rhno3_trj/(r+rc_hno3) + (1.-rhno3_trj)/(r+rc_aer_ms)) - r   
    
-ELSE IF (icm .EQ. 3) THEN
+ELSE IF (icm .EQ. icm_NH3) THEN
 
-   ! icm = 3: NH3, secondary component = NH4 
+   ! icm = icm_NH3: NH3, secondary component = NH4 
    ! rc_sec_trj = 0.8*Rc(SO4_aerosol)
    rc_sec_trj = rc_aer_ms*0.8
 ELSE
-   write(*,*) 'internal programming error in ops_resist_rc_sec_trj; isec and icm < 1 or icm > 3'
+   write(*,*) 'internal programming error in ops_resist_rc_sec_trj; isec and icm < icm_SO2 or icm > icm_NH3'
    write(*,*) icm
-   stop
+   stop 1
 ENDIF 
 
 END SUBROUTINE ops_resist_rc_sec_trj
 
 !----------------------------------------------------------------------------------------
 SUBROUTINE ops_resist_rcaer (icmpsec, znul, ust, ol, hum, nwet, Uh, ra_ms_4, rb_ms, rc_hno3, rhno3, rc_aer)  
+
+use m_commonconst_lt, only: icm_SO2, icm_NH3, icm_NOx
 
 ! SUBROUTINE         : ops_resist_rcaer
 ! DESCRIPTION        : calculation of canopy resistance for aerosols SO4, NO3, NH4 according
@@ -1010,84 +1121,24 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_resist_rcaer')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icmpsec                    ! component number (11 = SO4, 12 = NO3, 13 = NH4)
-REAL*4,    INTENT(IN)                            :: znul                       ! roughness length [m]
-REAL*4,    INTENT(IN)                            :: ust                        ! friction velocity [m/s]
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length [m][m]
-REAL*4,    INTENT(IN)                            :: hum                        ! relative humidity [%]
-INTEGER*4, INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
-REAL*4,    INTENT(IN)                            :: Uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m]
-REAL*4,    INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
-REAL*4,    INTENT(IN)                            :: rhno3                      ! ratio [HNO3]/[NO3_total] [-]
+INTEGER,   INTENT(IN)                            :: icmpsec                    ! component number (11 = SO4, 12 = NO3, 13 = NH4)
+REAL,      INTENT(IN)                            :: znul                       ! roughness length [m]
+REAL,      INTENT(IN)                            :: ust                        ! friction velocity [m/s]
+REAL,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length [m][m]
+REAL,      INTENT(IN)                            :: hum                        ! relative humidity [%]
+INTEGER,   INTENT(IN)                            :: nwet                       ! wetness indicator depending on percipitation probability and humidity
+REAL,      INTENT(IN)                            :: Uh                         ! wind speed used in parametrisation of vd for aerosols [m/s]
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m]
+REAL,      INTENT(IN)                            :: rc_hno3                    ! canopy resistance for HNO3 [s/m]
+REAL,      INTENT(IN)                            :: rhno3                      ! ratio [HNO3]/[NO3_total] [-]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: rc_aer                     ! canopy resistance aerosols SO4, NO3, NH4 [s/m]
+REAL,      INTENT(OUT)                           :: rc_aer                     ! canopy resistance aerosols SO4, NO3, NH4 [s/m]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: E                          ! collecting efficiency
-REAL*4                                           :: r                          ! help variable = Ra + Rb [s/m]
-!-------------------------------------------------------------------------------------------------------------------------------
-! components:
-! 11 = SO4
-! 12 = NO3
-! 13 = NH4
-!
-! Calculation of the collecting efficiency E for different components
-! for different relative humidity and surface wetness. AI.15 OPS report
-!
-! Sulphate:
-!
-IF (icmpsec.eq.11) THEN
-  IF (hum.le.80) THEN
-    IF (nwet.ge.1) THEN
-      E = 0.08*ust**0.45
-    ELSE
-      E = 0.05*ust**0.28
-    ENDIF
-  ELSE
-    IF (nwet.ge.1) THEN
-      E = 0.08*ust**0.45*(1+0.37*EXP((hum-80)/20))
-    ELSE
-      E = 0.05*ust**0.28*(1+0.18*EXP((hum-80)/20))
-    ENDIF
-  ENDIF
-!
-! Nitrate:
-!
-ELSE IF (icmpsec.eq.12) THEN
-  IF (hum.le.80) THEN
-    IF (nwet.ge.1) THEN
-      E = 0.10*ust**0.43
-    ELSE
-      E = 0.063*ust**0.25
-    ENDIF
-  ELSE
-    IF (nwet.ge.1) THEN
-      E = 0.10*ust**0.43*(1+0.37*EXP((hum-80)/20))
-    ELSE
-      E = 0.063*ust**0.25*(1+0.18*EXP((hum-80)/20))
-    ENDIF
-  ENDIF
-!
-! Ammonium:
-!
-ELSE IF (icmpsec.eq.13) THEN
-  IF (hum.le.80) THEN
-    IF (nwet.ge.1) THEN
-      E = 0.066*ust**0.41
-    ELSE
-      E = 0.05*ust**0.23
-    ENDIF
-  ELSE
-    IF (nwet.ge.1) THEN
-      E = 0.066*ust**0.41*(1+0.37*EXP((hum-80)/20))
-    ELSE
-      E = 0.05*ust**0.23*(1+0.18*EXP((hum-80)/20))
-    ENDIF
-  ENDIF
-ENDIF
+REAL                                             :: E                          ! collecting efficiency
+REAL                                             :: r                          ! help variable = Ra + Rb [s/m]
 
 ! Calculation of canopy resistance Rc.
 ! For low vegetation and other areas with a roughness length
@@ -1101,16 +1152,76 @@ ENDIF
 ! Note: Rb is neglected for aerosols
 !
 IF (znul.lt.0.5) THEN
-  IF (ol.lt.0) THEN
-    rc_aer = 1.0/((ust/500.)*(1.+((300./(-1.*ol))**(2./3.))))  ! 960515
-  ELSE
-    rc_aer = 1.0/(ust/500)
-  ENDIF
+   IF (ol.lt.0) THEN
+     rc_aer = 1.0/((ust/500.)*(1.+((300./(-1.*ol))**(2./3.))))  ! 960515
+   ELSE
+     rc_aer = 1.0/(ust/500)
+   ENDIF
 ELSE
-  rc_aer = 1.0/(E*ust**2/Uh) 
+   !-------------------------------------------------------------------------------------------------------------------------------
+   ! components:
+   ! 11 = SO4
+   ! 12 = NO3
+   ! 13 = NH4
+   !
+   ! Calculation of the collecting efficiency E for different components
+   ! for different relative humidity and surface wetness. AI.15 OPS report
+   !
+   ! Sulphate:
+   !
+   IF (icmpsec== 10 + icm_SO2) THEN
+     IF (hum.le.80) THEN
+       IF (nwet.ge.1) THEN
+         E = 0.08*ust**0.45
+       ELSE
+         E = 0.05*ust**0.28
+       ENDIF
+     ELSE
+       IF (nwet.ge.1) THEN
+         E = 0.08*ust**0.45*(1+0.37*EXP((hum-80)/20))
+       ELSE
+         E = 0.05*ust**0.28*(1+0.18*EXP((hum-80)/20))
+       ENDIF
+     ENDIF
+   !
+   ! Nitrate:
+   !
+   ELSE IF (icmpsec==10 + icm_NOx) THEN
+     IF (hum.le.80) THEN
+       IF (nwet.ge.1) THEN
+         E = 0.10*ust**0.43
+       ELSE
+         E = 0.063*ust**0.25
+       ENDIF
+     ELSE
+       IF (nwet.ge.1) THEN
+         E = 0.10*ust**0.43*(1+0.37*EXP((hum-80)/20))
+       ELSE
+         E = 0.063*ust**0.25*(1+0.18*EXP((hum-80)/20))
+       ENDIF
+     ENDIF
+   !
+   ! Ammonium:
+   !
+   ELSE IF (icmpsec==10+icm_NH3) THEN
+     IF (hum.le.80) THEN
+       IF (nwet.ge.1) THEN
+         E = 0.066*ust**0.41
+       ELSE
+         E = 0.05*ust**0.23
+       ENDIF
+     ELSE
+       IF (nwet.ge.1) THEN
+         E = 0.066*ust**0.41*(1+0.37*EXP((hum-80)/20))
+       ELSE
+         E = 0.05*ust**0.23*(1+0.18*EXP((hum-80)/20))
+       ENDIF
+     ENDIF
+   ENDIF
+   rc_aer = 1.0/(E*ust**2/Uh) 
 ENDIF
 
-IF (icmpsec .EQ. 12) THEN     
+IF (icmpsec == 10 + icm_NOx) THEN     
 
    !  rc_aer is valid for NO3 aerosol. Calculate now a weighted value for the NO3+HNO3 mixture 
    !

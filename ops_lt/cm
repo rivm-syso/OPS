@@ -1,2 +1,0 @@
-Compute cno2 for non-road sources in ops_reken and add road contributions in ops_vchem_ratio_no2_nox_vdhout.
-Now, initialisation of co2 = 0 in ops_init_iter is necessary again.

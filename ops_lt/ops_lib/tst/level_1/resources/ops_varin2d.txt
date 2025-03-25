@@ -1,0 +1,11 @@
+* file with varin parameters for OPS, 2022-11-22
+! test with error in key value (no value) - should generate an error
+VARIN varin_meteo 
+   uz_cutoff1           0.75   
+   uz_cutoff2
+END_VARIN
+
+! test block 
+VARIN varin_depos 
+   depos_param1      1.0
+END_VARIN

@@ -36,24 +36,21 @@ type Tvchem
    TYPE (TApsGridReal) :: mass_prec_grid               ! APS grid with column averaged mass of precursor pre chemistry step (from chemistry model, e.g. EMEP) [ug/m2]
    TYPE (TApsGridReal) :: mass_conv_dtfac_grid         ! APS grid with (100/dt) * column averaged mass, converted during chemistry step (from chemistry model, e.g. EMEP) [(ug/m2) (%/h)]
 
-   real                :: mass_prec_tra                ! column averaged mass of precursor pre chemistry step, average between source - receptor [ug/m2]
-   real                :: mass_conv_dtfac_tra          ! (100/dt) * column averaged mass, converted during chemistry step, average between source - receptor [(ug/m2) (%/h)]
-
-   real                :: vchem                        ! chemical conversion rates for net reaction primary -> secondary species [%/h]
-
 end type Tvchem
 
 CONTAINS
 
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, vchem2, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, &
-                     isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, ibroncat, nemcat_road, emcat_road, & 
-                     r_no2_nox, lroad_corr, vchem)
+SUBROUTINE ops_vchem(icm, isec, iopt_vchem, vchemc, vchemv, vchemnh3, rad, rad_W_m2, regenk, iseiz, istab, itra, ar, koh, &
+                     isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, ibroncat, nemcat_road, road_chem, emcat_road, & 
+                     varin_unc, r_no2_nox, lroad_corr, vchem)
 
 ! Compute NO2/NOx ratio and chemical conversion rate for acidifying cmponents (from EMEP or parameterised) or 
-! for non-acidifying components based on input parameters.
+! for non-acidifying components based on input parameters. Chemical conversion rate here depends on meteo class,
+! see also ops_par_chem for chemical data and EMEP conversion rates that do not depend on meteo class.
 
 USE m_commonconst_lt
+USE m_ops_varin, ONLY: Tvarin_unc
 
 IMPLICIT NONE
 
@@ -62,21 +59,20 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_vchem')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
 LOGICAL,   INTENT(IN)                            :: isec                       ! TRUE if component=[SO2, NOx, NH3]
-INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-REAL*4,    INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: vchemv                     ! light dependent part of chemical conversion rate
-REAL*4,    INTENT(IN)                            :: vchemnh3                   ! chemical conversion rate for NH3 -> NH4 [%/h]
-type(Tvchem), INTENT(IN)                         :: vchem2                     ! structure for chemical conversion rates
-REAL*4                                           :: rad                        ! global radiation [J/cm2/h]
-REAL*4,    INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-]
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
-INTEGER*4, INTENT(IN)                            :: istab                      ! index of stability class
-INTEGER*4, INTENT(IN)                            :: itra                       ! index of trajectory class
-REAL*4,    INTENT(IN)                            :: ar                         ! proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr
-REAL*4,    INTENT(IN)                            :: koh                        ! reaction constant [ppb-1 h-1] for NO2 + OH -> HNO3
+INTEGER,   INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
+REAL,      INTENT(IN)                            :: vchemc                     ! chemical conversion rate [%/h]
+REAL,      INTENT(IN)                            :: vchemv                     ! light dependent part of chemical conversion rate
+REAL,      INTENT(IN)                            :: vchemnh3                   ! chemical conversion rate for NH3 -> NH4 [%/h]
+REAL,      INTENT(IN)                            :: rad                        ! global radiation [J/cm2/h]
+REAL,      INTENT(IN)                            :: rad_W_m2                   ! global radiation [W/m2]
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-]
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 0 = long term, 1 = year, 2 = winter, 3 = summer, 4 = month in winter, 5 = month in summer
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class
+INTEGER,   INTENT(IN)                            :: itra                       ! index of trajectory class
+REAL,      INTENT(IN)                            :: ar                         ! proportionality constant [ppb J-1 cm2 h] in relation [OH] = ar Qr
+REAL,      INTENT(IN)                            :: koh                        ! reaction constant [ppb-1 h-1] for NO2 + OH -> HNO3
 INTEGER,   INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]
 REAL,      INTENT(IN)                            :: r_no2_nox_sec(NSEK)        ! sector averaged NO2/NOx ratio according to vdHout parameterisation [-]
@@ -85,47 +81,51 @@ REAL,      INTENT(IN)                            :: r_no2_nox_season           !
 INTEGER,   INTENT(IN)                            :: ibroncat                   ! emission category number
 INTEGER,   INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
 INTEGER,   INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
+LOGICAL,   INTENT(IN)							 :: road_chem					 !switch for road chemistry GTHO
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
 
 
-! SUBROUTINE ARGUMENTS - OUTPUT
-REAL,      INTENT(OUT)                           :: r_no2_nox                  ! NO2/NOx ratio [-]
-LOGICAL,   INTENT(OUT)                           :: lroad_corr                 ! road correction needed for NO2/NOx ratio
-REAL*4,    INTENT(OUT)                           :: vchem                      ! chemical conversion rate [%/h]
+! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
+REAL,      INTENT(INOUT)                         :: r_no2_nox                  ! NO2/NOx ratio [-]
+                                                                               ! NB: INOUT, because r_no2_nox keeps its original value when icm /= icm_NOx
+LOGICAL,   INTENT(INOUT)                         :: lroad_corr                 ! road correction needed for NO2/NOx ratio
+                                                                               ! NB: INOUT, because lroad_corr keeps its original value when icm /= icm_NOx
+REAL,      INTENT(INOUT)                         :: vchem                      ! chemical conversion rate [%/h]. If option EMEP this is already set in ops_par_chem.
                                                                               
 ! LOCAL VARIABLES
-REAL*4                                           :: frac_night_hours           ! fraction of nighttime hours [-]
-REAL*4                                           :: chemn                      ! chemical conversion rate for NO2+O3 -> NO3 (nigthttime) [%/h]
-REAL*4                                           :: chemr                      ! chemical conversion rate for NO2 + OH -> HNO3 (daytime) [%/h]
+REAL                                             :: frac_night_hours           ! fraction of nighttime hours [-]
+REAL                                             :: chemn                      ! chemical conversion rate for NO2+O3 -> NO3 (nigthttime) [%/h]
+REAL                                             :: chemr                      ! chemical conversion rate for NO2 + OH -> HNO3 (daytime) [%/h]
 
 !-------------------------------------------------------------------------------------------------------------------------------
 
 ! Compute r_no2_nox = [NO2]/[NOx] ratio:
-if (icm .eq. 2) call ops_vchem_ratio_no2_nox(iseiz, istab, isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, & 
-                                             ibroncat, nemcat_road, emcat_road, r_no2_nox, lroad_corr)
+if (icm == icm_NOx) call ops_vchem_ratio_no2_nox(iseiz, istab, isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, & 
+                                             ibroncat, nemcat_road, road_chem, emcat_road, r_no2_nox, lroad_corr)
 
 IF (isec) THEN
 
 
    !---------------------------------------------------------------------------------------------------------
-   ! Compute chemical conversion rate (%/h) for acidifying components (icm = 1,2,3)
+   ! Compute chemical conversion rate (%/h) for acidifying components (icm = icm_SO2,icm_NOx,icm_NH3)
    !---------------------------------------------------------------------------------------------------------
 
    IF (iopt_vchem .eq. 1) THEN
    
-      !------------------------------------------------------
-      ! Chemical conversion rate from EMEP maps
-      !------------------------------------------------------
-      vchem = vchem2%vchem
+      !--------------------------------------------------------------------------------
+      ! Chemical conversion rate from EMEP maps; vchem is already set in ops_par_chem
+      !--------------------------------------------------------------------------------
+      continue
 
    ELSE
    
       !------------------------------------------------------
       ! Old parameterisation of chemical conversion rates
       !------------------------------------------------------
-      IF (icm .EQ. 1) THEN
+      IF (icm == icm_SO2) THEN
          
          !-----------------------------------
-         ! icm = 1: SO2
+         ! icm = icm_SO2: SO2
          !-----------------------------------
          ! Compute vchem    : chemical conversion rate for SO2 -> SO4 (%/h)
          !
@@ -164,10 +164,10 @@ IF (isec) THEN
          vchem = 1.2*((rad*.016) + .5 + (regenk*12.))
          ! write(*,*) 'ops_vchem, vchem: ',vchem
       
-      ELSE IF (icm .EQ. 2) THEN
+      ELSE IF (icm == icm_NOx) THEN
       
          !-----------------------------------
-         ! icm = 2: NOx
+         ! icm = icm_NOx: NOx
          !-----------------------------------
          ! Compute frac_night_hours = fraction of nighttime hours, depending on season;
          ! NACHTZOMER and NACHTWINTER are relative occurrences (%) of nighttime hours in summer and winter,
@@ -196,18 +196,21 @@ IF (isec) THEN
          ! vchem  : total chemical conversion rate, split into daytime and nighttime part
          vchem = chemr + chemn
          
-      ELSE IF (icm .EQ. 3) THEN
+      ELSE IF (icm == icm_NH3) THEN
       
          !-----------------------------------
-         !   icm = 3: NH3  
+         !   icm = icm_NH3: NH3  
          !-----------------------------------
          ! Compute vchem = chemical conversion rate for NH3 -> NH4 conversion [%/h]
          vchem = vchemnh3
       ELSE
-         write(*,*) 'internal programming error in ops_vchem; isec and icm < 1 or icm > 3'
+         write(*,*) 'internal programming error in ops_vchem; isec and icm < icm_SO2 or icm > icm_NH3'
          write(*,*) isec,icm
-         stop
-      ENDIF ! IF icm = 1,2 or 3
+         stop 1
+      ENDIF ! IF icm = icm_SO2,icm_NOx or icm_NH3
+
+      ! Adjustment relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+      vchem = varin_unc%unc_sourcedepl%vchem_fact * vchem
    ENDIF ! iopt_vchem
    
 ELSE
@@ -217,13 +220,16 @@ ELSE
       
       ! Chemical conversion rate is partly constant and partly radiation dependent (OPS report Eq. 7.2):
       vchem = vchemc + vchemv*rad_W_m2
+
+      ! Adjustment relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+      vchem = varin_unc%unc_sourcedepl%vchem_fact * vchem
 ENDIF
 
 END SUBROUTINE ops_vchem
 
 !---------------------------------------------------------------------
 SUBROUTINE ops_vchem_ratio_no2_nox(iseiz, istab, isec_prelim, disxx, r_no2_nox_sec, r_no2_nox_year_bg_tra, r_no2_nox_season, & 
-                                   ibroncat, nemcat_road, emcat_road, r_no2_nox, lroad_corr)
+                                   ibroncat, nemcat_road, road_chem, emcat_road, r_no2_nox, lroad_corr)
 
 ! Compute r_no2_nox = [NO2]/[NOx] ratio for current source - receptor, 
 ! either based on the vdHout formula (near roads) or based on background concentrations.
@@ -240,6 +246,7 @@ REAL,    INTENT(IN)                            :: r_no2_nox_year_bg_tra      ! c
 REAL,    INTENT(IN)                            :: r_no2_nox_season           ! component of NO2/NOx ratio which is season dependent  
 INTEGER, INTENT(IN)                            :: ibroncat                   ! emission category number
 INTEGER, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+LOGICAL, INTENT(IN)							   :: road_chem					 !switch for road chemistry GTHO
 INTEGER, INTENT(IN)                            :: emcat_road(*)              ! list of road emission categories (for vdHout NO2/NOx ratio)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
@@ -251,16 +258,6 @@ REAL                                           :: scno2nox                   ! s
 real,    parameter                             :: dist_road_corr = 5000.0    ! distance beyond which there is no road correction [m]
 
 !------------------------------------------------------------------------------------
-
-! We use road correction according to vd Hout, if the emission category is a road category and if the receptor is close to a road:
-if (nemcat_road .gt. 0) then
-   ! Special case emcat_road = [0] -> all categories use road correction
-   lroad_corr = (nemcat_road .eq. 1 .and. (emcat_road(1) .eq. 0)) .or. &
-                (any(ibroncat .eq. emcat_road(1:nemcat_road)))
-   lroad_corr = lroad_corr .and. (disxx < dist_road_corr)
-else
-   lroad_corr = .false. 
-endif
 
 ! Check distance to road and whether r_nox_nox_vdhout has been filled already (in the first iteration step, r_no2_nox_sec < 0 -> is not filled):
 IF (lroad_corr .and. r_no2_nox_sec(1) .ge. 0.0) THEN
@@ -308,8 +305,7 @@ REAL,    INTENT(OUT)                           :: cnox(nrrcp)                ! N
 ! LOCAL VARIABLES
 real,    parameter                             :: f_dir_no2      = 0.15      ! fraction directly emitted NO2 [-]
 real,    parameter                             :: K_road_corr    = 100       ! empirical parameter in vdHout formula for NO2 from roads = 100 μg/m3
-integer                                        :: ircp                       ! receptor index
-! integer                                        :: isek                       ! wind sector index (debug output only)
+
 
 
 
@@ -364,7 +360,7 @@ cnox = sum(percvk_sec*cnox_sec,1)
 END SUBROUTINE ops_vchem_ratio_no2_nox_vdhout
 
 !---------------------------------------------------------------------
-SUBROUTINE ops_vchem_add_nox_no2(lroad_corr, iter, nrrcp, ircp, isec_prelim, c, r_no2_nox, percvk, &
+SUBROUTINE ops_vchem_add_nox_no2(lroad_corr, iter, isec_prelim, c, r_no2_nox, percvk, &
                                  lroad_corr_present, cnox_sec, cno2, percvk_sec, nsrc_sec, nstab_present)
 
 use m_commonconst_lt, only: NSEK
@@ -375,8 +371,6 @@ use m_commonconst_lt, only: NSEK
 ! Input variables:
 LOGICAL,   INTENT(IN)                            :: lroad_corr                 ! road correction needed for NO2/NOx ratio
 INTEGER,   INTENT(IN)                            :: iter                       ! iteration index for road correction
-INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptors
-INTEGER,   INTENT(IN)                            :: ircp                       ! index of receptorpoint
 INTEGER,   INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 REAL,      INTENT(IN)                            :: c                          ! concentration at receptor height zm [ug/m3]
 REAL,      INTENT(IN)                            :: r_no2_nox                  ! NO2/NOx ratio [-]
@@ -384,10 +378,10 @@ REAL,      INTENT(IN)                            :: percvk                     !
 
 ! Input/output variables:
 LOGICAL,   INTENT(INOUT)                         :: lroad_corr_present         ! at least one road with vdHout correction is present
-REAL,      INTENT(INOUT)                         :: cnox_sec(NSEK,nrrcp)       ! wind sector averaged NOx concentration (roads only) [ug/m3]
-REAL,      INTENT(INOUT)                         :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx) [ug/m3]
-REAL,      INTENT(INOUT)                         :: percvk_sec(NSEK,nrrcp)     ! frequency of occurrence of wind sector (roads only) [-]
-INTEGER,   INTENT(INOUT)                         :: nsrc_sec(NSEK,nrrcp)       ! number of sources present in wind sector (roads only) [-]
+REAL,      INTENT(INOUT)                         :: cnox_sec(:)                ! wind sector averaged NOx concentration (roads only) [ug/m3]
+REAL,      INTENT(INOUT)                         :: cno2                       ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx) [ug/m3]
+REAL,      INTENT(INOUT)                         :: percvk_sec(:)     ! frequency of occurrence of wind sector (roads only) [-]
+INTEGER,   INTENT(INOUT)                         :: nsrc_sec(:)       ! number of sources present in wind sector (roads only) [-]
 INTEGER,   INTENT(INOUT)                         :: nstab_present              ! number of contributing stability classes present up till now (percvk > 0, disxx > 0, q > 0)
 
 ! Check for road correction according to vdHout:
@@ -398,20 +392,20 @@ IF (lroad_corr) THEN
    
    ! Add NOx contribution for this wind sector to cnox_sec:
    ! we may use isec_prelim, because we are still close to the road
-   cnox_sec(isec_prelim,ircp) = cnox_sec(isec_prelim,ircp) + (c*percvk)
+   cnox_sec(isec_prelim) = cnox_sec(isec_prelim) + c*percvk
    
    ! Add current frequency to frequency of wind sector and update number of sources in this wind sector;
    ! note that percvk_sec and nsrc_sec do not change during NOx-NO2 iteration:
    IF (iter .eq. 1) THEN 
-      percvk_sec(isec_prelim,ircp) = percvk_sec(isec_prelim,ircp) + percvk
+      percvk_sec(isec_prelim) = percvk_sec(isec_prelim) + percvk
       
       ! Count source only for first contributing stability class present:
       nstab_present = nstab_present + 1
-      if (nstab_present .eq. 1) nsrc_sec(isec_prelim,ircp) = nsrc_sec(isec_prelim,ircp) + 1
+      if (nstab_present .eq. 1) nsrc_sec(isec_prelim) = nsrc_sec(isec_prelim) + 1
    ENDIF  
 ELSE
    ! Not near road, add NO2 contribution and use ratio NO2/NOx based on background concentrations:
-   cno2(ircp) = cno2(ircp) + r_no2_nox*c*percvk
+   cno2 = cno2 + r_no2_nox*c*percvk
 ENDIF
 
 END SUBROUTINE ops_vchem_add_nox_no2

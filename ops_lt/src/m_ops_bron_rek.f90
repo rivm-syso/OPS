@@ -42,58 +42,58 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bron_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: emtrend  
+REAL,      INTENT(IN)                            :: emtrend  
 type(TbuildingEffect)                            :: buildingEffect            ! structure with building effect tables                   
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: landmax                     
-REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)           
+INTEGER,   INTENT(INOUT)                         :: landmax                     
+REAL,      INTENT(INOUT)                         :: emis(6,NLANDMAX)           
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: nsbuf                       
-INTEGER*4, INTENT(OUT)                           :: bnr(LSBUF)                  
-INTEGER*4, INTENT(OUT)                           :: bx(LSBUF)                   
-INTEGER*4, INTENT(OUT)                           :: by(LSBUF)                   
-REAL*4,    INTENT(OUT)                           :: bdiam(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bsterkte(LSBUF)             
-REAL*4,    INTENT(OUT)                           :: bwarmte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bhoogte(LSBUF)              
-REAL*4,    INTENT(OUT)                           :: bsigmaz(LSBUF)  
-REAL*4,    INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
-REAL*4,    INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
+INTEGER,   INTENT(OUT)                           :: nsbuf                       
+INTEGER,   INTENT(OUT)                           :: bnr(LSBUF)                  
+INTEGER,   INTENT(OUT)                           :: bx(LSBUF)                   
+INTEGER,   INTENT(OUT)                           :: by(LSBUF)                   
+REAL,      INTENT(OUT)                           :: bdiam(LSBUF)                
+REAL,      INTENT(OUT)                           :: bsterkte(LSBUF)             
+REAL,      INTENT(OUT)                           :: bwarmte(LSBUF)              
+REAL,      INTENT(OUT)                           :: bhoogte(LSBUF)              
+REAL,      INTENT(OUT)                           :: bsigmaz(LSBUF)  
+REAL,      INTENT(OUT)                           :: bD_stack(LSBUF)           ! diameter of the stack [m]
+REAL,      INTENT(OUT)                           :: bV_stack(LSBUF)           ! exit velocity of plume at stack tip [m/s]
+REAL,      INTENT(OUT)                           :: bTs_stack(LSBUF)          ! temperature of effluent from stack [K]            
 LOGICAL,   INTENT(OUT)                           :: bemis_horizontal(LSBUF)   ! horizontal outflow of emission
 type(Tbuilding), INTENT(OUT)                     :: bbuilding(LSBUF)          ! array with structures with building parameters
-INTEGER*4, INTENT(OUT)                           :: btgedr(LSBUF)
-INTEGER*4, INTENT(OUT)                           :: bdegr(LSBUF)                
-REAL*4,    INTENT(OUT)                           :: bqrv(LSBUF)                 
-REAL*4,    INTENT(OUT)                           :: bqtr(LSBUF)                 
-INTEGER*4, INTENT(OUT)                           :: bcatnr(LSBUF)               
-INTEGER*4, INTENT(OUT)                           :: blandnr(LSBUF)              
+INTEGER,   INTENT(OUT)                           :: btgedr(LSBUF)
+INTEGER,   INTENT(OUT)                           :: bdegr(LSBUF)                
+REAL,      INTENT(OUT)                           :: bqrv(LSBUF)                 
+REAL,      INTENT(OUT)                           :: bqtr(LSBUF)                 
+INTEGER,   INTENT(OUT)                           :: bcatnr(LSBUF)               
+INTEGER,   INTENT(OUT)                           :: blandnr(LSBUF)              
 LOGICAL,   INTENT(OUT)                           :: eof                        ! end of file has been reached 
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: mm                         ! 
-INTEGER*4                                        :: ibtg                       ! 
-INTEGER*4                                        :: ibroncat                   ! 
-INTEGER*4                                        :: idgr                       ! 
-INTEGER*4                                        :: iland                      ! country code
-INTEGER*4                                        :: index                      ! index of country code iland, in list of country codes
-REAL*4                                           :: qtr                        ! 
-REAL*4                                           :: qob                        ! 
-REAL*4                                           :: x                          ! 
-REAL*4                                           :: y                          ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: qww                        ! 
-REAL*4                                           :: hbron                      ! emission height at source (stack height), without plume rise [m]
-REAL*4                                           :: szopp                      ! 
-REAL*4                                           :: D_stack                    ! diameter of the stack [m]
-REAL*4                                           :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4                                           :: Ts_stack                   ! temperature of effluent from stack [K]            
+INTEGER                                          :: mm                         ! 
+INTEGER                                          :: ibtg                       ! 
+INTEGER                                          :: ibroncat                   ! 
+INTEGER                                          :: idgr                       ! 
+INTEGER                                          :: iland                      ! country code
+INTEGER                                          :: index                      ! index of country code iland, in list of country codes
+REAL                                             :: qtr                        ! 
+REAL                                             :: qob                        ! 
+REAL                                             :: x                          ! 
+REAL                                             :: y                          ! 
+REAL                                             :: diameter                   ! 
+REAL                                             :: qww                        ! 
+REAL                                             :: hbron                      ! emission height at source (stack height), without plume rise [m]
+REAL                                             :: sigz0                      ! initial vertical dispersion length [m]
+REAL                                             :: D_stack                    ! diameter of the stack [m]
+REAL                                             :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL                                             :: Ts_stack                   ! temperature of effluent from stack [K]            
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
 type(Tbuilding)                                  :: building                   ! structure with building paramaters
-REAL*4                                           :: qrv                        ! 
+REAL                                             :: qrv                        ! 
 REAL                                             :: valueArray(buildingEffect%nParam)  ! array with parameters needed to compute building effect
 INTEGER                                          :: iParam                     ! index of building parameter
 INTEGER                                          :: ierr                       ! error code
@@ -103,6 +103,13 @@ INTEGER                                          :: ierr                       !
 ! Initialise nsbuf = 0 (no sources in buffer arrays).
 !
 nsbuf = 0
+bcatnr = 0
+by = 0
+bx = 0
+bnr = 0
+blandnr = 0
+btgedr = 0
+bdegr = 0
 !
 ! Read source data from scratch file in block of length LSBUF (or till end-of-file) and put data into buffer arrays of size LSBUF.
 !
@@ -110,7 +117,7 @@ nsbuf = 0
 DO WHILE (nsbuf /= LSBUF)
 
   ! Read source record with RDM coordinates:
-  READ (fu_scratch, iostat = ierr) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+  READ (fu_scratch, iostat = ierr) mm, x, y, qob, qww, hbron, diameter, sigz0, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
   IF (ierr < 0) THEN
      eof = .true.
      return ! If end of file has been reached, nothing is left to do here
@@ -121,7 +128,7 @@ DO WHILE (nsbuf /= LSBUF)
   ENDIF
   nsbuf = nsbuf + 1
 
-  !write(*,'(a,i6,10(1x,e12.5),1x,l2,4(1x,i4),4(1x,e12.5))') 'ops_bron_rek a ',mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, & 
+  !write(*,'(a,i6,10(1x,e12.5),1x,l2,4(1x,i4),4(1x,e12.5))') 'ops_bron_rek a ',mm, x, y, qob, qww, hbron, diameter, sigz0, D_stack, V_stack, Ts_stack, emis_horizontal, & 
   !                                                           ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
 
   ! Determine building factor function (function of source receptor angle and source receptor distance):
@@ -225,15 +232,15 @@ DO WHILE (nsbuf /= LSBUF)
       bx(nsbuf)  = NINT(x)
       by(nsbuf)  = NINT(y)
     ELSE  
-       write(*,*) 'IGEO in ops_bron_rek = ',IGEO  
-       stop 
+       write(*,*) 'IGEO in ops_bron_rek not supported = ',IGEO  
+       stop 1
     ENDIF
 
     bsterkte(nsbuf)  = qob
     bwarmte(nsbuf)   = qww
     bhoogte(nsbuf)   = hbron
     bdiam(nsbuf)     = diameter
-    bsigmaz(nsbuf)   = szopp
+    bsigmaz(nsbuf)   = sigz0
     bD_stack(nsbuf)  = D_stack
     bV_stack(nsbuf)  = V_stack
     bTs_stack(nsbuf) = Ts_stack

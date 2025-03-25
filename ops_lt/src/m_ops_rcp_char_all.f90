@@ -29,9 +29,9 @@ implicit none
 
 contains
 
-subroutine ops_rcp_char_all(icm, iopt_vchem, isec, nsubsec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, nemcat_road, &
-                            so2bggrid, nh3bggrid, o3bggrid, f_subsec_grid, nrrcp, namrcp, gxm, gym, lu_rcp_dom_all, z0_rcp_all, &
-                            rhno3_rcp, nh3bg_rcp, o3bg_rcp, so2bg_rcp, f_subsec_rcp, domlu, error)
+subroutine ops_rcp_char_all(icm, iopt_vchem, isec, nsubsec, xm, ym, f_z0user, z0_user, z0nlgrid, z0eurgrid, lugrid, nemcat_road, road_chem,&
+                            so2bggrid, nh3bggrid, gwgrid, o3bggrid, f_subsec_grid, nrrcp, namrcp, gxm, gym, lu_rcp_dom_all, z0_rcp_all, &
+                            rhno3_rcp, nh3bg_rcp, gw_rcp, o3bg_rcp, so2bg_rcp, f_subsec_rcp, domlu, error)
 
 use m_aps
 use m_geoutils
@@ -49,49 +49,52 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_rcp_char_all')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        
-INTEGER*4, INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
-LOGICAL*4, INTENT(IN)                            :: isec                       
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
-LOGICAL*4, INTENT(IN)                            :: f_z0user                   
-REAL*4,    INTENT(IN)                            :: z0_user                    ! roughness length specified by user [m]
+INTEGER,   INTENT(IN)                            :: icm                        
+INTEGER,   INTENT(IN)                            :: iopt_vchem                 ! option for chemical conversion rate (0 = old OPS, 1 = EMEP)
+LOGICAL,   INTENT(IN)                            :: isec                       
+INTEGER,   INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species                       
+REAL,      INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
+REAL,      INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
+LOGICAL,   INTENT(IN)                            :: f_z0user                   
+REAL,      INTENT(IN)                            :: z0_user                    ! roughness length specified by user [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
-INTEGER*4, INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+INTEGER,   INTENT(IN)                            :: nemcat_road                ! number of road emission categories (for vdHout NO2/NOx ratio)
+LOGICAL,   INTENT(IN)							 :: road_chem					 !switch for road chemistry GTHO
 TYPE (TApsGridReal), INTENT(IN)                  :: so2bggrid                  ! grid of SO2 background concentrations [ppb] (read as ug/m3, converted to ppb)
 TYPE (TApsGridReal), INTENT(IN)                  :: nh3bggrid                  ! grid of NH3 background concentrations [ppb] (read as ug/m3, converted to ppb)
+TYPE (TApsGridReal), INTENT(IN)                  :: gwgrid                     ! grid of gamma water values
 TYPE (TApsGridReal), INTENT(IN)                  :: o3bggrid                   ! grids of O3 background concentrations per wind sector [ug/m3]
 TYPE (TApsGridReal), INTENT(IN)                  :: f_subsec_grid              ! grids of fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptors
+INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptors
 CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! receptor names 
-LOGICAL*4, INTENT(IN)                            :: domlu                      ! use dominant land use instead of land use percentages
+LOGICAL,   INTENT(IN)                            :: domlu                      ! use dominant land use instead of land use percentages
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: gxm(nrrcp)                 ! x-coordinates of receptors (lon-lat) [degrees]
-REAL*4,    INTENT(OUT)                           :: gym(nrrcp)                 ! y-coordinates of receptors (lon-lat) [degrees] 
-REAL*4,    INTENT(OUT)                           :: rhno3_rcp(nrrcp)           ! ratio [HNO3]/[NO3]_total at receptor [ug/m3]
-REAL*4,    INTENT(OUT)                           :: nh3bg_rcp(nrrcp)           ! background concentration NH3 at receptor [ug/m3]
-REAL*4,    INTENT(OUT)                           :: o3bg_rcp(NSEK,nrrcp)       ! background concentration O3 at receptor for all wind sectors [ug/m3]
-REAL*4,    INTENT(OUT)                           :: so2bg_rcp(nrrcp)           ! background concentration SO2 at receptor [ug/m3]
-REAL*4,    INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
+REAL,      INTENT(OUT)                           :: gxm(nrrcp)                 ! x-coordinates of receptors (lon-lat) [degrees]
+REAL,      INTENT(OUT)                           :: gym(nrrcp)                 ! y-coordinates of receptors (lon-lat) [degrees] 
+REAL,      INTENT(OUT)                           :: rhno3_rcp(nrrcp)           ! ratio [HNO3]/[NO3]_total at receptor [ug/m3]
+REAL,      INTENT(OUT)                           :: nh3bg_rcp(nrrcp)           ! background concentration NH3 at receptor [ug/m3]
+REAL,      INTENT(OUT)                           :: gw_rcp(nrrcp)              ! gamma water value at receptor
+REAL,      INTENT(OUT)                           :: o3bg_rcp(NSEK,nrrcp)       ! background concentration O3 at receptor for all wind sectors [ug/m3]
+REAL,      INTENT(OUT)                           :: so2bg_rcp(nrrcp)           ! background concentration SO2 at receptor [ug/m3]
+REAL,      INTENT(OUT)                           :: f_subsec_rcp(nrrcp,nsubsec)   ! fractions for sub-secondary species, HNO3/NO3_total, NO3_C/NO3_total, NO3_F/NO3_total [-]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(INOUT)                         :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
-REAL*4,    INTENT(INOUT)                         :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+INTEGER,   INTENT(INOUT)                         :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
+REAL,      INTENT(INOUT)                         :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
 TYPE (TError), INTENT(INOUT)                     :: error   
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: landuse(NLU+1)             ! land-use value at receptor
+INTEGER                                          :: landuse(NLU+1)             ! land-use value at receptor
                                                                                ! landuse(1)    = index of dominant landuse
                                                                                ! landuse(lu+1) = percentage of grid cell with landuse class lu, lu = 1,NLU
                                                                                ! For locations outside lugrid, a fatal error is triggered
-INTEGER*4                                        :: ircp                       ! index of receptor
-INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: so2bgconc                  ! background concentratie SO2
-REAL*4                                           :: nh3bgconc                  ! background concentration NH3 at receptor [ppb]
+INTEGER                                          :: ircp                       ! index of receptor
+INTEGER                                          :: isubsec                    ! index of sub-secondary species
+REAL                                             :: so2bgconc                  ! background concentratie SO2
+REAL                                             :: nh3bgconc                  ! background concentration NH3 at receptor [ppb]
 INTEGER                                          :: isek                       ! wind sector index
 INTEGER                                          :: ifield                     ! field index in f_subsec_grid
 
@@ -138,20 +141,33 @@ DO ircp = 1, nrrcp
       ENDIF
    ENDIF
 
+
+
+
+   
    ! For SO2, NOx, NH3:
    IF (isec) THEN
-       
-      ! Get background concentrations at receptor (in_trajectory = .false):
-      CALL ops_bgcon(xm(ircp), ym(ircp), .false., nh3bggrid, nh3bgconc, error)
-      IF (error%haserror) goto 9999
-      
-      IF (icm == 2) THEN
+      IF (ANY(icm == (/icm_SO2,icm_NOx,icm_NH3/))) THEN 
+         ! Get background concentrations at receptor (in_trajectory = .false):
+         CALL ops_bgcon(xm(ircp), ym(ircp), .false., nh3bggrid, nh3bgconc, error) 
+         IF (error%haserror) goto 9999
+         ! Convert NH3 background concentration from ppb to ug/m3 (is used as such in DEPAC)
+         nh3bg_rcp(ircp)=nh3bgconc*17/24
+      ENDIF
+      IF (ANY(icm == (/icm_SO2,icm_NH3/)))  THEN 
+        ! Get so2 background concentration at receptor  (in_trajectory = .false):
+         CALL ops_bgcon(xm(ircp),ym(ircp), .false., so2bggrid, so2bgconc, error)
+         IF (error%haserror) goto 9999
+        ! Convert SO2 background concentration from ppb to ug/m3 (is used as such in DEPAC)
+         so2bg_rcp(ircp)=so2bgconc*64./24. 
+      ENDIF
+      IF (ANY(icm == (/icm_NOx/)))   THEN
       
          ! NOx 
 
          ! Get background concentrations of ozone at receptor (in_trajectory = .false);
          ! note that o3bggrid and o3bg_rcp are in ug/m3
-         if (nemcat_road .gt. 0) then
+         if (nemcat_road .gt. 0 .and. road_chem) then
             do isek = 1,NSEK 
                CALL ops_bgcon(xm(ircp), ym(ircp), .false., o3bggrid, o3bg_rcp(isek,ircp), error, isek) 
                IF (error%haserror) goto 9999
@@ -199,22 +215,15 @@ DO ircp = 1, nrrcp
             ! Fraction NO3_aerosol / NO3_total:
             f_subsec_rcp(ircp,1) = f_subsec_rcp(ircp,3) + f_subsec_rcp(ircp,4)  
          ENDIF  ! iopt_vchem .eq. 0
-      ELSE
-      
-        ! Convert NH3 background concentration from ppb to ug/m3 (is used as such in DEPAC)
-        nh3bg_rcp(ircp)=nh3bgconc*17/24
-      
-        ! Get so2 background concentration at receptor  (in_trajectory = .false):
-        CALL ops_bgcon(xm(ircp),ym(ircp), .false., so2bggrid, so2bgconc, error)
-        IF (error%haserror) goto 9999
-        
-        ! Convert SO2 background concentration from ppb to ug/m3 (is used as such in DEPAC)
-        so2bg_rcp(ircp)=so2bgconc*64./24. 
-      ENDIF ! NOx
+      ENDIF
+      IF (icm == icm_NH3)  THEN 
+         CALL ops_bgcon(xm(ircp),ym(ircp), .false., gwgrid, gw_rcp(ircp), error)
+         IF (error%haserror) goto 9999
+      ENDIF
    ENDIF  ! IF (isec)
-   IF (error%debug) WRITE(*,'(3a,2(1x,i6),99(1x,e12.5))') & 
-      trim(ROUTINENAAM),',A,',' ircp,lu_rcp_dom_all(ircp),z0_rcp_all(ircp),nh3bg_rcp(ircp),o3bg_rcp(:,ircp): ', &
-                                ircp,lu_rcp_dom_all(ircp),z0_rcp_all(ircp),nh3bg_rcp(ircp),o3bg_rcp(:,ircp)
+   IF (error%debug) write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') & 
+      trim(ROUTINENAAM),',A; ','ircp; lu_rcp_dom_all(ircp); z0_rcp_all(ircp); nh3bg_rcp(ircp); o3bg_rcp(1,ircp); o3bg_rcp(2,ircp); o3bg_rcp(3,ircp); o3bg_rcp(4,ircp); o3bg_rcp(5,ircp); o3bg_rcp(6,ircp); o3bg_rcp(7,ircp); o3bg_rcp(8,ircp); o3bg_rcp(9,ircp); o3bg_rcp(10,ircp); o3bg_rcp(11,ircp); o3bg_rcp(12,ircp); ', &
+                                ircp, lu_rcp_dom_all(ircp), z0_rcp_all(ircp), nh3bg_rcp(ircp), o3bg_rcp(:,ircp)
 ENDDO ! Loop over receptor points
 
 RETURN

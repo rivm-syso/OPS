@@ -26,7 +26,8 @@ implicit none
 
 contains
 
-SUBROUTINE ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, numbron, building_present1, error)
+SUBROUTINE ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, &
+                           allow_sigz0_point_source, numbron, building_present1, error)
 
 use m_error
 use m_commonfile, only: fu_scratch, fu_bron
@@ -41,44 +42,46 @@ CHARACTER*512                                    :: ROUTINENAAM
 PARAMETER    (ROUTINENAAM = 'ops_read_source')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! component nummer
+INTEGER,   INTENT(IN)                            :: icm                        ! component nummer
 LOGICAL,   INTENT(IN)                            :: gasv                       ! component is gasuous       
-INTEGER*4, INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
-INTEGER*4, INTENT(IN)                            :: catsel(*)                  ! selected emission categories
-INTEGER*4, INTENT(IN)                            :: nlandsel                   ! number of selected emission countries
-INTEGER*4, INTENT(IN)                            :: landsel(*)                 ! selected emission countries
+INTEGER,   INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
+INTEGER,   INTENT(IN)                            :: catsel(*)                  ! selected emission categories
+INTEGER,   INTENT(IN)                            :: nlandsel                   ! number of selected emission countries
+INTEGER,   INTENT(IN)                            :: landsel(*)                 ! selected emission countries
 LOGICAL,   INTENT(IN)                            :: presentcode(MAXDISTR,4)    ! which distribution codes are present 
                                                                                ! presentcode(:,1): diurnal variations
                                                                                ! presentcode(:,2): particle size distributions
                                                                                ! presentcode(:,3): user-defined diurnal variation
                                                                                ! presentcode(:,4): user-defined particle size distributions
+LOGICAL,   INTENT(IN)                            :: allow_sigz0_point_source   ! allow initial sigma for point sources
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 ! Note: emission parameters are written to scratch file and are not part of the output arguments
-INTEGER*4, INTENT(OUT)                           :: numbron                    ! number of (selected) sources
+INTEGER,   INTENT(OUT)                           :: numbron                    ! number of (selected) sources
 LOGICAL,   INTENT(OUT)                           :: building_present1          ! at least one building is present in the source file   
-TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ibtg                       ! diurnal emission variation code read from emission record
-INTEGER*4                                        :: nrec                       ! record number of source file
-INTEGER*4                                        :: mm                         ! source identification number
-INTEGER*4                                        :: iland                      ! country/area code read from emission record
-INTEGER*4                                        :: idgr                       ! particle size distribution code read from emission record
-INTEGER*4                                        :: ibroncat                   ! emission category code read from emission record
-LOGICAL*4                                        :: end_of_file                ! end of file has been reached
-INTEGER*4                                        :: brn_version                ! version of emission file
-REAL*4                                           :: qob                        ! emission strength read from emission record [g/s] 
-REAL*4                                           :: qww                        ! heat content read from emission record [MW] 
-REAL*4                                           :: hbron                      ! emission height read from emission record [m] 
-REAL*4                                           :: diameter                   ! diameter area source read from emission record (NOT stack diameter) [m] 
-REAL*4                                           :: szopp                      ! deviation emission height for area source = initial sigma_z [m] 
-REAL*4                                           :: x                          ! x coordinate of source location (RDM [m])                 
-REAL*4                                           :: y                          ! y coordinate of source location (RDM [m])
+INTEGER                                          :: ibtg                       ! diurnal emission variation code read from emission record
+INTEGER                                          :: nrec                       ! record number of source file
+INTEGER                                          :: mm                         ! source identification number
+INTEGER                                          :: iland                      ! country/area code read from emission record
+INTEGER                                          :: idgr                       ! particle size distribution code read from emission record
+INTEGER                                          :: ibroncat                   ! emission category code read from emission record
+LOGICAL                                          :: end_of_file                ! end of file has been reached
+INTEGER                                          :: brn_version                ! version of emission file
+REAL                                             :: qob                        ! emission strength read from emission record [g/s] 
+REAL                                             :: qww                        ! heat content read from emission record [MW] 
+REAL                                             :: hbron                      ! emission height read from emission record [m] 
+REAL                                             :: diameter                   ! diameter area source read from emission record (NOT stack diameter) [m] 
+REAL                                             :: sigz0                      ! initial vertical dispersion length (due to turbulence at source and/or different emission heights in area source) [m]
+REAL                                             :: x                          ! x coordinate of source location (RDM [m])                 
+REAL                                             :: y                          ! y coordinate of source location (RDM [m])
 LOGICAL                                          :: country_selected           ! emission country has been selected
 LOGICAL                                          :: category_selected          ! emission category has been selected
 LOGICAL                                          :: VsDs_opt                   ! read stack parameters Ds/Vs/Ts from source file
 REAL                                             :: D_stack                    ! diameter of the stack [m]
+REAL                                             :: D_stack_outer              ! outer diameter of the stack [m] Not yet used in OPS-LT
 REAL                                             :: V_stack                    ! exit velocity of plume at stack tip [m/s]
 REAL                                             :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL                                          :: emis_horizontal            ! horizontal outflow of emission
@@ -108,8 +111,10 @@ DO WHILE (.NOT. end_of_file)
    check_psd = (.not. gasv)
 
    ! Read emission record and check whether parameters are within range:
+   ! D_stack_outer is not used in OPS-LT
    call ops_emis_read_annual1(fu_bron, icm, check_psd, presentcode, brn_version, VsDs_opt, nrec, numbron, building_present1, &
-               mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, building, ibtg, ibroncat, iland, idgr, end_of_file, error)
+                              mm, x, y, qob, qww, hbron, diameter, sigz0, D_stack, D_stack_outer, V_stack, Ts_stack, &
+                              emis_horizontal, building, ibtg, ibroncat, iland, idgr, end_of_file, error, allow_sigz0_point_source)
    IF (error%haserror) GOTO 9999
   
    IF (.NOT. end_of_file) THEN
@@ -121,7 +126,7 @@ DO WHILE (.NOT. end_of_file)
          category_selected = any((catsel(1:ncatsel)   .eq. 0) .OR. (ibroncat .eq. catsel(1:ncatsel)))
          
          IF (country_selected .AND. category_selected) THEN
-            WRITE (fu_scratch) mm, x, y, qob, qww, hbron, diameter, szopp, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
+            WRITE (fu_scratch) mm, x, y, qob, qww, hbron, diameter, sigz0, D_stack, V_stack, Ts_stack, emis_horizontal, ibtg, ibroncat, iland, idgr, building%length, building%width, building%height, building%orientation
             numbron = numbron+1
          ENDIF
       ENDIF

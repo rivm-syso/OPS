@@ -24,8 +24,9 @@ implicit none
 
 contains
 
-SUBROUTINE ops_gen_precip(uurtot, astat, trafst, precip, error)
+SUBROUTINE ops_gen_precip(varin_meteo, varin_unc, uurtot, astat, trafst, precip, error)
 
+use m_ops_varin
 use m_error
 use m_commonconst_lt
 use m_ops_statparexp
@@ -37,60 +38,63 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_gen_precip')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: uurtot                     ! total number of hours from meteo statistics
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)               
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+TYPE(Tvarin_unc), INTENT(IN)                   :: varin_unc                    ! Noise value for uncertainty analyses.
+REAL,      INTENT(IN)                            :: uurtot                     ! total number of hours from meteo statistics
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK)  
+REAL,      INTENT(IN)                            :: trafst(NTRAJ)               
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: precip                     ! total precipitation per year [mm/year]
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+REAL,      INTENT(OUT)                           :: precip                     ! total precipitation per year [mm/year]
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: isek                       ! index of wind sector, isek = 1,NSEK
-INTEGER*4                                        :: isec1                      ! dummy output of ops_statparexp
-INTEGER*4                                        :: istab                      ! index of stability class
-INTEGER*4                                        :: iwd                        ! wind direction if wind is from source to receptor (degrees)
-INTEGER*4                                        :: itra                       ! dummy output of ops_statparexp
-REAL*4                                           :: hbron                      ! source height, dummy input for ops_statparexp
-REAL*4                                           :: disx                       ! distance source receptor, dummy input for ops_statparexp
-REAL*4                                           :: disxx                      ! dummy output of ops_statparexp
-REAL*4                                           :: radius                     ! source diameter, dummy input for ops_statparexp
-REAL*4                                           :: qww                        ! heat content of source, dummy input for ops_statparexp; 
+INTEGER                                          :: isek                       ! index of wind sector, isek = 1,NSEK
+INTEGER                                          :: isec1                      ! dummy output of ops_statparexp
+INTEGER                                          :: isec_in                    ! dummy output of ops_statparexp
+INTEGER                                          :: istab                      ! index of stability class
+INTEGER                                          :: iwd                        ! wind direction if wind is from source to receptor (degrees)
+INTEGER                                          :: itra                       ! dummy output of ops_statparexp
+REAL                                             :: hbron                      ! source height, dummy input for ops_statparexp
+REAL                                             :: disx                       ! distance source receptor, dummy input for ops_statparexp
+REAL                                             :: disxx                      ! dummy output of ops_statparexp
+REAL                                             :: radius                     ! source diameter, dummy input for ops_statparexp
+REAL                                             :: qww                        ! heat content of source, dummy input for ops_statparexp; 
                                                                                ! setting it to 0 prevents unnecessary computation of plume rise
                                                                                ! in ops_statparexp 
-REAL*4                                           :: V_stack                    ! here a dummy
-REAL*4                                           :: Ts_stack                   ! here a dummy         
+REAL                                             :: V_stack                    ! here a dummy
+REAL                                             :: Ts_stack                   ! here a dummy         
 LOGICAL                                          :: emis_horizontal            ! here a dummy
-REAL*4                                           :: D_stack                    ! here a dummy
-REAL*4                                           :: vw10                       ! here a dummy
-REAL*4                                           :: h0                         ! here a dummy
-REAL*4                                           :: hum                        ! here a dummy
-REAL*4                                           :: ol                         ! here a dummy
-REAL*4                                           :: shear                      ! here a dummy
-REAL*4                                           :: rc_aer_ms                  ! here a dummy
-REAL*4                                           :: rc_nh3_ms                  ! here a dummy
-REAL*4                                           :: rc_no2_ms                  ! here a dummy
-REAL*4                                           :: temp_C                     ! here a dummy
-REAL*4                                           :: uster                      ! here a dummy
-REAL*4                                           :: pcoef                      ! here a dummy
-REAL*4                                           :: htot                       ! here a dummy
-REAL*4                                           :: htt                        ! here a dummy
-REAL*4                                           :: aant                       ! here a dummy
-REAL*4                                           :: xl                         ! here a dummy
-REAL*4                                           :: rb                         ! here a dummy
-REAL*4                                           :: ra_ms_4                    ! here a dummy
-REAL*4                                           :: ra_ms_zra                  ! here a dummy
-REAL*4                                           :: xvglbr                     ! here a dummy
-REAL*4                                           :: xvghbr                     ! here a dummy
-REAL*4                                           :: xloc                       ! here a dummy
-REAL*4                                           :: xl100                      ! here a dummy
-REAL*4                                           :: rad                        ! here a dummy
-REAL*4                                           :: rc_so2_ms                  ! here a dummy
-REAL*4                                           :: coef_space_heating         ! here a dummy
-REAL*4                                           :: buil                       ! here a dummy
-REAL*4                                           :: regenk                     ! rain probability [-]
-REAL*4                                           :: rint                       ! rain intensity [mm/h]
-REAL*4                                           :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class  
+REAL                                             :: D_stack                    ! here a dummy
+REAL                                             :: vw10                       ! here a dummy
+REAL                                             :: h0                         ! here a dummy
+REAL                                             :: hum                        ! here a dummy
+REAL                                             :: ol                         ! here a dummy
+REAL                                             :: shear                      ! here a dummy
+REAL                                             :: rc_aer_ms                  ! here a dummy
+REAL                                             :: rc_nh3_ms                  ! here a dummy
+REAL                                             :: rc_no2_ms                  ! here a dummy
+REAL                                             :: temp_C                     ! here a dummy
+REAL                                             :: uster                      ! here a dummy
+REAL                                             :: pcoef                      ! here a dummy
+REAL                                             :: htot                       ! here a dummy
+REAL                                             :: htt                        ! here a dummy
+REAL                                             :: aant                       ! here a dummy
+REAL                                             :: xl                         ! here a dummy
+REAL                                             :: rb                         ! here a dummy
+REAL                                             :: ra_ms_4                    ! here a dummy
+REAL                                             :: ra_ms_zra                  ! here a dummy
+REAL                                             :: xvglbr                     ! here a dummy
+REAL                                             :: xvghbr                     ! here a dummy
+REAL                                             :: xloc                       ! here a dummy
+REAL                                             :: xl100                      ! here a dummy
+REAL                                             :: rad                        ! here a dummy
+REAL                                             :: rc_so2_ms                  ! here a dummy
+REAL                                             :: coef_space_heating         ! here a dummy
+REAL                                             :: buil                       ! here a dummy
+REAL                                             :: regenk                     ! rain probability [-]
+REAL                                             :: rint                       ! rain intensity [mm/h]
+REAL                                             :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class  
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -118,9 +122,9 @@ DO isek = 1, NSEK
 !   percvk (fraction of occurrence of meteo class) for this wind direction sector and stability class
 !
 
-    CALL ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isec1, vw10, h0,  &
+    CALL ops_statparexp(varin_meteo, varin_unc, istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isek, disxx, isec1, vw10, h0,  &
                      &  hum, ol, shear, rc_aer_ms, rc_nh3_ms, rc_no2_ms, temp_C, uster, pcoef, htot, htt, itra, aant, xl, rb, ra_ms_4,   &
-                     &  ra_ms_zra, xvglbr, xvghbr, xloc, xl100, rad, rc_so2_ms, coef_space_heating, regenk, buil, rint, percvk, error)
+                     &  ra_ms_zra, xvglbr, xvghbr, xloc, xl100, rad, rc_so2_ms, coef_space_heating, regenk, buil, rint, percvk, isec_in, error)
     IF (error%haserror) GOTO 9999
 !
 !   Add contribution to precipitation amount in mm/year (8760 = number of hours in a year)

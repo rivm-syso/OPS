@@ -23,13 +23,14 @@ implicit none
 
 contains
 
-SUBROUTINE ops_seccmp(do_proc, qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10,  &
+SUBROUTINE ops_seccmp(varin_unc,do_proc, qbpri, ueff, rc_sec_trj, routsec, c0_undepl_total, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disxx, xl, xloc, vw10,  &
                    &  pcoef, virty, regenk, htot, onder, twt, ri, cgt, xvghbr, xvglbr, vnatpri, vchem, ra_rcp_4,  &
                    &  ra_rcp_zra, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, qsec, consec, vd_eff_trj_zra, ra_trj_zra, rb_trj)
 
 use m_commonconst_lt
 use m_ops_vchem
-use m_ops_brondepl, only: Tdo_proc
+use m_ops_varin, only: Tvarin_unc
+use m_ops_tdo_Proc, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -38,72 +39,75 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_seccmp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
 TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
-REAL*4,    INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
-REAL*4,    INTENT(IN)                            :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
-REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
+REAL,      INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
+REAL,      INTENT(IN)                            :: ueff                       ! effective transport velocity of plume [m/s]
+REAL,      INTENT(IN)                            :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
+REAL,      INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-] 
-REAL*4,    INTENT(IN)                            :: ccc                        ! undepleted concentration at z = 0 (including part of plume above mixing layer); 
-                                                                               ! is needed for secondary species
-REAL*4,    INTENT(IN)                            :: vv                         ! total source depletion factor for primary component
-REAL*4,    INTENT(IN)                            :: amol1                      ! molgewicht primaire component
-REAL*4,    INTENT(IN)                            :: amol2                      ! molgewicht secundaire component
-REAL*4,    INTENT(IN)                            :: xvg                        ! factor not used; xvg = 1
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: grad                       ! 
-REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: virty                      ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-] 
-REAL*4,    INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: twt                        ! 
-REAL*4,    INTENT(IN)                            :: ri                         ! 
-REAL*4,    INTENT(IN)                            :: cgt                        ! gradient factor at 4 m height [-]
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m]
-REAL*4,    INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
+REAL,      INTENT(IN)                            :: c0_undepl_total            ! undepleted concentration at z = 0 (including part of plume above mixing layer); 
+                                                                               ! is needed for secondary species (note that this is only used for 'well-mixed', where c(0) = c(zrcp))
+REAL,      INTENT(IN)                            :: vv                         ! total source depletion factor for primary component
+REAL,      INTENT(IN)                            :: amol1                      ! molgewicht primaire component
+REAL,      INTENT(IN)                            :: amol2                      ! molgewicht secundaire component
+REAL,      INTENT(IN)                            :: xvg                        ! factor not used; xvg = 1
+REAL,      INTENT(IN)                            :: sigz                       ! vertical dispersion length [m]
+REAL,      INTENT(IN)                            :: grad                       ! depositon velocity gradient over height = vd(zra)/vd(4)
+REAL,      INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(IN)                            :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(IN)                            :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(IN)                            :: virty                      ! distance virtual point source - centre area source [m]
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-] 
+REAL,      INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(IN)                            :: onder                      ! fraction of emission below mixing height [-]
+REAL,      INTENT(IN)                            :: twt                        ! average duration of a rainfall period, dependent on source - receptor distance [h] 
+REAL,      INTENT(IN)                            :: ri                         ! rain intensity [mm/h]. 
+REAL,      INTENT(IN)                            :: cgt                        ! gradient factor at 4 m height [-]
+REAL,      INTENT(IN)                            :: xvghbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-]
+REAL,      INTENT(IN)                            :: xvglbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
+REAL,      INTENT(IN)                            :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+REAL,      INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
+REAL,      INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m]
+REAL,      INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m 
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
-REAL*4,    INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory at height zra [s/m]
-REAL*4,    INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
+REAL,      INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
+REAL,      INTENT(IN)                            :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
+REAL,      INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory at height zra [s/m]
+REAL,      INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: vnatsec                    ! 
-REAL*4,    INTENT(OUT)                           :: cgtsec                     ! 
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
-REAL*4,    INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
-REAL*4,    INTENT(INOUT)                         :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
+REAL,      INTENT(INOUT)                         :: pr                         ! Distribution factor between washout (below cloud) and rainout (in cloud). pr = 0 -> washout, pr = 1 -> rainout. 
+                                                                               ! INOUT, because pr remains unchanged when  regenk <= EPS_DELTA
+REAL,      INTENT(OUT)                           :: vnatsec                    ! 
+REAL,      INTENT(OUT)                           :: cgtsec                     ! 
+REAL,      INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species [g/s]
+REAL,      INTENT(OUT)                           :: consec                     ! concentration secondary component [ug/m3]
+REAL,      INTENT(INOUT)                         :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
                                                                                ! height and no deposition takes place [m/s] 
 
 ! LOCAL VARIABLES
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: h                          ! 
-REAL*4                                           :: hl                         ! 
-REAL*4                                           :: gradsec                    ! 
-REAL*4                                           :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
+REAL                                             :: a                          ! 
+REAL                                             :: diameter                   ! 
+REAL                                             :: h                          ! 
+REAL                                             :: hl                         ! 
+REAL                                             :: gradsec                    ! 
+REAL                                             :: lambda_b                   ! Scavenging rate for below-cloud scavenging (1/h)
+REAL                                             :: qpri                       ! cross-wind integrated mass flux [g/s] of primary species of depleted source
 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: sigzsec                    !
-REAL*4                                           :: vd_sec_uncorr_trj_zra      ! deposition velocity secondary component for trajectory, height zra [m/s]; uncorrected 
+REAL                                             :: s                          ! 
+REAL                                             :: sigzsec                    !
+REAL                                             :: vd_sec_uncorr_trj_zra      ! deposition velocity secondary component for trajectory, height zra [m/s]; uncorrected 
                                                                                ! for time that plume is above mixing height
-REAL*4                                           :: vd_sec_eff_trj_zra         ! effective deposition velocity secondary component for trajectory, height zra [m/s]; taking 
+REAL                                             :: vd_sec_eff_trj_zra         ! effective deposition velocity secondary component for trajectory, height zra [m/s]; taking 
                                                                                ! into account the time that plume is above mixing height and there is no deposition
-REAL*4                                           :: vnatrainv                  ! rain out rate
-REAL*4                                           :: vnatwashv                  ! wash out rate
-REAL*4                                           :: vw                         ! 
+REAL                                             :: vnatrainv                  ! rain out rate
+REAL                                             :: vnatwashv                  ! wash out rate
+REAL                                             :: vw                         ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -115,9 +119,9 @@ sigzsec = sigz
 !
 IF (radius .GT. (0. + EPS_DELTA)) THEN
 !
-!  disx < radius: receptor inside area source 
+!  disxx < radius: receptor inside area source 
 !
-   IF (disx .LT. (radius - EPS_DELTA)) THEN
+   IF (disxx .LT. (radius - EPS_DELTA)) THEN
       sigzsec = 1.5*sigz 
    ENDIF
 !
@@ -134,7 +138,7 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
       a = sigzsec 
    ENDIF
    vw = vw10*(a/10)**pcoef
-   IF (vw .LT. (ueff - EPS_DELTA) .OR. disx .GT. (1.01*radius + EPS_DELTA)) THEN
+   IF (vw .LT. (ueff - EPS_DELTA) .OR. disxx .GT. (1.01*radius + EPS_DELTA)) THEN
       vw = ueff
    ENDIF
 !
@@ -168,11 +172,11 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
    hl = xl - htot
    a  = 1.
    IF (radius .GT. (0. + EPS_DELTA)) THEN
-      IF (disx .LT. (radius - EPS_DELTA)) THEN
-         hl = xl - htot + sigzsec*(radius - disx)/radius
+      IF (disxx .LT. (radius - EPS_DELTA)) THEN
+         hl = xl - htot + sigzsec*(radius - disxx)/radius
          a  = 3.
       ELSE
-         hl = xl - htot - (radius**3)/(200*disx**2)
+         hl = xl - htot - (radius**3)/(200*disxx**2)
          a  = 1.
       ENDIF
    ENDIF
@@ -181,7 +185,7 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
    ENDIF
    pr = EXP(-(hl + 5)**2/(2*sigzsec*sigzsec*a)) 
    
-!  Note: in ops_depoparexp/par_nat pr = pr*AMIN1(1., disx/(ueff*3600.)) (correction near source)
+!  Note: in ops_depoparexp/par_nat pr = pr*AMIN1(1., disxx/(ueff*3600.)) (correction near source)
 !        but for secondary components, concentrations near source are relatively low
 
 !  Wash out (below cloud) coefficient:
@@ -189,7 +193,10 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !  epsilon = particle - droplet collision efficiency; 
 !            for secondary particles, a collision efficiency = 0.31 has been taken (= EPSILON(class 4), see ops_depoparexp)
 !
-   vnatwashv = regenk*100./twt*(1. - EXP( -twt*0.31*1.326*ri**.816))
+   lambda_b = 1.326*0.31*ri**0.816
+   ! Adjustment relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+   lambda_b = varin_unc%unc_sourcedepl%washout_sec_fact * lambda_b
+   vnatwashv = regenk*100./twt*(1. - EXP( -lambda_b*twt))
 !
 !  Rain out (in-cloud) coefficient:
 
@@ -266,13 +273,17 @@ IF (ABS(onder) .LE. EPS_DELTA) THEN
    vd_sec_eff_trj_zra    = 0.
 ENDIF
 
+! Adjustments relevant for sensitivity analyses. Multiplication factors are 1.0 by default.
+vd_sec_eff_trj_zra = varin_unc%unc_sourcedepl%vd_drydep_sec_fact * vd_sec_eff_trj_zra
+!End Edit
+
 !---------------------------------------------------------------
 ! Compute concentration of secondary component
 !---------------------------------------------------------------
 
 ! First compute qpri and qsec, cross-wind integrated mass fluxes of primary and secondary substances;
 ! seccd uses a numerical procedure, assuming constant parameters such as mixing height and transport speed:
-CALL seccd(do_proc, qbpri, disx, radius, utr, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
+CALL seccd(do_proc, qbpri, disxx, radius, utr, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
         &  qsec)
 !
 ! In reality, we have to deal with variable mixing heigth and a transport speed that depends on emission height ->
@@ -311,12 +322,12 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 !    assume that ratio of concentration and cross-wind integrated mass flux at the receptor is the same for primary and secondary species:
 !
 !      csec   cpri            qsec        qsec   qbpri        qsec
-!      ---- = ----  -> csec = ---- cpri = -----  ----- cpri = ----- ccc,
+!      ---- = ----  -> csec = ---- cpri = -----  ----- cpri = ----- c0_undepl_total,
 !      qsec   qpri            qpri        qbpri  qpri         qbpri 
 !
-!                                                              qbpri
-!      with ccc = undepleted concentration primary species = ----- cpri
-!                                                              qpri
+!                                                                        qbpri
+!      with c0_undepl_total = undepleted concentration primary species = ----- cpri
+!                                                                        qpri
 !
 ! 3. sigma_z > 1.6*xl (well mixed plume) AND depleted source strength <= 1e-4*undepleted source strength -> (3.7, 3.9 OPS report)
 !     
@@ -327,28 +338,29 @@ IF (qpri .GT. (0. + EPS_DELTA)) qsec = min(qbpri,(qsec*qbpri*vv)/qpri)
 IF (sigzsec .LT. (1.6*xl - EPS_DELTA)) THEN
    s = 2.*sigzsec*sigzsec
    h = htot
-   consec = qsec*1.e6*1.5238/(vw*sigzsec*(disx + virty))* (EXP( -h*h/s) + EXP( -(2.*xl - h)**2/s) + EXP(-(2*xl + h)**2/s))
+   consec = qsec*1.e6*1.5238/(vw*sigzsec*(disxx + virty))* (EXP( -h*h/s) + EXP( -(2.*xl - h)**2/s) + EXP(-(2*xl + h)**2/s))
 ELSE IF (qpri .GT. (qbpri*0.0001 + EPS_DELTA)) THEN 
    ! loss due to deposition/chemical conversion not so large 
-   consec = (qsec/qbpri)*ccc 
+   consec = (qsec/qbpri)*c0_undepl_total 
 ELSE
    ! loss due to deposition/chemical conversion large -> further away from source -> fully mixed
-   consec = qsec*1.e6*12/(xl*6.2832*(disx + virty)*ueff)
+   consec = qsec*1.e6*12/(xl*6.2832*(disxx + virty)*ueff)
 ENDIF
 
 RETURN
 
-CONTAINS
+END SUBROUTINE ops_seccmp
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : seccd
 ! DESCRIPTION        : Compute cross-wind integrated mass fluxes Q for primary and secondary substances.
 !                      A numerical time stepping scheme is used here.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE seccd(do_proc, qbpri, disx, radius, vw, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
+SUBROUTINE seccd(do_proc, qbpri, disxx, radius, vw, xl, vd_eff_trj_zra, vnatpri, vchem, vd_sec_eff_trj_zra, vnatsec, amol1, amol2, diameter, sigz, qpri, &
               &  qsec)
+use m_commonconst_lt
 
-use m_ops_brondepl, only: Tdo_proc
+use m_ops_tdo_proc, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -358,45 +370,41 @@ PARAMETER      (ROUTINENAAM = 'seccd')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
-REAL*4,    INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: vd_eff_trj_zra             ! effective deposition velocity primary component over trajectory, taking into account amount of time that plume is above mixing
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! loss rate due to wet deposition of primary component [%/h]
-REAL*4,    INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
-REAL*4,    INTENT(IN)                            :: vd_sec_eff_trj_zra         ! effective deposition velocity secondary component for trajectory, height zra [m/s]; taking 
+REAL,      INTENT(IN)                            :: qbpri                      ! cross-wind integrated mass flux [g/s] of primary species emitted from source
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: vw                         ! average wind speed over trajectory [m/s]
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(IN)                            :: vd_eff_trj_zra             ! effective deposition velocity primary component over trajectory, taking into account amount of time that plume is above mixing
+REAL,      INTENT(IN)                            :: vnatpri                    ! loss rate due to wet deposition of primary component [%/h]
+REAL,      INTENT(IN)                            :: vchem                      ! chemical conversion rate [%/h]
+REAL,      INTENT(IN)                            :: vd_sec_eff_trj_zra         ! effective deposition velocity secondary component for trajectory, height zra [m/s]; taking 
                                                                                ! into account the time that plume is above mixing height and there is no deposition
-REAL*4,    INTENT(IN)                            :: vnatsec                    ! loss rate due to wet deposition of secondary component [%/h]
-REAL*4,    INTENT(IN)                            :: amol1                      ! molecular weight primary component
-REAL*4,    INTENT(IN)                            :: amol2                      ! molecular weight secondary component
-REAL*4,    INTENT(IN)                            :: diameter                   ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
+REAL,      INTENT(IN)                            :: vnatsec                    ! loss rate due to wet deposition of secondary component [%/h]
+REAL,      INTENT(IN)                            :: amol1                      ! molecular weight primary component
+REAL,      INTENT(IN)                            :: amol2                      ! molecular weight secondary component
+REAL,      INTENT(IN)                            :: diameter                   ! 
+REAL,      INTENT(IN)                            :: sigz                       ! vertical dispersion length [m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
-REAL*4,    INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species at receptor [g/s]
+REAL,      INTENT(OUT)                           :: qpri                       ! cross-wind integrated mass flux of primary species at receptor [g/s]
+REAL,      INTENT(OUT)                           :: qsec                       ! cross-wind integrated mass flux of secondary species at receptor [g/s]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: itim                       ! time step index
-INTEGER*4                                        :: ntim                       ! number of time steps
-REAL*4                                           :: a                          ! effective transport distance over which conversion takes place
-REAL*4                                           :: a1                         ! 
-REAL*4                                           :: b                          ! 
-REAL*4                                           :: dt                         ! length of time step [s]
-real                                             :: qpri_prev_tim              ! cross-wind integrated mass flux of primary species at end of previous time step (g/s)
-real                                             :: qsec_prev_tim              ! cross-wind integrated mass flux of secondary species at end of previous time step (g/s)
-real                                             :: qpri_prev_it               ! cross-wind integrated mass flux of primary species at current time step, previous iteration (g/s)
-real                                             :: qsec_prev_it               ! cross-wind integrated mass flux of secondary species at current time step, previous iteration (g/s)
+INTEGER                                          :: itim                       ! time step index
+INTEGER                                          :: ntim                       ! number of time steps
+REAL                                             :: a                          ! effective transport distance over which conversion takes place
+REAL                                             :: a1                         ! 
+REAL                                             :: b                          ! 
+REAL                                             :: dt                         ! length of time step [s]
 real                                             :: loss_pri                   ! loss term of primary species (g/s)
 real                                             :: prod_sec                   ! production term of secondary species (g/s)
 real                                             :: loss_sec                   ! loss term of secondary species (g/s)
 real                                             :: e3_pri_sec                 ! factor in production term of secondary species = (Msec/Mpri) * delta_t * k_chem
 real                                             :: e1_pri                     ! source depletion factor for primary species, due to dry deposition, wet deposition and chemical conversion
 real                                             :: e1_sec                     ! source depletion factor for secondary species, due to dry deposition, wet deposition and chemical conversion
-REAL*4                                           :: xseg                       ! end point of plume segment [m]
-REAL*4                                           :: dx                         ! travelled distance during one time step = length of plume segment [m]
+REAL                                             :: xseg                       ! end point of plume segment [m]
+REAL                                             :: dx                         ! travelled distance during one time step = length of plume segment [m]
 logical                                          :: lfound_seg_depos           ! plume segment where deposition starts has been found
 
 ! Variables for iteration (not used now)
@@ -428,13 +436,13 @@ IF (radius .GT. (0. + EPS_DELTA)) THEN
    if (do_proc%chem)   b = b*EXP( - (diameter/(vw*3.)*vchem/360000.))  
    if (do_proc%depl_drydep) b = b*EXP( - (diameter/(vw*3.)*vd_eff_trj_zra/a1))  
    if (do_proc%depl_wetdep) b = b*EXP( - (diameter/(vw*3.)*vnatpri/360000.))  
-   IF (disx .LE. (radius + EPS_DELTA)) THEN
+   IF (disxx .LE. (radius + EPS_DELTA)) THEN
       a = diameter/2.*b
    ELSE
-      a = disx - (diameter/2.)*(1. - b)
+      a = disxx - (diameter/2.)*(1. - b)
    ENDIF
 ELSE
-   a = disx
+   a = disxx
 ENDIF
 
 ! Set ntim = number of time steps; start with 6 time steps for each travel distance < 50 km
@@ -527,44 +535,19 @@ endif
 ! Loop over time steps:
 DO itim = 1, ntim
 
-    ! Store mass fluxes of previous time step:
-    qpri_prev_tim = qpri
-    qsec_prev_tim = qsec
-    
-    ! Loop over iterations:
-    ! NOTE; iteration is only needed if we include both reactions NH3 -> NH4 and
-    ! NH4 -> NH3; if we use the net reaction NH3 -> NH4 only, we don't need an iteration.
-    ! 
-    !it = 0
-    !converged = .false.
-    !do while (it .lt. nit .and. .not. converged)
-    !    it = it + 1
-    
-        ! Store mass fluxes of previous iteration:
-        qpri_prev_it = qpri
-        qsec_prev_it = qsec
-        
-        ! Primary species:
-        loss_pri  = qpri_prev_tim*e1_pri
-        qpri      = qpri_prev_tim - loss_pri
+    ! Production, loss:
+    prod_sec = qpri*(1-e1_pri/2)*e3_pri_sec
+    loss_sec = qsec*e1_sec + 0.5*qpri*(1-e1_pri/2)*e3_pri_sec*e1_sec   ! IS CORRECT 
+    loss_pri = qpri * e1_pri
 
-        ! Secondary species:
-        prod_sec = 0.5*(qpri_prev_tim + qpri)*e3_pri_sec
-        loss_sec = (qsec_prev_tim + 0.5*prod_sec)*e1_sec   
-        !loss_sec = (qsec_prev_tim - 0.5*prod_sec)*e1_sec   
-        qsec     = qsec_prev_tim + prod_sec - loss_sec
+    ! Updates
+    qpri     = qpri - loss_pri
+    qsec     = qsec + prod_sec - loss_sec
 
-        !! Check for convergence:
-        !converged = (abs(qpri - qpri_prev_it) .lt. epsa + epsr*qpri .and. abs(qsec - qsec_prev_it) .lt. epsa + epsr*qsec)
-	!! write(*,*) 'seccd: ',it,qpri,abs(qpri-qpri_prev_it),qsec,abs(qsec-qsec_prev_it)
-
-    !enddo ! loop over iterations
-      
 ENDDO ! end loop over time steps
 
 RETURN
 END SUBROUTINE seccd
 
-END SUBROUTINE ops_seccmp
 
 end module m_ops_seccmp

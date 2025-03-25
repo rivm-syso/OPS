@@ -33,29 +33,18 @@ implicit none
 contains
 
 !-----------------------------------------------------------------------------
-subroutine ops_parout_circle(ircp, xm, ym, parout_disx, subbron, nsbuf, nbron, numbron, bnr, bx, by, bdiam, bsterkte, & 
+subroutine ops_parout_prepare_circle(subbron, nsbuf, nbron, numbron, bdiam, bsterkte, & 
                              bwarmte, bhoogte, bsigmaz, bD_stack, bV_stack, bTs_stack, & 
                              bemis_horizontal, bbuilding, btgedr, bdegr, bqrv, bqtr, bcatnr, blandnr)
 
 ! Define NSEK sources in a circle around the current receptor point. These are used to make maps of the parout-variables.
 ! The NSEK sources are located in the middle of each wind direction sector.
 
-use Binas, only: deg2rad 
 USE m_commonconst_lt, only: LSBUF, NSEK
 USE m_ops_building
 
-! Input:
-integer, intent(in) :: ircp                      ! index of receptor
-real,    intent(in) :: xm(:)                     ! x-coordinates of receptors (m RDM)
-real,    intent(in) :: ym(:)                     ! y-coordinates of receptors (m RDM)
-real,    intent(in) :: parout_disx               ! source receptor distance used when computing parout variables
-
-! Input/output:
-logical, intent(inout)                           :: subbron                   ! use sub sources (and sub receptors) if needed
-integer, intent(inout)                           :: nsbuf                     ! number of sources in buffer  
-integer, intent(inout)                           :: bnr(LSBUF)                ! source number
-integer, intent(inout)                           :: bx(LSBUF)                 ! x-coordinate of source [m RDM]
-integer, intent(inout)                           :: by(LSBUF)                 ! y-coordinate of source [m RDM]
+logical, intent(out)                           :: subbron                   ! use sub sources (and sub receptors) if needed
+integer, intent(out)                           :: nsbuf                     ! number of sources in buffer  
 real,    intent(inout)                           :: bdiam(LSBUF)              ! diameter of area source [m]
 real,    intent(inout)                           :: bsterkte(LSBUF)           ! emission strngth [g/s]
 real,    intent(inout)                           :: bwarmte(LSBUF)            ! heat content [MW]
@@ -72,23 +61,19 @@ real,    intent(inout)                           :: bqrv(LSBUF)
 real,    intent(inout)                           :: bqtr(LSBUF)                 
 integer, intent(inout)                           :: bcatnr(LSBUF)               
 integer, intent(inout)                           :: blandnr(LSBUF)              
-integer, intent(inout)                           :: nbron
-integer, intent(inout)                           :: numbron
+integer, intent(out)                           :: nbron
+integer, intent(out)                           :: numbron
 
-! Local
-integer :: isek        ! index of wind sector
-real    :: wd_sek      ! wind direction of middle of wind sector [degrees]
-                          
-! All source parameters (except coordinates) get the same value for the NSEK sources as defined in the emission file for 1 source
-! and are the same for all receptors:
-if (ircp .eq. 1) then
+   ! All source parameters (except coordinates) get the same value for the NSEK sources as defined in the emission file for 1 source
+   ! and are the same for all receptors:
+   
    ! Check whether the emission file contains only one source:
    if (nsbuf .ne. 1) then
       write(*,*) 'error for parout parameters (only for debugging purposes)'
       write(*,*) 'you can use parout-parameters only if there is one source on the emission file'
-      stop
+      stop 1
    endif
-
+   
    ! No sub receptors, sub sources:
    subbron = .false.
    
@@ -101,7 +86,7 @@ if (ircp .eq. 1) then
    if (bdiam(1) .ne. 0.0) then
       write(*,*) 'error for parout parameters (only for debugging purposes)'
       write(*,*) 'you can use parout-parameters only for a point source in the emission file'
-      stop
+      stop 1
    endif
    
    ! Set parameters for NSEK sources (here we assume that NSEK < LSBUF):
@@ -121,16 +106,40 @@ if (ircp .eq. 1) then
    bqtr(1:NSEK)      = bqtr(1)
    bcatnr(1:NSEK)    = bcatnr(1)
    blandnr(1:NSEK)   = blandnr(1)
-endif
 
+end subroutine ops_parout_prepare_circle
+
+!-----------------------------------------------------------------------------
+subroutine ops_parout_circle(xm, ym, parout_disx, bnr, bx, by)
+
+! Define NSEK sources in a circle around the current receptor point. These are used to make maps of the parout-variables.
+! The NSEK sources are located in the middle of each wind direction sector.
+
+use Binas, only: deg2rad 
+USE m_commonconst_lt, only: LSBUF, NSEK
+
+! Input:
+real,    intent(in) :: xm                        ! x-coordinate of receptor ircp (m RDM)
+real,    intent(in) :: ym                     ! y-coordinate of receptor ircp (m RDM)
+real,    intent(in) :: parout_disx               ! source receptor distance used when computing parout variables
+
+! Input/output:
+integer, intent(inout)                           :: bnr(LSBUF)                ! source number
+integer, intent(inout)                           :: bx(LSBUF)                 ! x-coordinate of source [m RDM]
+integer, intent(inout)                           :: by(LSBUF)                 ! y-coordinate of source [m RDM]
+
+! Local
+integer :: isek        ! index of wind sector
+real    :: wd_sek      ! wind direction of middle of wind sector [degrees]
+                          
 ! Define coordinates of NSEK sources in a circle around the receptor:
 do isek = 1,NSEK
    wd_sek = (isek - 1)*360.0/NSEK
    bnr(isek) = isek
-   bx(isek)  = nint(xm(ircp) + parout_disx*sin(wd_sek*deg2rad))
-   by(isek)  = nint(ym(ircp) + parout_disx*cos(wd_sek*deg2rad))
+   bx(isek)  = nint(xm + parout_disx*sin(wd_sek*deg2rad))
+   by(isek)  = nint(ym + parout_disx*cos(wd_sek*deg2rad))
    !if (ircp .eq. 1) then
-   !   write(*,'(a,3(1x,i8),3(1x,e14.7))') 'FS test 12 sources: ',isek, bx(isek),by(isek),xm(ircp),ym(ircp),wd_sek
+   !   write(*,'(a,3(1x,i8),3(1x,e14.7))') 'test NSEK sources: ',isek, bx(isek),by(isek),xm(ircp),ym(ircp),wd_sek
    !endif
 enddo
 
@@ -164,7 +173,7 @@ parout_val(4) = parout_val(4) + (3.0)*percvk             ; parout_name(4) = 'che
 
 IF (nparout .ne. 4) THEN
    write(*,*) 'internal programming error; inconsistent value of NPAROUT = ',nparout
-   stop
+   stop 1
 ENDIF
 
 end subroutine ops_parout_fill

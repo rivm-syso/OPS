@@ -44,9 +44,10 @@ implicit none
 
 contains
 
-SUBROUTINE ops_conc_ini(gasv, vw10, htt, pcoef, disx, kdeel, qbpri, z0_src, szopp, rond, uster_src, ol_src, istab, iwd, qww,    &
-                     &  hbron,dispg, radius, xl, onder, htot, grof, c, sigz, ueff, virty, ccc, error)
-
+SUBROUTINE ops_conc_ini(varin_meteo, varin_unc, gasv, vw10, htt, pcoef, disx, disxx, zm, kdeel, qbpri, z0_src, sigz0, road_disp, lroad_corr, rond, uster_src, ol_src, ircp, istab, iwd, qww,    &
+                     &  hbron,dispg, radius, xl, onder, htot, grof, c0_undepl_total, c0_undepl_mix, c_zrcp_undepl_mix, sigz, ueff, virty, error)
+                     
+use m_ops_varin
 use m_commonconst_lt
 use m_error
 use m_ops_conltexp
@@ -58,50 +59,57 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_conc_ini')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL,   INTENT(IN)                            :: gasv                       ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
-REAL*4,    INTENT(IN)                            :: qbpri                      ! source strength current source (for current particle class) [g/s]
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m] 
-REAL*4,    INTENT(IN)                            :: szopp                      ! 
-INTEGER*4, INTENT(IN)                            :: rond                       ! 
-REAL*4,    INTENT(IN)                            :: uster_src                  ! 
-REAL*4,    INTENT(IN)                            :: ol_src                     ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-INTEGER*4, INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+type(Tvarin_unc), intent(in)                     :: varin_unc
+LOGICAL,   INTENT(IN)                            :: gasv                       ! TRUE if component is a gas
+REAL,      INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
+REAL,      INTENT(IN)                            :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m] (here only used for debug write statement)
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (m)
+INTEGER,   INTENT(IN)                            :: kdeel                      ! index of particle class
+REAL,      INTENT(IN)                            :: qbpri                      ! source strength current source (for current particle class) [g/s]
+REAL,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m] 
+REAL,      INTENT(IN)                            :: sigz0                      ! initial vertical dispersion length [m]
+LOGICAL,   INTENT(IN)                            :: road_disp                  ! TRUE if user wants OPS to interpret sigz0 as SRM2 initial spread
+LOGICAL,   INTENT(IN)                            :: lroad_corr                 ! TRUE if current emission category is a road and linear distance is within dist_road_corr
+INTEGER,   INTENT(IN)                            :: rond                       ! 
+REAL,      INTENT(IN)                            :: uster_src                  ! 
+REAL,      INTENT(IN)                            :: ol_src                     ! 
+INTEGER,   INTENT(IN)                            :: ircp                       ! index of receptorpoint (here only used for debug write statement)
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class 
+INTEGER,   INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
+REAL,      INTENT(IN)                            :: qww                        ! 
+REAL,      INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
+REAL,      INTENT(IN)                            :: dispg                      ! coefficient for vertical dispersion coefficient sigma_z; sigma_z = dispg*x^disp [-]
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: radius                     ! 
-REAL*4,    INTENT(INOUT)                         :: xl                         ! 
-REAL*4,    INTENT(INOUT)                         :: onder                      ! 
+REAL,      INTENT(INOUT)                         :: radius                     ! 
+REAL,      INTENT(INOUT)                         :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(INOUT)                         :: onder                      ! fraction of emission below mixing height [-]
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record 
 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: htot                       ! plume height, including plume descent due to heavy particles [m]
+REAL,      INTENT(OUT)                           :: htot                       ! plume height, including plume descent due to heavy particles [m]
                                                                                ! htot = htt - pldaling 
-REAL*4,    INTENT(OUT)                           :: grof                       ! 
-REAL*4,    INTENT(OUT)                           :: c                          ! 
-REAL*4,    INTENT(OUT)                           :: sigz                       ! 
-REAL*4,    INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff; 
+REAL,      INTENT(OUT)                           :: grof                       ! = 1 -> coarse particles
+REAL,      INTENT(OUT)                           :: c0_undepl_total            ! undepleted concentration at z = 0 m (including part of plume above mixing layer); is needed for secondary species
+REAL,      INTENT(OUT)                           :: c0_undepl_mix              ! undepleted concentration at z = 0 m (only due to part of plume inside the mixing layer)
+REAL,      INTENT(OUT)                           :: c_zrcp_undepl_mix          ! undepleted concentration at z = zrcp (only due to part of plume inside the mixing layer)
+REAL,      INTENT(OUT)                           :: sigz                       ! vertical dispersion length [m]
+REAL,      INTENT(OUT)                           :: ueff                       ! wind speed at effective transport height heff; 
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
+REAL,      INTENT(OUT)                           :: virty                      ! distance virtual point source - centre area source [m]
 
-REAL*4,    INTENT(OUT)                           :: virty                      ! 
-REAL*4,    INTENT(OUT)                           :: ccc                        ! undepleted concentration at z = 0 including part of plume above mixing layer; 
-                                                                               ! is needed for secondary species
 
 ! LOCAL VARIABLES
-REAL*4                                           :: ff                         ! 
-REAL*4                                           :: pldaling                   ! 
-
+REAL                                             :: ff                         ! 
+REAL                                             :: pldaling                   ! 
+REAL                                             :: c_zrcp_undepl_total        ! undepleted concentration at z = zrcp (including part of plume above mixing layer)
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Correct plume height for the effect of heavy particles.  
@@ -110,11 +118,11 @@ REAL*4                                           :: pldaling                   !
 ! htot   : plume height at receptor, including plume descent due to heavy particles; htot = htt - pldaling [m]
 !
 !  htt \
-!      | \  
+!      | \
 !      |    \
 !      |        \
 !      |            \
-!      |                \ 
+!      |                \
 !      |                    \
 !      |                         \
 ! hbron|                              \
@@ -155,7 +163,7 @@ IF (.NOT.gasv) THEN
 
    ! Plume descent between source and receptor = travel_time * sedimentation_velocity =
    ! (travel_distance/wind_speed) * sedimentation velocity
-   pldaling = disx/ff*STOKES(kdeel)  ! pl << plume, "daling" = descent
+   pldaling = disxx/ff*STOKES(kdeel)  ! pl << plume, "daling" = descent
 
 ! Heavy particles if sedimentation velocity > 2 cm/s: 
   IF (STOKES(kdeel) .GT. (.02 + EPS_DELTA)) THEN
@@ -181,18 +189,15 @@ ELSE
   ! Gaseous component; no correction
    htot = htt
 ENDIF
+
+! Compute concentration for this distance and meteo class, for plume below and/or above the mixing layer:
+CALL ops_conltexp(varin_meteo, varin_unc, zm, rond, ol_src, qbpri, sigz0, road_disp, lroad_corr, uster_src, z0_src, htt, onder, vw10, pcoef, ircp, istab, disx, disxx, grof, iwd, qww, hbron,   &
+               &  dispg, radius, htot, c0_undepl_total, c_zrcp_undepl_total, sigz, ueff, xl, virty, error)
 !
-! Compute concentration for this distance and meteo class
-!
-CALL ops_conltexp(rond, ol_src, qbpri, szopp, uster_src, z0_src, htt, onder, vw10, pcoef, istab, disx, grof, iwd, qww, hbron,   &
-               &  dispg, radius, htot, ccc, sigz, ueff, xl, virty, error)
-!
-! Correct for plume below or above the mixing layer; mass above the mixing layer does not contribute to 
-! concentration at surface. 
-! c  : undepleted concentration at z = 0 m (only due to part of plume inside the mixing layer)
-! ccc: undepleted concentration at z = 0 m (including part of plume above mixing layer); is needed for secondary species.
-!
-c = ccc*onder
+! Mass above the mixing layer does not contribute to concentration at surface, so compute concentration 
+! only due to emission in mixing layer:
+c0_undepl_mix     = c0_undepl_total*onder
+c_zrcp_undepl_mix = c_zrcp_undepl_total*onder
 
 RETURN
 

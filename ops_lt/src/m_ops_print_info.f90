@@ -23,10 +23,11 @@ implicit none
 
 contains
 
-SUBROUTINE ops_print_info (project, gasv, isec, intpol, spgrid, z0_rcp, namco, nbron, bnr, bx, by, bsterkte, bqrv, bqtr,        &
+SUBROUTINE ops_print_info (varin, project, gasv, isec, intpol, spgrid, z0_rcp, namco, nbron, bnr, bx, by, bsterkte, bqrv, bqtr,        &
         &  bwarmte, bhoogte, bdiam, bsigmaz, btgedr, bdegr, bcatnr, blandnr, emis, emtrend, jb, mb, idb, jt, mt, idt, iseiz,    &
-        &  f_z0user, landmax, subbron, domlu, varz, perc, mindist, maxdist, dir_chem, fnames_used_chem, error)
+        &  f_z0user, landmax, subbron, domlu, varz, perc, mindist, maxdist, class_output, allow_sigz0_point_source, dir_chem, fnames_used_chem, dir_bg, error)
 
+use m_ops_varin
 use m_commonfile
 use m_commonconst_lt
 use m_error
@@ -40,63 +41,67 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_print_info')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tvarin)                               :: varin                      ! input variables for meteo
 CHARACTER*(*), INTENT(IN)                        :: project                    ! project name
 LOGICAL,   INTENT(IN)                            :: gasv                       ! code for substance appearance (gas/particle)
 LOGICAL,   INTENT(IN)                            :: isec                       ! true when comp=SO2,NOx,NH3
-INTEGER*4, INTENT(IN)                            :: intpol                     ! 
-INTEGER*4, INTENT(IN)                            :: spgrid                     ! code for type of receptor points
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+INTEGER,   INTENT(IN)                            :: intpol                     ! 
+INTEGER,   INTENT(IN)                            :: spgrid                     ! code for type of receptor points
+REAL,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor, here only used if constant [m]
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! substance name
-INTEGER*4, INTENT(IN)                            :: nbron                      ! number of emission sources (after selection)
-INTEGER*4, INTENT(IN)                            :: bnr(LSBUF)                 ! buffer with source numbers
-INTEGER*4, INTENT(IN)                            :: bx(LSBUF)                  ! buffer with x-coordinates
-INTEGER*4, INTENT(IN)                            :: by(LSBUF)                  ! buffer with y-coordinates
-REAL*4,    INTENT(IN)                            :: bsterkte(LSBUF)            ! buffer with source strengths (industrial)
-REAL*4,    INTENT(IN)                            :: bqrv(LSBUF)                ! buffer with source strengths (space heating)
-REAL*4,    INTENT(IN)                            :: bqtr(LSBUF)                ! buffer with source strengths (traffic)
-REAL*4,    INTENT(IN)                            :: bwarmte(LSBUF)             ! buffer with heat contents
-REAL*4,    INTENT(IN)                            :: bhoogte(LSBUF)             ! buffer with source heights
-REAL*4,    INTENT(IN)                            :: bdiam(LSBUF)               ! buffer with source diameters
-REAL*4,    INTENT(IN)                            :: bsigmaz(LSBUF)             ! buffer with source heigth variances
-INTEGER*4, INTENT(IN)                            :: btgedr(LSBUF)              ! buffer with diurnal variation codes
-INTEGER*4, INTENT(IN)                            :: bdegr(LSBUF)               ! buffer with particle size distribution codes
-INTEGER*4, INTENT(IN)                            :: bcatnr(LSBUF)              ! buffer with category codes
-INTEGER*4, INTENT(IN)                            :: blandnr(LSBUF)             ! buffer with area codes
-REAL*4,    INTENT(IN)                            :: emtrend                    ! emission correction factor
-INTEGER*4, INTENT(IN)                            :: jb                         ! starting year of meteo
-INTEGER*4, INTENT(IN)                            :: mb                         ! starting month of meteo
-INTEGER*4, INTENT(IN)                            :: idb                        ! starting day of meteo
-INTEGER*4, INTENT(IN)                            :: jt                         ! ending year of meteo
-INTEGER*4, INTENT(IN)                            :: mt                         ! ending month of meteo
-INTEGER*4, INTENT(IN)                            :: idt                        ! ending day of meteo
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 
-LOGICAL*4, INTENT(IN)                            :: f_z0user                   ! true if z0 is user specified
+INTEGER,   INTENT(IN)                            :: nbron                      ! number of emission sources (after selection)
+INTEGER,   INTENT(IN)                            :: bnr(LSBUF)                 ! buffer with source numbers
+INTEGER,   INTENT(IN)                            :: bx(LSBUF)                  ! buffer with x-coordinates
+INTEGER,   INTENT(IN)                            :: by(LSBUF)                  ! buffer with y-coordinates
+REAL,      INTENT(IN)                            :: bsterkte(LSBUF)            ! buffer with source strengths (industrial)
+REAL,      INTENT(IN)                            :: bqrv(LSBUF)                ! buffer with source strengths (space heating)
+REAL,      INTENT(IN)                            :: bqtr(LSBUF)                ! buffer with source strengths (traffic)
+REAL,      INTENT(IN)                            :: bwarmte(LSBUF)             ! buffer with heat contents
+REAL,      INTENT(IN)                            :: bhoogte(LSBUF)             ! buffer with source heights
+REAL,      INTENT(IN)                            :: bdiam(LSBUF)               ! buffer with source diameters
+REAL,      INTENT(IN)                            :: bsigmaz(LSBUF)             ! buffer with source heigth variances
+INTEGER,   INTENT(IN)                            :: btgedr(LSBUF)              ! buffer with diurnal variation codes
+INTEGER,   INTENT(IN)                            :: bdegr(LSBUF)               ! buffer with particle size distribution codes
+INTEGER,   INTENT(IN)                            :: bcatnr(LSBUF)              ! buffer with category codes
+INTEGER,   INTENT(IN)                            :: blandnr(LSBUF)             ! buffer with area codes
+REAL,      INTENT(IN)                            :: emtrend                    ! emission correction factor
+INTEGER,   INTENT(IN)                            :: jb                         ! starting year of meteo
+INTEGER,   INTENT(IN)                            :: mb                         ! starting month of meteo
+INTEGER,   INTENT(IN)                            :: idb                        ! starting day of meteo
+INTEGER,   INTENT(IN)                            :: jt                         ! ending year of meteo
+INTEGER,   INTENT(IN)                            :: mt                         ! ending month of meteo
+INTEGER,   INTENT(IN)                            :: idt                        ! ending day of meteo
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 
+LOGICAL,   INTENT(IN)                            :: f_z0user                   ! true if z0 is user specified
 LOGICAL,   INTENT(IN)                            :: subbron                    
 LOGICAL,   INTENT(IN)                            :: domlu                    
 LOGICAL,   INTENT(IN)                            :: varz                    
 LOGICAL,   INTENT(IN)                            :: perc                    
 LOGICAL,   INTENT(IN)                            :: mindist                 
-LOGICAL,   INTENT(IN)                            :: maxdist                    
+LOGICAL,   INTENT(IN)                            :: maxdist    
+LOGICAL,   INTENT(IN)                            :: class_output
+LOGICAL,   INTENT(IN)                            :: allow_sigz0_point_source   ! allow initial sigma for point sources                  
 CHARACTER(LEN = *), INTENT(IN)                   :: dir_chem                   ! directory where to read chemistry files from 
 CHARACTER(LEN = *), INTENT(IN)                   :: fnames_used_chem           ! string with names of files used for chemistry maps
+character(len=*), intent(in) :: dir_bg  ! Directory from which background maps have been read.
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: emis(6,NLANDMAX)
-INTEGER*4, INTENT(INOUT)                         :: landmax                    ! number of countries in emission file
+REAL,      INTENT(INOUT)                         :: emis(6,NLANDMAX)
+INTEGER,   INTENT(INOUT)                         :: landmax                    ! number of countries in emission file
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: istatgeb                   ! climatological area
+INTEGER                                          :: istatgeb                   ! climatological area
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
-INTEGER*4                                        :: ierr                       ! 
-INTEGER*4                                        :: indx                       ! 
-INTEGER*4                                        :: jndx                       ! 
-INTEGER*4                                        :: statclass                  ! 
-REAL*4                                           :: qb                         ! emission of individual source
+INTEGER                                          :: i                          ! 
+INTEGER                                          :: ierr                       ! 
+INTEGER                                          :: indx                       ! 
+INTEGER                                          :: jndx                       ! 
+INTEGER                                          :: statclass                  ! 
+REAL                                             :: qb                         ! emission of individual source
 CHARACTER*1                                      :: statcode                   ! 
 CHARACTER*30                                     :: climper(0:6)               ! 
 
@@ -111,18 +116,19 @@ DATA climper /'long term period', 'year period', 'winter period', 'summer period
 WRITE (fu_prt, '(a)') char(12)
 CALL ops_print_kop(project, namco)
 
-IF (.NOT.subbron .or. domlu .or. varz .or. perc .or. mindist .or. maxdist) THEN 
+IF (.NOT.subbron .or. domlu .or. varz .or. perc .or. mindist .or. maxdist .or. class_output .or. allow_sigz0_point_source) THEN 
 
   WRITE (fu_prt, '(/,'' Argument options used for this run:'')')
   WRITE (fu_prt, '(   '' -----------------------------------'')')
 
-  IF (.NOT.subbron) WRITE (fu_prt, '(   '' nosub   (no sub-receptors are used) '')')
-  IF (domlu)        WRITE (fu_prt, '(   '' domlu   (dominant landuse is used)'')')
-  IF (varz)         WRITE (fu_prt, '(   '' varz    (receptor height is taken from receptorfile)'')')
-  IF (perc)         WRITE (fu_prt, '(   '' perc    (landuse information is used from receptorfile)'')')
-  IF (mindist)      WRITE (fu_prt, '(   '' mindist (minimal distance for calculation 5 km)'')')
-  IF (maxdist)      WRITE (fu_prt, '(   '' maxdist (maxmimum distance for calculation 25 km)'')')
-
+  IF (.NOT.subbron) WRITE (fu_prt, '(   '' -nosub        (no sub-receptors are used) '')')
+  IF (domlu)        WRITE (fu_prt, '(   '' -domlu        (dominant landuse is used)'')')
+  IF (varz)         WRITE (fu_prt, '(   '' -varz         (receptor height is taken from receptorfile)'')')
+  IF (perc)         WRITE (fu_prt, '(   '' -perc         (landuse information is used from receptorfile)'')')
+  IF (mindist)      WRITE (fu_prt, '(   '' -mindist      (minimal distance for calculation 5 km)'')')
+  IF (maxdist)      WRITE (fu_prt, '(   '' -maxdist      (maxmimum distance for calculation 25 km)'')')
+  IF (class_output) WRITE (fu_prt, '(   '' -classoutput  (concentration output in classes: wind sector, stability, distance, particle size)'')')
+  IF (allow_sigz0_point_source) WRITE (fu_prt, '(   '' -allow_sigz0_point_source (allow initial sigma_z for point sources)'')')
 ELSE
 
   WRITE (fu_prt, '(/,'' No argument options used for this run.'')')
@@ -235,10 +241,10 @@ ENDIF
 IF (isec) THEN
    WRITE (fu_prt, '('' Directory for chemical data'',T33,'': '',a)') trim(dir_chem)
    WRITE (fu_prt, '('' Chemical data files'',T33,'': '',a)') adjustl(trim(fnames_used_chem))
-ENDIF
 
-IF (isec) THEN
-  WRITE (fu_prt, '('' Landuse file'',T33,'': '',a)') lufile(:LEN_TRIM(lufile))
+   write (fu_prt, '('' Background map directory'',T33,'': '',a)') trim(dir_bg)
+
+   WRITE (fu_prt, '('' Landuse file'',T33,'': '',a)') lufile(:LEN_TRIM(lufile))
 ENDIF
 
 WRITE (fu_prt, '(//,'' Files produced by OPS:'')')
@@ -253,7 +259,7 @@ WRITE (fu_prt, '(" Printer output file (this file)",T33,": ",a)') prnnam(:LEN_TR
 WRITE (fu_prt, '(a)') char(12)
 CALL ops_print_kop(project, namco)
 
-50 FORMAT (i4, 2i8, e10.3, f7.3, f6.1, f7.0, f6.1, 1x, i4, 1x, i6, 1x, i4, 1x, i5, 2x, a)
+50 FORMAT (i4, 2i8, e10.3, f9.3, f6.1, f7.0, f6.1, 1x, i4, 1x, i6, 1x, i4, 1x, i5, 2x, a)
 
 IF (nbron .LE. NBRMAX) THEN
    WRITE (fu_prt, '(//,'' Emission source data:'')')
@@ -298,6 +304,9 @@ ELSE
 
 ENDIF
 
+! Write varin parameters; if varin input file does not exist (default values), nothing is written:
+call ops_varin_write( fu_prt, varin) 
+
 RETURN
 
 9000 CALL SetError('Error writing source data', error)
@@ -335,7 +344,7 @@ PARAMETER    (ROUTINENAAM = 'print_region')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: regionname                 ! 
-INTEGER*4, INTENT(IN)                            :: regionindex                ! 
+INTEGER,   INTENT(IN)                            :: regionindex                ! 
 
 WRITE (fu_prt, '(/,1x,''climatological area  :  '', a, '' (region '', I1, '')'')') regionname(1:LEN_TRIM(regionname)),         &
                 &  regionindex

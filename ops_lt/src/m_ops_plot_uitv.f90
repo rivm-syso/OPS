@@ -35,59 +35,59 @@ use m_commonconst_lt
 IMPLICIT NONE
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                     ! 
+INTEGER,   INTENT(IN)                            :: spgrid                     ! 
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! 
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! 
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
-INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
-REAL*4,    INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m]
-REAL*4,    INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m]
-INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of columns in grid
-INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of row in grid
-REAL*4,    INTENT(IN)                            :: grid                       ! 
+INTEGER,   INTENT(IN)                            :: nrrcp                      ! 
+INTEGER,   INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
+INTEGER,   INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
+REAL,      INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m]
+REAL,      INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m]
+INTEGER,   INTENT(IN)                            :: nrcol                      ! number of columns in grid
+INTEGER,   INTENT(IN)                            :: nrrow                      ! number of row in grid
+REAL,      INTENT(IN)                            :: grid                       ! 
 LOGICAL,   INTENT(IN)                            :: idep                       ! 
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! 
 CHARACTER*(*), INTENT(IN)                        :: nam_pri_sec                ! name of primary + secondary component (SOx, NOy, NHy)
 CHARACTER*(*), INTENT(IN)                        :: namsec                     ! 
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! 
 CHARACTER*(*), INTENT(IN)                        :: namrcp(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
-REAL*4,    INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! 
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: wdepri(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! 
-REAL*4,    INTENT(IN)                            :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx)
-REAL*4,    INTENT(IN)                            :: cnox(nrrcp)                ! NOx concentration, saved from previous iteration
-INTEGER*4, INTENT(IN)                            :: icm                        ! 
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
+REAL,      INTENT(IN)                            :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
+REAL,      INTENT(IN)                            :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
+REAL,      INTENT(IN)                            :: cpri(nrrcp)                ! 
+REAL,      INTENT(IN)                            :: csec(nrrcp)                ! 
+REAL,      INTENT(IN)                            :: drydep(nrrcp)              ! 
+REAL,      INTENT(IN)                            :: ddepri(nrrcp)              ! 
+REAL,      INTENT(IN)                            :: wdepri(nrrcp)              ! 
+REAL,      INTENT(IN)                            :: wetdep(nrrcp)              ! 
+REAL,      INTENT(IN)                            :: cno2(nrrcp)                ! NO2 concentration (derived from NOx and parameterised ratio NO2/NOx)
+REAL,      INTENT(IN)                            :: cnox(nrrcp)                ! NOx concentration, saved from previous iteration
+INTEGER,   INTENT(IN)                            :: icm                        ! 
+REAL,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
-INTEGER*4, INTENT(IN)                            :: nparout                    ! number of extra output parameters (besides concentration, deposition)
-REAL*4,    INTENT(IN)                            :: parout_val(nparout,nrrcp)  ! values for extra output parameters [nparout,nrrcp]
+INTEGER,   INTENT(IN)                            :: nparout                    ! number of extra output parameters (besides concentration, deposition)
+REAL,      INTENT(IN)                            :: parout_val(nparout,nrrcp)  ! values for extra output parameters [nparout,nrrcp]
 CHARACTER(len=*), INTENT(IN)                     :: parout_name(nparout)       ! names of extra output parameters                      
 CHARACTER(len=*), INTENT(IN)                     :: parout_unit(nparout)       ! units of extra output parameters                      
 LOGICAL                                          :: parout_write               ! write parout parameters to output
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ierr                       ! 
-INTEGER*4                                        :: ls                         ! lengte textstring nam_pri_sec
-INTEGER*4                                        :: j                          ! 
-REAL*4                                           :: xul_corner                 ! x-coordinate of upper left corner of grid [km]
-REAL*4                                           :: yul_corner                 ! y-coordinate of upper left corner of grid [km]
-REAL*4                                           :: totdep(nrrcp)              ! 
-INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-INTEGER*4                                        :: iparout                    ! index of extra output parameter
+INTEGER                                          :: ierr                       ! 
+INTEGER                                          :: ls                         ! lengte textstring nam_pri_sec
+INTEGER                                          :: j                          ! 
+REAL                                             :: xul_corner                 ! x-coordinate of upper left corner of grid [km]
+REAL                                             :: yul_corner                 ! y-coordinate of upper left corner of grid [km]
+REAL                                             :: totdep(nrrcp)              ! 
+INTEGER                                          :: isubsec                    ! index of sub-secondary species
+INTEGER                                          :: iparout                    ! index of extra output parameter
 CHARACTER*12                                     :: str1                       ! help string for header
 CHARACTER*12                                     :: str2                       ! help string for header
 CHARACTER*12                                     :: str3                       ! help string for header
 CHARACTER*12                                     :: str4                       ! help string for header
-REAL*4                                           :: tmp_rcp(nrrcp)             ! temporary array [nrrcp]
+REAL                                             :: tmp_rcp(nrrcp)             ! temporary array [nrrcp]
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -113,7 +113,7 @@ IF (spgrid .EQ. 2) THEN
       ! Acidifying components
       
       ! Define help strings for NO2 concentration:
-      IF (icm .eq. 2) THEN
+      IF (icm .eq. icm_NOx) THEN
          str1 = 'conc.'
          str2 = 'NO2_ROADS'
          str3 = 'ug/m3'
@@ -140,7 +140,7 @@ IF (spgrid .EQ. 2) THEN
 
       IF (ierr .GT. 0) GOTO 4200
 
-     IF (icm .eq. 2) THEN
+     IF (icm .eq. icm_NOx) THEN
         ! NOx, NO2 included:
         DO j = 1, nrrcp
            WRITE (fu_plt, '(a12,2i8,20e12.4)', IOSTAT = ierr) namrcp(j), NINT(xm(j)), NINT(ym(j)), cpri(j), drydep(j),  &
@@ -233,8 +233,8 @@ ELSE
     CALL plot_mat(fu_plt, csec, nrrcp, jump, nrcol, nrrow, 'conctr._sec._component', namsec, 'ug/m3', grid, xul_corner, yul_corner, error)
     IF (error%haserror) GOTO 9000
 
-    ! Sub-secondary concentration (NOx only, icm = 2):
-    IF (icm == 2) THEN
+    ! Sub-secondary concentration (NOx only, icm = icm_NOx):
+    IF (icm == icm_NOx) THEN
        DO isubsec = 1,nsubsec
           CALL plot_mat(fu_plt, csubsec(:,isubsec), nrrcp, jump, nrcol, nrrow, trim(nam_subsec(isubsec))//'_concentration', nam_subsec(isubsec), 'ug/m3', grid, xul_corner, yul_corner,    &
                         &  error)
@@ -302,25 +302,25 @@ PARAMETER    (ROUTINENAAM = 'plot_mat')
 INTEGER,   INTENT(IN)                            :: lun                        ! number of unit to which values are written
 REAL,      INTENT(IN)                            :: value(nrrcp)               ! values to be displayed in each receptor point
 INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptor points
-INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
+INTEGER,   INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
 INTEGER,   INTENT(IN)                            :: nrcol                      ! number of elements displayed on row
 INTEGER,   INTENT(IN)                            :: nrrow                      ! number of rows in grid
 CHARACTER*(*), INTENT(IN)                        :: descco                     ! description of component
 CHARACTER*(*), INTENT(IN)                        :: compname                   ! name of component
 CHARACTER*(*), INTENT(IN)                        :: compunit                   ! component unit
 REAL,          INTENT(IN)                        :: grid                       ! grid size in km
-REAL*4,        INTENT(IN)                        :: xul_corner                 ! x-coordinate of upper left corner of grid [km]
-REAL*4,        INTENT(IN)                        :: yul_corner                 ! y-coordinate of upper left corner of grid [km]
+REAL,          INTENT(IN)                        :: xul_corner                 ! x-coordinate of upper left corner of grid [km]
+REAL,          INTENT(IN)                        :: yul_corner                 ! y-coordinate of upper left corner of grid [km]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! Local variables
 INTEGER                                          :: j                          ! receptor counter
 INTEGER                                          :: m                          ! do loop counter
 INTEGER                                          :: ierr                       ! error number
 INTEGER                                          :: pointto                    ! current receptor point index on line
-REAL*4                                           :: line(nrcol)                ! value from each row
+REAL                                             :: line(nrcol)                ! value from each row
 CHARACTER*80                                     :: formatstring               ! format string in writing
 CHARACTER*10                                     :: OPSVERSIE                  ! format string in writing
 ! ---

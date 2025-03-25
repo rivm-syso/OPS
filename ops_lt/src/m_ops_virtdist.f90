@@ -31,11 +31,11 @@ use m_commonconst_lt
 IMPLICIT NONE
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-INTEGER*4, INTENT(IN)                            :: rond                       ! 
+REAL,      INTENT(IN)                            :: radius                     ! 
+INTEGER,   INTENT(IN)                            :: rond                       ! 
 
 ! RESULT
-REAL*4                                           :: ops_virtdist               ! 
+REAL                                             :: ops_virtdist               ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !

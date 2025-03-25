@@ -42,15 +42,15 @@ PARAMETER    (ROUTINENAAM = 'ops_gen_fnames')
 
 ! SUBROUTINE ARGUMENTS - INPUT
 LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: spgrid                     
-INTEGER*4, INTENT(IN)                            :: intpol                     
+INTEGER,   INTENT(IN)                            :: spgrid                     
+INTEGER,   INTENT(IN)                            :: intpol                     
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: teller                     ! region index
-INTEGER*4                                        :: naamlengte                 ! length of name meteostatistics file
+INTEGER                                          :: teller                     ! region index
+INTEGER                                          :: naamlengte                 ! length of name meteostatistics file
 CHARACTER*512                                    :: helpfile                   ! meteostatistics file name, includes region number
 
 !-------------------------------------------------------------------------------------------------------------------------------

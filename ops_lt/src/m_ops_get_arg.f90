@@ -23,9 +23,31 @@ module m_ops_get_arg
 
 implicit none
 
+type TKwargs
+   logical :: subbron = .TRUE.
+   logical :: domlu = .FALSE.  ! use dominant land use instead of land use percentages
+   logical :: varz = .FALSE.
+   logical :: perc = .FALSE.
+   logical :: mindist = .FALSE.  ! option to use mimimum distance for which a result will be calculated 
+   logical :: maxdist = .FALSE.  ! option to use maximum distance for which a result will be calculated 
+   logical :: class_output = .FALSE.  ! indicator whether results for receptors will be stored per wind sector/distance/particle/stability class
+   logical :: allow_sigz0_point_source = .FALSE.  ! allow initial sigma for point sources
+   integer :: diag  ! = 1,3 (argument -r) -> print version number and quit
+   integer :: nthreads = 1  ! number of OMP threads that can be used
+   character(len=256) :: varin_file = ""  ! file with input parameters
+   character(len=256) :: dir_bg = ""
+end type
+
 contains
 
-SUBROUTINE ops_get_arg (diag, subbron, domlu, varz, perc, mindist, maxdist, error)
+!--------------------------------------------------------------------------------------------------------
+SUBROUTINE ops_get_arg (kwargs, error)
+
+use omp_lib, only: omp_set_num_threads
+
+! Get command line arguments 
+! Note: Error messages are handled using the error-structure, but also by writing messages to screen.
+! if -i control-file has not yet been given, the name of the error file is not yet known.
 
 USE m_error
 USE m_fileutils
@@ -39,33 +61,42 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_get_arg')
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: diag                       ! = 1,3 (argument -r) -> print version number and quit
-LOGICAL,   INTENT(INOUT)                         :: subbron                    
-LOGICAL,   INTENT(INOUT)                         :: domlu                      ! use dominant land use instead of land use percentages
-LOGICAL,   INTENT(INOUT)                         :: varz                    
-LOGICAL,   INTENT(INOUT)                         :: perc                    
-LOGICAL,   INTENT(INOUT)                         :: mindist                    ! option to use mimimum distance for which a result will be calculated 
-LOGICAL,   INTENT(INOUT)                         :: maxdist                    ! option to use maximum distance for which a result will be calculated 
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+type(TKwargs), intent(out) :: kwargs
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: os                         ! operating system: 0 = UNIX, 1 = Windows
-INTEGER*4                                        :: numarg                     ! number of arguments
-INTEGER*4                                        :: ISTAT                      ! return code of GETCWD
-INTEGER*4                                        :: iarg                       ! number of arguments
+INTEGER                                          :: os                         ! operating system: 0 = UNIX, 1 = Windows
+INTEGER                                          :: numarg                     ! number of arguments
+INTEGER                                          :: ISTAT                      ! return code of GETCWD
+INTEGER                                          :: iarg                       ! number of arguments
 CHARACTER*55                                     :: commandname                ! command name of this program (excluding path)
 CHARACTER*512                                    :: nfile                      ! temporary variable for directory name
 CHARACTER*512                                    :: progpath                   ! full name of this program (including path)
 CHARACTER*512, DIMENSION(:), POINTER             :: arg                        ! argument list excluding progpath
 CHARACTER*1                                      :: slash                      ! "/" of "\"
-LOGICAL*4                                        :: iexist                     ! TRUE if file exists
+LOGICAL                                          :: iexist                     ! TRUE if file exists
+INTEGER                                          :: ierr                       ! i/o status error
 
 ! FUNCTIONS
-!     INTEGER*4     GETCWD
+!     INTEGER       GETCWD
 
 !-------------------------------------------------------------------------------------------------------------------------------
 
-! Retrieve the command line arguments: progpath, numarg and arg. The procedure is irrespective of the operating system.
+! Set defaults for optional arguments
+error%debug = .FALSE.   ! if true -> debug parameters are written to screen; only useful for a limited number of receptors and sources
+kwargs%subbron = .TRUE.
+kwargs%domlu   = .FALSE.
+kwargs%varz    = .FALSE.
+kwargs%perc    = .FALSE.
+kwargs%mindist = .FALSE.
+kwargs%maxdist = .FALSE.
+kwargs%class_output  = .FALSE.
+kwargs%allow_sigz0_point_source = .FALSE. 
+kwargs%varin_file    = ''
+kwargs%nthreads      = 1
+  
+! Retrieve the command line arguments: progpath, numarg and arg. The procedure
+! is irrespective of the operating system.
 CALL GetCLArg(progpath, numarg, arg, error)
 IF (error%haserror) GOTO 9999
 
@@ -73,112 +104,132 @@ IF (error%haserror) GOTO 9999
 CALL getfilename(progpath, commandname, error)
 
 ! Check the number and contents of arguments.
-diag = 0
-
-! Set defaults for optional arguments
-subbron = .TRUE.
-domlu   = .FALSE.
-varz    = .FALSE.
-perc    = .FALSE.
-mindist = .FALSE.
-maxdist = .FALSE.
+kwargs%diag = 0
 
 ! Loop over arguments and check for optional arguments:
-DO iarg = 3,numarg
-  IF (arg(iarg) == '-nosub')   subbron = .FALSE.
-  IF (arg(iarg) == '-domlu')   domlu   = .TRUE.
-  IF (arg(iarg) == '-varz')    varz    = .TRUE.
-  IF (arg(iarg) == '-perc')    perc    = .TRUE.
-  IF (arg(iarg) == '-mindist') mindist = .TRUE.
-  IF (arg(iarg) == '-maxdist') maxdist = .TRUE.
-ENDDO
+iarg = 0
+DO 
+   iarg = iarg + 1
+   if (iarg>size(arg,1)) exit
+   if (arg(iarg) == '-nosub') then
+      kwargs%subbron = .FALSE.
+   else if (arg(iarg) == '-domlu') then
+      kwargs%domlu   = .TRUE.
+   else if (arg(iarg) == '-varz') then
+      kwargs%varz    = .TRUE.
+   else if (arg(iarg) == '-perc') then
+      kwargs%perc    = .TRUE.
+   else if (arg(iarg) == '-mindist') then
+      kwargs%mindist = .TRUE.
+   else if (arg(iarg) == '-maxdist') then
+      kwargs%maxdist = .TRUE.
+   else if (arg(iarg) == '-classoutput') then
+      kwargs%class_output = .TRUE.
+   else if (arg(iarg) == '-debug') then
+      error%debug = .TRUE.
+   else if (arg(iarg) == '-varinfile') then
+      iarg = iarg + 1
 
-! Compute number of arguments left over:
-IF (.NOT.subbron) numarg = numarg -1 
-IF (domlu)        numarg = numarg -1 
-IF (varz)         numarg = numarg -1 
-IF (perc)         numarg = numarg -1 
-IF (mindist)      numarg = numarg -1 
-IF (maxdist)      numarg = numarg -1 
+      if (iarg > size(arg,1)) then
+         call ops_get_arg_usage(commandname)
+         WRITE(IOB_STDOUT,'(/,a,/)') 'Incorrect number of arguments; expected: -varinfile <filename>'
+         CALL SetError('Incorrect number of arguments;','expected: -varinfile <filename>', error)
+         GOTO 1000
+      end if
 
-! Check number of arguments:
-IF ((numarg < 1) .OR. (numarg > 3)) THEN
-  WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
-  CALL SetError('Incorrect number of arguments', error)
-  GOTO 1000
+      kwargs%varin_file = arg(iarg)
+   else if (arg(iarg) == '-r') then
+     kwargs%diag = 1
+     INQUIRE (FILE = "ops_core.dll", EXIST = iexist)
 
-! number of arguments = 1, argument -r -> print version number and quit
-ELSEIF (numarg == 1) THEN
-   IF (arg(1) == '-r') THEN
-      diag = 1
-      INQUIRE (FILE = "ops_core.dll", EXIST = iexist)
-      IF (iexist) THEN
-         INQUIRE (FILE = "depac.dll", EXIST = iexist)
-         IF (iexist) THEN
-           INQUIRE (FILE = "ops_utils.dll", EXIST = iexist)
-           IF (iexist) diag = 3
-         ENDIF
-      ENDIF
-      GOTO 2000
-   ELSE
-     WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
-     CALL SetError('Invalid first and only argument', error)
+     IF (iexist) THEN
+        INQUIRE (FILE = "depac.dll", EXIST = iexist)
+
+        IF (iexist) THEN
+          INQUIRE (FILE = "ops_utils.dll", EXIST = iexist)
+
+          IF (iexist) kwargs%diag = 3
+        ENDIF
+     ENDIF
+
+     goto 2000
+   else if (arg(iarg) == '-v') then
+     kwargs%diag = 2
+   else if (arg(iarg) == '-nthreads') then
+     iarg = iarg + 1
+     
+     ! Missing next argument:
+     if (iarg > size(arg,1)) then
+        call ops_get_arg_usage(commandname)
+        WRITE(IOB_STDOUT,'(/,a,/)') 'Incorrect number of arguments; expected: -nthreads <number of threads>'
+        CALL SetError('Incorrect number of arguments;','expected: -nthreads <number of threads>',error)
+        GOTO 1000
+     end if
+     
+     ! Read number of threads for parallel computing and pass to OMP:
+     read(arg(iarg),*,iostat = ierr) kwargs%nthreads
+     if (ierr .ne. 0) then
+        WRITE(IOB_STDOUT,'(/,a,/)') 'Incorrect use of -nthreads option; expected: -nthreads <number of threads>'
+        call SetError('Incorrect use of -nthreads option;','expected: -nthreads <number of threads>',error)
+        call ErrorParam('argument read after -nthreads',arg(iarg),error)
+        GOTO 1000
+     endif
+     
+   else if (arg(iarg) == '-i') then
+     ! Get name of control file:
+     iarg = iarg + 1
+     if (iarg > size(arg,1)) then
+        call ops_get_arg_usage(commandname)
+        WRITE(IOB_STDOUT,'(/,a,/)') 'Incorrect number of arguments; expected: -i <control-file>'
+        CALL SetError('Incorrect number of arguments;','expected: -i <control-file>', error)
+        GOTO 1000
+     end if
+     ctrnam = arg(iarg)
+     
+     ! Check whether control file exists:
+     INQUIRE (FILE = ctrnam, EXIST = iexist)
+     IF (.NOT. iexist) THEN
+       WRITE (IOB_STDOUT,'(3a)') 'Controlfile: "', ctrnam(:LEN_TRIM(ctrnam)), '" does not exist.'
+       CALL SetError('Control file does not exist', error)
+       CALL ErrorParam('Control file name', ctrnam, error)
+       GOTO 1000
+     ENDIF
+     
+     ! Paste path of working directory before name of control file.
+     ! - needed if control file does not contain a path (when OPS is started in the current working directory (CWD))
+     ! - needed when control file contains a relative path (starts with ..).
+     ! Both situations do not occur, when OPS is started from the GUI.
+     !
+     ! NB: Mooier zou zijn om de volledige filenaam te kunnen opvragen, zoals met de CVF functie FULPATHQQ, maar dan moet er ook een
+     !     HP equivalent zijn.
+     
+     ! Initialise directory name:
+     nfile=''
+     
+     ! Get directory name (= path) of control file into nfile:
+     CALL getdirectory(ctrnam, nfile, error)
+     
+     ! Check for empty path or relative path and prepend path to control file name:
+     IF (LEN_TRIM(nfile) == 0 .OR. nfile(1:2) == '..') THEN
+       ISTAT=GETCWD(nfile)
+       CALL getOS(os,slash)
+       ctrnam = nfile(:LEN_TRIM(nfile))//slash// ctrnam(:LEN_TRIM(ctrnam))
+     ENDIF
+     
+     ! Make the file names for process monitoring (log, error and progress files):
+     CALL MakeMonitorNames(error)
+     IF (error%haserror) GOTO 1000 ! GOTO error handling 
+
+   else if (arg(iarg) == '-allow_sigz0_point_source') then
+      kwargs%allow_sigz0_point_source = .TRUE.
+   else
+     call ops_get_arg_usage(commandname)
+     WRITE(IOB_STDOUT,'(/,a,a,/)') 'Incorrect command line argument ',trim(arg(iarg))
+     CALL SetError('Incorrect command line argument', error)
+     call ErrorParam('argument',arg(iarg),error)
      GOTO 1000
-   ENDIF
-
-! number of arguments = 2, -i control_file (= "stuurfile")
-ELSEIF (numarg == 2) THEN
-  IF (.NOT.(arg(1) == '-i')) THEN
-    WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
-    CALL SetError('Invalid combination of arguments', error)
-    GOTO 1000
-  ELSE
-    ctrnam=arg(2)
-  ENDIF
-
-! number of arguments = 3, -v -> verbose (more output), -i control_file
-ELSE
-  IF (.NOT.(arg(1) == '-v' .AND. arg(2) == '-i')) THEN
-    WRITE (IOB_STDOUT,'('' Usage: '',A,'' [-v] -i stuurfile'')') commandname(:LEN_TRIM(commandname))
-    CALL SetError('Invalid combination of arguments', error)
-    GOTO 1000
-  ELSE
-    diag = 2
-    ctrnam=arg(3)
-  ENDIF
-ENDIF
-!
-! Check whether control file exists
-!
-INQUIRE (FILE = ctrnam, EXIST = iexist)
-IF (.NOT. iexist) THEN
-  WRITE (IOB_STDOUT,'(3a)') 'Controlfile: "', ctrnam(:LEN_TRIM(ctrnam)), '" does not exist.'
-  CALL SetError('Control file does not exist', error)
-  CALL ErrorParam('Control file name', ctrnam, error)
-  GOTO 1000
-ENDIF
-!
-! Paste path of working directory before name of control file.
-! - needed if control file does not contain a path (when OPS is started in the current working directory (CWD))
-! - needed when control file contains a relative path (starts with ..).
-! Both situations do not occur, when OPS is started from the GUI.
-!
-! NB: Mooier zou zijn om de volledige filenaam te kunnen opvragen, zoals met de CVF functie FULPATHQQ, maar dan moet er ook een
-!     HP equivalent zijn.
-!
-
-! Initialise directory name:
-nfile=''
-
-! Get directory name (= path) of control file into nfile:
-CALL getdirectory(ctrnam, nfile, error)
-
-! Check for empty path or relative path and prepend path to control file name:
-IF (LEN_TRIM(nfile) == 0 .OR. nfile(1:2) == '..') THEN
-  ISTAT=GETCWD(nfile)
-  CALL getOS(os,slash)
-  ctrnam = nfile(:LEN_TRIM(nfile))//slash// ctrnam(:LEN_TRIM(ctrnam))
-ENDIF
+   end if
+ENDDO
 
 2000 CALL DEALLOC(ARG)
 
@@ -192,5 +243,32 @@ RETURN
 RETURN
 
 END SUBROUTINE ops_get_arg
+
+!----------------------------------------------------------------------------------------------
+subroutine ops_get_arg_usage(commandname)
+
+! Print usage message
+
+USE m_commonfile
+
+CHARACTER(len=*)                                 :: commandname                ! command name of this program (excluding path)
+
+WRITE (IOB_STDOUT,'(/,'' Usage: '',A,'' -i control-file [options]'')') commandname(:LEN_TRIM(commandname))
+WRITE (IOB_STDOUT,'(a)')   ' Options: '
+WRITE (IOB_STDOUT,'(a)')   ' -nosub                   : no sub receptors, no sub area sources'
+WRITE (IOB_STDOUT,'(a)')   ' -domlu                   : dominant land use only'
+WRITE (IOB_STDOUT,'(a)')   ' -varz                    : receptor height in receptor file'
+WRITE (IOB_STDOUT,'(a)')   ' -perc                    : percentages land use classes in receptor file'
+WRITE (IOB_STDOUT,'(a)')   ' -mindist                 : minimal source receptor distance of 5 km'
+WRITE (IOB_STDOUT,'(a)')   ' -maxdist                 : maximal source receptor distance of 25 km'
+WRITE (IOB_STDOUT,'(a)')   ' -classoutput             : output per meteo class, wind sector, distance class'
+! only for developers WRITE (IOB_STDOUT,'(a)')   ' -varinfile varin_file    : file with varin-parameters'    
+WRITE (IOB_STDOUT,'(a)')   ' -r                       : issue release number and date'
+WRITE (IOB_STDOUT,'(a)')   ' -v                       : verbose - more output in PRNFILE'
+WRITE (IOB_STDOUT,'(a)')   ' -nthreads nthreads       : number of threads for parallel computing'
+WRITE (IOB_STDOUT,'(a)')   ' -allow_sigz0_point_source: allow initial sigma for point sources'
+WRITE (IOB_STDOUT,'(a,/)') ' More information in the OPS user manual'
+
+end subroutine ops_get_arg_usage
 
 end module m_ops_get_arg

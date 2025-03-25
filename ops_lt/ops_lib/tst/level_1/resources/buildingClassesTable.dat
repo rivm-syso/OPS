@@ -1,0 +1,9 @@
+hEmis 0 4 6 8 10 12 14 16 18 20
+V_stack 0.4 1.5 4.4 8.4
+D_stack 0.5 1.5 2.5 5
+buildingHeight 4 6 8 10 12 14 16 18 20
+buildingLength 30 75 100
+buildingWLRatio 0.25 0.5 1
+buildingOrientation 0 45 90 135 180
+angleSRxaxis 0 45 90 135 180 225 270 315 360
+distance 70 90 130 210 370 690 1330 3000

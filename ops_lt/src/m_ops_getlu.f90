@@ -39,8 +39,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'getlu')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
-REAL*4,    INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
+REAL,      INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
+REAL,      INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
 LOGICAL,   INTENT(IN)                            :: in_trajectory              ! point is in a trajectory (opposed to separate receptor point)
 TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
 
@@ -48,7 +48,7 @@ TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: landuse(NLU+1)             ! land-use value at (xr,yr); 
+INTEGER,   INTENT(OUT)                           :: landuse(NLU+1)             ! land-use value at (xr,yr); 
 																			   ! landuse(1)    = index of dominant landuse
 																			   ! landuse(lu+1) = percentage of grid cell with landuse class lu, lu = 1,NLU
                                                                                ! For locations outside lugrid, a fatal error is triggered
@@ -56,7 +56,7 @@ INTEGER*4, INTENT(OUT)                           :: landuse(NLU+1)             !
 ! LOCAL VARIABLES
 !
 LOGICAL                                          :: iscell                     ! whether point is inside landuse grid
-INTEGER*4                                        :: ilu                        ! index of land-use class
+INTEGER                                          :: ilu                        ! index of land-use class
 !-------------------------------------------------------------------------------------------------------------------------------
 landuse = 0
 

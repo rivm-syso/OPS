@@ -26,14 +26,18 @@ implicit none
 
 contains
 
-SUBROUTINE ops_read_emis(icm, gasv, ncatsel, catsel, nlandsel, landsel, numbron, dverl, usdverl, pmd, uspmd,     &
-                      &  dv, usdv, presentcode, building_present1, error)
+SUBROUTINE ops_read_emis( &
+   icm, gasv, ncatsel, catsel, nlandsel, landsel, allow_sigz0_point_source, varin_unc, &
+   numbron, dverl, usdverl, pmd, uspmd, dv, usdv, presentcode, building_present1, error)
 
 use m_commonconst_lt
+use m_diurnal_perturbation, only: scale_dverl
+use m_ops_read_source
+use m_ops_varin, only: TVarin_unc
+
 use m_commonfile
 use m_error
 use m_fileutils
-use m_ops_read_source
 
 IMPLICIT NONE
 
@@ -42,24 +46,26 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_read_emis')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        
+INTEGER,   INTENT(IN)                            :: icm                        
 LOGICAL,   INTENT(IN)                            :: gasv                       
-INTEGER*4, INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
-INTEGER*4, INTENT(IN)                            :: catsel(*)                  ! list of selected emission categories
-INTEGER*4, INTENT(IN)                            :: nlandsel                   ! number of selected emission countries 
-INTEGER*4, INTENT(IN)                            :: landsel(*)                 ! list of selected emission countries 
+INTEGER,   INTENT(IN)                            :: ncatsel                    ! number of selected emission categories
+INTEGER,   INTENT(IN)                            :: catsel(*)                  ! list of selected emission categories
+INTEGER,   INTENT(IN)                            :: nlandsel                   ! number of selected emission countries 
+INTEGER,   INTENT(IN)                            :: landsel(*)                 ! list of selected emission countries 
+LOGICAL,   INTENT(IN)                            :: allow_sigz0_point_source   ! allow initial sigma for point sources                                                                               
+type(TVarin_unc), intent(in) :: varin_unc
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: numbron                    ! number of selected sources
-REAL*4,    INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDISTR)  ! standard diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDISTR)! user-defined diurnal emission variations distributions
-REAL*4,    INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
-REAL*4,    INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
-INTEGER*4, INTENT(OUT)                           :: dv                         ! maximum code diurnal emission variation dverl
-INTEGER*4, INTENT(OUT)                           :: usdv                       ! maximum code user specified diurnal emission variation usdverl
+INTEGER,   INTENT(OUT)                           :: numbron                    ! number of selected sources
+REAL,      INTENT(OUT)                           :: dverl(NHRBLOCKS,MAXDISTR)  ! standard diurnal emission variations distributions
+REAL,      INTENT(OUT)                           :: usdverl(NHRBLOCKS,MAXDISTR)! user-defined diurnal emission variations distributions
+REAL,      INTENT(OUT)                           :: pmd(NPARTCLASS,MAXDISTR)   ! standard particle size distributions
+REAL,      INTENT(OUT)                           :: uspmd(NPARTCLASS,MAXDISTR) ! user-defined particle size distributions
+INTEGER,   INTENT(OUT)                           :: dv                         ! maximum code diurnal emission variation dverl
+INTEGER,   INTENT(OUT)                           :: usdv                       ! maximum code user specified diurnal emission variation usdverl
 LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR,4)    ! which distribution codes are present
                                                                                ! presentcode(:,1): diurnal variations
                                                                                ! presentcode(:,2): particle size distributions
@@ -69,8 +75,8 @@ LOGICAL,   INTENT(OUT)                           :: building_present1          !
 
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ps                         ! maximum code pmd distribution (dummy)
-INTEGER*4                                        :: usps                       ! maximum code uspmd distribution (dummy)
+INTEGER                                          :: ps                         ! maximum code pmd distribution (dummy)
+INTEGER                                          :: usps                       ! maximum code uspmd distribution (dummy)
 
 ! SCCS-ID VARIABLE
 CHARACTER*81                                     :: sccsida                    ! 
@@ -79,17 +85,23 @@ sccsida = '%W%:%E%'//char(0)
 !
 ! Read standard diurnal variations
 !
-CALL read_variation(dvnam, 'F6.0', NHRBLOCKS, 0, 'diurnal variations', .FALSE., dverl, dv, presentcode(:, 1), error)
+CALL read_variation( &
+   dvnam, 'F6.0', NHRBLOCKS, 0, 'diurnal variations', .FALSE., dverl, dv, &
+   presentcode(:, 1), error &
+)
 IF (error%haserror) GOTO 9999
-!
+call scale_dverl(dverl, varin_unc%diurn_scale_index, dv)
+
 ! Read user-defined diurnal variations (optionally)
-!
 IF (LEN_TRIM(usdvnam) /= 0) THEN
-  CALL read_variation(usdvnam, 'F6.0', NHRBLOCKS, 1200, 'user-defined diurnal variation', .FALSE., usdverl, usdv,              &
-                   &  presentcode(:,3), error)
-  IF (error%haserror) GOTO 9999
+   CALL read_variation( &
+      usdvnam, 'F6.0', NHRBLOCKS, 1200, 'user-defined diurnal variation', &
+      .FALSE., usdverl, usdv, presentcode(:,3), error &
+   )
+   IF (error%haserror) GOTO 9999
+   call scale_dverl(usdverl, varin_unc%diurn_scale_index, usdv)
 ELSE
-  usdv = 0
+   usdv = 0
 ENDIF
 
 IF (.NOT.gasv) THEN
@@ -121,7 +133,8 @@ OPEN(fu_scratch, STATUS = 'SCRATCH', FORM = 'UNFORMATTED')
 !
 ! Read, select, check sources and write all selected emissions to scratch file
 !
-CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, numbron, building_present1, error)
+CALL ops_read_source(icm, gasv, ncatsel, catsel, nlandsel, landsel, presentcode, &
+                     allow_sigz0_point_source, numbron, building_present1, error)
 
 IF (error%haserror) THEN
   CALL ErrorParam('emission file', brnam, error)
@@ -162,8 +175,8 @@ PARAMETER    (ROUTINENAAM = 'read_variation')
 ! SUBROUTINE ARGUMENTS - INPUT
 CHARACTER*(*), INTENT(IN)                        :: distnam                    ! name of file with distributions
 CHARACTER*(*), INTENT(IN)                        :: fmt                        ! format of the numbers in distributions file
-INTEGER*4, INTENT(IN)                            :: nrclass                    ! number of distribution classes read each record
-INTEGER*4, INTENT(IN)                            :: normalvalue                ! value used in normalisation, 0 if no normalisation
+INTEGER,   INTENT(IN)                            :: nrclass                    ! number of distribution classes read each record
+INTEGER,   INTENT(IN)                            :: normalvalue                ! value used in normalisation, 0 if no normalisation
                                                                                ! normalisation means that the sum of the variation is set to 
                                                                                ! normalvalue (e.g. 100 for a set of percentages or 
                                                                                ! 1200 for a set of 2-hourly percentages in a day)
@@ -171,23 +184,23 @@ CHARACTER*(*), INTENT(IN)                        :: compdesc                   !
 LOGICAL,   INTENT(IN)                            :: fraction                   ! whether conversion to fractions is required (instead of %)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions 
-INTEGER*4, INTENT(OUT)                           :: maxcode                    ! maximum code used for distribution
+REAL,      INTENT(OUT)                           :: distrib(nrclass,MAXDISTR)   ! array with all distributions 
+INTEGER,   INTENT(OUT)                           :: maxcode                    ! maximum code used for distribution
 LOGICAL,   INTENT(OUT)                           :: presentcode(MAXDISTR)       ! which distribution codes are present
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: distcode                   ! code used for distribution; 
+INTEGER                                          :: distcode                   ! code used for distribution; 
                                                                                ! read from the first column of the distributions file.
                                                                                ! (|distcode| = index into 2nd dimension of distrib(nclass, MAXDISTR))
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! DO LOOP counter
-INTEGER*4                                        :: numdist                    ! Number of distributions read
-INTEGER*4                                        :: ierr                       ! value of IOSTAT
-REAL*4                                           :: buffer(nrclass)            ! array with the last distrib values read
-REAL*4                                           :: som                        ! sum of row values
-REAL*4                                           :: normalfactor               ! normalisation factor
+INTEGER                                          :: i                          ! DO LOOP counter
+INTEGER                                          :: numdist                    ! Number of distributions read
+INTEGER                                          :: ierr                       ! value of IOSTAT
+REAL                                             :: buffer(nrclass)            ! array with the last distrib values read
+REAL                                             :: som                        ! sum of row values
+REAL                                             :: normalfactor               ! normalisation factor
 CHARACTER*80                                     :: readformat                 ! format used for reading
 ! LOGICAL                                          :: ops_openlog                ! function for opening log file
 

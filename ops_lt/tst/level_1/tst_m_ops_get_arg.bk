@@ -1,0 +1,46 @@
+@test
+! test inactive; first split ops_get_arg into 
+! call GetCLIArg(...)
+! if error%haserror goto 9999
+! call ops_get_arg2(...) -> rest of the subroutine
+!
+! and then write a test routine for ops_get_arg2
+! subroutine tst_ops_get_arg
+! 
+! USE m_error
+! USE m_fileutils
+! USE m_utils
+! USE m_commonfile
+! USE m_ops_get_arg
+! 
+! IMPLICIT NONE
+! 
+! ! CONSTANTS
+! CHARACTER*512                                    :: ROUTINENAAM                ! 
+! PARAMETER    (ROUTINENAAM = 'ops_get_arg')
+! 
+! ! SUBROUTINE ARGUMENTS - OUTPUT
+! INTEGER                         :: diag                       
+! LOGICAL                         :: subbron                    
+! LOGICAL                         :: domlu                      ! use dominant land use instead of land use percentages
+! LOGICAL                         :: varz                    
+! LOGICAL                         :: perc                    
+! LOGICAL                         :: mindist                    ! option to use mimimum distance for which a result will be calculated 
+! LOGICAL                         :: maxdist                    ! option to use maximum distance for which a result will be calculated 
+! TYPE (TError)                   :: error                      ! error handling record
+! 
+! !-------------------------------------------------------------------------------------------------------------------------------
+! 
+! call ops_get_arg (diag, subbron, domlu, varz, perc, mindist, maxdist, error)
+! 
+! write(*,*) ' diag    = ', diag
+! write(*,*) ' subbron = ', subbron                    
+! write(*,*) ' domlu   = ', domlu
+! write(*,*) ' varz    = ', varz                    
+! write(*,*) ' perc    = ', perc                    
+! write(*,*) ' mindist = ', mindist
+! write(*,*) ' maxdist = ', maxdist
+! 
+! RETURN
+! 
+! END SUBROUTINE tst_ops_get_arg

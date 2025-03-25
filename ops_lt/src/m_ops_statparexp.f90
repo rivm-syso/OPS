@@ -50,10 +50,11 @@ implicit none
 
 contains
 
-SUBROUTINE ops_statparexp(istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isec_prelim, disxx, isec1, vw10, h0,  &
+SUBROUTINE ops_statparexp(varin_meteo, varin_unc, istab, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, iwd, radius, uurtot, astat, trafst, disx, isec_prelim, disxx, isec1, vw10, h0,  &
                        &  hum, ol_metreg_rcp, shear, rc_aer_ms, rc_nh3_ms, rc_no2_ms, temp_C, uster_metreg_rcp, pcoef, htot, htt, itra, aant,                        &
-                       &   xl, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, xloc,xl100, rad, rc_so2_ms, coef_space_heating, regenk, buil, rint, percvk, error)
+                       &   xl, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, xloc,xl100, rad, rc_so2_ms, coef_space_heating, regenk, buil, rint, percvk, isec_in, error)
 
+use m_ops_varin
 use m_error
 USE m_commonconst_lt
 USE m_commonfile
@@ -67,86 +68,88 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_statparexp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      ! index of stsbility class
-REAL*4,    INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
-REAL*4,    INTENT(IN)                            :: qww                        ! heat contyent of source [MW]
-REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                     
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc                  ! Noise values for uncertainty analyses.
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stsbility class
+REAL,      INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
+REAL,      INTENT(IN)                            :: qww                        ! heat contyent of source [MW]
+REAL,      INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+REAL,      INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL,      INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]                     
 LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
-INTEGER*4, INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
-REAL*4,    INTENT(IN)                            :: radius                     ! radius of area source [m]
-REAL*4,    INTENT(IN)                            :: uurtot                     ! total number of hours from meteo statistics
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! meteo parameters
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]  
-REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                    
-INTEGER*4, INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account) 
+INTEGER,   INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
+REAL,      INTENT(IN)                            :: radius                     ! radius of area source [m]
+REAL,      INTENT(IN)                            :: uurtot                     ! total number of hours from meteo statistics
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! meteo parameters
+REAL,      INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]  
+REAL,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m]                    
+INTEGER,   INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account) 
 
 ! SUBROUTINE ARGUMENTS - I/O
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
-INTEGER*4, INTENT(OUT)                           :: isec1                      ! first of two interpolating wind sectors
-REAL*4,    INTENT(OUT)                           :: vw10                       ! 
-REAL*4,    INTENT(OUT)                           :: h0                         ! 
-REAL*4,    INTENT(OUT)                           :: hum                        ! relative humidity [%]
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
-REAL*4,    INTENT(OUT)                           :: rc_nh3_ms                  ! Rc(NH3) from meteo statistics (NOT USED)
-REAL*4,    INTENT(OUT)                           :: rc_no2_ms                  ! Rc(NO2) from meteo statistics [s/m] (NOT USED) 
-REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
-REAL*4,    INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
-REAL*4,    INTENT(OUT)                           :: htt                        ! plume height at source, including plume rise [m]
-INTEGER*4, INTENT(OUT)                           :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
-REAL*4,    INTENT(OUT)                           :: aant                       ! number of hours of occurrence of interpolation of distance classes/wind sectors for the current stability class
-REAL*4,    INTENT(OUT)                           :: xl                         ! 
-REAL*4,    INTENT(OUT)                           :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m]
-REAL*4,    INTENT(OUT)                           :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m] 
-REAL*4,    INTENT(OUT)                           :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m]  
-REAL*4,    INTENT(OUT)                           :: xvglbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xvghbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xloc                       ! 
-REAL*4,    INTENT(OUT)                           :: xl100                      ! 
-REAL*4,    INTENT(OUT)                           :: rad                        ! 
-REAL*4,    INTENT(OUT)                           :: rc_so2_ms                   ! Rc(SO2) from meteo statistics [s/m] 
-REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-REAL*4,    INTENT(OUT)                           :: regenk                     ! rain probability [-]
-REAL*4,    INTENT(OUT)                           :: buil                       ! 
-REAL*4,    INTENT(OUT)                           :: rint                       ! rain intensity [mm/h] 
-REAL*4,    INTENT(OUT)                           :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class
+REAL,      INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
+INTEGER,   INTENT(OUT)                           :: isec1                      ! first of two interpolating wind sectors
+REAL,      INTENT(OUT)                           :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(OUT)                           :: h0                         ! sensible heat flux H0 [W/m2]
+REAL,      INTENT(OUT)                           :: hum                        ! relative humidity [%]
+REAL,      INTENT(OUT)                           :: ol_metreg_rcp              ! Monin-Obukhov length L [m]
+REAL,      INTENT(OUT)                           :: shear                      ! turning angle for wind shear (at reference height) [degrees]
+REAL,      INTENT(OUT)                           :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m]
+REAL,      INTENT(OUT)                           :: rc_nh3_ms                  ! Rc(NH3) from meteo statistics (NOT USED)
+REAL,      INTENT(OUT)                           :: rc_no2_ms                  ! Rc(NO2) from meteo statistics [s/m] (NOT USED) 
+REAL,      INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+REAL,      INTENT(OUT)                           :: uster_metreg_rcp           ! friction velocity u* [m/s]
+REAL,      INTENT(OUT)                           :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(OUT)                           :: htt                        ! plume height at source, including plume rise [m]
+INTEGER,   INTENT(OUT)                           :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
+REAL,      INTENT(OUT)                           :: aant                       ! number of hours of occurrence of interpolation of distance classes/wind sectors for the current stability class
+REAL,      INTENT(OUT)                           :: xl                         ! maximal mixing height over transport distance [m] 
+REAL,      INTENT(OUT)                           :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m]
+REAL,      INTENT(OUT)                           :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m] 
+REAL,      INTENT(OUT)                           :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m]  
+REAL,      INTENT(OUT)                           :: xvglbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
+REAL,      INTENT(OUT)                           :: xvghbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-]
+REAL,      INTENT(OUT)                           :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(OUT)                           :: xl100                      ! mixing height at 100 km [m]
+REAL,      INTENT(OUT)                           :: rad                        ! global radiation [J/cm2/h]
+REAL,      INTENT(OUT)                           :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL,      INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
+REAL,      INTENT(OUT)                           :: regenk                     ! rain probability [-]
+REAL,      INTENT(OUT)                           :: buil                       ! length of rain event [0.01 hours]
+REAL,      INTENT(OUT)                           :: rint                       ! rain intensity [mm/h] 
+REAL,      INTENT(OUT)                           :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class
+INTEGER,   INTENT(OUT)                           :: isec_in                    ! source-receptor wind sector, taking into account wind shear
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: isec2                      ! second of two interpolating wind sectors 
-INTEGER*4                                        :: ids                        ! 
-INTEGER*4                                        :: ispecial                   ! 
-INTEGER*4                                        :: isec_in                    ! source-receptor wind sector, taking into account wind shear 
-INTEGER*4                                        :: itrx                       ! = itra, but if one of interpolating distance classes is missing, itrx is the non-missing class
-INTEGER*4                                        :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
-INTEGER*4                                        :: itraj                      ! index of distance class
-REAL*4                                           :: ccor                       ! concentration correction factor for area sources
-REAL*4                                           :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP)
-REAL*4                                           :: tal(NTRAJ)                 ! number of hours of wind blowing from source to receptor (interpolated between sector isec1 and isec2)
-REAL*4                                           :: dscor(NTRAJ)               ! 
-REAL*4                                           :: phi                        ! 
-REAL*4                                           :: r                          ! 
-REAL*4                                           :: r4                         ! 
-REAL*4                                           :: r50                        ! 
-REAL*4                                           :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector isec2
+INTEGER                                          :: isec2                      ! second of two interpolating wind sectors 
+INTEGER                                          :: ispecial                   !  
+INTEGER                                          :: itrx                       ! = itra, but if one of interpolating distance classes is missing, itrx is the non-missing class
+INTEGER                                          :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
+INTEGER                                          :: itraj                      ! index of distance class 
+INTEGER                                          :: ids                        ! index of travel distance class source-receptor
+REAL                                             :: ccor                       ! concentration correction factor for area sources
+REAL                                             :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP)
+REAL                                             :: tal(NTRAJ)                 ! number of hours of wind blowing from source to receptor (interpolated between sector isec1 and isec2)
+REAL                                             :: dscor(NTRAJ)               ! effective travel distance for each distance class for specific stability class and specific wind direction 
+REAL                                             :: r                          ! 
+REAL                                             :: r4                         ! 
+REAL                                             :: r50                        ! 
+REAL                                             :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector isec2
                                                                                ! (i.e. the second interpolation sector), to the wind direction 
                                                                                ! from source to receptor  
-REAL*4                                           :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary). 
+REAL                                             :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary). 
                                                                                ! Note that if ids is the class index where the source-receptor distance lies in, then 
                                                                                ! 0 <= s_dist(ids) <= 1 and s_dist(i) = 0 for i /= ids
-REAL*4                                           :: stta(NCOMP)                ! 
-REAL*4                                           :: sttr(NCOMP)                ! 
-REAL*4                                           :: sa                         ! 
-REAL*4                                           :: so                         ! 
-REAL*4                                           :: sp                         ! interpolation factor for wind sectors; sp = s_wind, sp = 0 or 1 if one of the sectors is missing
+REAL                                             :: stta(NCOMP)                ! 
+REAL                                             :: sttr(NCOMP)                ! 
+REAL                                             :: sa                         ! 
+REAL                                             :: so                         ! 
+REAL                                             :: sp                         ! interpolation factor for wind sectors; sp = s_wind, sp = 0 or 1 if one of the sectors is missing
 real                                             :: dum                        ! dummy output variable
+
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -157,10 +160,10 @@ real                                             :: dum                        !
 !
 ! write(*,'(a,4(1x,e12.5),2(1x,i6))') 'before call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0,istab,isec_prelim
 ! write(*,'(a,4(1x,e12.5))') 'before call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0
-call ops_plumerise_prelim(istab,isec_prelim,astat,hbron,qww,D_stack,V_stack,Ts_stack,emis_horizontal,htt,error) 
+call ops_plumerise_prelim(istab,isec_prelim,astat,hbron,qww,D_stack,V_stack,Ts_stack,emis_horizontal,varin_meteo, varin_unc, htt,error) 
 if (error%haserror) goto 9999
 call ops_wv_powerlaw_metstat(istab,isec_prelim,astat,hbron,dum,vw10,pcoef)
-!write(*,'(a,4(1x,e12.5))') 'after call ops_plumerise_prelim: ',hbron,htt,htt-hbron,-999.0
+!write(*,'(a,4(1x,e12.5))') 'after call ops_plumerise_prelim hbron, htt, htt-hbron, -999.0: ',hbron,htt,htt-hbron,-999.0
 
 ! Compute, given a source-receptor direction, isec_in = the wind sector where this direction lies in, 
 ! (isec1,isec2) = the wind sectors between which to interpolate and the s_wind = interpolation factor, taking into account plume rise and wind shear.
@@ -175,7 +178,7 @@ CALL interp_ctr(disx, trafst, itra, s_dist, ids)
 ! This may happen, especially when we have meteo statistics for shorter periods (e.g. month).
 ! For area sources, surrounding wind sectors have to be taken into account. 
 ! For point sources, there is no contribution if a wind sector does not occur.
-CALL windcorr(itra, istab, radius, disx, isec1, iwdd, isec2, astat, isec_in, ispecial, phi, s_wind)
+CALL windcorr(itra, istab, radius, disx, isec1, iwdd, isec2, astat, isec_in, ispecial, s_wind)
 
 ! Compute for the current stability class and for all distance classes 
 ! tal = number of hours of wind blowing from source to receptor (interpolated between sector isec1 and isec2). 
@@ -223,13 +226,13 @@ IF (aant > EPS_DELTA) THEN
 ! Interpolate meteo parameters over wind sectors 
 ! Note that for distance class itra, s_wind = 0 or 1 if one of the sectors does not occur
 !
-  CALL interp_sek(istab, isec_in, itrx, isec2, s_wind, isec1, stt, astat, xl, vw10, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, uster_metreg_rcp,  &
+  CALL interp_sek(istab, isec_in, itrx, isec2, s_wind, isec1, stt, astat, varin_unc, xl, vw10, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, uster_metreg_rcp,  &
                &  temp_C, ol_metreg_rcp, h0, xloc, xl100, rad, rc_so2_ms, hum, pcoef, rc_nh3_ms, rc_no2_ms, rc_aer_ms, &
                &  buil, rint, shear, dscor, coef_space_heating, regenk)
 !
 ! Compute the effective travel distance between source and receptor
 !
-  CALL bepafst(itra, s_dist, trafst, disx, dscor, xl, disxx)
+  CALL bepafst(itra, s_dist, trafst, disx, istab, error, dscor, xl, disxx)
 !
 ! Check for area source and special case
 !
@@ -241,7 +244,8 @@ IF (aant > EPS_DELTA) THEN
 !    where sa, so = average number of hours of contributing meteo classes, 
 !       stta,sttr = average meteo parameter of contributing meteo classes.
 !
-     CALL ronafhpar(radius, disxx, istab, s_wind, isec1, astat, s_dist,ids, sa, phi, so, stta, sttr)
+
+     CALL ronafhpar(radius, disxx, istab, s_wind, isec1, astat, s_dist,ids, sa, so, stta, sttr)
      IF (so .GT. (0. + EPS_DELTA)) sttr = sttr/so 
 !
 !    Compute r , a measure for the distance between the receptor and the edge of the area source
@@ -298,7 +302,7 @@ IF (aant > EPS_DELTA) THEN
 !
   percvk = (aant*ccor)/uurtot
   !WRITE(*,'(3a,4(1x,i6),99(1x,e12.5))') & 
-  !    trim(ROUTINENAAM),',A,',' itrx,istab,isec_in,isec_prelim,aant,ccor,uurtot,percvk: ', &
+  !    trim(ROUTINENAAM),',A;',' itrx;istab;isec_in;isec_prelim;aant;ccor;uurtot;percvk; ', &
   !                              itrx,istab,isec_in,isec_prelim,aant,ccor,uurtot,percvk
 
 ELSE
@@ -312,6 +316,7 @@ ENDIF
 
 ! Error when percvk < 0
 IF (percvk < - EPS_DELTA) GOTO 1000
+
 
 RETURN
 
@@ -327,7 +332,7 @@ RETURN
 
 !-------------------------------------------------------------------------------------------------------------------------------
 
-CONTAINS
+end subroutine  ops_statparexp 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : bepafst
@@ -335,28 +340,33 @@ CONTAINS
 !                      interpolating the ratio (effective travel distance)/(linear distance) for the distance 
 !                      class where the linear source-receptor distance lies in.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE bepafst(itra, s_dist, trafst, disx, dscor, xl, disxx)
+SUBROUTINE bepafst(itra, s_dist, trafst, disx, istab, error, dscor, xl, disxx)
+USE m_commonconst_lt
+USE m_error
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'bepafst')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
-REAL*4,    INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary).
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]
-REAL*4,    INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
+INTEGER,   INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
+REAL,      INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper distance class boundary).
+REAL,      INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for distance class [m], trafst = 0, 100, 300, 1000 km
+REAL,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor ('as the crow flies') [m]
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class (here only used for debug write statement)
+TYPE (TError), INTENT(IN)                        :: error                      ! error handling record (here only used for debug write statement)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: dscor(NTRAJ)               ! Note: dscor is not used anymore after this routine
-REAL*4,    INTENT(INOUT)                         :: xl                         ! 
+REAL,      INTENT(INOUT)                         :: dscor(NTRAJ)               ! effective travel distance for current distance class [km]: travel distance + extra distance due to meandering 
+                                                                               ! Note: dscor is not used anymore after this routine
+REAL,      INTENT(INOUT)                         :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
+REAL,      INTENT(OUT)                           :: disxx                      ! effective travel distance between source and receptor [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: ids_loc                    ! local value of ids, such that trafst(ids_loc) < disx <= trafst(ids_loc+1)
-INTEGER*4                                        :: itraj                      ! index of distance class
+INTEGER                                          :: ids_loc                    ! local value of ids, such that trafst(ids_loc) < disx <= trafst(ids_loc+1)
+INTEGER                                          :: itraj                      ! index of distance class
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -384,6 +394,7 @@ ELSE
   !       this means that ids_loc = ids-1 (and extra demand that ids_loc >= 2, because for itra = 1 
   !       (near source) ids_loc is not needed; there we have disxx = disx)
   
+  
   !
   !                                                         0 < disx <= trafst(2) -> ids = 2
   !         0 < disx <= trafst(3) -> ids_loc = 2    trafst(2) < disx <= trafst(3) -> ids = 3
@@ -391,7 +402,8 @@ ELSE
   ! trafst(4) < disx              -> ids_loc = 4     
   
   ids_loc = NTRAJ
-  DO WHILE (ids_loc.GT.2 .AND. disx .LE. (trafst(ids_loc) + EPS_DELTA))
+  DO WHILE (ids_loc.GT.2 .AND. disx .LE. (trafst(ids_loc) + EPS_DELTA))  ! Orig Edit
+  !DO WHILE (ids_loc.GT.2 .AND. disx .LT. (trafst(ids_loc) + EPS_DELTA)) ! New Edit
     ids_loc = ids_loc - 1
   ENDDO ! {ids_loc <= 2 OR disx > trafst(ids_loc)}
 !
@@ -439,8 +451,19 @@ ELSE
 !   Compare with aant = (1. - s_dist(ids))*tal(ids-1) + s_dist(ids)*tal(ids)
 !
     disxx = disx*(dscor(ids_loc)*1000./trafst(ids_loc)*(1. - s_dist(ids_loc+1)) + dscor(ids_loc+1)*1000./trafst(ids_loc+1)*s_dist(ids_loc+1))
+    if (error%debug) then 
+          write(*,'(a,2(e12.5,";"),2(i4,";"),7(e12.5,";"))') 'bepafst,A; disx; disxx; istab; ids_loc; dscor(ids_loc); trafst(ids_loc); s_dist(ids_loc+1); dscor(ids_loc+1); trafst(ids_loc+1); ', &
+                                                                         disx, disxx, istab, ids_loc, dscor(ids_loc), trafst(ids_loc), s_dist(ids_loc+1), dscor(ids_loc+1), trafst(ids_loc+1)
+    endif
   ENDIF
 ENDIF
+
+if (error%debug) then 
+   if (disx .gt. 100) then
+      write(*,'(a,2(e20.12,";"),1(i4,";"))') 'bepafst,B,disx>100m; disx; disxx; istab; ', &
+                                                                   disx, disxx, istab
+   endif
+endif
 
 RETURN
 END SUBROUTINE bepafst
@@ -453,46 +476,46 @@ END SUBROUTINE bepafst
 !                         stta,sttr = average meteo parameter of contributing meteo classes.
 !                      (ronafhpar: r << "richting" = direction, onafh << "onafhankelijk" = independent)
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE ronafhpar(radius, disxx, istab, s_wind, isec1, astat, s_dist, ids, sa, phi, so, stta, sttr)
+SUBROUTINE ronafhpar(radius, disxx, istab, s_wind, isec1, astat, s_dist, ids, sa, so, stta, sttr)
+USE m_commonconst_lt
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'ronafhpar')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disxx                      ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: s_wind                     ! interpolation factor (0-1) for wind sectors
-INTEGER*4, INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
-REAL*4,    INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary)
-INTEGER*4, INTENT(IN)                            :: ids                        ! 
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: disxx                      ! 
+INTEGER,   INTENT(IN)                            :: istab                      ! 
+REAL,      INTENT(IN)                            :: s_wind                     ! interpolation factor (0-1) for wind sectors
+INTEGER,   INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+REAL,      INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary)
+INTEGER,   INTENT(IN)                            :: ids                        ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: sa                         ! 
-REAL*4,    INTENT(OUT)                           :: phi                        ! 
-REAL*4,    INTENT(OUT)                           :: so                         ! 
-REAL*4,    INTENT(OUT)                           :: stta(NCOMP)                ! 
-REAL*4,    INTENT(OUT)                           :: sttr(NCOMP)                ! 
+REAL,      INTENT(OUT)                           :: sa                         ! 
+REAL,      INTENT(OUT)                           :: so                         ! 
+REAL,      INTENT(OUT)                           :: stta(NCOMP)                ! 
+REAL,      INTENT(OUT)                           :: sttr(NCOMP)                ! 
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
-INTEGER*4                                        :: icomp                      ! 
-INTEGER*4                                        :: lpsek                      ! 
-INTEGER*4                                        :: jsek                       ! 
-INTEGER*4                                        :: scomp(14)                  ! 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: asek                       ! 
-REAL*4                                           :: statfactor                 ! 
-REAL*4                                           :: zz                         ! 
-REAL*4                                           :: p1                         ! 
-REAL*4                                           :: p2                         ! 
-REAL*4                                           :: pa                         ! 
+INTEGER                                          :: i                          ! 
+INTEGER                                          :: icomp                      ! 
+INTEGER                                          :: lpsek                      ! 
+INTEGER                                          :: jsek                       ! 
+INTEGER,   parameter :: scomp(14) = (/ 2, 4, 5, 6, 11, 14, 16, 19, 20, 22, 23, 25, 26, 27 /) !     De arrayelementen uit de meteostatistiek die hier gebruikt worden.
+REAL                                            :: phi                        ! 
 
-! DATA
-!     De arrayelementen uit de meteostatistiek die hier gebruikt worden.
-DATA scomp / 2, 4, 5, 6, 11, 14, 16, 19, 20, 22, 23, 25, 26, 27 /
+REAL                                             :: a                          ! 
+REAL                                             :: asek                       ! 
+REAL                                             :: statfactor                 ! 
+REAL                                             :: zz                         ! 
+REAL                                             :: p1                         ! 
+REAL                                             :: p2                         ! 
+REAL                                             :: pa                         ! 
+REAL                                             :: r                          ! 
+
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -656,31 +679,32 @@ END SUBROUTINE ronafhpar
 !                      taking into account plume rise and wind shear
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE windsek(istab, htt, disx, iwd, astat, isec_prelim, isec1, shear, htot, iwdd, isec_in, isec2, s_wind)
+USE m_commonconst_lt
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'windsek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      ! index of stability class
-REAL*4,    INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
-REAL*4,    INTENT(IN)                            :: disx                       ! source receptor distance
-INTEGER*4, INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! meteo statistics
-INTEGER*4, INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class
+REAL,      INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
+REAL,      INTENT(IN)                            :: disx                       ! source receptor distance
+INTEGER,   INTENT(IN)                            :: iwd                        ! wind direction if wind is from source to receptor (degrees)
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! meteo statistics
+INTEGER,   INTENT(IN)                            :: isec_prelim                ! index of preliminary source-receptor wind sector (wind shear not yet taken into account)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: isec1                      ! first of two interpolating wind sectors
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
-INTEGER*4, INTENT(OUT)                           :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
-INTEGER*4, INTENT(OUT)                           :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
-INTEGER*4, INTENT(OUT)                           :: isec2                      ! second of two interpolating wind sectors  
-REAL*4,    INTENT(OUT)                           :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
+INTEGER,   INTENT(OUT)                           :: isec1                      ! first of two interpolating wind sectors
+REAL,      INTENT(OUT)                           :: shear                      ! Wind shear (turning angle for wind shear) [degrees]
+REAL,      INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+INTEGER,   INTENT(OUT)                           :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
+INTEGER,   INTENT(OUT)                           :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
+INTEGER,   INTENT(OUT)                           :: isec2                      ! second of two interpolating wind sectors  
+REAL,      INTENT(OUT)                           :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
 
 ! LOCAL VARIABLES
-REAL*4                                           :: alpha                      ! 
-REAL*4                                           :: sek                        ! 
+REAL                                             :: alpha                      ! 
+REAL                                             :: sek                        ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -794,8 +818,8 @@ END SUBROUTINE windsek
 !                      For area sources, surrounding wind sectors have to be taken into account.
 !                      If for a point source, the wind sector does not occur, there is no contribution from this wind sector.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE windcorr(itra, istab, radius, disx, isec1, iwdd, isec2, astat, isec_in, ispecial, phi, s_wind)
-
+SUBROUTINE windcorr(itra, istab, radius, disx, isec1, iwdd, isec2, astat, isec_in, ispecial, s_wind)
+USE m_commonconst_lt
 USE Binas, only: rad2deg
 
 ! CONSTANTS
@@ -803,25 +827,25 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'windcorr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-INTEGER*4, INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
-INTEGER*4, INTENT(IN)                            :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
-INTEGER*4, INTENT(IN)                            :: isec2                      ! second of two interpolating wind sectors 
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+INTEGER,   INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
+INTEGER,   INTENT(IN)                            :: istab                      ! 
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: disx                       ! 
+INTEGER,   INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
+INTEGER,   INTENT(IN)                            :: iwdd                       ! wind direction if wind is from source to receptor (degrees), including turning angle correction
+INTEGER,   INTENT(IN)                            :: isec2                      ! second of two interpolating wind sectors 
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
 
 ! SUBROUTINE ARGUMENTS - I/O
-INTEGER*4, INTENT(INOUT)                         :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
+INTEGER,   INTENT(INOUT)                         :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: ispecial                   ! 
-REAL*4,    INTENT(OUT)                           :: phi                        ! is not used as output
-REAL*4,    INTENT(OUT)                           :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
+INTEGER,   INTENT(OUT)                           :: ispecial                   ! 
+REAL,      INTENT(INOUT)                         :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iwr                        ! 
+INTEGER                                          :: iwr                        ! 
+REAL                                             :: phi                        !
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -896,22 +920,23 @@ END SUBROUTINE windcorr
 !                      and current source-receptor distance.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE interp_ctr(disx, trafst, itra, s_dist, ids)
+USE m_commonconst_lt
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'interp_ctr')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: disx                       ! source recptor distance [m]m 
-REAL*4,    INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]
+REAL,      INTENT(IN)                            :: disx                       ! source recptor distance [m]m 
+REAL,      INTENT(IN)                            :: trafst(NTRAJ)              ! travel distances for each distance class [m]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
-REAL*4,    INTENT(OUT)                           :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary) 
-INTEGER*4, INTENT(OUT)                           :: ids                        ! class index, such that trafst(ids-1) < disx <= trafst(ids)
+INTEGER,   INTENT(OUT)                           :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
+REAL,      INTENT(OUT)                           :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary) 
+INTEGER,   INTENT(OUT)                           :: ids                        ! class index, such that trafst(ids-1) < disx <= trafst(ids)
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! 
+INTEGER                                          :: i                          ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -956,13 +981,16 @@ ENDDO
 ! s_dist(i) = 0, for i /= ids 
 !
 IF (disx .LE. (trafst(2) + EPS_DELTA)) THEN
+   s_dist(1) = 0
    ids = 2
     ! here D(1) is replaced by -1 m) == trafst(2)+1 = 100001 m does not make much difference
    s_dist(2) = 1. - (trafst(2) - disx)/(trafst(2) + 1.)
 ELSE
+   s_dist(1) = 0
    s_dist(2) = 0.
    ids = 3
-   DO WHILE (ids .LT. NTRAJ .AND. disx .GE. (trafst(ids)-EPS_DELTA))
+   !DO WHILE (ids .LT. NTRAJ .AND. disx .GE. (trafst(ids)-EPS_DELTA)) ! Orig Edit
+   DO WHILE (ids .LT. NTRAJ .AND. disx .GT. (trafst(ids)+EPS_DELTA)) ! New Edit
       s_dist(ids) = 0.
       ids = ids + 1
    ENDDO
@@ -986,27 +1014,28 @@ END SUBROUTINE interp_ctr
 !                      and store interpolated meteo parameters into stt (same index numbering as astat)
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE interp_tra(itra, s_dist, ids, istab, isec_in, tal, astat, itrx, aant, stt)
+USE m_commonconst_lt
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'interp_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
-REAL*4,    INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary) 
-INTEGER*4, INTENT(IN)                            :: ids                        ! distance class where source-rceptor distance is in (s(ids /= 0)
-INTEGER*4, INTENT(IN)                            :: istab                      ! index of stability class
-INTEGER*4, INTENT(IN)                            :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
-REAL*4,    INTENT(IN)                            :: tal(NTRAJ)                 ! number of hours of wind blowing from source to receptor (interpolated between sector isec1 and isec2)
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+INTEGER,   INTENT(IN)                            :: itra                       ! distance class with travel distance ~nearest to the current source-receptor distance
+REAL,      INTENT(IN)                            :: s_dist(NTRAJ)              ! interpolation factor for each distance class (interpolates data between lower and upper class boundary) 
+INTEGER,   INTENT(IN)                            :: ids                        ! distance class where source-rceptor distance is in (s(ids /= 0)
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class
+INTEGER,   INTENT(IN)                            :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
+REAL,      INTENT(IN)                            :: tal(NTRAJ)                 ! number of hours of wind blowing from source to receptor (interpolated between sector isec1 and isec2)
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: itrx                       ! = itra, but if one of interpolating distance classes is missing, itrx is the non-missing class
-REAL*4,    INTENT(OUT)                           :: aant                       ! number of hours of occurrence of interpolation of distance classes/wind sectors for the current stability class
-REAL*4,    INTENT(OUT)                           :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP) 
+INTEGER,   INTENT(OUT)                           :: itrx                       ! = itra, but if one of interpolating distance classes is missing, itrx is the non-missing class
+REAL,      INTENT(OUT)                           :: aant                       ! number of hours of occurrence of interpolation of distance classes/wind sectors for the current stability class
+REAL,      INTENT(OUT)                           :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP) 
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: icomp                      ! 
+INTEGER                                          :: icomp                      ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1026,11 +1055,13 @@ aant = (1. - s_dist(ids))*tal(ids-1) + s_dist(ids)*tal(ids)
 
 ! Check whether both distance classes (ids-1,ids) occur (note: astat(:,1,:,:) = number of hours for distance/stability/wind direction class):
 IF ((ABS(astat(ids-1, 1, istab, isec_in)) .GT. EPS_DELTA) .AND. (ABS(astat(ids, 1, istab, isec_in)) .GT. EPS_DELTA)) THEN
-
+   stt(1) = 0
    ! Both distance classes (ids-1, ids) occur -> interpolate meteo parameters 2-8 and 19-NCOMP between these two distance classes
    DO icomp = 2, NCOMP
       IF (.NOT. ((icomp .GT. 8) .AND. (icomp .LT. 19))) THEN
          stt(icomp) = (1. -  s_dist(ids)) * astat(ids-1, icomp, istab, isec_in) + s_dist(ids)*astat(ids, icomp, istab, isec_in)
+      ELSE
+         stt(icomp) = 0
       ENDIF
    ENDDO
    ! itrx  = itra (default value)
@@ -1048,9 +1079,12 @@ ELSE
    ENDIF
 
    ! No interpolation, use parameters 2-8, 19-NCOMP from distance class itrx:
+   stt(1) = 0
    DO icomp = 2, NCOMP
       IF (.NOT. ((icomp .GT. 8) .AND. (icomp .LT. 19))) THEN
          stt(icomp) = astat(itrx, icomp, istab, isec_in)
+      ELSE
+         stt(icomp) = 0
       ENDIF
    ENDDO
 ENDIF
@@ -1062,61 +1096,64 @@ END SUBROUTINE interp_tra
 ! SUBROUTINE         : interp_sek
 ! DESCRIPTION        : In deze routine worden de meteostatistiek geinterpoleerd over de windsektoren.
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE interp_sek(istab, isec_in, itrx, isec2, s_wind, isec1, stt, astat, xl, vw10, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, uster_metreg_rcp,  &
+SUBROUTINE interp_sek(istab, isec_in, itrx, isec2, s_wind, isec1, stt, astat, varin_unc, xl, vw10, rb_ms, ra_ms_4, ra_ms_zra, xvglbr, xvghbr, uster_metreg_rcp,  &
                    &  temp_C, ol_metreg_rcp, h0, xloc, xl100, rad, rc_so2_ms, hum, pcoef, rc_nh3_ms, rc_no2_ms, rc_aer_ms, buil, rint, shear, &
                    &  dscor, coef_space_heating, regenk)    
+USE m_commonconst_lt
+USE m_ops_varin, ONLY: Tvarin_unc
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'interp_sek')
 
 ! CONSTANTS
-INTEGER*4                                        :: MENGH(NSTAB)               ! menghoogte
+INTEGER,   PARAMETER :: MENGH(NSTAB)  = (/ 300, 985, 302, 537, 50, 153/) ! MENGH is default value for mixing height for 6 stability classes
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-INTEGER*4, INTENT(IN)                            :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
-INTEGER*4, INTENT(IN)                            :: itrx                       ! 
-INTEGER*4, INTENT(IN)                            :: isec2                      ! second of two interpolating wind sectors 
-REAL*4,    INTENT(IN)                            :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
-INTEGER*4, INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
-REAL*4,    INTENT(IN)                            :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP)
-REAL*4,    INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class
+INTEGER,   INTENT(IN)                            :: isec_in                    ! source-receptor wind sector, taking into account wind shear  
+INTEGER,   INTENT(IN)                            :: itrx                       ! = itra, but if one of interpolating distance classes is missing, itrx is the non-missing class
+INTEGER,   INTENT(IN)                            :: isec2                      ! second of two interpolating wind sectors 
+REAL,      INTENT(IN)                            :: s_wind                     ! interpolation factor (0-1) for the contribution of wind sector 
+INTEGER,   INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors 
+REAL,      INTENT(IN)                            :: stt(NCOMP)                 ! meteo parameters, interpolated between distance classes (ICOMP = 2-8, 19-NCOMP)
+REAL,      INTENT(IN)                            :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: xl                         ! 
-REAL*4,    INTENT(OUT)                           :: vw10                       ! 
-REAL*4,    INTENT(OUT)                           :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m] 
-REAL*4,    INTENT(OUT)                           :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
-REAL*4,    INTENT(OUT)                           :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m]   
-REAL*4,    INTENT(OUT)                           :: xvglbr                     ! 
-REAL*4,    INTENT(OUT)                           :: xvghbr                     ! 
-REAL*4,    INTENT(OUT)                           :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
-REAL*4,    INTENT(OUT)                           :: ol_metreg_rcp              ! 
-REAL*4,    INTENT(OUT)                           :: h0                         ! 
-REAL*4,    INTENT(OUT)                           :: xloc                       ! 
-REAL*4,    INTENT(OUT)                           :: xl100                      ! 
-REAL*4,    INTENT(OUT)                           :: rad                        ! 
-REAL*4,    INTENT(OUT)                           :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
-REAL*4,    INTENT(OUT)                           :: hum                        ! relative humidity [%]
-REAL*4,    INTENT(OUT)                           :: pcoef                      ! 
-REAL*4,    INTENT(OUT)                           :: rc_nh3_ms                  ! Rc(NH3) from meteo statistics [s/m] (NOT USED)
-REAL*4,    INTENT(OUT)                           :: rc_no2_ms                  ! Rc(NO2) from meteo statistics [s/m] (NOT USED)
-REAL*4,    INTENT(OUT)                           :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m] 
-REAL*4,    INTENT(OUT)                           :: buil                       ! 
-REAL*4,    INTENT(OUT)                           :: rint                       ! 
-REAL*4,    INTENT(OUT)                           :: shear                      ! 
-REAL*4,    INTENT(OUT)                           :: dscor(NTRAJ)               ! 
-REAL*4,    INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-REAL*4,    INTENT(OUT)                           :: regenk                     ! 
+REAL,      INTENT(OUT)                           :: xl                         ! maximal mixing height over transport distance [m]
+REAL,      INTENT(OUT)                           :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(OUT)                           :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m] 
+REAL,      INTENT(OUT)                           :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m]
+REAL,      INTENT(OUT)                           :: ra_ms_zra                  ! aerodynamic resistance at height zra from meteo statistics [s/m]   
+REAL,      INTENT(OUT)                           :: xvglbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
+REAL,      INTENT(OUT)                           :: xvghbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-]
+REAL,      INTENT(OUT)                           :: uster_metreg_rcp           ! friction velocity u* [m/s]
+REAL,      INTENT(OUT)                           :: temp_C                     ! temperature at height zmet_T [C]
+REAL,      INTENT(OUT)                           :: ol_metreg_rcp              ! Monin-Obukhov length L [m]
+REAL,      INTENT(OUT)                           :: h0                         ! sensible heat flux H0 [W/m2]
+REAL,      INTENT(OUT)                           :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(OUT)                           :: xl100                      ! mixing height at 100 km [m]
+REAL,      INTENT(OUT)                           :: rad                        ! global radiation [J/cm2/h]
+REAL,      INTENT(OUT)                           :: rc_so2_ms                  ! Rc(SO2) from meteo statistics [s/m] 
+REAL,      INTENT(OUT)                           :: hum                        ! relative humidity [%]
+REAL,      INTENT(OUT)                           :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(OUT)                           :: rc_nh3_ms                  ! Rc(NH3) from meteo statistics [s/m] (NOT USED)
+REAL,      INTENT(OUT)                           :: rc_no2_ms                  ! Rc(NO2) from meteo statistics [s/m] (NOT USED)
+REAL,      INTENT(OUT)                           :: rc_aer_ms                  ! Rc(SO4-aerosol) from meteo statistics [s/m] 
+REAL,      INTENT(OUT)                           :: buil                       ! length of rain event [0.01 hours]
+REAL,      INTENT(OUT)                           :: rint                       ! rain intensity [0.01 mm/h]
+REAL,      INTENT(OUT)                           :: shear                      ! turning angle for wind shear (at reference height) [degrees]
+REAL,      INTENT(OUT)                           :: dscor(NTRAJ)               ! effective travel distance for each distance class for specific stability class and specific wind direction 
+REAL,      INTENT(OUT)                           :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
+REAL,      INTENT(OUT)                           :: regenk                     ! rain probability [1/1000]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: sp                         ! interpolation factor between wind sectors, taking into account missing sectors
+REAL                                             :: sp                         ! interpolation factor between wind sectors, taking into account missing sectors
+REAL                                             :: mengh_scaled(NSTAB)        ! MENGH with xl_fact scaling applied.
 
-! DATA
-! MENGH is default value for mixing height for 6 stability classes
-DATA MENGH /300, 985, 302, 537, 50, 153/
+! Adjustment of default boundary layer height relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+mengh_scaled = varin_unc%unc_meteo%xl_fact * FLOAT(MENGH(:))
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -1133,7 +1170,7 @@ DATA MENGH /300, 985, 302, 537, 50, 153/
 !           See OPS-doc/meteo, bookmark correction_factor_deposition_velocity
 !        19. friction velocity u* [m/s]
 !        20. temperature T [degree C]
-!        21. turning angle for wind shear (at reference height) []
+!        21. turning angle for wind shear (at reference height) [degrees]
 !        22. Monin-Obukhov length L [m]
 !        23. sensible heat flux H0 [W/m2]
 !
@@ -1160,7 +1197,7 @@ ENDIF
 
 ! xloc local mixing height (near source)
 IF (ABS(astat(1, 2, istab, isec_in)) .LE. EPS_DELTA) THEN
-   xloc = FLOAT(MENGH(istab))
+   xloc = mengh_scaled(istab)
 ELSE
    xloc = astat(1, 2, istab, isec_in)
 ENDIF
@@ -1205,6 +1242,7 @@ rc_aer_ms = (1. - sp)*astat(itrx, 27, istab, isec1) + sp*astat(itrx, 27, istab, 
 ! no correction for effective travel distance of distance class 1 (vicinity of source),
 ! but dscor(1) will not be used in interp_sek.
 !
+dscor(1) = 0  ! output arguments must always be set
 dscor(2:NTRAJ)=(1. - sp)*astat(2:NTRAJ, 9, istab, isec1) + sp*astat(2:NTRAJ, 9, istab, isec2)
 !
 ! Interpolate meteo parameters 10-11 for current stability class and distance class,
@@ -1224,7 +1262,4 @@ RETURN
 END SUBROUTINE interp_sek
 
 !-------------------------------------------------------------------------------------------------------------------------------
-
-END SUBROUTINE ops_statparexp
-
 end module m_ops_statparexp

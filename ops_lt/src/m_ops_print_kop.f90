@@ -39,13 +39,13 @@ CHARACTER*(*), INTENT(IN)                        :: project                    !
 CHARACTER*(*), INTENT(IN)                        :: namco                      ! naam van de component
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: dattim(8)                  ! date and time values
-INTEGER*4                                        :: i                          ! teller
+INTEGER                                          :: dattim(8)                  ! date and time values
+INTEGER                                          :: i                          ! teller
 CHARACTER*10                                     :: date                       ! datum
 CHARACTER*8                                      :: time                       ! tijd
-INTEGER*4                                        :: versielen                  ! length of version string
-INTEGER*4                                        :: releaselen                 ! length of release date string
-INTEGER*4                                        :: marginlen                  ! number of = in margin
+INTEGER                                          :: versielen                  ! length of version string
+INTEGER                                          :: releaselen                 ! length of release date string
+INTEGER                                          :: marginlen                  ! number of = in margin
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !

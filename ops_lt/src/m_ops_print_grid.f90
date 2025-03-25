@@ -43,11 +43,11 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_print_grid')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
-INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
+INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptor points
+INTEGER,   INTENT(IN)                            :: nsubsec                    ! number of sub-secondary species
+INTEGER,   INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
 CHARACTER*(*), INTENT(IN)                        :: project                    ! project name
-INTEGER*4, INTENT(IN)                            :: icm                        ! component number
+INTEGER,   INTENT(IN)                            :: icm                        ! component number
 LOGICAL,   INTENT(IN)                            :: gasv                       ! fase = gasvormig
 LOGICAL,   INTENT(IN)                            :: isec                       ! sec. comp taken into account
 LOGICAL,   INTENT(IN)                            :: verb                       ! extra calculations if true
@@ -55,48 +55,48 @@ CHARACTER*(*), INTENT(IN)                        :: namco                      !
 CHARACTER*(*), INTENT(IN)                        :: nam_pri_sec                     ! 
 CHARACTER*(*), INTENT(IN)                        :: coneh                      ! concentration unit
 CHARACTER*(*), INTENT(IN)                        :: depeh                      ! deposition unit
-REAL*4,    INTENT(IN)                            :: conc_cf                    ! concentration correction factor
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
-INTEGER*4, INTENT(IN)                            :: nrcol                      ! number of grid cells in X-dir
-INTEGER*4, INTENT(IN)                            :: nrrow                      ! number of grid cells in Y-dir
-REAL*4,    INTENT(IN)                            :: grid                       ! grid cell dimension
-REAL*4,    INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m] 
-REAL*4,    INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m] 
-REAL*4,    INTENT(IN)                            :: precip(nrrcp)              ! total precipitation per year [mm/year]
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
-REAL*4,    INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
-INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
-REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    INTENT(IN)                            :: gemcpri                    ! grid mean for prim. concentration
-REAL*4,    INTENT(IN)                            :: gemcsec                    ! grid mean for sec. concentration
-REAL*4,    INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
-REAL*4,    INTENT(IN)                            :: gemddep                    ! grid mean for dry deposition
-REAL*4,    INTENT(IN)                            :: gemddpri                   ! grid mean for dry deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemddsec                   ! grid mean for dry deposition (sec)
-REAL*4,    INTENT(IN)                            :: totddep                    ! grid total dry deposition (g/s)
-REAL*4,    INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
-REAL*4,    INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
-REAL*4,    INTENT(IN)                            :: gemwdep                    ! grid mean for wet deposition (tot)
-REAL*4,    INTENT(IN)                            :: gemwdpri                   ! grid mean for wet deposition (pri)
-REAL*4,    INTENT(IN)                            :: gemwdsec                   ! grid mean for wet deposition (sec)
-REAL*4,    INTENT(IN)                            :: totwdep                    ! grid total wet deposition (g/s)
-REAL*4,    INTENT(IN)                            :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
-REAL*4,    INTENT(IN)                            :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
-REAL*4,    INTENT(IN)                            :: gemprec                    ! grid mean annual precpitation from meteo
-REAL*4,    INTENT(IN)                            :: gemtdep                    ! grid mean for total deposition
-REAL*4,    INTENT(IN)                            :: tottdep                    ! grid total total deposition
-REAL*4,    INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
-REAL*4,    INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
+REAL,      INTENT(IN)                            :: conc_cf                    ! concentration correction factor
+REAL,      INTENT(IN)                            :: amol21                     ! 
+REAL,      INTENT(IN)                            :: ugmoldep                   ! 
+INTEGER,   INTENT(IN)                            :: nrcol                      ! number of grid cells in X-dir
+INTEGER,   INTENT(IN)                            :: nrrow                      ! number of grid cells in Y-dir
+REAL,      INTENT(IN)                            :: grid                       ! grid cell dimension
+REAL,      INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m] 
+REAL,      INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m] 
+REAL,      INTENT(IN)                            :: precip(nrrcp)              ! total precipitation per year [mm/year]
+REAL,      INTENT(IN)                            :: cpri(nrrcp)                ! primary concentration
+REAL,      INTENT(IN)                            :: csec(nrrcp)                ! secondary concentration
+REAL,      INTENT(IN)                            :: drydep(nrrcp)              ! dry deposition
+REAL,      INTENT(IN)                            :: wetdep(nrrcp)              ! wet deposition
+REAL,      INTENT(IN)                            :: ddepri(nrrcp)              ! dry depo of primary comp.
+INTEGER,   INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
+REAL,      INTENT(IN)                            :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+REAL,      INTENT(IN)                            :: gemcpri                    ! grid mean for prim. concentration
+REAL,      INTENT(IN)                            :: gemcsec                    ! grid mean for sec. concentration
+REAL,      INTENT(IN)                            :: ccr                        ! eff. chemical conversion rate
+REAL,      INTENT(IN)                            :: gemddep                    ! grid mean for dry deposition
+REAL,      INTENT(IN)                            :: gemddpri                   ! grid mean for dry deposition (pri)
+REAL,      INTENT(IN)                            :: gemddsec                   ! grid mean for dry deposition (sec)
+REAL,      INTENT(IN)                            :: totddep                    ! grid total dry deposition (g/s)
+REAL,      INTENT(IN)                            :: ddrpri                     ! eff. dry deposition rate (prim)
+REAL,      INTENT(IN)                            :: ddrsec                     ! eff. dry deposition rate (sec)
+REAL,      INTENT(IN)                            :: gemwdep                    ! grid mean for wet deposition (tot)
+REAL,      INTENT(IN)                            :: gemwdpri                   ! grid mean for wet deposition (pri)
+REAL,      INTENT(IN)                            :: gemwdsec                   ! grid mean for wet deposition (sec)
+REAL,      INTENT(IN)                            :: totwdep                    ! grid total wet deposition (g/s)
+REAL,      INTENT(IN)                            :: wdrpri                     ! effective wet deposition rate (primary component) [%/h]
+REAL,      INTENT(IN)                            :: wdrsec                     ! effective wet deposition rate (secondary component) [%/h]
+REAL,      INTENT(IN)                            :: gemprec                    ! grid mean annual precpitation from meteo
+REAL,      INTENT(IN)                            :: gemtdep                    ! grid mean for total deposition
+REAL,      INTENT(IN)                            :: tottdep                    ! grid total total deposition
+REAL,      INTENT(IN)                            :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
+REAL,      INTENT(IN)                            :: gem_subsec(nsubsec)        ! grid mean for concentration of sub-secondary species [ug/m3]
 CHARACTER*(*), INTENT(IN)                        :: nam_subsec(nsubsec)        ! names of sub-secondary species
-REAL*4,    INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
-REAL*4,    INTENT(IN)                            :: scale_con                  ! scalefactor prim. concentration
-REAL*4,    INTENT(IN)                            :: scale_sec                  ! scalefactor sec. concentration
-REAL*4,    INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
-REAL*4,    INTENT(IN)                            :: scale_dep                  ! scalefactor deposition
+REAL,      INTENT(IN)                            :: totdep(nrrcp)              ! total deposition
+REAL,      INTENT(IN)                            :: scale_con                  ! scalefactor prim. concentration
+REAL,      INTENT(IN)                            :: scale_sec                  ! scalefactor sec. concentration
+REAL,      INTENT(IN)                            :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
+REAL,      INTENT(IN)                            :: scale_dep                  ! scalefactor deposition
 
 ! SUBROUTINE ARGUMENTS - I/O
 LOGICAL,   INTENT(INOUT)                         :: idep                       ! deposition taken into account
@@ -104,12 +104,12 @@ LOGICAL,   INTENT(INOUT)                         :: igrid                      !
 CHARACTER*(*), INTENT(INOUT)                     :: namsec                     ! 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! whether an error occurred
+TYPE (TError), INTENT(INOUT)                     :: error                      ! whether an error occurred
 
 ! LOCAL VARIABLES
 INTEGER                                          :: j                          ! counter through receptro points
-REAL*4                                           :: tmp(nrrcp)                 ! tempory array with values to be written
-INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
+REAL                                             :: tmp(nrrcp)                 ! tempory array with values to be written
+INTEGER                                          :: isubsec                    ! index of sub-secondary species
 
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ IF (isec) idep  = .TRUE.
 !
 ! (1) Concentration primary component
 !
-IF (icm /= 24 .or. namco == "PM2.5" ) THEN
+IF (icm /= icm_PM .or. namco == "PM2.5" ) THEN
   IF (namco == "PM2.5") THEN
     CALL ops_print_kop (project,"PM")
   ELSE
@@ -141,9 +141,9 @@ IF (gasv.and.(icm.ne.0.or.idep)) THEN
 ENDIF
 IF (isec) THEN
 !
-! (1aa) Concentration of second secondary component (only for NOx, icm = 2)
+! (1aa) Concentration of second secondary component (only for NOx, icm = icm_NOx)
 !
-  IF (icm == 2) THEN
+  IF (icm == icm_NOx) THEN
     IF (igrid) THEN
       WRITE (fu_prt, '(a)') char(12)
       CALL ops_print_kop(project, namco)
@@ -164,7 +164,7 @@ IF (isec) THEN
 !
 ! (1aa) Concentration of secondary component (non-NOx)
 !
-  IF (verb .or. icm /= 2) THEN
+  IF (verb .or. icm /= icm_NOx) THEN
     IF (igrid) THEN
       WRITE (fu_prt, '(a)') char(12)
       CALL ops_print_kop(project, namco)
@@ -259,7 +259,7 @@ IF (idep) THEN
   ELSE
     WRITE (fu_prt, '(/, '' average '',a,'' deposition'', '' (as '', a, '')'', T50, '': '', e9.3, a10)')                        &
         &  nam_pri_sec(:LEN_TRIM(nam_pri_sec)), namsec(:LEN_TRIM(namsec)), gemtdep, depeh
-    WRITE (fu_prt, '('' total deposition     (as '',a'')'', T50, '': '', e9.3, '' g/s'')') namco(:LEN_TRIM(namco)), tottdep
+    WRITE (fu_prt, '('' total deposition     (as '',a,'')'', T50, '': '', e9.3, '' g/s'')') namco(:LEN_TRIM(namco)), tottdep
   ENDIF
 ENDIF
 IF (verb) THEN
@@ -316,7 +316,7 @@ IF (verb) THEN
     CALL print_mat(fu_prt, tmp, 1., nrrcp, jump, nrcol, nrrow, grid, xul_cell_centre, yul_cell_centre, error)
   ENDIF
 ENDIF                                                                          ! verb
-IF (ANY(icm == (/1,2,3/))) namsec=CNAME(icm,2)
+IF (ANY(icm == (/icm_SO2,icm_NOx,icm_NH3/))) namsec=CNAME(icm,2)
 
 RETURN
 
@@ -338,7 +338,7 @@ INTEGER,   INTENT(IN)                            :: lun                        !
 REAL,      INTENT(IN)                            :: value(nrrcp)               ! values to be displayed in each receptor point
 REAL,      INTENT(IN)                            :: fact                       ! multiplication factor in value displayed
 INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptor points
-INTEGER*4, INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
+INTEGER,   INTENT(IN)                            :: jump(nrrcp+1)              ! number of successive points that can be skipped for output purposes
 INTEGER,   INTENT(IN)                            :: nrcol                      ! number of elements displayed on row
 INTEGER,   INTENT(IN)                            :: nrrow                      ! number of rows in grid
 REAL,      INTENT(IN)                            :: grid                       ! grid size in km
@@ -346,13 +346,13 @@ REAL,      INTENT(IN)                            :: xul_cell_centre            !
 REAL,      INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m] 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-TYPE (TError), INTENT(OUT)                       :: error                      ! Error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! Error handling record
 
 ! Local variables
 INTEGER                                          :: j                          ! receptor counter
 INTEGER                                          :: m                          ! do loop counter
 INTEGER                                          :: pointto                    ! current receptor point index on line
-INTEGER*4                                        :: line(nrcol)                ! value from each row
+INTEGER                                          :: line(nrcol)                ! value from each row
 CHARACTER*80                                     :: formatstring               ! format string in writing
 
 ! ---
