@@ -30,17 +30,19 @@ implicit none
 
 contains
 
-SUBROUTINE ops_conc_rek(do_proc, ueff, qbpri, isec, rc_sec_trj, routsec, ccc, amol1, amol2, sigz, utr, rc_sec_rcp, ra_rcp_4, ra_rcp_zra, &
+SUBROUTINE ops_conc_rek(varin_unc, do_proc, ueff, qbpri, isec, rc_sec_trj, routsec, c0_undepl_total, c0_undepl_mix, c_zrcp_undepl_mix, &
+                     &  amol1, amol2, sigz, utr, rc_sec_rcp, ra_rcp_4, ra_rcp_zra, &
                      &  rb_rcp, amol21, ugmoldep, cch, cgt, cgt_z, grof, percvk, onder, regenk, virty, ri, vw10, hbron, pcoef, &
-                     &  rkc, disx, vnatpri, vchem, radius, xl, xloc, htot, twt, xvghbr, xvglbr, grad, frac, &
-                     &  cdn, cq2, c, sdrypri, sdrysec, snatsec, somvnsec, telvnsec, vvchem, vtel, snatpri, somvnpri, &
+                     &  rkc, disxx, vnatpri, vchem, radius, xl, xloc, htot, twt, xvghbr, xvglbr, grad, frac, &
+                     &  cdn, cq2, c_zrcp, sdrypri, sdrysec, snatsec, somvnsec, telvnsec, vvchem, vtel, snatpri, somvnpri, &
                      &  telvnpri, ddepri, wdepri, drydep, wetdep, qsec, consec, pr, vd_eff_trj_zra, ra_trj_zra, rb_trj, rc_eff_rcp_4, vd_coarse_part, &
                      &  buildingFact, nparout, parout_val, parout_name, parout_unit, parout_write)
 
 use m_commonconst_lt
 use m_ops_output_lt
 use m_ops_seccmp
-use m_ops_brondepl, only: Tdo_proc
+use m_ops_varin, only: Tvarin_unc
+use m_ops_tdo_proc, only: Tdo_proc
 
 IMPLICIT NONE
 
@@ -49,64 +51,66 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_conc_rek')
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
 TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
-REAL*4,    INTENT(IN)                            :: ueff                       ! 
-REAL*4,    INTENT(IN)                            :: qbpri                      ! source strength current source (for current particle class) [g/s]
+REAL,      INTENT(IN)                            :: ueff                       ! 
+REAL,      INTENT(IN)                            :: qbpri                      ! source strength current source (for current particle class) [g/s]
 LOGICAL,   INTENT(IN)                            :: isec                       ! 
-REAL*4,    INTENT(IN)                            :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
-REAL*4,    INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
+REAL,      INTENT(IN)                            :: rc_sec_trj                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) for trajectory [s/m]
+REAL,      INTENT(IN)                            :: routsec                    ! in-cloud scavenging ratio for secondary component
                                                                                ! (rout << rain-out = in-cloud) [-]
-REAL*4,    INTENT(IN)                            :: ccc                        ! undepleted concentration at z = 0 m (including part of plume above mixing layer); 
-                                                                               ! is needed for secondary species.
-REAL*4,    INTENT(IN)                            :: amol1                      ! 
-REAL*4,    INTENT(IN)                            :: amol2                      ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(IN)                            :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
-REAL*4,    INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m];
-REAL*4,    INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
+REAL,      INTENT(IN)                            :: c0_undepl_total            ! undepleted concentration at z = 0 m (including part of plume above mixing layer); is needed for secondary species.
+REAL,      INTENT(IN)                            :: c0_undepl_mix              ! undepleted concentration at z = 0 m (only due to part of plume inside the mixing layer)
+REAL,      INTENT(IN)                            :: c_zrcp_undepl_mix          ! undepleted concentration at z = zrcp (only due to part of plume inside the mixing layer)
+REAL,      INTENT(IN)                            :: amol1                      ! 
+REAL,      INTENT(IN)                            :: amol2                      ! 
+REAL,      INTENT(IN)                            :: sigz                       ! vertical dispersion length [m]
+REAL,      INTENT(IN)                            :: utr                        ! average wind speed over the trajectory (m/s)
+REAL,      INTENT(IN)                            :: rc_sec_rcp                 ! canopy resistance secondary aerosol (SO4, NO3, NH4) at the receptor [s/m]
+REAL,      INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m];
+REAL,      INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
-REAL*4,    INTENT(IN)                            :: amol21                     ! 
-REAL*4,    INTENT(IN)                            :: ugmoldep                   ! 
-REAL*4,    INTENT(IN)                            :: cch                        ! source depletion factor for wet deposition/chemical conversion
-REAL*4,    INTENT(IN)                            :: cgt                        ! gradient factor at 4 m height [-]
-REAL*4,    INTENT(IN)                            :: cgt_z                      ! gradient factor at receptor height zm [-]
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-REAL*4,    INTENT(IN)                            :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-]
-REAL*4,    INTENT(IN)                            :: virty                      ! 
-REAL*4,    INTENT(IN)                            :: ri                         ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: rkc                        ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: vnatpri                    ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
-REAL*4,    INTENT(IN)                            :: twt                        ! 
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: grad                       ! 
-REAL*4,    INTENT(IN)                            :: frac                       ! fraction of this grid cell that is relevant
-REAL*4,    INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
+REAL,      INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
+REAL,      INTENT(IN)                            :: amol21                     ! 
+REAL,      INTENT(IN)                            :: ugmoldep                   ! 
+REAL,      INTENT(IN)                            :: cch                        ! source depletion factor for wet deposition/chemical conversion
+REAL,      INTENT(IN)                            :: cgt                        ! gradient factor at 4 m height [-]
+REAL,      INTENT(IN)                            :: cgt_z                      ! gradient factor at receptor height zm [-]
+REAL,      INTENT(IN)                            :: grof                       ! = 1 -> coarse particles
+REAL,      INTENT(IN)                            :: percvk                     ! fraction of occurrence of {distance/stability/wind-direction} class
+REAL,      INTENT(IN)                            :: onder                      ! fraction of emission below mixing height [-]
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-]
+REAL,      INTENT(IN)                            :: virty                      ! distance virtual point source - centre area source [m]
+REAL,      INTENT(IN)                            :: ri                         ! rain intensity [mm/h].
+REAL,      INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
+REAL,      INTENT(IN)                            :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(IN)                            :: rkc                        ! obsolete factor 
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+REAL,      INTENT(IN)                            :: vchem                      ! 
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(IN)                            :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(IN)                            :: twt                        ! average duration of a rainfall period, dependent on source - receptor distance [h] 
+REAL,      INTENT(IN)                            :: xvghbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-]
+REAL,      INTENT(IN)                            :: xvglbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
+REAL,      INTENT(IN)                            :: grad                       ! depositon velocity gradient over height = vd(zra)/vd(4)
+REAL,      INTENT(IN)                            :: frac                       ! fraction of this grid cell that is relevant
+REAL,      INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m  
-REAL*4,    INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
-REAL*4,    INTENT(IN)                            :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m] 
-REAL*4,    INTENT(IN)                            :: vd_coarse_part             ! deposition velocity coarse particles [m/s]
-REAL*4,    INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
-INTEGER*4, INTENT(IN)                            :: nparout                    ! number of extra output parameters (besides concentration, deposition)
+REAL,      INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
+REAL,      INTENT(IN)                            :: rc_eff_rcp_4               ! effective canopy resistance at receptor, 4 m height, re-emission allowed [s/m] 
+REAL,      INTENT(IN)                            :: vd_coarse_part             ! deposition velocity coarse particles [m/s]
+REAL,      INTENT(IN)                            :: buildingFact               ! Building Effect interpolated from building table
+INTEGER,   INTENT(IN)                            :: nparout                    ! number of extra output parameters (besides concentration, deposition)
 LOGICAL,   INTENT(IN)                            :: parout_write               ! write parout parameters to output
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: cdn                        ! source depletion ratio for dry deposition for phase 3 (plume fully mixed over mixing layer)
-REAL*4,    INTENT(INOUT)                         :: cq2                        ! source depletion ratio for dry deposition for phase 2 (plume not yet mixed over mixing layer) 
-REAL*4,    INTENT(INOUT)                         :: c                          ! concentration at receptor height zm [ug/m3]
+REAL,      INTENT(INOUT)                         :: cdn                        ! source depletion ratio for dry deposition for phase 3 (plume fully mixed over mixing layer)
+REAL,      INTENT(INOUT)                         :: cq2                        ! source depletion ratio for dry deposition for phase 2 (plume not yet mixed over mixing layer) 
+REAL,      INTENT(OUT)                           :: c_zrcp                     ! concentration at receptor height [ug/m3]
 DOUBLE PRECISION, INTENT(INOUT)                  :: sdrypri                    ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: sdrysec                    ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: snatsec                    ! 
@@ -121,35 +125,38 @@ DOUBLE PRECISION, INTENT(INOUT)                  :: ddepri                     !
 DOUBLE PRECISION, INTENT(INOUT)                  :: wdepri                     ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: drydep                     ! 
 DOUBLE PRECISION, INTENT(INOUT)                  :: wetdep                     ! 
-REAL*4,    INTENT(INOUT)                         :: parout_val(nparout)        ! values for extra output parameters, for current receptor
+REAL,      INTENT(INOUT)                         :: parout_val(nparout)        ! values for extra output parameters, for current receptor
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: qsec                       ! 
-REAL*4,    INTENT(OUT)                           :: consec                     ! 
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
+REAL,      INTENT(INOUT)                         :: qsec                       ! INOUT, because qsec remains unchanged when vchem<=EPS_DELTA
+REAL,      INTENT(INOUT)                         :: consec                     ! INOUT, because consec remains unchanged when vchem<=EPS_DELTA 
+REAL,      INTENT(INOUT)                         :: pr                         ! INOUT, because pr remains unchanged when vchem<=EPS_DELTA
+REAL,      INTENT(INOUT)                         :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
                                                                                !   height and no deposition takes place [m/s] 
-CHARACTER(len=*), INTENT(OUT)                    :: parout_name(nparout)       ! names of extra output parameters                      
-CHARACTER(len=*), INTENT(OUT)                    :: parout_unit(nparout)       ! units of extra output parameters                      
+                                                                               ! INOUT, because vd_eff_trj_zra remains unchanged when vchem<=EPS_DELTA
+CHARACTER(len=*), INTENT(INOUT)                    :: parout_name(nparout)     ! names of extra output parameters                      
+                                                                               ! INOUT, because parout_name remains unchanged when .not. parout_write
+CHARACTER(len=*), INTENT(INOUT)                    :: parout_unit(nparout)     ! units of extra output parameters                      
+                                                                               ! INOUT, because parout_unit remains unchanged when .not. parout_write
 
 ! LOCAL VARIABLES
-REAL*4                                           :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
-REAL*4                                           :: vv                         ! 
-REAL*4                                           :: drypri                     ! 
-REAL*4                                           :: ddrup                      ! 
-REAL*4                                           :: vdrup                      ! 
-REAL*4                                           :: umid                       ! 
-REAL*4                                           :: virnat                     ! 
-REAL*4                                           :: dn                         ! 
-REAL*4                                           :: dnatpri                    ! 
-REAL*4                                           :: xvg                        ! factor not used; xvg = 1
-REAL*4                                           :: cgtsec                     ! 
-REAL*4                                           :: vd_sec_rcp_zra             ! deposition velocity secondary component at receptor, height zra [m/s]
-REAL*4                                           :: vnatsec                    ! 
-REAL*4                                           :: drysec                     ! 
-REAL*4                                           :: dnatsec                    ! 
-REAL*4                                           :: vd_rcp_4                   ! deposition velocity at receptor, 4 m height [m/s]
-REAL*4                                           :: c_z                        ! concentration at receptor height zm [ug/m3]
+REAL                                             :: qpri_depl                  ! depleted source strength = integrated mass flux [g/s]
+REAL                                             :: vv                         ! 
+REAL                                             :: drypri                     ! 
+REAL                                             :: ddrup                      ! 
+REAL                                             :: vdrup                      ! 
+REAL                                             :: umid                       ! 
+REAL                                             :: virnat                     ! 
+REAL                                             :: dn                         ! 
+REAL                                             :: dnatpri                    ! 
+REAL                                             :: xvg                        ! factor not used; xvg = 1
+REAL                                             :: cgtsec                     ! 
+REAL                                             :: vd_sec_rcp_zra             ! deposition velocity secondary component at receptor, height zra [m/s]
+REAL                                             :: vnatsec                    ! 
+REAL                                             :: drysec                     ! 
+REAL                                             :: dnatsec                    ! 
+REAL                                             :: vd_rcp_4                   ! deposition velocity at receptor, 4 m height [m/s]
+REAL                                             :: c0                         ! concentration at z = 0 m [ug/m3]; used for deposition
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Initialisation 
@@ -166,9 +173,9 @@ dnatsec = 0.
 !             meaning that the concentration is higher due to sedimentation 
 ! vv   = total source depletion factor for primary component
 !
-c_z = c*cdn*cch*(1. - cgt_z)*(1. - (1. - cq2)/(1. + grof))*buildingFact
-c   = c*cdn*cch*(1. - cgt  )*(1. - (1. - cq2)/(1. + grof))*buildingFact
-vv  = cdn*cq2*cch
+c_zrcp = c_zrcp_undepl_mix*cdn*cch*(1. - cgt_z)*(1. - (1. - cq2)/(1. + grof))*buildingFact 
+c0     = c0_undepl_mix    *cdn*cch*(1. - cgt  )*(1. - (1. - cq2)/(1. + grof))*buildingFact 
+vv     = cdn*cq2*cch
 
 !
 ! Dry deposition velocity
@@ -188,7 +195,7 @@ ENDIF
 ! factor 3600   -> flux in ug/m2/h
 ! factor percvk -> fraction of occurrence of {distance/stability/wind-direction} class
 !
-drypri  = c*percvk*vd_rcp_4*3600.*(1. - .5*grof)
+drypri  = c0*percvk*vd_rcp_4*3600.*(1. - .5*grof)
 sdrypri = sdrypri + drypri*frac
 !
 ! Correction of dry deposition source depletion factors (cdn, cq2) for plume above mixing layer.
@@ -237,7 +244,7 @@ ENDIF
 !
 ! Extra shift of 3 m to avoid divide by 0 (3 m ~ stack diameter)
 !
-dn = rkc/100.*percvk*1.e6/(ueff*2.*PI/12.* (disx + virty + 3. + virnat))
+dn = rkc/100.*percvk*1.e6/(ueff*2.*PI/12.* (disxx + virty + 3. + virnat))
 !
 ! Compute qpri_depl = Q(x) = depleted source strength (effect of all source depletion factors on source strength qbpri)
 !
@@ -250,7 +257,7 @@ qpri_depl = qbpri*cdn*cq2*cch
 !         dn            : [s/m2 ug/g]
 !         qpri_depl*dn  : [ug/m2] deposited mass per area, during time step dt; qpri_depl*dn = Q(x)*dt*percvk*1e6/A
 ! 
-IF ((disx + virty) .LT. (virnat - EPS_DELTA)) THEN
+IF ((disxx + virty) .LT. (virnat - EPS_DELTA)) THEN
    dnatpri = 0.
 ELSE
    dnatpri = vnatpri*qpri_depl*dn
@@ -269,7 +276,7 @@ IF (isec) THEN
    IF (vchem .GT. (0. + EPS_DELTA)) THEN
       xvg  = 1.
       qsec = 0.
-      CALL ops_seccmp(do_proc, qbpri, ueff, rc_sec_trj, routsec, ccc, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disx, xl, xloc, vw10, &
+      CALL ops_seccmp(varin_unc,do_proc, qbpri, ueff, rc_sec_trj, routsec, c0_undepl_total, vv, amol1, amol2, xvg, sigz, grad, utr, radius, disxx, xl, xloc, vw10, &
                    &  pcoef, virty, regenk, htot, onder, twt, ri, cgt, xvghbr, xvglbr, vnatpri, vchem, ra_rcp_4, &
                    &  ra_rcp_zra, rb_rcp, rc_sec_rcp, pr, vnatsec, cgtsec, qsec, consec, vd_eff_trj_zra, ra_trj_zra, rb_trj)
       consec = consec*buildingFact
@@ -302,8 +309,8 @@ ENDIF
 !
 ! Sum chemical conversion rate (weighed with qpri_depl*dn = deposited mass per area [ug/m2]) 
 !
-vvchem = vvchem + (vchem*qpri_depl*dn)
-vtel   = vtel + (qpri_depl*dn)
+vvchem = vvchem + vchem*qpri_depl*dn
+vtel   = vtel + qpri_depl*dn
 !
 ! Sum deposition (drydep = dry/primary+secondary, ddepri = dry/primary, wetdep = wet/primary+secondary);
 ! convert from ug/m2/h to mol/ha/y 
@@ -315,9 +322,6 @@ wdepri = wdepri +  dnatpri*amol21*ugmoldep
 
 ! Fill arrays with extra output parameters:
 IF (parout_write) CALL ops_parout_fill(nparout, ra_rcp_4, rb_rcp, rc_eff_rcp_4, percvk, parout_val, parout_name, parout_unit)
-
-! Output concentration is concentration at receptor height:
-c = c_z
 
 RETURN
 END SUBROUTINE ops_conc_rek

@@ -36,8 +36,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_getz0')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
-REAL*4,    INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
+REAL,      INTENT(IN)                            :: xr                         ! x-coordinate of point (RDM)
+REAL,      INTENT(IN)                            :: yr                         ! y-coordinate of point (RDM)
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 
@@ -45,14 +45,14 @@ TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0                         ! value of roughnes length z0 [m]
+REAL,      INTENT(OUT)                           :: z0                         ! value of roughnes length z0 [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: cellvalue                  ! value of z0 grid in grid cell
-REAL*4                                           :: gxr                        ! x-coordinate of point (lon-lat)
-REAL*4                                           :: gyr                        ! y-coordinate of point (lon-lat)
-REAL*4                                           :: lamx                       ! x-coordinate of point (lambert)
-REAL*4                                           :: lamy                       ! y-coordinate of point (lambert)
+INTEGER                                          :: cellvalue                  ! value of z0 grid in grid cell
+REAL                                             :: gxr                        ! x-coordinate of point (lon-lat)
+REAL                                             :: gyr                        ! y-coordinate of point (lon-lat)
+REAL                                             :: lamx                       ! x-coordinate of point (lambert)
+REAL                                             :: lamy                       ! y-coordinate of point (lambert)
 LOGICAL                                          :: iscell                     ! whether point is inside z0 grid
 !-------------------------------------------------------------------------------------------------------------------------------
 !

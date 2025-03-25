@@ -1,0 +1,17 @@
+* namelist file with varin parameters for OPS, 2022-11-14
+* contains paramater values for model parameters
+* Note: order of variable names is flexible
+*       missing name -> vaiable retains initial value (default defined in OPS code).
+
+! These are not realistic values, just used for testing !
+
+&meteo
+!varin_meteo%ol_cutoff_iopt1   =  1,
+varin_meteo%ol_cutoff_iopt2    =  200,
+!varin_meteo%ol_max_unstable2  = -7.12345, ! note the comment line; variable should retain default value
+varin_meteo%uster_min1         =  91.0,    ! FS TEST
+varin_meteo%uster_min2         =  92.0,    ! FS TEST
+varin_meteo%uster_min3         =  93.0,    ! FS TEST
+varin_meteo%uz_cutoff2         =  0.01,    ! FS TEST
+varin_meteo%uz_cutoff1         =  7.5      ! FS TEST
+/

@@ -36,36 +36,36 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER        (ROUTINENAAM = 'ops_scalefac')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-INTEGER*4, INTENT(IN)                            :: nsubsec                    ! number sub-secondary species
-REAL*4,    INTENT(IN)                            :: cpri(nrrcp)                ! array van primaire concentraties
-REAL*4,    INTENT(IN)                            :: csec(nrrcp)                ! array van secundaire concentraties
-REAL*4,    INTENT(IN)                            :: drydep(nrrcp)              ! array van droge depositie
-REAL*4,    INTENT(IN)                            :: wetdep(nrrcp)              ! array van natte depositie
-REAL*4,    INTENT(IN), OPTIONAL                  :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
+INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptor points
+INTEGER,   INTENT(IN)                            :: nsubsec                    ! number sub-secondary species
+REAL,      INTENT(IN)                            :: cpri(nrrcp)                ! array van primaire concentraties
+REAL,      INTENT(IN)                            :: csec(nrrcp)                ! array van secundaire concentraties
+REAL,      INTENT(IN)                            :: drydep(nrrcp)              ! array van droge depositie
+REAL,      INTENT(IN)                            :: wetdep(nrrcp)              ! array van natte depositie
+REAL,      INTENT(IN), OPTIONAL                  :: csubsec(nrrcp,nsubsec)     ! concentration of sub-secondary substance [ug/m3]
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: scale_con                  ! schaal vergr. concentratie
-REAL*4,    INTENT(OUT)                           :: scale_sec                  ! schaal vergr. secundaire concentratie
-REAL*4,    INTENT(OUT)                           :: scale_dep                  ! schaal vergr. droge depositie
-REAL*4,    INTENT(OUT), OPTIONAL                 :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
+REAL,      INTENT(OUT)                           :: scale_con                  ! schaal vergr. concentratie
+REAL,      INTENT(OUT)                           :: scale_sec                  ! schaal vergr. secundaire concentratie
+REAL,      INTENT(OUT)                           :: scale_dep                  ! schaal vergr. droge depositie
+REAL,      INTENT(OUT), OPTIONAL                 :: scale_subsec(nsubsec)      ! scaling factor for sub-secondary species
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: i                          ! teller over schaalfactoren
-INTEGER*4                                        :: isubsec                    ! index of sub-secondary species
-REAL*4                                           :: cmax                       ! grootst voorkomende primaire concentratie
-REAL*4                                           :: csmax                      ! grootst voorkomende secundaire concentratie
-REAL*4                                           :: csubsecmax(nsubsec)        ! maximal value csubsec
-REAL*4                                           :: ddepmax                    ! grootst voorkomende droge depositie
-REAL*4                                           :: depntmax                   ! grootst voorkomende natte depositie
-REAL*4                                           :: s                          ! schaalfactor
-REAL*4                                           :: tc                         ! teller aantal te grote prim. conc.
-REAL*4                                           :: td                         ! teller aantal te grote droge dep.
-REAL*4                                           :: tn                         ! teller aantal te grote natte dep.
-REAL*4                                           :: ts                         ! teller aantal te grote sec. conc.
-REAL*4                                           :: tsubsec(nsubsec)                ! number of sub-secondary species with too large concentrations
-REAL*4                                           :: scale_dry                  ! schaal vergr. concentratie
-REAL*4                                           :: scale_wet                  ! schaal vergr. concentratie
+INTEGER                                          :: i                          ! teller over schaalfactoren
+INTEGER                                          :: isubsec                    ! index of sub-secondary species
+REAL                                             :: cmax                       ! grootst voorkomende primaire concentratie
+REAL                                             :: csmax                      ! grootst voorkomende secundaire concentratie
+REAL                                             :: csubsecmax(nsubsec)        ! maximal value csubsec
+REAL                                             :: ddepmax                    ! grootst voorkomende droge depositie
+REAL                                             :: depntmax                   ! grootst voorkomende natte depositie
+REAL                                             :: s                          ! schaalfactor
+REAL                                             :: tc                         ! teller aantal te grote prim. conc.
+REAL                                             :: td                         ! teller aantal te grote droge dep.
+REAL                                             :: tn                         ! teller aantal te grote natte dep.
+REAL                                             :: ts                         ! teller aantal te grote sec. conc.
+REAL                                             :: tsubsec(nsubsec)                ! number of sub-secondary species with too large concentrations
+REAL                                             :: scale_dry                  ! schaal vergr. concentratie
+REAL                                             :: scale_wet                  ! schaal vergr. concentratie
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -76,6 +76,7 @@ csmax    = MAXVAL(csec(:))
 IF (PRESENT(csubsec)) csubsecmax = MAXVAL(csubsec,1)
 ddepmax  = MAXVAL(drydep(:))
 depntmax = MAXVAL(wetdep(:))
+
 
 !
 ! Initialise scaling factors for primary and secondary concentrations and dry and wet depositions
@@ -90,13 +91,19 @@ scale_wet = 1.0e-10
 ! Set scaling factor s, such that for a parameter x with maximum xmax: s*xmax < 2000 (or (2000/xmax) > s)
 !
 DO i = -10, 30
-  s = 10**(FLOAT(i))
-  IF (cmax .GT. (0. + EPS_DELTA) .AND. (2000./cmax) .GT. (s + EPS_DELTA)) THEN
-     scale_con = s
-  ENDIF
-  IF (csmax .GT. (0. + EPS_DELTA) .AND. (2000./csmax) .GT. (s + EPS_DELTA)) THEN
-     scale_sec = s
-  ENDIF
+   s = 10**(FLOAT(i))
+   ! Using nested if-statement as short-circuit evaluation is apparently not
+   ! supported by all compilers.
+   if (cmax .GT. (0. + EPS_DELTA)) then
+      if ((2000./cmax) .GT. (s + EPS_DELTA)) then
+         scale_con = s
+      endif
+   endif
+   IF (csmax .GT. (0. + EPS_DELTA)) then
+      if ((2000./csmax) .GT. (s + EPS_DELTA)) THEN
+         scale_sec = s
+      endif
+   ENDIF
   IF (PRESENT(csubsec)) THEN
     do isubsec = 1,nsubsec
        IF (csubsecmax(isubsec) .GT. (0. + EPS_DELTA) .AND. (2000./csubsecmax(isubsec)) .GT. (s + EPS_DELTA)) THEN

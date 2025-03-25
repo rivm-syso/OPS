@@ -1,0 +1,10 @@
+* file with varin parameters for OPS, 2022-11-22
+! test with unknown parameter - should generate an error
+VARIN varin_meteo 
+   xxuz_cutoff1           0.75   
+END_VARIN
+
+! test block 
+VARIN varin_depos 
+   depos_param1      1.0
+END_VARIN

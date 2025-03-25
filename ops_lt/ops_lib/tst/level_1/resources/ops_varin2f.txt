@@ -1,0 +1,13 @@
+* file with varin parameters for OPS, 2022-11-22
+! test with error in END_VARIN 
+VARIN varin_meteo 
+   uz_cutoff1           0.75   
+   uz_cutoff2           0.5
+END_VARIN
+
+VARIN varin_unc 
+   plrise_fact      3.14
+   unc_sourcedepl   2.0  ! Use a single value to represent multiple attributes.   
+END_VARIN
+
+

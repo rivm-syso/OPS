@@ -1,0 +1,36 @@
+* varin file for OPS, 2022-06-09
+* contains paramater values for model parameters 
+* Note: order of variable names must be the same as in ops_read_varin
+* FS make more flexible:   === lastig === is dit de moeite waard?
+*    FS make a list (character array) with all varin variable names
+*    FS read line from varin-file with name value
+*    FS get index for name from character array with all varin parameters
+*    FS generate a long case statement with index and variable (in the same order as the list of names, e.g.
+*    FS case 
+*    FS    1) var_meteo%z_cutoff1 = val 
+*    FS    2) var_meteo%z_cutoff2 = val 
+*    FS    ...
+*    GS end case   let niet op de syntax
+*------ meteo_variables--------------------------------------------
+ol_cutoff_iopt1       1
+ol_cutoff_iopt2       2
+ol_cutoff_iopt3       3
+ol_add_stable0        0.0
+ol_add_stable1        5.0
+ol_max_unstable0      0.0
+ol_max_unstable1     -5.0
+ol_max_unstable2     -7.0
+ol_min_stable1        5.0
+ol_min_stable2       10.0
+ol_min_stable3       20.0
+ol_z0_ratio_cutoff1 100.0
+ol_z0_ratio_cutoff2   0.0
+uster_cutoff_iopt1    1
+uster_cutoff_iopt2    2
+uster_min1           91.0  ! FS TEST
+uster_min2           92.0  ! FS TEST
+uster_min3           93.0  ! FS TEST
+uz_cutoff1            0.5                
+uz_cutoff2            0.75                
+
+plrise_fact          1.0 

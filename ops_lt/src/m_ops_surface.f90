@@ -24,8 +24,9 @@ implicit none
 
 contains
 
-SUBROUTINE ops_surface(z0, zi, ol, uster, h, x, uh, zu, szs)
+SUBROUTINE ops_surface(varin_meteo, z0, zi, ol, uster, h, x, uh, zu, szs)
 
+use m_ops_varin
 use m_commonconst_lt, only: EPS_DELTA
 USE m_ops_meteo
 
@@ -36,32 +37,33 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER      (ROUTINENAAM = 'ops_surface')
 
 ! CONSTANTS
-REAL*4                                           :: K                          ! von Karman constant
+REAL                                             :: K                          ! von Karman constant
 PARAMETER   (K = 0.35)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source heigth, including plume rise (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+REAL,      INTENT(IN)                            :: z0                         ! roughness length (m)
+REAL,      INTENT(IN)                            :: zi                         ! mixing height (m)
+REAL,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+REAL,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+REAL,      INTENT(IN)                            :: h                          ! source heigth, including plume rise (m)
+REAL,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! wind speed at downwind distance x and height zu [m/s]
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection 
+REAL,      INTENT(OUT)                           :: uh                         ! wind speed at downwind distance x and height zu [m/s]
+REAL,      INTENT(OUT)                           :: zu                         ! representative plume height, taking into account reflection 
                                                                                ! at the top of the mixing layer and at the ground surface [m]
-REAL*4,    INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
+REAL,      INTENT(OUT)                           :: szs                        ! vertical dispersion coefficient for surface layer [m]
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: iter                       ! 
-INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: kz                         ! 
-REAL*4                                           :: phih                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: zw                         ! 
-REAL*4                                           :: zwold                      ! 
+INTEGER                                          :: iter                       ! 
+INTEGER                                          :: last                       ! 
+REAL                                             :: a                          ! 
+REAL                                             :: kz                         ! 
+REAL                                             :: phih                       ! 
+REAL                                             :: s                          ! 
+REAL                                             :: zw                         ! 
+REAL                                             :: zwold                      ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
@@ -109,7 +111,7 @@ zwold = zw
    !
    ! compute wind speed at height zu from log-profile
    !
-   CALL ops_wv_log_profile(z0, zu, uster, ol, uh)
+   CALL ops_wv_log_profile(z0, zu, uster, ol, varin_meteo, uh)
    !
    ! Compute Kz at effective plume height zw;
    ! for L  > 0, according to Businger (1973); 3.17 OPS report 
@@ -153,8 +155,8 @@ zwold = zw
             zw = zu
          ENDIF
          last = 1
-         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A1,', &
-         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A1,'; &
+         !    ' ircp;istab;iter;zw;zu;uh;szs;s;', &
          !      -999,-999,iter,zw,zu,uh,szs,s
 
          GOTO 50
@@ -195,8 +197,8 @@ zwold = zw
             last = 1
             zu   = h
          ENDIF
-         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A2,', &
-         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !write(*,'(3a,3(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A2;', &
+         !    ' ircp;istab;iter;zw;zu;uh;szs;s;', &
          !      -999,-999,iter,zw,zu,uh,szs,s
 
          GOTO 50
@@ -224,8 +226,8 @@ zwold = zw
          ELSE
             zw = zu
          ENDIF
-         !write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A3,', &
-         !    ' ircp,istab,iter,zw,zu,uh,szs,s:', &
+         !write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A3;', &
+         !    ' ircp;istab;iter;zw;zu;uh;szs;s;', &
          !      -999,-999,iter,zw,zu,uh,szs,s
          GOTO 50
       ELSE

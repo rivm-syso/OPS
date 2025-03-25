@@ -40,47 +40,47 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_gen_rcp')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: spgrid                      
+INTEGER,   INTENT(IN)                            :: spgrid                      
 LOGICAL,   INTENT(IN)                            :: igrens                      
 TYPE (TApsGridReal), INTENT(IN)                  :: masker                      
-REAL*4,    INTENT(IN)                            :: grid                        
-INTEGER*4, INTENT(IN)                            :: nrcol                       
-INTEGER*4, INTENT(IN)                            :: nrrow                       
-INTEGER*4, INTENT(IN)                            :: nrrcp                      ! number of receptor points
-REAL*4,    INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m] 
-REAL*4,    INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m]  
+REAL,      INTENT(IN)                            :: grid                        
+INTEGER,   INTENT(IN)                            :: nrcol                       
+INTEGER,   INTENT(IN)                            :: nrrow                       
+INTEGER,   INTENT(IN)                            :: nrrcp                      ! number of receptor points
+REAL,      INTENT(IN)                            :: xul_cell_centre            ! x-coordinate of centre of upper-left grid cell [m] 
+REAL,      INTENT(IN)                            :: yul_cell_centre            ! y-coordinate of centre of upper-left grid cell [m]  
 LOGICAL,   INTENT(IN)                            :: varz                       ! option for variable receptor height                  
 LOGICAL,   INTENT(IN)                            :: perc                       ! option for land use percentages from receptor file
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-INTEGER*4, INTENT(OUT)                           :: jump(nrrcp+1)              ! number of grid points to jump to for next point in output            
-INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
-REAL*4,    INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
-REAL*4,    INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
-REAL*4,    INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates of receptor points (m)
-REAL*4,    INTENT(OUT)                           :: frac(nrrcp)                ! fraction of output cell on land surface
-REAL*4,    INTENT(OUT)                           :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
-REAL*4,    INTENT(OUT)                           :: lu_rcp_per_user_all(nrrcp,NLU) ! percentage of landuse for all receptors, user defined in receptor file
+INTEGER,   INTENT(OUT)                           :: jump(nrrcp+1)              ! number of grid points to jump to for next point in output            
+INTEGER,   INTENT(OUT)                           :: lu_rcp_dom_all(nrrcp)      ! dominant land use class for each receptor point
+REAL,      INTENT(OUT)                           :: xm(nrrcp)                  ! x-coordinates of receptors (m RDM)
+REAL,      INTENT(OUT)                           :: ym(nrrcp)                  ! y-coordinates of receptors (m RDM)
+REAL,      INTENT(OUT)                           :: zm(nrrcp)                  ! z-coordinates of receptor points (m)
+REAL,      INTENT(OUT)                           :: frac(nrrcp)                ! fraction of output cell on land surface
+REAL,      INTENT(OUT)                           :: z0_rcp_all(nrrcp)          ! roughness lengths for all receptors; from z0-map or receptor file [m]
+REAL,      INTENT(OUT)                           :: lu_rcp_per_user_all(:,:)  ! percentage of landuse for all receptors, user defined in receptor file
 CHARACTER*(*), INTENT(OUT)                       :: namrcp(nrrcp)              ! receptor names
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: m                          ! column index                           
-INTEGER*4                                        :: n                          ! row index
-INTEGER*4                                        :: i                          ! index of receptor point
-INTEGER*4                                        :: h                          ! number of header lines
-INTEGER*4                                        :: j                          ! index of receptor point
-INTEGER*4                                        :: lu                         ! index of land use class
-INTEGER*4                                        :: lu_dom                     ! dominant land use class at receptor 
-INTEGER*4                                        :: nwords                     ! number of expected words in data record 
-INTEGER*4                                        :: ix                         ! x coordinate of receptor point (read from file) [m RDM]                          
-INTEGER*4                                        :: iy                         ! y coordinate of receptor point (read from file) [m RDM]
-REAL*4                                           :: zrcp                       ! z coordinate of receptor point (read from file, default 4 m) [m]
-REAL*4                                           :: x_rcp                      ! x coordinate receptor point 
-REAL*4                                           :: y_rcp                      ! y coordinate receptor point 
-REAL*4                                           :: cellvalue                  ! value of masker grid cell at receptor point
-REAL*4                                           :: z0                         ! roughness length read from file [m]
-REAL*4                                           :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
+INTEGER                                          :: m                          ! column index                           
+INTEGER                                          :: n                          ! row index
+INTEGER                                          :: i                          ! index of receptor point
+INTEGER                                          :: h                          ! number of header lines
+INTEGER                                          :: j                          ! index of receptor point
+INTEGER                                          :: lu                         ! index of land use class
+INTEGER                                          :: lu_dom                     ! dominant land use class at receptor 
+INTEGER                                          :: nwords                     ! number of expected words in data record 
+INTEGER                                          :: ix                         ! x coordinate of receptor point (read from file) [m RDM]                          
+INTEGER                                          :: iy                         ! y coordinate of receptor point (read from file) [m RDM]
+REAL                                             :: zrcp                       ! z coordinate of receptor point (read from file, default 4 m) [m]
+REAL                                             :: x_rcp                      ! x coordinate receptor point 
+REAL                                             :: y_rcp                      ! y coordinate receptor point 
+REAL                                             :: cellvalue                  ! value of masker grid cell at receptor point
+REAL                                             :: z0                         ! roughness length read from file [m]
+REAL                                             :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 CHARACTER*12                                     :: namrp                      ! name of receptor point
 LOGICAL                                          :: eof                        ! end of file has been reached
@@ -190,7 +190,7 @@ ELSE
            z0_rcp_all(i)     = z0 
            lu_rcp_dom_all(i) = lu_dom
            DO lu = 1,NLU
-             lu_rcp_per_user_all(i,lu) = lu_rcp_per_user(lu)
+             lu_rcp_per_user_all(lu,i) = lu_rcp_per_user(lu)
            ENDDO
          ENDIF
          frac(i) = 1.
@@ -264,30 +264,30 @@ USE m_string, only: string_count_words
 USE m_error
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4,     INTENT(IN)                        :: nwords                     ! number of expected words in data record 
+INTEGER,       INTENT(IN)                        :: nwords                     ! number of expected words in data record 
 
 ! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
-INTEGER*4,     INTENT(INOUT)                     :: i                          ! index of receptor point = number of data records read
-INTEGER*4,     INTENT(INOUT)                     :: h                          ! number of header lines read
+INTEGER,       INTENT(INOUT)                     :: i                          ! index of receptor point = number of data records read
+INTEGER,       INTENT(INOUT)                     :: h                          ! number of header lines read
 LOGICAL,       INTENT(INOUT)                     :: is_data                    ! line read is a data line (not a header line)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
 CHARACTER*12,  INTENT(OUT)                       :: namrp                      ! name of receptor point
-INTEGER*4,     INTENT(OUT)                       :: ix                         ! x coordinate of receptor point (read from file) [m RDM]                          
-INTEGER*4,     INTENT(OUT)                       :: iy                         ! y coordinate of receptor point (read from file) [m RDM]
-REAL*4,        INTENT(OUT)                       :: zrcp                       ! z coordinate of receptor point (read from file, default 4 m) [m]
-REAL*4,        INTENT(OUT)                       :: z0                         ! roughness length read from file [m]
-INTEGER*4,     INTENT(OUT)                       :: lu_dom                     ! dominant land use class at receptor 
-REAL*4,        INTENT(OUT)                       :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
+INTEGER,       INTENT(OUT)                       :: ix                         ! x coordinate of receptor point (read from file) [m RDM]                          
+INTEGER,       INTENT(OUT)                       :: iy                         ! y coordinate of receptor point (read from file) [m RDM]
+REAL,          INTENT(OUT)                       :: zrcp                       ! z coordinate of receptor point (read from file, default 4 m) [m]
+REAL,          INTENT(OUT)                       :: z0                         ! roughness length read from file [m]
+INTEGER,       INTENT(OUT)                       :: lu_dom                     ! dominant land use class at receptor 
+REAL,          INTENT(OUT)                       :: lu_rcp_per_user(NLU)       ! percentages of landuse classes for this receptor
 LOGICAL,       INTENT(OUT)                       :: eof                        ! end of file has been reached
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: p                          ! receptor point number (dummy)
+INTEGER                                          :: p                          ! receptor point number (dummy)
 CHARACTER*512                                    :: line                       ! line read from file
-INTEGER*4                                        :: ierr                       ! error status
-INTEGER*4                                        :: ii                         ! help variable
-
+INTEGER                                          :: ierr                       ! error status
+INTEGER                                          :: ii                         ! help variable
+REAL   :: rx, ry
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
@@ -296,6 +296,8 @@ PARAMETER    (ROUTINENAAM = 'ops_recep_record1')
 ! Initialisation:
 z0           = -999.0
 lu_dom       = -999
+rx           = 0.0
+ry           = 0.0
 
 ! Read line (skip empty lines):
 line = ''
@@ -312,17 +314,21 @@ IF (.not. eof) THEN
    
       ! Read receptor data from input line:
       IF (nwords .EQ. 4) THEN
-        READ (line,*,IOSTAT=ierr) p,namrp,ix,iy
+        READ (line,*,IOSTAT=ierr) p,namrp,rx,ry
       ELSEIF (nwords .EQ. 5) THEN
-        READ (line,*,IOSTAT=ierr) p,namrp,ix,iy,zrcp
+        READ (line,*,IOSTAT=ierr) p,namrp,rx,ry,zrcp
       ELSEIF (nwords .EQ. 15) THEN
-        READ (line,*,IOSTAT=ierr) p,namrp,ix,iy,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
+        READ (line,*,IOSTAT=ierr) p,namrp,rx,ry,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
       ELSEIF (nwords .EQ. 16) THEN
-        READ (line,*,IOSTAT=ierr) p,namrp,ix,iy,zrcp,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
+        READ (line,*,IOSTAT=ierr) p,namrp,rx,ry,zrcp,z0,lu_dom,(lu_rcp_per_user(ii),ii=1,NLU)
       ENDIF
-
+      
+      ix = int(rx)
+      iy = int(ry)
+      
       ! If line read is is in the data has been successfully there was an error, the line is a header line:
       IF (is_data) THEN
+         
          ! Previous line is a data line; generate error message if an error ocurred (header lines are not allowed in the data section):
          IF (ierr .ne. 0) THEN
             CALL SetError('Incorrect data format while reading receptor file', error)

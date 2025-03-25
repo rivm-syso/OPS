@@ -1,0 +1,58 @@
+# build directories
+build*
+!building*
+
+# Downloaded sources
+MATH77
+
+# Generated sources
+*__genmod.f90
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+a.out
+gmon.out
+*.app
+
+# Code coverage files (unit tests)
+*.spi
+*.spl
+*.dyn
+*.200
+*.dpi
+*.dpi.lock
+
+# OPS output files
+*.log
+
+# vim
+.*.sw[o-z]
+tmp.grid

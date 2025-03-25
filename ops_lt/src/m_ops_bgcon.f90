@@ -34,8 +34,8 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_bgcon')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! x coordinate of specific location
-REAL*4,    INTENT(IN)                            :: y                          ! y coordinate of specific location
+REAL,      INTENT(IN)                            :: x                          ! x coordinate of specific location
+REAL,      INTENT(IN)                            :: y                          ! y coordinate of specific location
 LOGICAL,   INTENT(IN)                            :: in_trajectory              ! point is in a trajectory (opposed to separate receptor point)
 TYPE (TApsGridReal), INTENT(IN)                  :: bgdata                     ! APS-grid with background concentrations
 INTEGER, OPTIONAL                                :: fieldnumber                ! field number in APS-grid
@@ -44,7 +44,7 @@ INTEGER, OPTIONAL                                :: fieldnumber                !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: bgcon                      ! background concentration at (x,y)
+REAL,      INTENT(OUT)                           :: bgcon                      ! background concentration at (x,y)
 
 ! LOCAL VARIABLES
 LOGICAL                                          :: iscell                     ! whether (x,y) is inside APS-grid bgdata

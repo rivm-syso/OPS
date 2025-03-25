@@ -37,7 +37,7 @@ test.log
 
 # Executables
 *.exe
-*.out
+a.out
 *.app
 
 # vim

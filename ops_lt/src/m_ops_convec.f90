@@ -24,8 +24,9 @@ implicit none
 
 contains
 
-SUBROUTINE ops_convec(z0, zi, ol, uster, h, x, uh, zu, szc)
+SUBROUTINE ops_convec(varin_meteo, z0, zi, ol, uster, h, x, uh, zu, szc)
 
+use m_ops_varin
 use m_commonconst_lt, only: EPS_DELTA 
 USE m_ops_meteo
 
@@ -36,28 +37,29 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_convec')
 
 ! CONSTANTS
-REAL*4                                           :: K                          ! von Karmanconstante
+REAL                                             :: K                          ! von Karmanconstante
 PARAMETER   (K = 0.4)
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: z0                         ! roughness length (m)
-REAL*4,    INTENT(IN)                            :: zi                         ! mixing height (m)
-REAL*4,    INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
-REAL*4,    INTENT(IN)                            :: uster                      ! friction velocity (m)
-REAL*4,    INTENT(IN)                            :: h                          ! source height (including plume rise) (m)
-REAL*4,    INTENT(IN)                            :: x                          ! downwind distance  (m)
+TYPE(Tvarin_meteo), INTENT(IN)                   :: varin_meteo                ! input variables for meteo
+REAL,      INTENT(IN)                            :: z0                         ! roughness length (m)
+REAL,      INTENT(IN)                            :: zi                         ! mixing height (m)
+REAL,      INTENT(IN)                            :: ol                         ! Monin-Obukhov length  (m)
+REAL,      INTENT(IN)                            :: uster                      ! friction velocity (m)
+REAL,      INTENT(IN)                            :: h                          ! source height (including plume rise) (m)
+REAL,      INTENT(IN)                            :: x                          ! downwind distance  (m)
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uh                         ! windspeed at representative plume height (m/s)
-REAL*4,    INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
+REAL,      INTENT(OUT)                           :: uh                         ! windspeed at representative plume height (m/s)
+REAL,      INTENT(OUT)                           :: zu                         ! representative plume height (m), taking into account reflection 
                                                                                ! at the top of the mixing layer and at the ground surface
-REAL*4,    INTENT(OUT)                           :: szc                        ! convective vertical dispersion coefficient (m)
+REAL,      INTENT(OUT)                           :: szc                        ! convective vertical dispersion coefficient (m)
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: last                       ! 
-REAL*4                                           :: s                          ! 
-REAL*4                                           :: wster                      ! 
-REAL*4                                           :: xs                         ! 
+INTEGER                                          :: last                       ! 
+REAL                                             :: s                          ! 
+REAL                                             :: wster                      ! 
+REAL                                             :: xs                         ! 
 LOGICAL                                          :: finished                   ! 
 
 !-------------------------------------------------------------------------------------------------------------------------------
@@ -73,7 +75,7 @@ DO WHILE (.not. finished)
 !
 !  calculate the wind velocity at height zu
 !
-   CALL ops_wv_log_profile(z0, zu, uster, ol, uh)
+   CALL ops_wv_log_profile(z0, zu, uster, ol, varin_meteo, uh)
 !
 ! Compute convective velocity scale w* and vertical dispersion coefficient sigma_z
 ! (2.1, 3.19, 3.20 OPS report)

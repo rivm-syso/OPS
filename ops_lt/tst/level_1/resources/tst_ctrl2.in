@@ -1,0 +1,47 @@
+*-----------------------directory layer---------------------------------*
+DATADIR        ../data/GCN2022/Data/
+*-----------------------identification layer----------------------------*
+PROJECT        A_test_src1_rcp1_year1\A1_SO2_point_hlow
+RUNID          A_test_src1_rcp1_year1\A1_SO2_point_hlow
+YEAR           2005
+*-----------------------substance layer---------------------------------*
+COMPCODE       1
+COMPNAME       SO2 - gas.
+MOLWEIGHT      64.1
+PHASE          1
+LOSS           1
+DDSPECTYPE
+DDPARVALUE
+WDSPECTYPE
+WDPARVALUE
+DIFFCOEFF      .136
+WASHOUT        1
+CONVRATE
+LDCONVRATE
+*-----------------------emission layer----------------------------------*
+EMFILE         ./level_1/resources/Eindhoven_h5m.brn
+USDVEFILE
+USPSDFILE
+EMCORFAC       1.0
+TARGETGROUP    0
+COUNTRY        0
+*-----------------------receptor layer----------------------------------*
+RECEPTYPE      2
+XCENTER
+YCENTER
+NCOLS
+NROWS
+RESO
+OUTER
+RCPFILE        ./level_1/resources/rcp_Eindhoven.rcp
+*-----------------------meteo & surface char layer----------------------*
+ROUGHNESS      0.2
+Z0FILE
+LUFILE
+METEOTYPE      1
+MTFILE         ../data/GCN2022/Meteo/a005105c.005
+*-----------------------output layer------------------------------------*
+DEPUNIT        2
+PLTFILE        ./level_1/run001.plt
+PRNFILE        ./level_1/run001.lpt
+INCLUDE        0

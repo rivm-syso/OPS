@@ -1,0 +1,8 @@
+# v5.3.1.0
+De veranderingen aan OPS en de bijbehorende data ten opzichte van versie 5.1.2.0 zijn:
+
+- Achtergrondkaarten worden nu per jaar ingelezen.
+- De map waaruit de achtergrondkaarten worden geladen kan door de gebruiker worden gespecificeerd.
+- Naast de NO2 chemie wordt nu ook de verticale dispersie nabij wegen gemodelleerd zoals in standaard rekenmethode 2, indien de ROADS optie wordt gebruikt.
+
+

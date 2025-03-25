@@ -1,0 +1,3 @@
+! BRN-VERSION 5
+! snr  x(m)    y(m)    q(g/s)     hc(MW)  h(m)  d(m)  s(m)  D_stack(m)  D_stack_outer(m)    V_stack(m/s) Ts_stack(C)  dv  cat  area  ps  component	BUILDING (length, width, height, orientation, x, y)
+1      155000 385000   1.0        0.0     15.0  0.0   0.0   1.50        1.                 -999         -999        -1   3111    528   2   20    20.00   10    50 154990 385020

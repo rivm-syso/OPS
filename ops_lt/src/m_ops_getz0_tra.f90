@@ -35,10 +35,10 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_getz0_tra')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: xr                         ! x coordinate receptor (RDM)
-REAL*4,    INTENT(IN)                            :: yr                         ! y coordinate receptor (RDM)
-REAL*4,    INTENT(IN)                            :: xb                         ! x coordinate source (RDM)
-REAL*4,    INTENT(IN)                            :: yb                         ! y coordinate source (RDM)
+REAL,      INTENT(IN)                            :: xr                         ! x coordinate receptor (RDM)
+REAL,      INTENT(IN)                            :: yr                         ! y coordinate receptor (RDM)
+REAL,      INTENT(IN)                            :: xb                         ! x coordinate source (RDM)
+REAL,      INTENT(IN)                            :: yb                         ! y coordinate source (RDM)
 TYPE (TApsGridInt), INTENT(IN)                   :: z0nlgrid                   ! map of roughness lengths in NL [m]
 TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  ! map of roughness lengths in Europe [m]
 
@@ -46,15 +46,15 @@ TYPE (TApsGridInt), INTENT(IN)                   :: z0eurgrid                  !
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m]
+REAL,      INTENT(OUT)                           :: z0_tra                     ! roughness length representative for trajectory [m]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: x                          ! x-coordinate intermediate point (RDM)
-REAL*4                                           :: y                          ! y-coordinate intermediate point (RDM)
-REAL*4                                           :: total                      ! summed total of log(1/z0) over intermediate points
-REAL*4                                           :: z0                         ! roughness length in intermediate point
-INTEGER*4                                        :: ns                         ! number of sub sectors between intermediate points
-INTEGER*4                                        :: i                          ! index of intermediate point
+REAL                                             :: x                          ! x-coordinate intermediate point (RDM)
+REAL                                             :: y                          ! y-coordinate intermediate point (RDM)
+REAL                                             :: total                      ! summed total of log(1/z0) over intermediate points
+REAL                                             :: z0                         ! roughness length in intermediate point
+INTEGER                                          :: ns                         ! number of sub sectors between intermediate points
+INTEGER                                          :: i                          ! index of intermediate point
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Calculate z0-average using ns = 20 sub sectors over a line between source and receptor,

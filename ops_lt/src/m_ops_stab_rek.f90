@@ -25,11 +25,12 @@ implicit none
 
 contains
 
-SUBROUTINE ops_stab_rek(icm, rb_ms, temp_C, h0, z0_metreg_rcp, disx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, coef_space_heating, ibtg,                         &
-                     &  uster_metreg_rcp, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, istab, itra, qob, xloc, regenk, ra_ms_4, z0_tra, z0_src, ol_metreg_rcp,error, &
+SUBROUTINE ops_stab_rek(varin, icm, rb_ms, temp_C, h0, z0_metreg_rcp, disxx, disx, z0_rcp, xl, radius, qtr, qrv, dv, ecvl, coef_space_heating, ibtg,                         &
+                     &  uster_metreg_rcp, hbron, qww, D_stack, V_stack, Ts_stack, emis_horizontal, ircp, istab, itra, qob, xloc, regenk, ra_ms_4, z0_tra, z0_src, ol_metreg_rcp, error, &
                      &  uster_rcp, ol_rcp, uster_src, ol_src, uster_tra, ol_tra, htot, htt, onder, uh, zu, qruim, qbron,                                    &
                      &  dispg)
 
+use m_ops_varin, only: TVarin
 use m_commonconst_lt
 use m_commonfile
 use m_error
@@ -38,81 +39,95 @@ use m_ops_utils, only: is_missing
 use m_ops_logfile
 use m_ops_z0corr
 use m_ops_vertdisp
+use m_ops_meteo, only: ops_meteo_cutoff_obukhov, ops_meteo_cutoff_uster
 
 IMPLICIT NONE
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'ops_stab_rek')
+! HACK:
+! sensitivity analyses. For its initial use, this scale is limited to 20% in
+! either direction. Ideally, this limit should be imposed by the source that
+! sets the value in the varin file. Currently this constant is used to perform
+! inverse sampling to transform a random variate from U(0, 1) to U(0.8, 1.2).
+real, parameter :: DIURNAL_SCALE_RANGE = 0.2  ! Maximum deviation of the slope of the temperature correction factor.
+real, parameter :: Tavg = 10.0  ! Point around which to scale the temperature.
 
 ! SUBROUTINE ARGUMENTS - INPUT
-INTEGER*4, INTENT(IN)                            :: icm                        ! componentnummer
-REAL*4,    INTENT(IN)                            :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m] 
-REAL*4,    INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C] 
-REAL*4,    INTENT(IN)                            :: h0                         ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: qtr                        ! 
-REAL*4,    INTENT(IN)                            :: qrv                        ! 
-INTEGER*4, INTENT(IN)                            :: dv                         ! 
-REAL*4,    INTENT(IN)                            :: ecvl(NSTAB, NTRAJ, *)      ! 
-REAL*4,    INTENT(IN)                            :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
-INTEGER*4, INTENT(IN)                            :: ibtg                       ! 
-REAL*4,    INTENT(IN)                            :: uster_metreg_rcp           ! 
-REAL*4,    INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
-REAL*4,    INTENT(IN)                            :: qww                        ! 
-REAL*4,    INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
-REAL*4,    INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
-REAL*4,    INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
+TYPE(Tvarin), INTENT(IN)                         :: varin
+INTEGER,   INTENT(IN)                            :: icm                        ! componentnummer
+REAL,      INTENT(IN)                            :: rb_ms                      ! boundary layer resistance SO2 from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: temp_C                     ! temperature at height zmet_T [C] 
+REAL,      INTENT(IN)                            :: h0                         ! sensible heat flux H0 [W/m2]
+REAL,      INTENT(IN)                            :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m] (here only used for debug write statement)
+REAL,      INTENT(IN)                            :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics)
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: qtr                        ! 
+REAL,      INTENT(IN)                            :: qrv                        ! 
+INTEGER,   INTENT(IN)                            :: dv                         ! 
+REAL,      INTENT(IN)                            :: ecvl(:, :, :)              ! ecvl(NSTAB, NTRAJ, *) we need only ecvl(:,:,:max(3,3+dv,ibtg+dv))
+REAL,      INTENT(IN)                            :: coef_space_heating         ! space heating coefficient (degree-day values in combination with a wind speed correction) [C m^1/2 / s^1/2] 
+INTEGER,   INTENT(IN)                            :: ibtg                       ! 
+REAL,      INTENT(IN)                            :: uster_metreg_rcp           ! friction velocity u* [m/s]
+REAL,      INTENT(IN)                            :: hbron                      ! emission height at source (stack height), without plume rise [m]
+REAL,      INTENT(IN)                            :: qww                        ! 
+REAL,      INTENT(IN)                            :: D_stack                    ! diameter of the stack [m]
+REAL,      INTENT(IN)                            :: V_stack                    ! exit velocity of plume at stack tip [m/s]
+REAL,      INTENT(IN)                            :: Ts_stack                   ! temperature of effluent from stack [K]
 LOGICAL,   INTENT(IN)                            :: emis_horizontal            ! horizontal outflow of emission
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-INTEGER*4, INTENT(IN)                            :: itra                       ! 
-REAL*4,    INTENT(IN)                            :: qob                        ! 
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-] 
-REAL*4,    INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m] 
-REAL*4,    INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+INTEGER,   INTENT(IN)                            :: ircp                       ! index of receptorpoint (here only used in debug write statement)
+INTEGER,   INTENT(IN)                            :: istab                      ! 
+INTEGER,   INTENT(IN)                            :: itra                       ! 
+REAL,      INTENT(IN)                            :: qob                        ! 
+REAL,      INTENT(IN)                            :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-] 
+REAL,      INTENT(IN)                            :: ra_ms_4                    ! aerodynamic resistance at 4 m from meteo statistics [s/m] 
+REAL,      INTENT(IN)                            :: z0_tra                     ! roughness length representative for trajectory [m]
+REAL,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: ol_metreg_rcp                         ! Monin-Obukhov length
+REAL,      INTENT(INOUT)                         :: ol_metreg_rcp              ! Monin-Obukhov length [m]
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
-REAL*4,    INTENT(OUT)                           :: uster_src                  ! friction velocity u* at source [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_src                     ! Monin-Obukhov length at source [m]
-REAL*4,    INTENT(OUT)                           :: uster_tra                  ! friction velocity u*, trajectory averaged [m/s]
-REAL*4,    INTENT(OUT)                           :: ol_tra                     ! Monin-Obukhov length, trajectory averaged  [m]
-REAL*4,    INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
-REAL*4,    INTENT(OUT)                           :: htt                        ! plume height at source, including plume rise [m]
-REAL*4,    INTENT(OUT)                           :: onder                      ! 
-REAL*4,    INTENT(OUT)                           :: uh                         ! 
-REAL*4,    INTENT(OUT)                           :: zu                         ! 
-REAL*4,    INTENT(OUT)                           :: qruim                      ! 
-REAL*4,    INTENT(OUT)                           :: qbron                      ! 
-REAL*4,    INTENT(OUT)                           :: dispg(NSTAB)               ! 
+REAL,      INTENT(OUT)                           :: uster_rcp                  ! friction velocity at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(OUT)                           :: ol_rcp                     ! Monin-Obukhov length at receptor; for z0 at receptor [m/s]
+REAL,      INTENT(OUT)                           :: uster_src                  ! friction velocity u* at source [m/s]
+REAL,      INTENT(OUT)                           :: ol_src                     ! Monin-Obukhov length at source [m]
+REAL,      INTENT(OUT)                           :: uster_tra                  ! friction velocity u*, trajectory averaged [m/s]
+REAL,      INTENT(OUT)                           :: ol_tra                     ! Monin-Obukhov length, trajectory averaged  [m]
+REAL,      INTENT(OUT)                           :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(OUT)                           :: htt                        ! plume height at source, including plume rise [m]
+REAL,      INTENT(OUT)                           :: onder                      ! fraction of emission below mixing height [-]
+REAL,      INTENT(OUT)                           :: uh                         ! windspeed (m/s) at receptor at height zu using z0, u* and L of source site
+REAL,      INTENT(OUT)                           :: zu                         ! representative plume height (m) at receptor using z0, u* and L of source site, taking reflection into account
+REAL,      INTENT(OUT)                           :: qruim                      ! space heating emission as function of the temperature before diurnal variation correction 
+REAL,      INTENT(OUT)                           :: qbron                      ! total source strength qbron (g/s) (qobb + qrvv + qvk)
+REAL,      INTENT(INOUT)                         :: dispg                      ! coefficient for vertical dispersion coefficient sigma_z; sigma_z = dispg*x^disp [-]
+                                                                               ! dispg is INOUT because dispg remains unchanged when radius==0 .and. disxx==0.
 
 ! LOCAL VARIABLES
-REAL*4                                           :: uster_metreg_from_rb_rcp   ! friction velocity at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
-REAL*4                                           :: ol_metreg_from_rb_rcp      ! Monin-Obukhov length at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
-REAL*4                                           :: dsx                        ! ratio disx/radius, i.e. 
-!                                                                              ! (source-receptor distance)/(radius of area source)
-REAL*4                                           :: sz_rcp_stab_src            ! vertical dispersion coefficient sigma_z at receptor with (z0,u*,L,uh,zu) of source site 
-REAL*4                                           :: uh_rcp                     ! 
-REAL*4                                           :: zu_rcp                     ! 
-REAL*4                                           :: sz_rcp                     ! 
-REAL*4                                           :: qobb                       ! 
-REAL*4                                           :: qvk                        ! 
-REAL*4                                           :: qrvv                       ! 
-REAL*4                                           :: tcor                       ! 
-REAL*4                                           :: rcor                       ! 
-REAL*4                                           :: dncor                      ! 
-REAL*4                                           :: emf                        ! 
+REAL                                             :: uster_metreg_from_rb_rcp   ! friction velocity at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
+REAL                                             :: ol_metreg_from_rb_rcp      ! Monin-Obukhov length at receptor from Rb(SO2); for z0 interpolated from meteo regions [m/s]
+REAL                                             :: dsx                        ! ratio disxx/radius, i.e. (source-receptor distance)/(radius of area source).
+REAL                                             :: sz_rcp_stab_src            ! vertical dispersion coefficient sigma_z at receptor with (z0,u*,L,uh,zu) of source site 
+REAL                                             :: uh_rcp                     ! windspeed (m/s) at receptor at height zu using z0, u* and L of receptor site
+REAL                                             :: zu_rcp                     ! representative plume height (m) at receptor using z0, u* and L of receptor site
+REAL                                             :: sz_rcp                     ! vertical dispersion coefficient at receptor using z0, u* and L of receptor site
+REAL                                             :: qobb                       ! 
+REAL                                             :: qvk                        ! 
+REAL                                             :: qrvv                       ! 
+REAL                                             :: tcor                       ! 
+REAL                                             :: rcor                       ! 
+REAL                                             :: dncor                      ! 
+REAL                                             :: emf                        ! 
+CHARACTER*21                                     :: debugnam                   ! name for debug write statement since ops_vertdisp is called 3 times in various circumstances: either at_areasource, at_rcp_with_meteo_src, at_rcp_with_meteo_rcp 
+real :: temp_C_rescaled  ! Class-conditional temperature rescaled based on diurnal scaling index.
+real :: temp_scale  ! Rescale diurnal scaling index applied to temperature.
 
 !--------------------------------------------------------------------------------
 ! Determine friction velocity uster and Monin-Obukhov length ol 
@@ -126,8 +141,8 @@ REAL*4                                           :: emf                        !
 ! Rb is in the range 15 - 500 s/m (but may be zero ?); in order to avoid division by zero use Rb+1 instead of Rb.
 ! also impose an lower limit of 0.06 m/s for u*.
 
-!
-uster_metreg_from_rb_rcp = AMAX1(7.22/(rb_ms + 1),0.06)
+uster_metreg_from_rb_rcp = AMAX1(7.22/(rb_ms + 1),0.06) 
+! call ops_meteo_cutoff_uster(uster_cutoff_iopt, uster_min, ol_old, ol, uster)  
 
 ! Monin-Obukhov length ol at the receptor, but still for the standard roughness length; 
 
@@ -149,71 +164,74 @@ uster_metreg_from_rb_rcp = AMAX1(7.22/(rb_ms + 1),0.06)
 ! actual values in code: rho= 1.29 kg/m3, cp = 1005 J/(kg K), kappa=0.4, g=9.8 m/s2.
 ! 
 ol_metreg_from_rb_rcp = -uster_metreg_from_rb_rcp**3*1.29*1005*(273 + temp_C)/(0.4*9.8*h0)
-IF (ol_metreg_rcp .GT. (0. + EPS_DELTA)) THEN
-   IF (ol_metreg_rcp .LE. 5.) THEN                                                        ! MdH: EPS_DELTA overbodig, want deze is continue
-      ol_metreg_rcp = 10.
-   ELSE
-      ol_metreg_rcp = ol_metreg_rcp + 5.
-   ENDIF
-ENDIF
-!
-! Correction Monin-Obukhov length at receptor
-! 0 < L <= 5 -> L = 10
-! L > 5      -> L = L + 5
-! -7 < L < 0 -> L = -7 for unstable conditions
-! 
-IF (ol_metreg_from_rb_rcp .GT. (0. + EPS_DELTA)) THEN
-   IF (ol_metreg_from_rb_rcp .LE. 5.) THEN                                                     ! MdH: EPS_DELTA overbodig, want deze is continue
-      ol_metreg_from_rb_rcp = 10.
-   ELSE 
-      ol_metreg_from_rb_rcp = ol_metreg_from_rb_rcp + 5.
-   ENDIF
-ELSEIF (ol_metreg_from_rb_rcp .LT. (0. - EPS_DELTA)) THEN                                      ! MdH: EPS_DELTA  overbodig, want deze is continue
-   IF (ol_metreg_from_rb_rcp .GT. -7.) THEN              
-      ol_metreg_from_rb_rcp = -7.
-   ENDIF
-ENDIF
-!
+
+! limit L, u* such that very small values do not occurr:
+call ops_meteo_cutoff_obukhov(varin%varin_meteo%ol_cutoff_iopt1, varin%varin_meteo%ol_add_stable1, &
+     varin%varin_meteo%ol_max_unstable0, varin%varin_meteo%ol_min_stable1, varin%varin_meteo%ol_z0_ratio_cutoff1, &
+     varin%varin_meteo%ol_z0_ratio_cutoff2, z0_metreg_rcp, ol_metreg_rcp)
+
+call ops_meteo_cutoff_obukhov(varin%varin_meteo%ol_cutoff_iopt1, varin%varin_meteo%ol_add_stable1, &
+     varin%varin_meteo%ol_max_unstable2, varin%varin_meteo%ol_min_stable2, varin%varin_meteo%ol_z0_ratio_cutoff1, &
+     varin%varin_meteo%ol_z0_ratio_cutoff2, z0_metreg_rcp, ol_metreg_from_rb_rcp)
+
 ! Determine friction velocity (uster) and Monin-Obukhov length (ol), which are given at a standard roughness length 
 ! from the meteo regions, at the specific roughness length for source and receptor:
 
-CALL ops_z0corr(z0_metreg_rcp, uster_metreg_from_rb_rcp, ol_metreg_from_rb_rcp, z0_rcp, uster_rcp, ol_rcp,error)
-CALL ops_z0corr(z0_metreg_rcp, uster_metreg_rcp, ol_metreg_rcp, z0_src, uster_src, ol_src,error)
-CALL ops_z0corr(z0_metreg_rcp, uster_metreg_rcp, ol_metreg_rcp, z0_tra, uster_tra, ol_tra,error)
+CALL ops_z0corr(varin%varin_meteo, z0_metreg_rcp, uster_metreg_from_rb_rcp, ol_metreg_from_rb_rcp, z0_rcp, uster_rcp, ol_rcp,error)
+CALL ops_z0corr(varin%varin_meteo, z0_metreg_rcp, uster_metreg_rcp, ol_metreg_rcp, z0_src, uster_src, ol_src,error)
+CALL ops_z0corr(varin%varin_meteo, z0_metreg_rcp, uster_metreg_rcp, ol_metreg_rcp, z0_tra, uster_tra, ol_tra,error)
 
-!CALL ops_z0corr(z0_metreg_rcp, uster_metreg_from_rb_rcp, ol_metreg_from_rb_rcp, z0_rcp, uster_rcp, ol_rcp,error)
-!CALL ops_z0corr(z0_metreg_src, uster_metreg_rcp, ol_metreg_rcp, z0_src, uster_src, ol_src,error)
-!CALL ops_z0corr(z0_metreg_tra, uster_metreg_rcp, ol_metreg_rcp, z0_tra, uster_tra, ol_tra,error)
+!CALL ops_z0corr(varin_meteo, z0_metreg_rcp, uster_metreg_from_rb_rcp, ol_metreg_from_rb_rcp, z0_rcp, uster_rcp, ol_rcp,error)
+!CALL ops_z0corr(varin_meteo, z0_metreg_src, uster_metreg_rcp, ol_metreg_rcp, z0_src, uster_src, ol_src,error)
+!CALL ops_z0corr(varin_meteo, z0_metreg_tra, uster_metreg_rcp, ol_metreg_rcp, z0_tra, uster_tra, ol_tra,error)
+
+if (error%debug) then
+   write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',A1; ', &
+      'ircp; istab; disx; disxx; uster_metreg_rcp; uster_rcp; uster_src; uster_tra; ',    &
+       ircp, istab, disx, disxx, uster_metreg_rcp, uster_rcp, uster_src, uster_tra
+   write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',B1; ', &
+      'ircp; istab; disx; disxx; ol_metreg_rcp; ol_rcp; ol_src; ol_tra; ',    &
+       ircp, istab, disx, disxx, ol_metreg_rcp, ol_rcp, ol_src, ol_tra
+endif
+
 if (error%haserror) goto 9999
 
 !--------------------------------------------------------------------------
 ! Compute plume rise and inversion penetration according to Briggs (1971)
 !--------------------------------------------------------------------------
-call ops_plumerise(z0_src, hbron, uster_src, ol_src, qww, D_stack, V_stack, Ts_stack, emis_horizontal, temp_C, xl, xloc, htt, onder, error)
-! write(*,'(a,4(1x,e12.5))') 'after call ops_plumerise: ',hbron,htt,htt-hbron,onder
+call ops_plumerise( &
+   z0_src, hbron, uster_src, ol_src, qww, D_stack, V_stack, Ts_stack, emis_horizontal, &
+   temp_C, xl, xloc, varin%varin_meteo, varin%varin_unc, htt, onder, error &
+)
 htot = htt
+if (error%debug) then
+   write(*,'(a,2(1x,i6,";"),99(1x,e12.5,";"))') 'ops_plumerise,A; ircp; istab; disx; disxx; hbron; htt; htt-hbron; htot; onder; xl; xloc; ',&
+                                                              ircp, istab, disx, disxx, hbron, htt, htt-hbron, htot, onder, xl, xloc
+endif
 if (error%haserror) goto 9999
 
 !------------------------------------------------
 ! Compute vertical dispersion coefficient sigma_z 
 !------------------------------------------------
 
-! Skip computation of vertical dispersion if point source AND receptor very near point source (disx = disx, disx <= 1)
+! Skip computation of vertical dispersion if point source AND receptor very near point source (disxx = disxx, disxx <= 1)
 ! in other cases (area source, point source and receptor further away) compute vertical dispersion.
-dsx = AMAX1(disx, radius)
+dsx = AMAX1(disxx, radius)
 IF (dsx .GT. (1. + EPS_DELTA)) THEN
 
    ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of source site
-   CALL ops_vertdisp(z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src, error)
-   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',A,', &
-      ' ircp,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src:', &
-        -999,istab,z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src
+   debugnam = 'at_rcp_with_meteo_src'
+   CALL ops_vertdisp(varin, z0_src, xl, ol_src, uster_src, htot, dsx, ircp, istab, debugnam, uh, zu, sz_rcp_stab_src, error)
+   if (error%debug) write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',A2; ', &
+      'ircp; istab; disx; disxx; z0_src; xl; ol_src; uster_src; htot; dsx; uh; zu; sz_rcp_stab_src; ', &
+       ircp, istab, disx, disxx, z0_src, xl, ol_src, uster_src, htot, dsx, uh, zu, sz_rcp_stab_src
 
    ! Compute vertical dispersion coefficient at receptor with (z0,u*,L,uh,zu) of receptor site
-   CALL ops_vertdisp(z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp, error)
-   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',B,', &
-      ' ircp,istab,z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp:', &
-        -999,istab,z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp
+   debugnam = 'at_rcp_with_meteo_rcp'
+   CALL ops_vertdisp(varin, z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, ircp, istab, debugnam, uh_rcp, zu_rcp, sz_rcp, error)
+   if (error%debug) write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',B2; ', &
+      'ircp; istab; disx; disxx; z0_rcp; xl; ol_rcp; uster_rcp; htot; dsx; uh_rcp; zu_rcp; sz_rcp; ', &
+       ircp, istab, disx, disxx, z0_rcp, xl, ol_rcp, uster_rcp, htot, dsx, uh_rcp, zu_rcp, sz_rcp
 
 !
 !  Limit sigma_z at source, such that sigma_z(source) < sigma_z(receptor)
@@ -222,15 +240,18 @@ IF (dsx .GT. (1. + EPS_DELTA)) THEN
       sz_rcp = sz_rcp_stab_src
    ENDIF
 !
-!  Compute dispersion coefficient dispg of average between sigma_z at source and receptor;
-!  sigma_z = dispg*disx**disph <=> dispg = sigma_z/(disx**disph),  3.16 new! OPS report
-!  Since in the rest of the code the old formula sigma_z = dispg*disx**disph is still used,
+!  Compute dispersion coefficient dispg of sigma_z at receptor, averaged over 
+!     1) sz_rcp_stab_src = sigma_z at receptor using stability parameters at source;
+!     2) sz_rcp          = sigma_z at receptor using stability parameters at receptor.
+!  sigma_z = dispg*disxx**disph <=> dispg = sigma_z/(disxx**disph),  3.16 new! OPS report
+!  Since in the rest of the code the old formula sigma_z = dispg*disxx**disph is still used,
 !  we need dispg and disph and we do not use sz_rcp_stab_src and sz_rcp hereafter. 
-   dispg(istab) = (sz_rcp_stab_src + sz_rcp)*0.5/(dsx**DISPH(istab))
-   if (error%debug) write(*,'(3a,2(1x,i6),99(1x,e12.5))') trim(ROUTINENAAM),',C,', ' ircp,istab,dispg(istab):', -999,istab,dispg(istab)
+   dispg = (sz_rcp_stab_src + sz_rcp)*0.5/(dsx**DISPH(istab))
+   if (error%debug) write(*,'(3a,2(1x,i6,";"),99(1x,e12.5,";"))') trim(ROUTINENAAM),',C; ', 'ircp; istab; disx; disxx; dispg; disph; ', &
+                                                                                             ircp, istab, disx, disxx, dispg, DISPH(istab)
         
    ! Check limits 0 <= dispg <= 50; if outside limits, generate warning:
-   IF ((dispg(istab) .LT. (0. - EPS_DELTA)) .OR. (dispg(istab) .GT. (50. + EPS_DELTA))) THEN
+   IF (dispg < 0. - EPS_DELTA .OR. dispg > 50. + EPS_DELTA) THEN
       IF (.NOT. ops_openlog(error)) GOTO 9999
       WRITE (fu_log,'("WARNING: OPS has detected a value", " outside its limits in routine ", A)')                              &
           &  ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
@@ -277,16 +298,27 @@ ENDIF
 ! NH3 and NOx emissions from animal housing, application and pasture depend on meteo; 
 ! split between correction for emissions from animal housing and other (= application and pasture)
 !
-IF (icm .EQ. 2 .OR. icm .EQ. 3) THEN
+IF (icm==icm_NOx .OR. icm==icm_NH3) THEN
         
   IF  (ibtg .EQ. 4) THEN
+    ! Map (0, 1) to (1 - DIURNAL_SCALE_RANGE, 1 + DIURNAL_SCALE_RANGE), see the
+    ! comment above the declaration of `DIURNAL_SCALE_RANGE`. A scale index of
+    ! 0.5 results in no change.
+    temp_scale = ( &
+         1.0 &
+       + 2.0 * varin%varin_unc%diurn_scale_index * DIURNAL_SCALE_RANGE &
+       - DIURNAL_SCALE_RANGE &
+    )
+    ! Scale the temperature to allow performing sensitivity analyses.
+    temp_C_rescaled = (temp_C - Tavg) * temp_scale + Tavg
+
     ! Emissions from animal housing; TNO: (Bas Nijenhuis, 990207)
     ! temperature correction for NH3 emissions from animal housing systems; OPS report 6.33.
     ! Tavg = 10 C
     ! Temperature correction tcor = 1 + (T - Tavg)/f = 1 + T/f - 10/f = (1-10/f) + T/f = (f-10)/f + T/f = (T + f-10)/f; 
     ! Here f = 34, corresponding with a factor 1/34 = 0.0294 (0.04 in 6.33 OPS report). FS
     !
-    tcor=amax1((temp_C+24)/34, 0.2)
+    tcor=max((temp_C_rescaled + 24) / 34, 0.2)
                                                    
 !   Influence of day/night rithm of animals on emissions; half the industrial emission variation
 

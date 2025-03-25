@@ -1,0 +1,36 @@
+   
+TEST ./level_1/resources/tst_m_getkey.in
+TEST /not_existing/file.ext
+TEST     1    2   10
+TEST 1 12 10
+TEST 1 7 0
+TEST 1 0 10
+STRING this is a string
+STRING this is a string2 ! this is a comment
+XSTRING this is a string
+TEST 1
+TEST 0
+TEST -9999
+TEST -9999 ! isrequired
+TEST 2
+TEST 10
+TEST
+TEST 12 hallo1
+TEST 99hallo2
+TEST 27
+TEST
+TEST -9999
+TEST 27
+TEST 27
+TEST      16.00000000
+TEST 17.0 ! comment
+TEST
+TEST      12.80000019
+TEST
+TEST     -9999.000000
+TEST 12.8
+TEST 12.8
+TEST 13 hallo3
+TEST 14 hallo4 ! comment
+TEST 15 ! comment2
+TEST

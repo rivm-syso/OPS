@@ -46,149 +46,149 @@ implicit none
 
 contains 
 
-SUBROUTINE ops_depoparexp(do_proc, kdeel, c, qbstf, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, virty, gasv, &
-                       &  istab, grof, xvghbr, xvglbr, regenk, rint, buil, zf, isec1, iseiz, mb, disx, radius, &
+SUBROUTINE ops_depoparexp(varin, do_proc, kdeel, c0_undepl_mix, qbstf, ra_rcp_4, ra_rcp_zra, ra_rcp_zrcp, rb_rcp, sigz, ueff, virty, gasv, &
+                       &  ircp, istab, grof, xvghbr, xvglbr, regenk, rint, buil, zf, isec1, iseiz, mb, disx, disxx, radius, &
                        &  xl, onder, dg, knatdeppar, scavcoef, irev, htt, xloc, xl100, vw10, pcoef, vchem, dispg, htot, &
                        &  error, pr, twt, cratio, rc_eff_rcp_4_pos, grad, utr, routpri, vd_eff_trj_zra, rkc, ri, vnatpri, &
                        &  cgt, cgt_z, cq2, cdn, cch, z0_src, ol_src, uster_src, rc_eff_trj_4_pos, rc_eff_src_4_pos, ra_src_4, rb_src, &
                        &  ra_trj_zra, rb_trj, vd_coarse_part, xm, ym, zm, bx, by)
                        
-use m_commonconst_lt
+use m_commonconst_lt, only: DISPH, EPS_DELTA, HUMAX, NPARTCLASS, PI
 USE m_commonfile
 USE m_error
+use m_ops_brondepl
 USE m_ops_logfile
 USE m_ops_meteo
-use m_ops_brondepl
+use m_ops_tdo_proc
+use m_ops_varin, only: Tvarin
 
 IMPLICIT NONE
 
 ! CONSTANTS
-CHARACTER*512                                    :: ROUTINENAAM                ! 
-PARAMETER    (ROUTINENAAM = 'ops_depoparexp')
+CHARACTER(len=*), parameter :: ROUTINENAAM = 'ops_depoparexp'
 
-! CONSTANTS
-REAL*4                                           :: VDDEEL(NPARTCLASS)         ! 
+! VDDEEL = deposition velocity per particle class [m/s];
+! Sehmel G.A. and Hodgson W.H. (1980) A model for predicting dry deposition of particles and gases to environmental surfaces.
+! AIChE Symposium Series 86, 218-230. 
+REAL,   PARAMETER :: VDDEEL(NPARTCLASS) = (/.00030, .0013, .0046, .009, .024, .054/)
 
 ! SUBROUTINE ARGUMENTS - INPUT
+TYPE(Tvarin), INTENT(IN)                         :: varin
 TYPE(Tdo_proc), INTENT(IN)                       :: do_proc                    ! options to switch on/off specific processes
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
-REAL*4,    INTENT(IN)                            :: c                          ! initial estimate of concentration (without removal processes) [ug/m3]
-REAL*4,    INTENT(IN)                            :: qbstf                      ! source strength current source (for current particle class) [g/s] (= qbpri in calling routine)
-REAL*4,    INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m]
-REAL*4,    INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
+INTEGER,   INTENT(IN)                            :: kdeel                      ! index of particle class
+REAL,      INTENT(IN)                            :: c0_undepl_mix              ! undepleted concentration at z = 0 m (only due to part of plume inside the mixing layer) [ug/m3]
+REAL,      INTENT(IN)                            :: qbstf                      ! source strength current source (for current particle class) [g/s] (= qbpri in calling routine)
+REAL,      INTENT(IN)                            :: ra_rcp_4                   ! aerodynamic resistance at receptor, 4 m height [s/m]
+REAL,      INTENT(IN)                            :: ra_rcp_zra                 ! aerodynamic resistance at receptor, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m
-REAL*4,    INTENT(IN)                            :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
-REAL*4,    INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
+REAL,      INTENT(IN)                            :: ra_rcp_zrcp                ! aerodynamic resistance at receptor, height zrcp [s/m]
+REAL,      INTENT(IN)                            :: rb_rcp                     ! boundary layer resistance at receptor [s/m] 
+REAL,      INTENT(IN)                            :: sigz                       ! vertical dispersion length [m]
+REAL,      INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(IN)                            :: virty                      ! 
+REAL,      INTENT(IN)                            :: virty                      ! distance virtual point source - centre area source [m]
 LOGICAL,   INTENT(IN)                            :: gasv                       ! 
-INTEGER*4, INTENT(IN)                            :: istab                      ! 
-REAL*4,    INTENT(IN)                            :: grof                       ! 
-REAL*4,    INTENT(IN)                            :: xvghbr                     ! 
-REAL*4,    INTENT(IN)                            :: xvglbr                     ! 
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-] 
-REAL*4,    INTENT(IN)                            :: rint                       ! rain intensity [mm/h]
-REAL*4,    INTENT(IN)                            :: buil                       ! 
-REAL*4,    INTENT(IN)                            :: zf                         ! 
-INTEGER*4, INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors; only used if rint or buil are not availabel
+INTEGER,   INTENT(IN)                            :: ircp                       ! index of receptorpoint (here only used in debug write statement)
+INTEGER,   INTENT(IN)                            :: istab                      ! index of stability class  
+REAL,      INTENT(IN)                            :: grof                       ! = 1 -> coarse particles
+REAL,      INTENT(IN)                            :: xvghbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for high sources [-] 
+REAL,      INTENT(IN)                            :: xvglbr                     ! ratio effective dry deposition velocity over transport distance and average dry deposition velocity over transport distance for low sources [-]
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-] 
+REAL,      INTENT(IN)                            :: rint                       ! rain intensity [mm/h]
+REAL,      INTENT(IN)                            :: buil                       ! length of rain event [0.01 hours]
+REAL,      INTENT(IN)                            :: zf                         ! 
+INTEGER,   INTENT(IN)                            :: isec1                      ! first of two interpolating wind sectors; only used if rint or buil are not availabel
                                                                                
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 
-INTEGER*4, INTENT(IN)                            :: mb                         ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: dg                         ! 
-INTEGER*4, INTENT(IN)                            :: knatdeppar                 ! 
-REAL*4,    INTENT(IN)                            :: scavcoef                   ! 
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 
+INTEGER,   INTENT(IN)                            :: mb                         ! 
+REAL,      INTENT(IN)                            :: disx                       ! linear distance between source and receptor [m] (here only used for debug write statement)
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m] 
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(IN)                            :: onder                      ! fraction of emission below mixing height [-]
+REAL,      INTENT(IN)                            :: dg                         ! 
+INTEGER,   INTENT(IN)                            :: knatdeppar                 ! 
+REAL,      INTENT(IN)                            :: scavcoef                   ! 
 LOGICAL,   INTENT(IN)                            :: irev                       ! 
-REAL*4,    INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
-REAL*4,    INTENT(IN)                            :: xloc                       ! 
-REAL*4,    INTENT(IN)                            :: xl100                      ! 
-REAL*4,    INTENT(IN)                            :: vw10                       ! 
-REAL*4,    INTENT(IN)                            :: pcoef                      ! 
-REAL*4,    INTENT(IN)                            :: vchem                      ! 
-REAL*4,    INTENT(IN)                            :: dispg(NSTAB)               ! 
-REAL*4,    INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
-REAL*4,    INTENT(IN)                            :: ol_src                     !
-REAL*4,    INTENT(IN)                            :: uster_src                  !
-REAL*4,    INTENT(IN)                            :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m]
-REAL*4,    INTENT(IN)                            :: rb_src                     ! boundary layer resistance at source [s/m] 
-REAL*4,    INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
-REAL*4,    INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
+REAL,      INTENT(IN)                            :: htt                        ! plume height at source, including plume rise [m]
+REAL,      INTENT(IN)                            :: xloc                       ! local mixing height (near source) [m]
+REAL,      INTENT(IN)                            :: xl100                      ! mixing height at 100 km [m]
+REAL,      INTENT(IN)                            :: vw10                       ! wind speed at 10 m height [m/s]
+REAL,      INTENT(IN)                            :: pcoef                      ! coefficient in wind speed power law
+REAL,      INTENT(IN)                            :: vchem                      ! 
+REAL,      INTENT(IN)                            :: dispg                      ! coefficient for vertical dispersion coefficient sigma_z; sigma_z = dispg*x^disp [-]
+REAL,      INTENT(IN)                            :: z0_src                     ! roughness length at source; from z0-map [m]
+REAL,      INTENT(IN)                            :: ol_src                     !
+REAL,      INTENT(IN)                            :: uster_src                  !
+REAL,      INTENT(IN)                            :: ra_src_4                   ! aerodynamic resistance at source, 4 m height [s/m]
+REAL,      INTENT(IN)                            :: rb_src                     ! boundary layer resistance at source [s/m] 
+REAL,      INTENT(IN)                            :: rb_trj                     ! boundary layer resistance for trajectory [s/m]
+REAL,      INTENT(IN)                            :: ra_trj_zra                 ! aerodynamic resistance for trajectory, height zra [s/m];
                                                                                ! zra is height where concentration profile is undisturbed by deposition = 50 m  
-REAL*4,    INTENT(IN)                            :: xm                         ! x-coordinate of receptor (m RDM)
-REAL*4,    INTENT(IN)                            :: ym                         ! y-coordinate of receptor (m RDM)
-REAL*4,    INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (m)
-INTEGER*4, INTENT(IN)                            :: bx 
-INTEGER*4, INTENT(IN)                            :: by
-REAL*4,    INTENT(IN)                            :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m] 
-REAL*4,    INTENT(IN)                            :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
-REAL*4,    INTENT(IN)                            :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
-REAL*4,    INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component
-                                                                               ! (rout << rain-out = in-cloud) [-]
+REAL,      INTENT(IN)                            :: xm                         ! x-coordinate of receptor (m RDM)
+REAL,      INTENT(IN)                            :: ym                         ! y-coordinate of receptor (m RDM)
+REAL,      INTENT(IN)                            :: zm                         ! z-coordinate of receptor points (m)
+INTEGER,   INTENT(IN)                            :: bx 
+INTEGER,   INTENT(IN)                            :: by
+REAL,      INTENT(IN)                            :: rc_eff_rcp_4_pos           ! effective canopy resistance at receptor, 4 m height, no re-emission (Rc is positive) [s/m] 
+REAL,      INTENT(IN)                            :: rc_eff_src_4_pos           ! effective canopy resistance at source, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(IN)                            :: rc_eff_trj_4_pos           ! effective canopy resistance for trajectory, 4 m height, no re-emission (Rc is positive) [s/m]
+REAL,      INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component [-] (rout << rain-out = in-cloud)
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(INOUT)                         :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(INOUT)                         :: cratio                     ! ratio surface concentration (= c0_undepl_mix) and concentration at full mixing in mixing layer (needed for reversible wet deposition).
+REAL,      INTENT(INOUT)                         :: vd_coarse_part             ! deposition velocity coarse particles [m/s] 
 TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: twt                        ! 
-REAL*4,    INTENT(OUT)                           :: cratio                     ! 
-REAL*4,    INTENT(OUT)                           :: grad                       ! 
-REAL*4,    INTENT(OUT)                           :: utr                        ! average wind speed over the trajectory (m/s)
-REAL*4,    INTENT(OUT)                           :: vd_coarse_part             ! deposition velocity coarse particles [m/s] 
-REAL*4,    INTENT(OUT)                           :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
+REAL,      INTENT(OUT)                           :: pr                         ! Distribution factor between washout (below cloud) and rainout (in cloud). pr = 0 -> washout, pr = 1 -> rainout. 
+REAL,      INTENT(OUT)                           :: twt                        ! average duration of a rainfall period, dependent on source - receptor distance [h] 
+REAL,      INTENT(OUT)                           :: grad                       ! depositon velocity gradient over height = vd(zra)/vd(4)
+REAL,      INTENT(OUT)                           :: utr                        ! average wind speed over the trajectory (m/s)
+REAL,      INTENT(OUT)                           :: vd_eff_trj_zra             ! effective deposition velocity over trajectory, taking into account amount of time that plume is above mixing
                                                                                ! height and no deposition takes place [m/s]
-REAL*4,    INTENT(OUT)                           :: rkc                        ! 
-REAL*4,    INTENT(OUT)                           :: ri                         ! 
-REAL*4,    INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
-REAL*4,    INTENT(OUT)                           :: cgt                        ! gradient factor at 4 m height [-]
-REAL*4,    INTENT(OUT)                           :: cgt_z                      ! gradient factor at receptor height zm [-]
-REAL*4,    INTENT(OUT)                           :: cq2                        ! source depletion ratio for dry deposition for phase 2 (plume not yet mixed over mixing layer)
-REAL*4,    INTENT(OUT)                           :: cdn                        ! source depletion ratio for dry deposition for phase 3 (plume fully mixed over mixing layer)
-REAL*4,    INTENT(OUT)                           :: cch                        ! source depletion factor for wet deposition/chemical conversion
+REAL,      INTENT(OUT)                           :: rkc                        ! obsolete factor 
+REAL,      INTENT(OUT)                           :: ri                         ! rain intensity [mm/h].
+REAL,      INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+REAL,      INTENT(OUT)                           :: cgt                        ! gradient factor at 4 m height [-] (= 1-grad; grad = vd(zra)/vd(4))
+REAL,      INTENT(OUT)                           :: cgt_z                      ! gradient factor at receptor height zm [-]
+REAL,      INTENT(OUT)                           :: cq2                        ! source depletion ratio for dry deposition for phase 2 (plume not yet mixed over mixing layer)
+REAL,      INTENT(OUT)                           :: cdn                        ! source depletion ratio for dry deposition for phase 3 (plume fully mixed over mixing layer)
+REAL,      INTENT(OUT)                           :: cch                        ! source depletion factor for wet deposition/chemical conversion
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: flag                       ! stable meteo class and stack emitting above mixing layer 
-REAL*4                                           :: a                          ! 
-REAL*4                                           :: cq1                        ! source depletion ratio for all removal processes for phase 1 (area source)
-REAL*4                                           :: diameter                   ! 
-REAL*4                                           :: dxeff                      ! effective distance over which deposition takes place within an area source
-REAL*4                                           :: grad_z                     ! height dependent grad
-REAL*4                                           :: hf                         ! 
-REAL*4                                           :: p1                         ! 
-REAL*4                                           :: p2                         ! 
-REAL*4                                           :: pldaling                   ! 
-REAL*4                                           :: sigzr                      ! 
-REAL*4                                           :: ux0                        ! wind speed near source at plume height (m/s)
-REAL*4                                           :: uxr                        ! wind speed representative for plume over area source (m/s)
-REAL*4                                           :: ugem                       ! average wind speed depending on phase of plume development (m/s)
-REAL*4                                           :: vd_trj_z0                  ! deposition velocity for trajectory, height z0 [m/s]; used in source depletion factor cq2
-REAL*4                                           :: vd_uncorr_trj_zra          ! deposition velocity over trajectory, uncorrected for effect that plume is above mixing
+INTEGER                                          :: flag                       ! stable meteo class and stack emitting above mixing layer 
+REAL                                             :: a                          ! 
+REAL                                             :: cq1                        ! source depletion ratio for all removal processes for phase 1 (area source)
+REAL                                             :: diameter                   ! 
+REAL                                             :: dxeff                      ! effective distance over which deposition takes place within an area source = (S/4)*exp[-k*t] (MS: includes conversion rates for various loss terms??)
+REAL                                             :: grad_z                     ! height dependent grad
+REAL                                             :: hf                         ! effective transport height [m] 
+real                                             :: humax_scaled
+REAL                                             :: p1                         ! 
+REAL                                             :: p2                         ! 
+REAL                                             :: pldaling                   ! 
+REAL                                             :: sigzr                      ! vertical dispersion length calculated for an area source  [m]
+REAL                                             :: ux0                        ! wind speed near source at plume height (m/s)
+REAL                                             :: uxr                        ! wind speed representative for plume over area source (m/s)
+REAL                                             :: ugem                       ! average wind speed depending on phase of plume development (m/s)
+REAL                                             :: vd_trj_z0                  ! deposition velocity for trajectory, height z0 [m/s]; used in source depletion factor cq2
+REAL                                             :: vd_uncorr_trj_zra          ! deposition velocity over trajectory, uncorrected for effect that plume is above mixing
                                                                                ! height and no deposition takes place [m/s]
-REAL*4                                           :: xg                         ! 
-REAL*4                                           :: zu                         ! 
+REAL                                             :: xg                         ! 
+REAL                                             :: zu                         ! 
 !LOGICAL                                          :: ops_openlog                ! function for opening log file
 
-!
-! VDDEEL = deposition velocity per particle class [m/s];
-! Sehmel G.A. and Hodgson W.H. (1980) A model for predicting dry deposition of particles and gases to environmental surfaces.
-! AIChE Symposium Series 86, 218-230. See also 
-!
-! DATA
-DATA VDDEEL/.00030, .0013, .0046, .009, .024, .054/
 
 !-------------------------------------------------------------------------------------------------------------------------------
 !
 ! Initialisation
 !
 sigzr = 0.0
+humax_scaled = varin%varin_unc%unc_meteo%xl_fact * HUMAX
 
 ! Square area source is represented by a circular area source with the same area;
 ! (area circle with radius r) = (area square with 1/2 side = radius) <=> pi*r**2 = (2*radius)**2 <=> 
@@ -204,6 +204,11 @@ IF (ABS(grof - 1.) .GT. EPS_DELTA) THEN
    
    ! Gas or fine particles:
    vd_uncorr_trj_zra = 1./(ra_trj_zra + rb_trj + rc_eff_trj_4_pos)  
+                                                                    
+                                                                    ! On the other hand: would rc_eff_trj_4_pos not be equal to rc_eff_trj_zra_pos (which does not exist in the code)
+                                                                    ! since this is used in vd_eff_trj_zra used in source depletion for dry deposition for phase 3 (well mixed) of the plume? 
+                                                                    ! Note however that vd_eff_trj_zra is also used in determining e1_pri (source depletion factor for primary species), 
+                                                                    ! as well as factor b for surface sources used to determine the distance over which production of secondary species takes place.                                                                    
                        ! write(*,'(a,4(1x,e12.5))') 'ops_depoparexp1/vd_uncorr_trj_zra,ra_trj_zra,rb_trj,rc_eff_trj_4_pos: ',vd_uncorr_trj_zra,ra_trj_zra,rb_trj,rc_eff_trj_4_pos
    vd_trj_z0         = 1./(rb_trj + rc_eff_trj_4_pos) ! Note: Ra(z0) = 0              ! 970809
    grad              = (ra_rcp_4    + rb_rcp + rc_eff_rcp_4_pos)/ (ra_rcp_zra + rb_rcp + rc_eff_rcp_4_pos)  
@@ -244,6 +249,11 @@ ELSE IF (htot .GT. xloc) THEN
 ELSE
    vd_eff_trj_zra = xvglbr*vd_uncorr_trj_zra
 ENDIF
+!Edit
+! Adjustments relevant for sensitivity analyses. Multiplication factors are 1.0 by default.
+vd_eff_trj_zra = varin%varin_unc%unc_sourcedepl%vd_drydep_pri_fact * vd_eff_trj_zra
+vd_trj_z0 = varin%varin_unc%unc_sourcedepl%vd_drydep_pri_fact * vd_trj_z0 
+!End Edit
 !write(*,'(a,5(1x,e12.5))') 'ops_depoparexp2/htot,vd_uncorr_trj_zra,xvglbr,xvghbr,vd_eff_trj_zra: ',htot,vd_uncorr_trj_zra,xvglbr,xvghbr,vd_eff_trj_zra
 !
 ! rkc: obsolete factor
@@ -252,8 +262,8 @@ rkc = 1
 !
 ! Compute wet deposition
 !
-CALL par_nat(regenk, rint, buil, zf, isec1, iseiz, mb, disx, radius, diameter, ueff, xl, onder, sigz, htot, gasv, dg,           &
-          &  knatdeppar, scavcoef, routpri, kdeel, irev, c, qbstf, virty, twt, pr, cratio, ri, a, vnatpri)
+CALL par_nat(varin%varin_unc, regenk, rint, buil, zf, isec1, iseiz, mb, disxx, radius, diameter, ueff, xl, onder, sigz, htot, gasv, dg,           &
+          &  knatdeppar, scavcoef, routpri, kdeel, irev, c0_undepl_mix, qbstf, virty, twt, pr, cratio, ri, a, vnatpri)
 !
 ! Gradient term; grad = vd(zra)/vd(4); assuming a constant flux over height, we derive:
 !
@@ -423,7 +433,7 @@ ELSE
       ELSE
          xg = 100000.
       ENDIF
-      IF ((xg .GT. (disx + EPS_DELTA)) .OR. (xg .LT. (0. - EPS_DELTA))) THEN
+      IF ((xg .GT. (disxx + EPS_DELTA)) .OR. (xg .LT. (0. - EPS_DELTA))) THEN
          xg = 100000.
       ENDIF
       flag = 1
@@ -433,7 +443,7 @@ ELSE
       ! sigma_z = dispg*x**disph  <=> x = (sigma_z/dispg)**(1/disph);
       ! xg is the location where the plume is fully mixed, this means that there the width of the plume (sigma_z)
       ! equals the mixing height (xloc) -> xg = (xloc/dispg)**(1/disph);
-      xg = (xloc/dispg(istab))**(1./DISPH(istab))
+      xg = (xloc/dispg)**(1./DISPH(istab))
       !write(*,'(a,4(1x,e12.5))') 'ops_depoparexpB/xloc,dispg(istab),DISPH(istab),xg: ',xloc,dispg(istab),DISPH(istab),xg
    ENDIF
    IF (xg .LT. (radius - EPS_DELTA)) THEN
@@ -446,25 +456,24 @@ ELSE
 !
    IF (htot .LT. (1. - EPS_DELTA)) THEN
       hf = 1.
-   ELSE IF (htot .GT. (HUMAX + EPS_DELTA)) THEN
-      hf = HUMAX
+   ELSE IF (htot .GT. (humax_scaled + EPS_DELTA)) THEN
+      hf = humax_scaled
    ELSE
       hf = htot
    ENDIF
-   CALL ops_wv_log_profile(z0_src, hf, uster_src, ol_src, ux0)
-!
-!  Compute source depletion (brondepl << "bron" = source, depl << depletion) and compute source depletion factors cdn, cq1, cq2
-!  (to compute a depleted source strength) and a gradient factor cgt (to correct for the fact that concentrations at the 
-!  surface are lower than the plume average).
-!
+   CALL ops_wv_log_profile(z0_src, hf, uster_src, ol_src, varin%varin_meteo, ux0)
 
-
-
-
-
-   CALL ops_brondepl(do_proc, disx, xg, c, ux0, ueff, sigz, vd_eff_trj_zra, xl, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
+   !  Compute source depletion (brondepl << "bron" = source, depl << depletion) and compute source depletion factors cdn, cq1, cq2
+   !  (to compute a depleted source strength) and a gradient factor cgt (to correct for the fact that concentrations at the 
+   !  surface are lower than the plume average).
+   !
+   
+   
+   
+   
+   CALL ops_brondepl(varin, do_proc, disx, disxx, xg, c0_undepl_mix, ux0, ueff, sigz, vd_eff_trj_zra, xl, ircp, istab, xloc, xl100, vw10, pcoef, virty, radius, zm, &
                   &  ra_rcp_4, ra_rcp_zrcp, rc_eff_rcp_4_pos, rb_rcp, z0_src, ol_src, uster_src, htot, ra_src_4, rb_src, rc_eff_src_4_pos, qbstf, vd_trj_z0, &
-                  &  onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, a, cq1, cq2, uxr, zu, sigzr, dxeff, error)
+                  &  onder, flag, vchem, vnatpri, diameter, dispg, cgt, cgt_z, cdn, ugem, hf, cq1, cq2, uxr, zu, sigzr, dxeff, error)
 !
 !  In order to compute utr = average wind speed over the trajectory, the plume is split into three parts
 !  (x: source receptor distance, R: radius area source, u: wind speed):
@@ -476,10 +485,10 @@ ELSE
 !  1+2  : x*utr = R*uxr + (xg-R)*ugem
 !  1    : utr = uxr = ueff (see ops_brondepl: inside an area source, we have uxr = ueff)
 !
-   IF (disx .GT. (xg + EPS_DELTA)) THEN
-      utr = ((radius*uxr) + (xg - radius)*ugem + (disx - xg)*ueff)/disx
-   ELSE IF (disx .GT. (radius + EPS_DELTA)) THEN
-      utr = ((radius*uxr) + (disx - radius)*ugem)/disx
+   IF (disxx .GT. (xg + EPS_DELTA)) THEN
+      utr = ((radius*uxr) + (xg - radius)*ugem + (disxx - xg)*ueff)/disxx
+   ELSE IF (disxx .GT. (radius + EPS_DELTA)) THEN
+      utr = ((radius*uxr) + (disxx - radius)*ugem)/disxx
    ELSE
       utr = ueff
    ENDIF
@@ -490,10 +499,12 @@ ENDIF
 ! dxeff: effective distance over which deposition takes place within an area source
 ! a    : effective distance for chemical conversion and wet deposition
 !
-IF (disx .LE. (radius + EPS_DELTA)) THEN
+IF (disxx .LE. (radius + EPS_DELTA)) THEN
    a = dxeff
 ELSE
-   a = disx - dxeff 
+   a = disxx - dxeff 
+                    
+                    ! However, this occurs via dxeff which is rather confusing as this suggests a distance. Also now there seems to be a double exp? Check this.
 ENDIF
 
 ! cch = EXP( - (a/utr*(vnatpri + vchem)/360000.))
@@ -506,8 +517,8 @@ IF ((cq1 .LT. (0. - EPS_DELTA)) .OR. (cq1 .GT. (1. + EPS_DELTA)) .OR. (cq2 .LT. 
  &  (cq2 .GT. (1. + EPS_DELTA)) .OR. (cch .GT. (1. + EPS_DELTA))) THEN
    IF (.NOT. ops_openlog(error)) GOTO 9999
    WRITE(fu_log,'("WARNING: OPS has detected a value outside limits", " in routine ",A)') ROUTINENAAM(:LEN_TRIM(ROUTINENAAM))
-   WRITE (fu_log, '(''  stab, disx, xl, sigz, sigzr, dxeff, ueff, uxr, cq1, cq2, cch, c:'', i4, 5f10.0, 6f10.4)') istab,        &
-  &  disx, xl, sigz, sigzr, dxeff, ueff, uxr, cq1, cq2, cch, c/cq1
+   WRITE (fu_log, '(''  stab, disxx, xl, sigz, sigzr, dxeff, ueff, uxr, cq1, cq2, cch, c0_undepl_mix:'', i4, 5f10.0, 6f10.4)') istab,        &
+  &  disxx, xl, sigz, sigzr, dxeff, ueff, uxr, cq1, cq2, cch, c0_undepl_mix/cq1
    WRITE (fu_log, '(''  vchem, vnatpri, utr, a, x_rcp, y_rcp, bronx, brony:'', 6f10.0, 2i10)')                                  &
   &  vchem, vnatpri, utr, a, xm, ym, bx, by
  ENDIF
@@ -549,7 +560,7 @@ RETURN
 
 RETURN
 
-CONTAINS
+END SUBROUTINE ops_depoparexp
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! SUBROUTINE         : par_nat
@@ -557,68 +568,77 @@ CONTAINS
 ! AUTHOR             : HvJ/Franka Loeve (Cap Volmac)
 ! SYSTEM DEPENDENCIES: NON-ANSI F77
 !-------------------------------------------------------------------------------------------------------------------------------
-SUBROUTINE par_nat(regenk, rint, buil, zf, isec1, iseiz, mb, disx, radius, diameter, ueff, xl, onder, sigz, htot, gasv, dg,      &
-                &  knatdeppar, scavcoef, routpri, kdeel, irev, c, qbstf, virty, twt, pr, cratio, ri, a, vnatpri)
+SUBROUTINE par_nat(varin_unc, regenk, rint, buil, zf, isec1, iseiz, mb, disxx, radius, diameter, ueff, xl, onder, sigz, htot, gasv, dg,      &
+                &  knatdeppar, scavcoef, routpri, kdeel, irev, c0_undepl_mix, qbstf, virty, twt, pr, cratio, ri, a, vnatpri)
+
+use m_commonconst_lt, only: PI, NPARTCLASS, NSEK, NMONTH, EPS_DELTA
+use m_ops_varin, only: Tvarin_unc
+IMPLICIT NONE
 
 ! CONSTANTS
-REAL*4                                           :: PS                         ! 
+REAL                                             :: PS                         ! 
 PARAMETER   (PS    = 1.e6/(2.*PI))
-REAL*4                                           :: TWETZ(NSEK)                ! duration of rain shower in summer
-REAL*4                                           :: TWETW(NSEK)                ! duration of rain shower in winter
-REAL*4                                           :: RIW(NSEK)                  ! rain intensity winter
-REAL*4                                           :: RIZ(NSEK)                  ! rain intensity summer
-REAL*4                                           :: CMND(NMONTH)               ! monthly correction shower duration
-REAL*4                                           :: EPSILON(NPARTCLASS)        ! 
+REAL                                             :: TWETZ(NSEK)                ! duration of rain shower in summer
+REAL                                             :: TWETW(NSEK)                ! duration of rain shower in winter
+REAL                                             :: RIW(NSEK)                  ! rain intensity winter
+REAL                                             :: RIZ(NSEK)                  ! rain intensity summer
+REAL                                             :: CMND(NMONTH)               ! monthly correction shower duration
+REAL                                             :: EPSILON(NPARTCLASS)        ! 
 
 ! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: regenk                     ! rain probability [-]
-REAL*4,    INTENT(IN)                            :: rint                       ! rain intensity [mm/h] 
-REAL*4,    INTENT(IN)                            :: buil                       ! 
-REAL*4,    INTENT(IN)                            :: zf                         ! 
-INTEGER*4, INTENT(IN)                            :: isec1                      ! 
-INTEGER*4, INTENT(IN)                            :: iseiz                      ! 
-INTEGER*4, INTENT(IN)                            :: mb                         ! 
-REAL*4,    INTENT(IN)                            :: disx                       ! 
-REAL*4,    INTENT(IN)                            :: radius                     ! 
-REAL*4,    INTENT(IN)                            :: diameter                   ! 
-REAL*4,    INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
+TYPE(Tvarin_unc), INTENT(IN)                     :: varin_unc
+REAL,      INTENT(IN)                            :: regenk                     ! rain probability [-]
+REAL,      INTENT(IN)                            :: rint                       ! rain intensity [mm/h] 
+REAL,      INTENT(IN)                            :: buil                       ! length of rain event [0.01 hours]
+REAL,      INTENT(IN)                            :: zf                         ! 
+INTEGER,   INTENT(IN)                            :: isec1                      ! 
+INTEGER,   INTENT(IN)                            :: iseiz                      ! 
+INTEGER,   INTENT(IN)                            :: mb                         ! 
+REAL,      INTENT(IN)                            :: disxx                      ! effective travel distance between source and receptor [m]  
+REAL,      INTENT(IN)                            :: radius                     ! 
+REAL,      INTENT(IN)                            :: diameter                   ! 
+REAL,      INTENT(IN)                            :: ueff                       ! wind speed at effective transport height heff; 
                                                                                ! for short distances heff = plume height;
                                                                                ! for large distances heff = 1/2 mixing height;
                                                                                ! heff is interpolated for intermediate distances.
-REAL*4,    INTENT(IN)                            :: xl                         ! 
-REAL*4,    INTENT(IN)                            :: onder                      ! 
-REAL*4,    INTENT(IN)                            :: sigz                       ! 
-REAL*4,    INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
+REAL,      INTENT(IN)                            :: xl                         ! maximal mixing height over transport distance [m] (extrapolated when x > 1000km, largest distance category in meteo statistics; xl = 2.*htt when xl < htt)
+REAL,      INTENT(IN)                            :: onder                      ! fraction of emission below mixing height [-]
+REAL,      INTENT(IN)                            :: sigz                       ! vertical dispersion length [m]
+REAL,      INTENT(IN)                            :: htot                       ! plume height at receptor, including plume descent due to heavy particles [m]
 LOGICAL,   INTENT(IN)                            :: gasv                       ! 
-REAL*4,    INTENT(IN)                            :: dg                         ! 
-INTEGER*4, INTENT(IN)                            :: knatdeppar                 ! 
-REAL*4,    INTENT(IN)                            :: scavcoef                   ! 
-REAL*4,    INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component
-                                                                               ! (rout << rain-out = in-cloud) [-]
-INTEGER*4, INTENT(IN)                            :: kdeel                      ! 
+REAL,      INTENT(IN)                            :: dg                         ! 
+INTEGER,   INTENT(IN)                            :: knatdeppar                 ! 
+REAL,      INTENT(IN)                            :: scavcoef                   ! 
+REAL,      INTENT(IN)                            :: routpri                    ! in-cloud scavenging ratio for primary component [-] (rout << rain-out = in-cloud)
+INTEGER,   INTENT(IN)                            :: kdeel                      ! 
 LOGICAL,   INTENT(IN)                            :: irev                       ! 
-REAL*4,    INTENT(IN)                            :: c                          ! 
-REAL*4,    INTENT(IN)                            :: qbstf                      ! 
-REAL*4,    INTENT(IN)                            :: virty                      ! 
+REAL,      INTENT(IN)                            :: c0_undepl_mix              ! undepleted concentration at z = 0 m (only due to part of plume inside the mixing layer)                       
+
+REAL,      INTENT(IN)                            :: qbstf                      ! 
+REAL,      INTENT(IN)                            :: virty                      ! distance virtual point source - centre area source [m]
+
+! SUBROUTINE ARGUMENTS - INPUT/OUTPUT
+REAL,      INTENT(INOUT)                         :: twt                        ! average duration of a rainfall period, dependent on source - receptor distance [h] 
+                                                                               ! INOUT, because twt remains unchanged when regenk<=EPS_DELTA
+REAL,      INTENT(INOUT)                         :: pr                         ! Distribution factor between washout (below cloud) and rainout (in cloud). pr = 0 -> washout, pr = 1 -> rainout. 
+                                                                               ! pr is INOUT, because pr remains unchanged when regenk<=EPS_DELTA
+REAL,      INTENT(INOUT)                         :: cratio                     ! ratio surface concentration (= c0_undepl_mix) and concentration at full mixing in mixing layer (needed for reversible wet deposition).
+                                                                               ! cratio is INOUT, because it remains unchanged when .not. gasv
+REAL,      INTENT(INOUT)                         :: ri                         ! rain intensity [mm/h]. INOUT, because ri remains unchanged when regenk<=EPS_DELTA
+REAL,      INTENT(INOUT)                         :: a                          ! INOUT, because a remains unchanged when regenk<=EPS_DELTA 
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: twt                        ! 
-REAL*4,    INTENT(OUT)                           :: pr                         ! 
-REAL*4,    INTENT(OUT)                           :: cratio                     ! 
-REAL*4,    INTENT(OUT)                           :: ri                         ! 
-REAL*4,    INTENT(OUT)                           :: a                          ! 
-REAL*4,    INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
+REAL,      INTENT(OUT)                           :: vnatpri                    ! wet deposition loss rate for primary components [%/h]
 
 ! LOCAL VARIABLES
-REAL*4                                           :: twet                       ! 
-REAL*4                                           :: treis                      ! 
-REAL*4                                           :: h                          ! thickness over which wet deposition takes place [m]
-REAL*4                                           :: hl                         ! 
-REAL*4                                           :: vnatrain                   ! wet deposition loss rate for rainout (in-cloud) [%/h]
-REAL*4                                           :: epsi                       ! 
-REAL*4                                           :: beta                       ! 
-REAL*4                                           :: lambda0                    ! 
-REAL*4                                           :: vnatwash                   ! wet deposition loss rate for washout (below-cloud) [%/h]
+REAL                                             :: twet                       ! 
+REAL                                             :: treis                      ! 
+REAL                                             :: h                          ! thickness over which wet deposition takes place [m]
+REAL                                             :: hl                         ! 
+REAL                                             :: vnatrain                   ! wet deposition loss rate for rainout (in-cloud) [%/h]
+REAL                                             :: epsi                       ! 
+REAL                                             :: vnatwash                   ! wet deposition loss rate for washout (below-cloud) [%/h]
+REAL                                             :: lambda_b                   ! Scavenging rate for below-cloud scavenging (1/h)
 
 ! DATA figure 4.1 OPS-report (depends on particle class) and
 ! Slinn W.G.N (1983) Predictions for particle deposition to vegetative surfaces. Atmospheric Environment 16, 1785-1794.
@@ -679,10 +699,10 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !  and determine a = effective travel distance over which deposition takes place
 !  a = diameter/4 is based on simulations with a large number of point sources.
 !
-   IF (disx .LE. (radius + EPS_DELTA)) THEN
+   IF (disxx .LE. (radius + EPS_DELTA)) THEN
       a = diameter/4.
    ELSE
-      a = disx - diameter/4.
+      a = disxx - diameter/4.
    ENDIF
 !
 !  Determine treis = travel time [h] ("reis"= travel)
@@ -721,11 +741,11 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       
       ! Area source; check for inside or outside area source
       
-      IF (disx .LT. (radius - EPS_DELTA)) THEN
-         hl = xl - htot + sigz*(radius - disx)/radius 
+      IF (disxx .LT. (radius - EPS_DELTA)) THEN
+         hl = xl - htot + sigz*(radius - disxx)/radius 
          a  = 3.
       ELSE
-         hl = xl - htot - (radius**3)/(200*disx**2) ! radius = sa/2 -> extra factor 2**3 = 8 accounts for factor 1600 in OPS report
+         hl = xl - htot - (radius**3)/(200*disxx**2) ! radius = sa/2 -> extra factor 2**3 = 8 accounts for factor 1600 in OPS report
          a  = 1.
       ENDIF
    ELSE
@@ -738,8 +758,8 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
    ENDIF
    pr = EXP(-(hl+5)**2/(2*sigz*sigz*a)) 
    
-   ! Correction near source (travel time < 1 hour); disx/(ueff*3600) is travel time in h:
-   pr = pr*AMIN1(1., disx/(ueff*3600.)) ! 950316 
+   ! Correction near source (travel time < 1 hour); disxx/(ueff*3600) is travel time in h:
+   pr = pr*AMIN1(1., disxx/(ueff*3600.)) ! 950316 
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !  Washout (below-cloud) loss rate vnatwash [%/h] (gasses, irreversible)
@@ -755,7 +775,18 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !                   alpha1 = 1.21, alpha2 = 0.744, alpha3 = 0.628; dg = diffusion coefficient [cm2/s]
 !
    IF (gasv) THEN
-      vnatwash = regenk*100./twt*(1. - EXP( -1.21*twt*ri**.628*dg**.744))
+      !Edit
+      !Original code:
+      !vnatwash = regenk*100./twt*(1. - EXP( -1.21*twt*ri**.628*dg**.744))
+      !New code: 
+      !Hulpvariabele lambda_b toegevoegd
+      !Ik heb de volgorde in lambda_b ook veranderd zodat dit overeenkomt met OPS-beschrijving.
+      !Indien akkoord: lokale variabele lambda_b toevoegen met comment 'Scavenging rate for below-cloud scavenging (1/h)'
+      lambda_b = 1.21*(dg**.744)*(ri**.628)
+      ! Adjustment relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+      lambda_b = varin_unc%unc_sourcedepl%washout_pri_fact * lambda_b
+      vnatwash = regenk*100./twt*(1. - EXP( -lambda_b*twt))
+      !End Edit
    ENDIF
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -796,9 +827,24 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
 !     vnatwash = loss rate due to wash out (below-cloud) [%/h]
 !
       epsi     = EPSILON(kdeel)
-      beta     = .184
-      lambda0  = 1.326
-      vnatwash = regenk*100./twt*(1 - EXP( - twt*epsi*lambda0*ri**(1. - beta)))
+      !Edit
+      !Original code:
+      !beta     = .184
+      !lambda0  = 1.326
+      !vnatwash = regenk*100./twt*(1 - EXP( - twt*epsi*lambda0*ri**(1. - beta)))
+      !New code: 
+      !Hulpvariabele lambda_b toegevoegd en lambda0 en beta verwijderd zodat dit nu consistent is met bepaling 
+      !vnatwash voor gasv = 1 (daar worden ook niet de constanten expliciet benoemd). 
+      !Bovendien is lambda0 in OPS-beschrijving alpha4 en (1-beta) gelijk aan alpha5 --> verwarrend.
+      !Volgorde ook meteen aangepast overeenkomstig met OPS-beschrijving.
+      !Indien akkoord: bovenstaande toelichting iets wijzigingen en lokale variabelen beta en lambda0 bovenaan subroutine verwijderen.
+      !Deze worden nergens anders gebruikt.
+      !Lokale variabele lambda_b juist toevoegen met comment 'Scavenging rate for below-cloud scavenging (1/h)'
+      lambda_b = 1.326*epsi*ri**0.816
+      ! Adjustment relevant for sensitivity analyses. Multiplication factor is 1.0 by default.
+      lambda_b = varin_unc%unc_sourcedepl%washout_pri_fact * lambda_b
+      vnatwash = regenk*100./twt*(1. - EXP( -lambda_b*twt))
+      !End Edit
    ELSE
 !
 !     gas
@@ -812,10 +858,10 @@ IF (regenk .GT. (0. + EPS_DELTA)) THEN
       IF (irev) THEN
 !
 !        Reversible wet deposition
-!        cratio = ratio surface concentration (= c) and concentration at full mixing in mixing layer (needed for reversible wet deposition). 
+!        cratio = ratio surface concentration (= c0_undepl_mix) and concentration at full mixing in mixing layer (needed for reversible wet deposition). 
 !        (4.16) OPS report, figure 6.1 new OPS report
 !
-         cratio = c/(qbstf*NSEK*PS/(ueff*(disx + virty)*xl))
+         cratio = c0_undepl_mix/(qbstf*NSEK*PS/(ueff*(disxx + virty)*xl))
          IF (cratio .GT. (1. + EPS_DELTA)) THEN
             cratio = 1.
          ENDIF
@@ -845,6 +891,5 @@ END SUBROUTINE par_nat
 
 !-------------------------------------------------------------------------------------------------------------------------------
 
-END SUBROUTINE ops_depoparexp
 
 end module m_ops_depoparexp

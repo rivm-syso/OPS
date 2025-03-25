@@ -1,0 +1,19 @@
+* file with varin parameters for OPS, 2022-11-22
+! test with error in END_VARIN 
+VARIN varin_meteo 
+   uz_cutoff1           0.75   
+   uz_cutoff2           0.5
+END_VARIN
+
+VARIN varin_unc 
+   plrise_fact      3.14
+   
+   ! Assign separate values to four of the six sub-parameters.
+   ! The fifth and sixth, `vd_drydep_pri_fact` and `vd_drydep_sec_fact` should default to `1`.
+   unc_sourcedepl%washout_pri_fact   2.0
+   unc_sourcedepl%washout_sec_fact   2.0
+   unc_sourcedepl%rainout_pri_fact   3.0
+   unc_sourcedepl%rainout_sec_fact   3.0
+END_VARIN
+
+

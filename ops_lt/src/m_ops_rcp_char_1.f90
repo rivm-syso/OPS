@@ -23,7 +23,7 @@ implicit none
 
 contains
 
-SUBROUTINE ops_rcp_char_1(isec, ircp, nrrcp, intpol, gxm_rcp, gym_rcp, cs, z0_metreg, xreg, yreg, astat, z0_metreg_user,    &
+SUBROUTINE ops_rcp_char_1(isec, ircp, intpol, gxm_rcp, gym_rcp, cs, z0_metreg, xreg, yreg, astat, z0_metreg_user,    &
                        &  spgrid, x_rcp, y_rcp, lugrid, domlu, perc, lu_rcp_per_user_all, lu_rcp_dom_all, f_z0user, z0_rcp_all, &
                        &  uurtot, z0_metreg_rcp, lu_rcp_per, lu_rcp_dom, z0_rcp, error)
 
@@ -41,41 +41,40 @@ CHARACTER*512                                    :: ROUTINENAAM                !
 PARAMETER    (ROUTINENAAM = 'ops_rcp_char_1')
 
 ! SUBROUTINE ARGUMENTS - INPUT
-LOGICAL*4, INTENT(IN)                            :: isec                        
-INTEGER*4, INTENT(IN)                            :: ircp                   
-INTEGER*4, INTENT(IN)                            :: nrrcp   
-INTEGER*4, INTENT(IN)                            :: intpol                     ! 
-REAL*4,    INTENT(IN)                            :: gxm_rcp                    ! array met x-coordinaat van receptorpunten (lola)
-REAL*4,    INTENT(IN)                            :: gym_rcp                    ! array met y-coordinaat van receptorpunten (lola)
-REAL*4,    INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
-REAL*4,    INTENT(IN)                            :: xreg(NMETREG)              ! array met x-coordinaat van meteo-regios
-REAL*4,    INTENT(IN)                            :: yreg(NMETREG)              ! array met y-coordinaat van meteo-regio's
-REAL*4,    INTENT(IN)                            :: z0_metreg_user             ! roughness length of user specified meteo region [m]
-INTEGER*4, INTENT(IN)                            :: spgrid
-REAL*4,    INTENT(IN)                            :: x_rcp                      ! array met x-coordinaat van receptorpunten (RDM)
-REAL*4,    INTENT(IN)                            :: y_rcp                      ! array met y-coordinaat van receptorpunten (RDM)
-TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                     ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
-LOGICAL*4, INTENT(IN)                            :: domlu                      ! use dominant land use instead of land use percentages
-LOGICAL*4, INTENT(IN)                            :: perc                           ! 
-REAL*4,    INTENT(IN)                            :: lu_rcp_per_user_all(nrrcp,NLU) ! percentage of landuse for all receptors, user defined in receptor file
-INTEGER*4, INTENT(IN)                            :: lu_rcp_dom_all(nrrcp)          ! dominant land use class for each receptor point
-LOGICAL*4, INTENT(IN)                            :: f_z0user                   
-REAL*4,    INTENT(IN)                            :: z0_rcp_all(nrrcp)              ! roughness lengths for all receptors; from z0-map or receptor file [m]
+LOGICAL,   INTENT(IN)                            :: isec                        
+INTEGER,   INTENT(IN)                            :: ircp                   
+INTEGER,   INTENT(IN)                            :: intpol                 ! 
+REAL,      INTENT(IN)                            :: gxm_rcp                ! x-coordinaat van receptorpunt ircp (lola)
+REAL,      INTENT(IN)                            :: gym_rcp                ! y-coordinaat van receptorpunt ircp (lola)
+REAL,      INTENT(IN)                            :: cs(:,:,:,:,:)          ! cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG)
+REAL,      INTENT(IN)                            :: z0_metreg(NMETREG)     ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+REAL,      INTENT(IN)                            :: xreg(NMETREG)          ! array met x-coordinaat van meteo-regios
+REAL,      INTENT(IN)                            :: yreg(NMETREG)          ! array met y-coordinaat van meteo-regio's
+REAL,      INTENT(IN)                            :: z0_metreg_user         ! roughness length of user specified meteo region [m]
+INTEGER,   INTENT(IN)                            :: spgrid
+REAL,      INTENT(IN)                            :: x_rcp                  ! x-coordinate receptor (RDM)
+REAL,      INTENT(IN)                            :: y_rcp                  ! y-coordinate receptor (RDM)
+TYPE (TApsGridInt), INTENT(IN)                   :: lugrid                 ! grid with land use class information (1: dominant land use, 2:NLU+1: percentages land use class)
+LOGICAL,   INTENT(IN)                            :: domlu                  ! use dominant land use instead of land use percentages
+LOGICAL,   INTENT(IN)                            :: perc                   ! 
+REAL,      INTENT(IN)                            :: lu_rcp_per_user_all(:) ! percentage of landuse for receptor ircp, user defined in receptor file
+INTEGER,   INTENT(IN)                            :: lu_rcp_dom_all         ! dominant land use class for each receptor point
+LOGICAL,   INTENT(IN)                            :: f_z0user                   
+REAL,      INTENT(IN)                            :: z0_rcp_all             ! roughness length for receptor ircp; from z0-map or receptor file [m]
 
 ! SUBROUTINE ARGUMENTS - I/O
-REAL*4,    INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK)  ! 
-REAL*4,    INTENT(INOUT)                         :: uurtot                     ! total number of hours from meteo statistics
+REAL,      INTENT(INOUT)                         :: astat(NTRAJ,NCOMP,NSTAB,NSEK)  ! Only modified if intpol == 0
+REAL,      INTENT(INOUT)                         :: uurtot                     ! total number of hours from meteo statistics
 
 ! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
-INTEGER*4, INTENT(OUT)                           :: lu_rcp_dom                 ! dominant landuse class for receptor
-REAL*4,    INTENT(OUT)                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
-REAL*4,    INTENT(OUT)                           :: z0_rcp                     ! roughness length at receptor; from z0-map [m]
+REAL,      INTENT(OUT)                           :: z0_metreg_rcp              ! roughness length at receptor; interpolated from meteo regions [m]
+INTEGER,   INTENT(OUT)                           :: lu_rcp_dom                 ! dominant landuse class for receptor
+REAL,      INTENT(OUT)                           :: lu_rcp_per(NLU)            ! percentages of landuse classes at receptor points
+REAL,      INTENT(OUT)                           :: z0_rcp                     ! roughness length at receptor; from z0-map or receptor file [m]
 TYPE (TError)                                    :: error  
 
 ! LOCAL VARIABLES
-INTEGER*4                                        :: lu_rcp_per_int(NLU)        ! percentages of landuse classes at receptor points
+INTEGER                                          :: lu_rcp_per_int(NLU)        ! percentages of landuse classes at receptor points
 INTEGER                                          :: lu
 LOGICAL                                          :: iscell                     ! whether point is inside masker grid
 
@@ -90,7 +89,7 @@ z0_metreg_rcp = 0
 !---------------------------------------------------------------------
 
 ! Get roughness length at receptor:
-z0_rcp = z0_rcp_all(ircp)
+z0_rcp = z0_rcp_all
 
 ! Select the three nearest climatological regions and interpolate between them in order to compute z0_metreg_rcp
 ! Note: intpol = 0 -> interpolate    
@@ -162,7 +161,7 @@ ELSE
    
       ! Fill lu_rcp_per with land use precentages read from rcp-file:
       DO lu=1,NLU
-         lu_rcp_per(lu) = lu_rcp_per_user_all(ircp,lu)
+         lu_rcp_per(lu) = lu_rcp_per_user_all(lu)
       ENDDO
    ENDIF
 ENDIF
@@ -175,7 +174,7 @@ IF (f_z0user) THEN
    lu_rcp_dom = 1
 ELSE  
    ! If z0 not user specified, then use dominant land use class from receptor file (first choice) or land use grid:
-   lu_rcp_dom = lu_rcp_dom_all(ircp)
+   lu_rcp_dom = lu_rcp_dom_all
 ENDIF
 
 !------------------------------------------------------------------------
@@ -195,7 +194,9 @@ IF (sum(lu_rcp_per(1:NLU)) .le. 0) THEN
   lu_rcp_per(1) = 100.0
 ENDIF   
 
-if (error%debug) write(*,'(3a,1x,i6,99(1x,e12.5))') trim(ROUTINENAAM),',A,',' ircp,z0_rcp,lu_rcp_per: ',ircp,z0_rcp,lu_rcp_per
+if (error%debug) write(*,'(3a,1x,i6,";",99(1x,e12.5,";"))') trim(ROUTINENAAM),',A; ', &
+   'ircp; z0_rcp; lu_rcp_per(lu=1); lu_rcp_per(lu=2); lu_rcp_per(lu=3); lu_rcp_per(lu=4); lu_rcp_per(lu=5); lu_rcp_per(lu=6); lu_rcp_per(lu=7); lu_rcp_per(lu=8); lu_rcp_per(lu=9); ',&
+    ircp, z0_rcp, lu_rcp_per
 
 RETURN
 
@@ -203,66 +204,28 @@ RETURN
 9999 CALL ErrorCall(ROUTINENAAM, error)
 RETURN
 
-CONTAINS
+END SUBROUTINE ops_rcp_char_1
 
 !-------------------------------------------------------------------------------------------------------------------------------
-! SUBROUTINE         : reginpo, contained in ops_tra_char
+! SUBROUTINE         : reginpo
 ! DESCRIPTION        : Determine the three meteo statistics regions nearest to location (x,y) and interpolate
 !                      parameters between these three regions. Interpolated parameters are stored in astat.
 !-------------------------------------------------------------------------------------------------------------------------------
 SUBROUTINE reginpo(x, y, cs, z0_metreg, xreg, yreg, z0_metreg_xy, uurtot, astat, error)
 
+use m_commonconst_lt, only: NMETREG, NTRAJ, EPS_DELTA, NCOMP, NSTAB, NSEK
 USE Binas, only: deg2rad
+USE m_error, only: TError, SetError, ErrorParam, ErrorCall
 
 ! CONSTANTS
 CHARACTER*512                                    :: ROUTINENAAM                ! 
 PARAMETER      (ROUTINENAAM = 'reginpo')
 
-INTEGER*4                                        :: NONZERO(NCOMP)             ! meteo parameters for which no interpolation has to
-                                                                               ! be done when one of the interpolants has a zero
-                                                                               ! frequency of occurrence
-INTEGER*4, PARAMETER                             :: NMETREG_NEAREST = 3        ! number of nearest meteo regions that are used in the interpolation
-
-! SUBROUTINE ARGUMENTS - INPUT
-REAL*4,    INTENT(IN)                            :: x                          ! x-coordinate (longitude; degrees)
-REAL*4,    INTENT(IN)                            :: y                          ! y-coordinate (latitude; degrees)
-REAL*4,    INTENT(IN)                            :: cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) ! 
-REAL*4,    INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
-REAL*4,    INTENT(IN)                            :: xreg(NMETREG)              ! x-coordinate region centre (longitude; degrees)
-REAL*4,    INTENT(IN)                            :: yreg(NMETREG)              ! y-coordinate region centre (latitude; degrees)
-
-! SUBROUTINE ARGUMENTS - OUTPUT
-REAL*4,    INTENT(OUT)                           :: z0_metreg_xy               ! roughness length at (x,y), interpolated from meteo regions [m]
-REAL*4,    INTENT(OUT)                           :: uurtot                     ! total number of hours from meteo statistics
-REAL*4,    INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
-TYPE (TError), INTENT(OUT)                       :: error                      ! error handling record
-
-! LOCAL VARIABLES
-INTEGER*4                                        :: ireg                       ! index of meteo region
-INTEGER*4                                        :: ireg_nearest               ! index of nearest meteo region
-INTEGER*4                                        :: icomp                      ! index of meteo component (parameter)
-INTEGER*4                                        :: istab                      ! index of stability class
-INTEGER*4                                        :: imin                       ! index of nearest region
-INTEGER*4                                        :: itraj                      ! index of distance class
-INTEGER*4                                        :: isek                       ! index of wind sector, isek = 1,NSEK
-REAL*4                                           :: a                          ! Set a = cos(y); needed in computation of distance
-                                                                               ! dx = (x2 - x1)*cos(y) for geographical coordinates
-
-REAL*4                                           :: r                          ! distance region - receptor
-REAL*4                                           :: rmin                       ! distance nearest region - receptor
-REAL*4                                           :: s                          ! sum of s1()
-REAL*4                                           :: ss                         ! 
-REAL*4                                           :: rr                         ! 
-REAL*4                                           :: rrtot                      ! 
-INTEGER*4                                        :: i1(NMETREG_NEAREST)        ! indices of three regions nearest to the receptor
-REAL*4                                           :: r1(NMETREG_NEAREST)        ! distance of three nearest regions - receptor
-REAL*4                                           :: s1(NMETREG_NEAREST)        ! weighing coefficients (inverse distances) for nearest meteo regions (non-zero if meteo class does not occur)
-REAL*4                                           :: ss1(NMETREG_NEAREST)       ! weighing coefficients (inverse distances) for nearest meteo regions (zero if meteo class does not occur)
-
-! DATA
+! meteo parameters for which no interpolation has to be done when one of the interpolants has a zero frequency of occurrence  
+INTEGER,   PARAMETER :: NONZERO(NCOMP) = (/         &                          
+             0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1/)                     
 !            1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
-DATA NONZERO/0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1/ 
-!
+
 ! If NONZERO = 1 -> no interpolation has to be done when one of the interpolants has a zero frequency of occurrence;
 !                   in this case the weighing coefficients ss1 are used, which are zero if the class does not occur
 ! If NONZERO = 0 -> interpolate anyhow, even if one of the interpolants has a zero frequency of occurrence;
@@ -272,6 +235,46 @@ DATA NONZERO/0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1
 !        1. number of hours for which a certain meteo class (stability class + wind direction class) has occurred [-]
 !        17. distribution of stability classes over day, source oriented [-]
 !        18. distribution of stability classes over day, receptor oriented [-]
+
+INTEGER,   PARAMETER                             :: NMETREG_NEAREST = 3        ! number of nearest meteo regions that are used in the interpolation
+
+! SUBROUTINE ARGUMENTS - INPUT
+REAL,      INTENT(IN)                            :: x                          ! x-coordinate (longitude; degrees)
+REAL,      INTENT(IN)                            :: y                          ! y-coordinate (latitude; degrees)
+REAL,      INTENT(IN)                            :: cs(:,:,:,:,:)              ! cs(NTRAJ, NCOMP, NSTAB, NSEK, NMETREG) 
+REAL,      INTENT(IN)                            :: z0_metreg(NMETREG)         ! roughness lengths of NMETREG meteo regions; scale < 50 km [m]
+REAL,      INTENT(IN)                            :: xreg(NMETREG)              ! x-coordinate region centre (longitude; degrees)
+REAL,      INTENT(IN)                            :: yreg(NMETREG)              ! y-coordinate region centre (latitude; degrees)
+
+! SUBROUTINE ARGUMENTS - OUTPUT
+REAL,      INTENT(OUT)                           :: z0_metreg_xy               ! roughness length at (x,y), interpolated from meteo regions [m]
+REAL,      INTENT(OUT)                           :: uurtot                     ! total number of hours from meteo statistics
+                                                                               ! Untouched if intpol!=0, INTENT(OUT) if intpol==0
+REAL,      INTENT(OUT)                           :: astat(NTRAJ, NCOMP, NSTAB, NSEK) ! 
+TYPE (TError), INTENT(INOUT)                     :: error                      ! error handling record
+
+! LOCAL VARIABLES
+INTEGER                                          :: ireg                       ! index of meteo region
+INTEGER                                          :: ireg_nearest               ! index of nearest meteo region
+INTEGER                                          :: icomp                      ! index of meteo component (parameter)
+INTEGER                                          :: istab                      ! index of stability class
+INTEGER                                          :: imin                       ! index of nearest region
+INTEGER                                          :: itraj                      ! index of distance class
+INTEGER                                          :: isek                       ! index of wind sector, isek = 1,NSEK
+REAL                                             :: a                          ! Set a = cos(y); needed in computation of distance
+                                                                               ! dx = (x2 - x1)*cos(y) for geographical coordinates
+
+REAL                                             :: r                          ! distance region - receptor
+REAL                                             :: rmin                       ! distance nearest region - receptor
+REAL                                             :: s                          ! sum of s1()
+REAL                                             :: ss                         ! 
+REAL                                             :: rr                         ! 
+REAL                                             :: rrtot                      ! 
+INTEGER                                          :: i1(NMETREG_NEAREST)        ! indices of three regions nearest to the receptor
+REAL                                             :: r1(NMETREG_NEAREST)        ! distance of three nearest regions - receptor
+REAL                                             :: s1(NMETREG_NEAREST)        ! weighing coefficients (inverse distances) for nearest meteo regions (non-zero if meteo class does not occur)
+REAL                                             :: ss1(NMETREG_NEAREST)       ! weighing coefficients (inverse distances) for nearest meteo regions (zero if meteo class does not occur)
+INTEGER                                          :: is_metreg_near3(NMETREG)   ! belongs to nearest 3 meteo regions (1/0)
 
 !-------------------------------------------------------------------------------------------------------------------------------
 ! Set a = cos(y); needed in computation of dx = (x2 - x1)*cos(y) for geographical coordinates
@@ -323,6 +326,16 @@ ENDIF
 
 ! Compute weighed average over nearest meteo regions (weighing coefficients are the inverse minimal distances)
 z0_metreg_xy = z0_metreg_xy / s
+
+! Write integer array with 0 (meteo region not used in interpolation or 1 (meteo region used in interpolation) (test):
+if (error%debug) then
+   is_metreg_near3 = 0
+   DO ireg = 1, NMETREG
+      IF (ANY(i1 .EQ. ireg)) is_metreg_near3(ireg) = is_metreg_near3(ireg) + 1
+   ENDDO
+   write(*,'(a,a,2(1x,e12.5,";"),6(1x,i2,";"),3(1x,e12.5,";"),3(1x,i4,";"))' ) &
+        trim(ROUTINENAAM),'; x; y; is_metreg_near3; s1/s; i1; ',x,y,is_metreg_near3,s1/s,i1
+endif
 
 ! Loop over all {distance,stability,wind sector} classes
 DO itraj = 1, NTRAJ
@@ -387,8 +400,5 @@ ENDIF
 
 RETURN
 END SUBROUTINE reginpo
-
-END SUBROUTINE ops_rcp_char_1
-    
 
 end module m_ops_rcp_char_1

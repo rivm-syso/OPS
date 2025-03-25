@@ -1,0 +1,3 @@
+! BRN-VERSION 1
+! snr  x(m)    y(m)    q(g/s)     hc(MW)  h(m)  r(m)  s(m)  dv  cat  area  psd  comment
+   1   155000  385000  .100E+01   .000    5.0   0.0   0.0   0   1    528   0    -
